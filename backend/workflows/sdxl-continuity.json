@@ -253,6 +253,36 @@
       "_meta": {
         "title": "Object ID pass (masks for regions and references)"
       }
+    },
+    "27": {
+      "class_type": "ImageScaleBy",
+      "inputs": {
+        "image": [
+          "4",
+          0
+        ],
+        "upscale_method": "area",
+        "scale_by": "{{figure_depth_soft}}"
+      },
+      "_meta": {
+        "title": "Figures' depth: shrink…"
+      }
+    },
+    "28": {
+      "class_type": "ImageScale",
+      "inputs": {
+        "image": [
+          "27",
+          0
+        ],
+        "upscale_method": "bilinear",
+        "width": "{{width}}",
+        "height": "{{height}}",
+        "crop": "disabled"
+      },
+      "_meta": {
+        "title": "…and grow back: how far away each figure is, without the mannequin's shape"
+      }
     }
   }
 }

@@ -119,6 +119,7 @@ export interface ComposeInput {
   fragments: Record<'mask' | 'region' | 'image' | 'batch' | 'reference' | 'style', Fragment> & {
     union?: Fragment
     background?: Fragment
+    figureRegion?: Fragment
   }
   /** Values for the base graph's placeholders (not its in: links). */
   values: TemplateValues
@@ -141,6 +142,11 @@ export interface ComposeInput {
    * prompt, which should carry the shared context: shot, lens, lighting, style).
    */
   frameOutsideRegions?: boolean
+  /**
+   * Figures' weak, softened depth guide (how far away each is, not the mannequin's shape).
+   * Without it a prop can drift in front of a figure it should be behind.
+   */
+  figureDepth?: { strength: number; end: number }
 }
 
 // Where the base graph's chains start.
@@ -151,6 +157,10 @@ const IPADAPTER: Link = ['20', 0]
 const CLIP_VISION: Link = ['21', 0]
 const ID_IMAGE: Link = ['22', 0]
 const DEPTH_APPLIED: Link = ['7', 0]
+const NEGATIVE: Link = ['3', 0]
+const VAE: Link = ['1', 2]
+const DEPTH_CN: Link = ['6', 0]
+const SOFT_DEPTH: Link = ['28', 0]
 
 /**
  * The full graph for a take: the base, plus a style reference, and per entity a mask from the ID
@@ -220,16 +230,23 @@ export function composeWorkflow(input: ComposeInput): { prompt: Graph; skipped: 
 
   // Set and props first: their prompts join the frame prompt before the depth guide. Figures come
   // after it (see below), so the depth guide never shapes them.
-  const addRegion = (plan: NonNullable<(typeof plans)[number]>, onto: Link): Link =>
-    add(
-      instantiate(f.region, `e${plan.i}.region`, {
-        'in:clip': CLIP,
-        'in:mask': plan.mask,
-        'in:positive': onto,
-        text: plan.e.text!,
-        strength: input.regionStrength ?? 1
-      })
-    ).positive
+  const addRegion = (plan: NonNullable<(typeof plans)[number]>, onto: Link): Link => {
+    const common = { 'in:clip': CLIP, 'in:mask': plan.mask, 'in:positive': onto, text: plan.e.text!, strength: input.regionStrength ?? 1 }
+    if (plan.e.figure && input.figureDepth && f.figureRegion) {
+      return add(
+        instantiate(f.figureRegion, `e${plan.i}.region`, {
+          ...common,
+          'in:negative': NEGATIVE,
+          'in:depth_cn': DEPTH_CN,
+          'in:soft_depth': SOFT_DEPTH,
+          'in:vae': VAE,
+          depth_strength: input.figureDepth.strength,
+          depth_end: input.figureDepth.end
+        })
+      ).positive
+    }
+    return add(instantiate(f.region, `e${plan.i}.region`, common)).positive
+  }
   const figureRegions = regions.filter((r) => r.e.figure)
   for (const r of regions) if (!r.e.figure) positive = addRegion(r, positive)
   // The depth guide (node 7) takes `positive`; the pose guide (node 14) takes that plus the figures.

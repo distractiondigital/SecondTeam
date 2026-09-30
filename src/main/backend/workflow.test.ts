@@ -8,7 +8,7 @@ const read = (p: string) => readFileSync(join(root, p), 'utf-8')
 
 const template = parseTemplate(read('backend/workflows/sdxl-continuity.json'))
 const fragments = Object.fromEntries(
-  ['mask', 'region', 'image', 'batch', 'reference', 'style', 'union', 'background'].map((n) => [n, parseFragment(read(`backend/workflows/fragments/${n}.json`))])
+  ['mask', 'region', 'image', 'batch', 'reference', 'style', 'union', 'background', 'figure-region'].map((n) => [n, parseFragment(read(`backend/workflows/fragments/${n}.json`))])
 ) as ComposeInput['fragments']
 const values = {
   checkpoint: 'RealVisXL_V5.0_fp16.safetensors',
@@ -18,6 +18,7 @@ const values = {
   positive: 'a street at night',
   negative: 'blurry',
   depth_image: 'st-depth.png',
+  figure_depth_soft: 0.05,
   id_image: 'st-id.png',
   depth_blur_radius: 9,
   depth_blur_sigma: 3,
@@ -135,6 +136,19 @@ describe('workflow templates', () => {
     expect(p['e0.region.combine'].inputs.conditioning_1).toEqual(['7', 0])
     expect(p['14'].inputs.positive).toEqual(['e0.region.combine', 0])
     expect(p['14'].inputs.negative).toEqual(['7', 1])
+  })
+
+  it('can give figures a weak, softened depth guide (distance, not shape)', () => {
+    const { prompt: p } = compose({
+      fragments: { ...fragments, figureRegion: fragments['figure-region' as keyof typeof fragments] },
+      frameOutsideRegions: true,
+      figureDepth: { strength: 0.35, end: 0.4 },
+      entities: [{ name: 'Maribel', color: 1, text: 'young woman', images: [], weight: 1, figure: true }]
+    })
+    expect(p['e0.region.distance'].inputs).toMatchObject({ image: ['28', 0], control_net: ['6', 0], strength: 0.35, end_percent: 0.4 })
+    expect(p['28'].inputs.image).toEqual(['27', 0])
+    expect(p['27'].inputs).toMatchObject({ image: ['4', 0], scale_by: 0.05 })
+    expect(p['e0.region.masked'].inputs.conditioning).toEqual(['e0.region.distance', 0])
   })
 
   it('keeps references within the memory limit and names who was left out', () => {

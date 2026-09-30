@@ -43,7 +43,9 @@ interface Run {
 }
 
 const WORKFLOW = 'sdxl-continuity'
-const FRAGMENTS = ['mask', 'region', 'image', 'batch', 'reference', 'style', 'union', 'background'] as const
+const FRAGMENTS = ['mask', 'region', 'image', 'batch', 'reference', 'style', 'union', 'background', 'figure-region'] as const
+/** Figures' weak, softened depth: how far away each is (tested on Spencer's 75mm two-shot). */
+const FIGURE_DEPTH = { strength: 0.35, end: 0.4, soften: 0.05 }
 const SAMPLER = { sampler: 'dpmpp_2m', scheduler: 'karras' }
 
 export class ComfyBackend implements GenerationBackend {
@@ -60,9 +62,10 @@ export class ComfyBackend implements GenerationBackend {
     const manifest = JSON.parse(readFileSync(join(backendDir, 'manifest.json'), 'utf-8')) as { models: ManifestModel[] }
     this.manifestModels = manifest.models
     this.template = parseTemplate(readFileSync(join(backendDir, 'workflows', `${WORKFLOW}.json`), 'utf-8'))
-    this.fragments = Object.fromEntries(
+    const loaded = Object.fromEntries(
       FRAGMENTS.map((n) => [n, parseFragment(readFileSync(join(backendDir, 'workflows', 'fragments', `${n}.json`), 'utf-8'))])
-    ) as ComposeInput['fragments']
+    )
+    this.fragments = { ...loaded, figureRegion: loaded['figure-region'] } as ComposeInput['fragments']
   }
 
   status(): BackendStatus {
@@ -152,6 +155,7 @@ export class ComfyBackend implements GenerationBackend {
           // The frame prompt stays out of cast and props' areas (each has its own full prompt), so it
           // can't leak onto them ("a young woman" onto the detective).
           frameOutsideRegions: true,
+          figureDepth: FIGURE_DEPTH,
           // Keep each reference image's detail (an outfit shot and a face close-up both count).
           combineEmbeds: 'concat',
           values: {
@@ -165,6 +169,7 @@ export class ComfyBackend implements GenerationBackend {
             depth_image: depthName,
             depth_blur_radius: blur.radius,
             depth_blur_sigma: blur.sigma,
+            figure_depth_soft: FIGURE_DEPTH.soften,
             cn_strength: job.strength,
             cn_start: job.start,
             cn_end: job.end,

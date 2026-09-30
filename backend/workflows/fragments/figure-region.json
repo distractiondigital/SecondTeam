@@ -1,0 +1,57 @@
+{
+  "name": "Figure region",
+  "description": "A figure's own prompt, applied only inside its mask, with a weak, heavily softened depth guide: it tells the figure how far away it is (so props stay in front of or behind it) without the mannequin's shape, which would fight the pose.",
+  "outputs": {
+    "positive": [
+      "combine",
+      0
+    ]
+  },
+  "nodes": {
+    "text": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "text": "{{text}}",
+        "clip": "{{in:clip}}"
+      }
+    },
+    "distance": {
+      "class_type": "ControlNetApplyAdvanced",
+      "inputs": {
+        "positive": [
+          "text",
+          0
+        ],
+        "negative": "{{in:negative}}",
+        "control_net": "{{in:depth_cn}}",
+        "image": "{{in:soft_depth}}",
+        "vae": "{{in:vae}}",
+        "strength": "{{depth_strength}}",
+        "start_percent": 0,
+        "end_percent": "{{depth_end}}"
+      }
+    },
+    "masked": {
+      "class_type": "ConditioningSetMask",
+      "inputs": {
+        "conditioning": [
+          "distance",
+          0
+        ],
+        "mask": "{{in:mask}}",
+        "strength": "{{strength}}",
+        "set_cond_area": "default"
+      }
+    },
+    "combine": {
+      "class_type": "ConditioningCombine",
+      "inputs": {
+        "conditioning_1": "{{in:positive}}",
+        "conditioning_2": [
+          "masked",
+          0
+        ]
+      }
+    }
+  }
+}
