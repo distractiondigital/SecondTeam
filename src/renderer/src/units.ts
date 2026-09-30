@@ -19,6 +19,11 @@ export function formatLength(metres: number, units: Units): string {
   return `${sign}${feet}' ${trimNumber(inches, 1)}"`
 }
 
+/** Like formatLength, but with the unit shown for metres too ("2.05 m"; feet already show ' and "). */
+export function formatLengthLabel(metres: number, units: Units): string {
+  return units === 'm' ? `${trimNumber(metres, 2)} m` : formatLength(metres, units)
+}
+
 /**
  * Parse what the user typed into metres. Accepts plain numbers in the current units,
  * or explicit units in either system: "2m", "150cm", "6'", "6' 2\"", "6ft 2in", "74in".

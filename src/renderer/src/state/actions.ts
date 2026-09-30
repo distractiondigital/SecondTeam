@@ -1,4 +1,5 @@
-import type { PrimitiveType } from '../../../shared/project'
+import { compareShotNumbers } from '../../../shared/camera'
+import type { CameraNode, PrimitiveType } from '../../../shared/project'
 import { viewportBridge } from '../viewport/viewportBridge'
 import { activeScene, useDocument } from './documentStore'
 import { useUi } from './uiStore'
@@ -22,6 +23,55 @@ export function addPrimitive(type: PrimitiveType): void {
 export function addMannequin(): void {
   const id = doc().addMannequin(viewportBridge.getGroundPoint())
   ui().select([id])
+}
+
+/** Cameras in shot order (natural sort by shot number). */
+export function camerasInShotOrder(): CameraNode[] {
+  return Object.values(activeScene(doc()).nodes)
+    .filter((n): n is CameraNode => n.type === 'camera')
+    .sort((a, b) => compareShotNumbers(a.shotNumber, b.shotNumber))
+}
+
+/** New shot camera where the view is now, copying lens settings from a selected camera. */
+export function addCamera(): void {
+  const nodes = activeScene(doc()).nodes
+  const selected = liveSelection().map((id) => nodes[id]).find((n) => n?.type === 'camera')
+  const template = selected?.type === 'camera' ? selected : undefined
+  const id = doc().addCamera({
+    ...viewportBridge.getViewPose(),
+    template: template && {
+      sensor: template.sensor,
+      focalLength: template.focalLength,
+      squeeze: template.squeeze,
+      guides: template.guides,
+      delivery: template.delivery,
+      thirds: template.thirds
+    }
+  })
+  ui().select([id])
+}
+
+/** Look through the selected camera (or the first shot), or back to the free view. */
+export function toggleCameraView(): void {
+  if (ui().lookThroughId) {
+    ui().setLookThrough(null)
+    return
+  }
+  const nodes = activeScene(doc()).nodes
+  const selected = liveSelection().find((id) => nodes[id]?.type === 'camera')
+  const target = selected ?? camerasInShotOrder()[0]?.id
+  if (target) ui().setLookThrough(target)
+}
+
+/** In camera view, jump to the previous (-1) or next (+1) shot. */
+export function stepShot(direction: 1 | -1): void {
+  const current = ui().lookThroughId
+  const shots = camerasInShotOrder()
+  if (!current || shots.length < 2) return
+  const i = shots.findIndex((c) => c.id === current)
+  const next = shots[(i + direction + shots.length) % shots.length]
+  ui().setLookThrough(next.id)
+  ui().select([next.id])
 }
 
 export function deleteSelected(): void {

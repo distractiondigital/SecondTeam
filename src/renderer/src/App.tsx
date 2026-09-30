@@ -3,6 +3,7 @@ import { JOINTS } from '../../shared/mannequin'
 import { useShortcuts } from './hooks/useShortcuts'
 import Outliner from './panels/Outliner'
 import PropertiesPanel from './panels/PropertiesPanel'
+import ShotList from './panels/ShotList'
 import Toolbar from './panels/Toolbar'
 import { activeScene, useDocument } from './state/documentStore'
 import { usePoseLibrary } from './state/poseLibrary'
@@ -58,7 +59,10 @@ export default function App() {
         <span className="version">{version && `v${version}`}</span>
       </header>
       <div className="workspace">
-        <Outliner />
+        <div className="left-column">
+          <Outliner />
+          <ShotList />
+        </div>
         <main className="viewport">
           <Viewport />
         </main>

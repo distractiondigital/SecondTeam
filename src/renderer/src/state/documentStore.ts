@@ -5,7 +5,9 @@ import {
   clampScale,
   createEmptyProject,
   newId,
+  repairCamera,
   type Anchor,
+  type CameraNode,
   type GroupNode,
   type MannequinNode,
   type PrimitiveNode,
@@ -36,6 +38,7 @@ import {
   type Pose,
   type PresetName
 } from '../../../shared/mannequin'
+import { nextShotNumber, SENSOR_PRESETS } from '../../../shared/camera'
 
 // The document store holds the project: everything that is saved to disk and can be undone.
 // Undo works by keeping whole-project snapshots. Immer shares unchanged parts between
@@ -44,10 +47,40 @@ import {
 const HISTORY_LIMIT = 200
 const DUPLICATE_OFFSET = 0.5 // metres along X, so a duplicate is visible next to the original
 
+export type CameraField =
+  | 'shotNumber'
+  | 'sensor'
+  | 'focalLength'
+  | 'squeeze'
+  | 'guides'
+  | 'delivery'
+  | 'thirds'
+  | 'focusDistance'
+  | 'subjectId'
+  | 'sizeOverride'
+  | 'angleOverride'
+  | 'notes'
+
 export type NodePatch = Partial<
   Pick<PrimitiveNode, 'name' | 'position' | 'rotation' | 'scale' | 'color' | 'hidden' | 'locked'> &
-    Pick<MannequinNode, 'height' | 'build' | 'limits'>
+    Pick<MannequinNode, 'height' | 'build' | 'limits'> &
+    Pick<CameraNode, CameraField>
 >
+
+const CAMERA_FIELDS: CameraField[] = [
+  'shotNumber',
+  'sensor',
+  'focalLength',
+  'squeeze',
+  'guides',
+  'delivery',
+  'thirds',
+  'focusDistance',
+  'subjectId',
+  'sizeOverride',
+  'angleOverride',
+  'notes'
+]
 
 /** Which node types each patch field applies to (fields not listed apply to every node). */
 const FIELD_TYPES: Partial<Record<keyof NodePatch, SceneNode['type'][]>> = {
@@ -55,7 +88,15 @@ const FIELD_TYPES: Partial<Record<keyof NodePatch, SceneNode['type'][]>> = {
   height: ['mannequin'],
   build: ['mannequin'],
   limits: ['mannequin'],
-  scale: ['primitive', 'group'] // a figure's size comes from its height
+  scale: ['primitive', 'group'], // a figure's size comes from its height; cameras don't scale
+  ...Object.fromEntries(CAMERA_FIELDS.map((f) => [f, ['camera']]))
+}
+
+/** Where a new camera comes from: the current view, plus optional settings to copy. */
+export interface CameraSpawn {
+  position: Vec3
+  rotation: Vec3
+  template?: Partial<Pick<CameraNode, 'sensor' | 'focalLength' | 'squeeze' | 'guides' | 'delivery' | 'thirds'>>
 }
 
 function normalizeField(key: keyof NodePatch, value: unknown): unknown {
@@ -85,6 +126,8 @@ interface DocumentState {
   updateNodes: (ids: string[], patch: NodePatch) => void
   /** Move a primitive's origin to its bottom, middle or top without moving the object. */
   setAnchor: (id: string, anchor: Anchor) => void
+  /** Add a shot camera at a viewpoint; it gets the next shot number. */
+  addCamera: (spawn: CameraSpawn) => string
 
   addMannequin: (groundPoint?: [number, number]) => string
   /** Set one joint's rotation (degrees); clamped to realistic limits if the figure has them on. */
@@ -181,11 +224,51 @@ export const useDocument = create<DocumentState>()((set, get) => {
             if (types && !types.includes(node.type)) continue
             const next = normalizeField(key, value)
             if (!sameValue((node as Record<string, unknown>)[key], next)) {
+              if (key === 'shotNumber' && node.type === 'camera' && node.name === `Shot ${node.shotNumber}`) {
+                node.name = `Shot ${String(next).trim()}` // keep the default name in step
+              }
               ;(node as Record<string, unknown>)[key] = next
             }
           }
+          if (node.type === 'camera') repairCamera(node as CameraNode)
         }
       })
+    },
+
+    addCamera: (spawn) => {
+      const id = newId()
+      change((scene) => {
+        const shots = Object.values(scene.nodes).flatMap((n) => (n.type === 'camera' ? [n.shotNumber] : []))
+        const shotNumber = nextShotNumber(shots)
+        const t = spawn.template ?? {}
+        const node: CameraNode = {
+          id,
+          type: 'camera',
+          name: `Shot ${shotNumber}`,
+          parentId: null,
+          position: spawn.position.map(round) as Vec3,
+          rotation: spawn.rotation.map(round) as Vec3,
+          scale: [1, 1, 1],
+          hidden: false,
+          locked: false,
+          shotNumber,
+          sensor: t.sensor ? { ...t.sensor } : { preset: 'ff', width: SENSOR_PRESETS.ff.width, height: SENSOR_PRESETS.ff.height },
+          focalLength: t.focalLength ?? 35,
+          squeeze: t.squeeze ?? 1,
+          guides: t.guides ? [...t.guides] : [],
+          delivery: t.delivery ?? 'sensor',
+          thirds: t.thirds ?? false,
+          focusDistance: null,
+          subjectId: null,
+          sizeOverride: null,
+          angleOverride: null,
+          notes: ''
+        }
+        repairCamera(node)
+        scene.nodes[id] = node
+        scene.rootIds.push(id)
+      })
+      return id
     },
 
     setAnchor: (id, anchor) => {
@@ -318,6 +401,14 @@ export const useDocument = create<DocumentState>()((set, get) => {
           const copyId = copySubtree(scene, id, original.parentId)
           const copy = scene.nodes[copyId]
           copy.position = [round(copy.position[0] + DUPLICATE_OFFSET), copy.position[1], copy.position[2]]
+          // Copied cameras become new shots with their own numbers.
+          for (const d of subtreeIds(scene, copyId)) {
+            const n = scene.nodes[d]
+            if (n.type !== 'camera') continue
+            const others = Object.values(scene.nodes).flatMap((o) => (o.type === 'camera' && o.id !== d ? [o.shotNumber] : []))
+            n.shotNumber = nextShotNumber(others)
+            n.name = `Shot ${n.shotNumber}`
+          }
           insertAfter(scene, original, copyId)
           created.push(copyId)
         }
@@ -449,6 +540,7 @@ function average(values: number[]): number {
 
 function sameValue(a: unknown, b: unknown): boolean {
   if (Array.isArray(a) && Array.isArray(b)) return a.length === b.length && a.every((v, i) => v === b[i])
+  if (a && b && typeof a === 'object' && typeof b === 'object') return JSON.stringify(a) === JSON.stringify(b)
   return a === b
 }
 

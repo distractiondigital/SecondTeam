@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { Box3, Mesh, PerspectiveCamera, Sphere, Vector3 } from 'three'
+import { Box3, Euler, MathUtils, Mesh, PerspectiveCamera, Sphere, Vector3 } from 'three'
+import type { Vec3 } from '../../../shared/project'
 import { useThree } from '@react-three/fiber'
 import { activeScene, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
@@ -25,7 +26,14 @@ export default function FrameController() {
       const t = controls?.target
       return t ? [t.x, t.z] : [0, 0]
     }
-  }, [controls])
+    viewportBridge.getViewPose = () => {
+      const e = new Euler().setFromQuaternion(camera.quaternion, 'XYZ')
+      return {
+        position: camera.position.toArray() as Vec3,
+        rotation: [e.x, e.y, e.z].map((r) => MathUtils.radToDeg(r)) as Vec3
+      }
+    }
+  }, [controls, camera])
 
   useEffect(() => {
     if (frameRequest === 0 || !controls) return
@@ -34,7 +42,7 @@ export default function FrameController() {
       for (const id of ids) {
         const object = threeScene.getObjectByName(id)
         object?.traverseVisible((child) => {
-          if (child instanceof Mesh) box.expandByObject(child)
+          if (child instanceof Mesh && !child.userData.helper) box.expandByObject(child)
         })
       }
       return box

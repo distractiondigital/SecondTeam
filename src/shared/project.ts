@@ -13,9 +13,17 @@ import {
   type Pose,
   type SavedPose
 } from './mannequin'
+import {
+  clampFocal,
+  clampSensorSize,
+  clampSqueeze,
+  guideRatio,
+  SENSOR_PRESETS,
+  type Sensor
+} from './camera'
 
-// v1: M1 (primitives, groups). v2: M2 adds mannequins.
-export const SCHEMA_VERSION = 2
+// v1: M1 (primitives, groups). v2: M2 adds mannequins. v3: M3 adds cameras.
+export const SCHEMA_VERSION = 3
 
 export type Vec3 = [number, number, number]
 
@@ -78,7 +86,30 @@ export interface MannequinNode extends NodeBase {
   pose: Pose
 }
 
-export type SceneNode = PrimitiveNode | GroupNode | MannequinNode
+/** A shot camera (camera setup). Looks down its local -Z; its scale stays 1. */
+export interface CameraNode extends NodeBase {
+  type: 'camera'
+  shotNumber: string
+  sensor: Sensor
+  /** Millimetres. */
+  focalLength: number
+  /** Anamorphic squeeze, 1.0-2.0. */
+  squeeze: number
+  /** Frame guides shown in camera view, e.g. '16:9', '2.39', 'custom:2.2'. */
+  guides: string[]
+  /** The frame that gets rendered: 'sensor' or one of the guides. */
+  delivery: string
+  thirds: boolean
+  /** Metres, or null if not set. */
+  focusDistance: number | null
+  /** The object or figure the shot is about; null = the nearest figure in frame. */
+  subjectId: string | null
+  sizeOverride: string | null
+  angleOverride: string | null
+  notes: string
+}
+
+export type SceneNode = PrimitiveNode | GroupNode | MannequinNode | CameraNode
 
 export interface Scene {
   id: string
@@ -157,6 +188,9 @@ function checkNode(node: unknown, id: string, scene: Scene): void {
     if (!PRIMITIVE_TYPES.includes(n!.primitive as PrimitiveType)) bad('shape type')
   } else if (n!.type === 'group') {
     if (!Array.isArray(n!.childIds) || !n!.childIds.every((c) => c in scene.nodes)) bad('child list')
+  } else if (n!.type === 'camera') {
+    const c = n as Partial<CameraNode>
+    if (typeof c.focalLength !== 'number' || !c.sensor || typeof c.sensor !== 'object') bad('lens or sensor')
   } else if (n!.type === 'mannequin') {
     const pose = n!.pose as Partial<Pose> | undefined
     if (!pose || typeof pose !== 'object' || typeof pose.joints !== 'object' || pose.joints === null) bad('pose')
@@ -164,6 +198,29 @@ function checkNode(node: unknown, id: string, scene: Scene): void {
   } else {
     bad('type')
   }
+}
+
+/** Keep a camera's settings in range and fill any missing ones. */
+export function repairCamera(c: CameraNode): void {
+  c.scale = [1, 1, 1]
+  c.shotNumber = typeof c.shotNumber === 'string' && c.shotNumber.trim() ? c.shotNumber.trim() : '1'
+  const preset = c.sensor?.preset in SENSOR_PRESETS ? c.sensor.preset : 'ff'
+  c.sensor = {
+    preset,
+    width: clampSensorSize(c.sensor?.width ?? SENSOR_PRESETS[preset].width),
+    height: clampSensorSize(c.sensor?.height ?? SENSOR_PRESETS[preset].height)
+  }
+  c.focalLength = clampFocal(c.focalLength)
+  c.squeeze = clampSqueeze(c.squeeze ?? 1)
+  c.guides = Array.isArray(c.guides) ? [...new Set(c.guides.filter((g) => guideRatio(g) !== null))] : []
+  if (c.delivery !== 'sensor' && !c.guides.includes(c.delivery)) c.delivery = 'sensor'
+  c.thirds = c.thirds === true
+  c.focusDistance =
+    typeof c.focusDistance === 'number' && Number.isFinite(c.focusDistance) ? Math.max(0.1, c.focusDistance) : null
+  c.subjectId = typeof c.subjectId === 'string' ? c.subjectId : null
+  c.sizeOverride = typeof c.sizeOverride === 'string' && c.sizeOverride ? c.sizeOverride : null
+  c.angleOverride = typeof c.angleOverride === 'string' && c.angleOverride ? c.angleOverride : null
+  c.notes = typeof c.notes === 'string' ? c.notes : ''
 }
 
 /** Fill in fields added after a file was saved, and fix values that would break the viewport. */
@@ -174,6 +231,7 @@ function repairNode(node: SceneNode): void {
     if (node.primitive === 'plane') node.anchor = 'center'
     else if (!ANCHORS.includes(node.anchor)) node.anchor = 'bottom'
   }
+  if (node.type === 'camera') repairCamera(node)
   if (node.type === 'mannequin') {
     node.scale = [1, 1, 1]
     node.height = clampHeight(node.height ?? DEFAULT_HEIGHT)

@@ -193,7 +193,7 @@ describe('figures', () => {
     expect(figure(copy).pose).toEqual(figure(a).pose)
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(2)
+    expect(loaded.schemaVersion).toBe(3)
   })
 
   it('saves poses into the project and applies them to other figures', () => {
@@ -223,6 +223,60 @@ describe('figures', () => {
     delete raw.scenes[0].nodes[a].pose.joints.head
     const loaded = parseProject(JSON.stringify(raw)).scenes[0].nodes[a]
     expect(loaded.type === 'mannequin' && loaded.pose.joints.head).toEqual([0, 0, 0])
+  })
+})
+
+describe('cameras', () => {
+  const cam = (id: string) => {
+    const n = scene().nodes[id]
+    if (n.type !== 'camera') throw new Error('not a camera')
+    return n
+  }
+  const view = { position: [1, 1.6, 4] as [number, number, number], rotation: [-5, 20, 0] as [number, number, number] }
+
+  it('adds numbered shots from the view, copying lens settings when asked', () => {
+    const a = doc().addCamera(view)
+    expect(cam(a).shotNumber).toBe('1')
+    expect(cam(a).name).toBe('Shot 1')
+    expect(cam(a).sensor.preset).toBe('ff')
+    expect(cam(a).position).toEqual([1, 1.6, 4])
+    const b = doc().addCamera({ ...view, template: { focalLength: 85, squeeze: 2, guides: ['2.39'], delivery: '2.39' } })
+    expect(cam(b).shotNumber).toBe('2')
+    expect(cam(b).focalLength).toBe(85)
+    expect(cam(b).delivery).toBe('2.39')
+  })
+
+  it('keeps settings valid and the default name in step with the shot number', () => {
+    const a = doc().addCamera(view)
+    doc().updateNode(a, { focalLength: 2000, squeeze: 1.73, shotNumber: '12A', scale: [3, 3, 3] })
+    expect(cam(a).focalLength).toBe(600)
+    expect(cam(a).squeeze).toBe(1.7)
+    expect(cam(a).name).toBe('Shot 12A')
+    expect(cam(a).scale).toEqual([1, 1, 1])
+    doc().updateNode(a, { delivery: '2.39' }) // not an enabled guide
+    expect(cam(a).delivery).toBe('sensor')
+  })
+
+  it('gives duplicated cameras new shot numbers', () => {
+    const a = doc().addCamera(view)
+    doc().updateNode(a, { shotNumber: '7' })
+    const [copy] = doc().duplicateNodes([a])
+    expect(cam(copy).shotNumber).toBe('8')
+    expect(cam(copy).name).toBe('Shot 8')
+  })
+
+  it('saves and loads cameras', () => {
+    const a = doc().addCamera({ ...view, template: { guides: ['16:9', 'custom:2.2'], delivery: 'custom:2.2' } })
+    const loaded = parseProject(serializeProject(doc().project))
+    expect(loaded).toEqual(doc().project)
+    const c = loaded.scenes[0].nodes[a]
+    expect(c.type === 'camera' && c.delivery).toBe('custom:2.2')
+  })
+
+  it('still opens older files', () => {
+    const raw = JSON.parse(serializeProject(doc().project))
+    raw.schemaVersion = 1
+    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(3)
   })
 })
 

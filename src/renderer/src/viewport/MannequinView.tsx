@@ -98,7 +98,9 @@ export default function MannequinView({ node, selected, clickable }: Props) {
           emissive={highlighted || selected ? SELECTION_COLOR : '#000000'}
           emissiveIntensity={highlighted ? 0.55 : selected ? 0.1 : 0}
         />
-        {(selected || highlighted) && <Outlines thickness={highlighted ? 3 : 2} color={SELECTION_COLOR} />}
+        {(selected || highlighted) && (
+          <Outlines thickness={highlighted ? 3 : 2} color={SELECTION_COLOR} userData={{ helper: true }} />
+        )}
       </mesh>
     )
   }

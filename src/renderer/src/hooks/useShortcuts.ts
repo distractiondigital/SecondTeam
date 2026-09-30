@@ -5,6 +5,8 @@ import {
   groupSelected,
   redo,
   renameSelected,
+  stepShot,
+  toggleCameraView,
   toggleHiddenSelected,
   undo,
   ungroupSelected
@@ -20,6 +22,8 @@ function isTyping(target: EventTarget | null): boolean {
   if (target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) return true
   return target instanceof HTMLInputElement && !['checkbox', 'radio', 'button', 'color'].includes(target.type)
 }
+
+const CAMERA_VIEW_KEYS = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyQ', 'KeyE', 'KeyR', 'KeyC', 'KeyF', 'Space'])
 
 export function useShortcuts(): void {
   useEffect(() => {
@@ -48,7 +52,15 @@ export function useShortcuts(): void {
       }
 
       if (key === 'tab' && e.shiftKey) return run(ui.cycleSnapMode)
+      if (e.code === 'Numpad0') return run(toggleCameraView)
       if (e.shiftKey) return
+
+      // In camera view the letter keys fly the camera (see LookThrough) instead of switching tools.
+      if (ui.lookThroughId) {
+        if (key === 'arrowleft') return run(() => stepShot(-1))
+        if (key === 'arrowright') return run(() => stepShot(1))
+        if (CAMERA_VIEW_KEYS.has(e.code)) return
+      }
 
       switch (key) {
         case 'w':

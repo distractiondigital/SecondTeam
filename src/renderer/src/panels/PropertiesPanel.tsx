@@ -3,6 +3,7 @@ import { PRIMITIVES, supportsAnchor } from '../../../shared/primitives'
 import { deleteSelected, groupSelected, ungroupSelected } from '../state/actions'
 import { activeScene, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
+import CameraProperties from './CameraProperties'
 import { FigureSection, JointProperties } from './FigureProperties'
 import NumberField, { type NumberKind } from './NumberField'
 
@@ -144,7 +145,7 @@ function NodeProperties({ node }: { node: SceneNode }) {
         </div>
       )}
 
-      {node.type !== 'group' && (
+      {(node.type === 'primitive' || node.type === 'mannequin') && (
         <div className="prop-section">
           <label className="prop-inline">
             <span className="prop-title">Viewport colour</span>
@@ -186,6 +187,17 @@ export default function PropertiesPanel() {
   const nodes = useDocument((s) => activeScene(s).nodes)
   const live = selection.filter((id) => id in nodes)
   const single = live.length === 1 ? nodes[live[0]] : null
+
+  if (single?.type === 'camera') {
+    return (
+      <aside className="panel properties">
+        <div className="panel-header">Camera</div>
+        <div className="panel-body">
+          <CameraProperties node={single} />
+        </div>
+      </aside>
+    )
+  }
 
   if (single?.type === 'mannequin' && selectedJoint) {
     return (

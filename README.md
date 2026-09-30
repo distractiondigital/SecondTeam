@@ -72,6 +72,27 @@ In the Properties panel, type values and press Enter. Lengths accept either unit
 - **Joint limits** (on by default) keep joints in natural ranges. Turn them off for a figure to cheat a pose for the lens.
 - The pelvis joint also has a **Hip offset** for lowering the body (sitting, lying down).
 
+## Cameras & shots
+- **Add → Camera** places a shot camera where your view is now: frame it up in the free view, then click Camera. Shots number themselves (1, 2, 3…); rename one to e.g. `12A` in Properties. The **Shot list** (below the Outliner) sorts shots naturally and shows a live thumbnail of each frame. Click a shot to select it, double-click to look through it.
+- **Numpad 0** (or the eye button in the toolbar) looks through the selected camera and back. In camera view:
+
+| Control | Action |
+|---|---|
+| Hold right mouse | Look around (pan / tilt) |
+| + W A S D | Move level (dolly / truck) |
+| + Space / C | Up / down |
+| + Shift | Move faster |
+| + Scroll | Fly speed |
+| Q / E | Roll the horizon (Dutch) |
+| Ctrl+Q or Ctrl+E | Level the horizon |
+| Scroll | Dolly in / out |
+| Ctrl+scroll | Zoom (focal length); or type it in the HUD box |
+| ← / → | Previous / next shot |
+
+  Let go of the right mouse button to get the cursor back and click or move things in the set while framed up.
+- **Camera Properties**: sensor (Super 35, Full Frame, Blackmagic PYXIS 12K, ARRI ALEXA 35, Custom), focal length, focus distance, anamorphic squeeze (1.0–2.0), pan/tilt/roll, **frame guides** (16:9, 1.85, 2:1, 2.35, 2.39, 4:3, 1:1, 9:16, 4:5, custom) and which one is the **delivery frame** (what gets rendered later), rule of thirds, the shot's subject, and notes.
+- The HUD and Shot list show camera height, tilt, distance to the subject, and the **shot size and angle** (e.g. "Medium close-up · Slight high angle"), worked out from the nearest figure in frame. Override them in Properties if you like.
+
 ## Projects
 A project is a folder called `Name.secondteam` containing `project.json` (the set, in plain readable JSON) and folders for reference images, renders and exports. To open one, choose that folder in the Open dialog. The project's name is the folder's name.
 

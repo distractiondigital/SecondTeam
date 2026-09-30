@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { JointName } from '../../../shared/mannequin'
 import type { Units } from '../units'
+import type { ShotInfo } from '../viewport/shotInfo'
 
 // UI state: how you're looking at the project. Not saved into project.json and not undoable.
 
@@ -22,6 +23,14 @@ interface UiState {
   renamingId: string | null
   /** Bumped to ask the viewport to frame the selection. */
   frameRequest: number
+  /** Shot camera the viewport is looking through, or null for the free view. */
+  lookThroughId: string | null
+  /** Fly speed in camera view, metres per second. */
+  flySpeed: number
+  /** Shot list thumbnails (data URLs), by camera id. */
+  thumbnails: Record<string, string>
+  /** Live readouts per camera (height, tilt, subject distance, shot size, angle). */
+  shotInfo: Record<string, ShotInfo>
 
   select: (ids: string[]) => void
   selectJoint: (joint: JointName | null) => void
@@ -33,6 +42,10 @@ interface UiState {
   setProjectPath: (path: string | null) => void
   setRenamingId: (id: string | null) => void
   requestFrame: () => void
+  setLookThrough: (id: string | null) => void
+  setFlySpeed: (speed: number) => void
+  setThumbnails: (thumbnails: Record<string, string>) => void
+  setShotInfo: (shotInfo: Record<string, ShotInfo>) => void
 }
 
 export const useUi = create<UiState>()((set) => ({
@@ -44,6 +57,10 @@ export const useUi = create<UiState>()((set) => ({
   projectPath: null,
   renamingId: null,
   frameRequest: 0,
+  lookThroughId: null,
+  flySpeed: 1.5,
+  thumbnails: {},
+  shotInfo: {},
 
   select: (ids) => set({ selection: ids, selectedJoint: null }),
   selectJoint: (selectedJoint) => set({ selectedJoint }),
@@ -59,5 +76,9 @@ export const useUi = create<UiState>()((set) => ({
   setUnits: (units) => set({ units }),
   setProjectPath: (projectPath) => set({ projectPath }),
   setRenamingId: (renamingId) => set({ renamingId }),
-  requestFrame: () => set((s) => ({ frameRequest: s.frameRequest + 1 }))
+  requestFrame: () => set((s) => ({ frameRequest: s.frameRequest + 1 })),
+  setLookThrough: (lookThroughId) => set({ lookThroughId }),
+  setFlySpeed: (flySpeed) => set({ flySpeed: Math.min(20, Math.max(0.1, flySpeed)) }),
+  setThumbnails: (thumbnails) => set({ thumbnails }),
+  setShotInfo: (shotInfo) => set({ shotInfo })
 }))

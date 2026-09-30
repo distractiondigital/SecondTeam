@@ -183,9 +183,23 @@ input {
   min-height: 0;
 }
 
-.outliner {
-  width: 250px;
+.left-column {
+  width: 260px;
+  display: flex;
+  flex-direction: column;
   border-right: 1px solid var(--border);
+  min-height: 0;
+}
+
+.outliner {
+  flex: 1;
+  min-height: 0;
+}
+
+.shot-list {
+  flex: 1;
+  min-height: 0;
+  border-top: 1px solid var(--border);
 }
 
 .properties {
@@ -549,6 +563,279 @@ input {
 
 .saved-pose-name:hover:not(:disabled) {
   background: var(--panel-2);
+}
+
+/* ---------- Shot list ---------- */
+
+.shot-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  cursor: default;
+  user-select: none;
+}
+
+.shot-row:hover {
+  background: var(--panel-2);
+}
+
+.shot-row.selected {
+  background: var(--accent-soft);
+}
+
+.shot-row.looking .shot-thumb {
+  outline: 2px solid var(--accent);
+}
+
+.shot-thumb {
+  width: 96px;
+  height: 54px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #121316;
+  border-radius: 3px;
+  overflow: hidden;
+  color: var(--text-dim);
+}
+
+.shot-thumb img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.shot-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.shot-number {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.shot-lens {
+  margin-left: 6px;
+  font-weight: normal;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.shot-desc {
+  color: var(--text-dim);
+  font-size: 11.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inline-link {
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* ---------- Cameras ---------- */
+
+.camera-label {
+  padding: 1px 6px;
+  background: rgba(20, 21, 24, 0.8);
+  border: 1px solid #555a63;
+  border-radius: 3px;
+  color: #d6d7da;
+  font: 600 11px 'Segoe UI', sans-serif;
+  white-space: nowrap;
+}
+
+.camera-label.selected {
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.camera-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.camera-heading .prop-title {
+  margin: 0;
+}
+
+.shot-input {
+  width: 80px;
+  flex: none;
+}
+
+.look-button {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.look-button.active,
+.look-button:hover {
+  border-color: var(--accent);
+}
+
+.stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vec3-row.spaced,
+.stacked.spaced,
+.slider-row.spaced {
+  margin-top: 6px;
+}
+
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px 8px;
+}
+
+.guide-grid .prop-check {
+  margin-top: 2px;
+}
+
+.readouts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 6px;
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.notes {
+  width: 100%;
+  min-height: 60px;
+  resize: vertical;
+  padding: 5px 6px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font: inherit;
+}
+
+/* ---------- Camera view overlay ---------- */
+
+.viewport-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.frame-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.frame-delivery {
+  position: absolute;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 9999px rgba(10, 10, 12, 0.6);
+}
+
+.frame-image {
+  position: absolute;
+  border: 1px dashed rgba(255, 255, 255, 0.35);
+}
+
+.frame-guide {
+  position: absolute;
+  border: 1px solid rgba(242, 163, 58, 0.85);
+}
+
+.frame-tag {
+  position: absolute;
+  top: 3px;
+  left: 5px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 0 3px #000;
+}
+
+.frame-guide .frame-tag {
+  color: rgba(242, 163, 58, 0.95);
+  top: auto;
+  bottom: 3px;
+}
+
+.thirds {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.thirds.v {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+
+.thirds.h {
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+
+.hud {
+  position: absolute;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-size: 12px;
+  color: #e4e5e8;
+  text-shadow: 0 0 3px #000;
+}
+
+.hud-top {
+  top: 8px;
+  pointer-events: auto;
+}
+
+.hud-bottom {
+  bottom: 30px;
+}
+
+.hud-help {
+  bottom: 8px;
+  color: rgba(228, 229, 232, 0.6);
+  font-size: 11px;
+}
+
+.hud-shot {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--accent);
+}
+
+.hud-size {
+  font-weight: 600;
+  color: #fff;
+}
+
+.hud-focal .number-field {
+  width: 110px;
+  background: rgba(20, 21, 24, 0.85);
 }
 
 /* ---------- Status bar ---------- */

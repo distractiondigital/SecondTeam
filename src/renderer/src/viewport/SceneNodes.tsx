@@ -5,6 +5,7 @@ import type { SceneNode } from '../../../shared/project'
 import { activeScene, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import { getGeometry } from './geometries'
+import CameraView from './CameraView'
 import MannequinView from './MannequinView'
 import { handleNodeClick, handleNodeDoubleClick, noRaycast, SELECTION_COLOR, toRadians } from './selection'
 
@@ -49,6 +50,14 @@ const NodeView = memo(function NodeView({ id, inSelection, inLocked }: NodeViewP
     )
   }
 
+  if (node.type === 'camera') {
+    return (
+      <group {...common}>
+        <CameraView node={node} selected={selected} clickable={clickable} />
+      </group>
+    )
+  }
+
   return (
     <mesh
       {...common}
@@ -66,7 +75,7 @@ const NodeView = memo(function NodeView({ id, inSelection, inLocked }: NodeViewP
         emissiveIntensity={selected ? 0.12 : 0}
       />
       {/* With screenspace off (the default), drei's Outlines thickness is in screen pixels. */}
-      {selected && <Outlines thickness={3} color={SELECTION_COLOR} />}
+      {selected && <Outlines thickness={3} color={SELECTION_COLOR} userData={{ helper: true }} />}
     </mesh>
   )
 })

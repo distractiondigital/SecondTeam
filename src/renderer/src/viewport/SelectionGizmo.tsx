@@ -45,6 +45,7 @@ function surfaceBoxes(threeScene: Object3D, moving: Object3D): Box3[] {
 export default function SelectionGizmo() {
   const selection = useUi((s) => s.selection)
   const selectedJoint = useUi((s) => s.selectedJoint)
+  const lookId = useUi((s) => s.lookThroughId)
   const mode = useUi((s) => s.gizmoMode)
   const snapMode = useUi((s) => s.snapMode)
   const units = useUi((s) => s.units)
@@ -66,8 +67,10 @@ export default function SelectionGizmo() {
   if (!object || !targetId || !movable || !node) return null
   // While posing a joint, the joint gizmo takes over.
   if (selectedJoint && node.type === 'mannequin') return null
-  // A figure's size comes from its Height setting, not the scale gizmo.
-  if (node.type === 'mannequin' && mode === 'scale') return null
+  // A figure's size comes from its Height setting, and cameras don't scale.
+  if ((node.type === 'mannequin' || node.type === 'camera') && mode === 'scale') return null
+  // Don't put a gizmo on the camera you're looking through (it would sit on the lens).
+  if (lookId === targetId) return null
 
   const surfaceSnap = snapMode === 'surface' && mode === 'translate'
   const isPlane = node.type === 'primitive' && node.primitive === 'plane'

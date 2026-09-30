@@ -3,6 +3,7 @@ import {
   Box,
   Cone,
   Cylinder,
+  Eye,
   FilePlus,
   FolderOpen,
   Magnet,
@@ -16,11 +17,12 @@ import {
   Circle,
   Square,
   Undo2,
+  Video,
   type LucideIcon
 } from 'lucide-react'
 import { PRIMITIVE_TYPES, type PrimitiveType } from '../../../shared/project'
 import { PRIMITIVES } from '../../../shared/primitives'
-import { addMannequin, addPrimitive, redo, undo } from '../state/actions'
+import { addCamera, addMannequin, addPrimitive, redo, toggleCameraView, undo } from '../state/actions'
 import { useDocument } from '../state/documentStore'
 import { newProject, openProject, saveProject, saveProjectAs } from '../state/projectIO'
 import { useUi, type GizmoMode, type SnapMode } from '../state/uiStore'
@@ -93,6 +95,7 @@ function Group({ label, children }: { label: string; children: ReactNode }) {
 export default function Toolbar() {
   const gizmoMode = useUi((s) => s.gizmoMode)
   const snapMode = useUi((s) => s.snapMode)
+  const lookingThrough = useUi((s) => s.lookThroughId !== null)
   const units = useUi((s) => s.units)
   const canUndo = useDocument((s) => s.past.length > 0)
   const canRedo = useDocument((s) => s.future.length > 0)
@@ -125,6 +128,18 @@ export default function Toolbar() {
           />
         ))}
         <ToolButton icon={PersonStanding} label="Figure" title="Add a posable figure" onClick={addMannequin} />
+        <ToolButton icon={Video} label="Camera" title="Add a shot camera where the view is now" onClick={addCamera} />
+      </Group>
+
+      <Group label="View">
+        <ToolButton
+          icon={Eye}
+          label="Camera view"
+          title={lookingThrough ? 'Back to the free view (Numpad 0)' : 'Look through the selected camera (Numpad 0)'}
+          active={lookingThrough}
+          onClick={toggleCameraView}
+          showLabel={false}
+        />
       </Group>
 
       <Group label="Gizmo">
