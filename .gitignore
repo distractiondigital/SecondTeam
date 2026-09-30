@@ -7,3 +7,7 @@ logs/
 .DS_Store
 Thumbs.db
 *.tsbuildinfo
+
+# The development copy of ComfyUI (Python, custom nodes, models, outputs: many GB, downloaded
+# from backend/manifest.json, never committed). backend/ (manifest + workflow templates) is tracked.
+/ComfyUI/
