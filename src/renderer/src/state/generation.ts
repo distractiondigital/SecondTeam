@@ -116,7 +116,8 @@ export function shotPrompt(shotId: string): string {
   const info = useUi.getState().shotInfo[shotId]
   return buildPrompt({
     description: shot.description,
-    facing: info?.facing ?? null,
+    // Which way each figure faces goes in that figure's own prompt, not the shot's.
+    facing: null,
     size: shot.sizeOverride ?? info?.size?.label ?? null,
     angle: shot.angleOverride ?? info?.angle ?? null,
     focalLength: shot.focalLength,
@@ -209,7 +210,6 @@ export async function generateShot(shotId: string): Promise<void> {
       angle: shot.angleOverride ?? info?.angle ?? null,
       lighting: shot.lightingOverride ?? info?.lighting ?? '',
       description: shot.description,
-      facing: info?.facing ?? null,
       style: state.project.styleText,
       strictness: settings.strictness
     }

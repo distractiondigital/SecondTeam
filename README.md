@@ -122,7 +122,7 @@ It downloads ComfyUI (the local AI engine) and the models listed in `backend/man
 
 **Using it**
 - The app starts the AI engine by itself in the background. The **AI** light at the right of the take strip shows *Starting…* then *Ready* (click it for the log or a restart). It's closed when you quit.
-- Select a shot and write its **Frame description** in Properties (what's in the frame). The **Prompt** below it shows exactly what will be sent: your description, which way the subject figure faces, the shot size and angle, the lens, the lighting and the project style.
+- Select a shot and write its **Frame description** in Properties (what's in the frame). The **Prompt** below it shows the shot's prompt: your description, the shot size and angle, the lens, the lighting and the project style. (Which way each figure faces goes into that figure's own prompt.)
 - Press **Generate** (in Properties or the take strip). The shot's passes are rendered: the **depth** pass (softened) guides the shapes of the set, and the **pose** pass guides how the figures stand and which way they face, and each take appears in the **take strip** under the viewport with a live preview while it's made. **Cancel** stops it.
 - Takes are always in order: newest on the left, oldest on the right. To delete one, hover it and click the **bin** (top-left), or press **Del** in the take viewer; it goes to the Windows **Recycle Bin**, so you can still restore it from there.
 - Click a take to see it large (← / → to flip, Esc to close) with its seed and settings. **Use this seed** locks the seed so you can change one thing and compare.
