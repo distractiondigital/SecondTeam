@@ -1,11 +1,12 @@
 import { readFileSync } from 'fs'
 import { join } from 'path'
-import { depthBlur } from '../../shared/prompt'
+import { depthBlur, featherMask, MAX_REFERENCED } from '../../shared/prompt'
+import { readAssetAsPng } from '../assetFiles'
 import type { BackendStatus, GenerationEvent, GenerationJob, InstalledModel, TakeMeta } from '../../shared/takes'
 import { ComfyClient } from './comfyClient'
 import { ComfyProcess } from './comfyProcess'
 import { newTakeId, saveTake, takesFolder } from './takeFiles'
-import { fillTemplate, parseTemplate, type WorkflowTemplate } from './workflow'
+import { composeWorkflow, parseFragment, parseTemplate, type ComposeInput, type WorkflowTemplate } from './workflow'
 
 // The generation layer. The app only talks to a GenerationBackend, so other model families or
 // backends can be added later; ComfyBackend runs the SDXL + depth ControlNet workflow on the
@@ -23,10 +24,15 @@ export interface GenerationBackend {
 interface ManifestModel {
   id: string
   name: string
-  kind: 'checkpoint' | 'controlnet'
+  kind: 'checkpoint' | 'controlnet' | 'ipadapter' | 'clip_vision'
   file: string
   license: string
   style: string
+}
+
+/** A PNG data URL's bytes. */
+function pngBytes(dataUrl: string): Buffer {
+  return Buffer.from(dataUrl.replace(/^data:image\/png;base64,/, ''), 'base64')
 }
 
 interface Run {
@@ -36,7 +42,8 @@ interface Run {
   wake: (() => void) | null
 }
 
-const WORKFLOW = 'sdxl-depth'
+const WORKFLOW = 'sdxl-continuity'
+const FRAGMENTS = ['mask', 'region', 'image', 'batch', 'reference', 'style'] as const
 const SAMPLER = { sampler: 'dpmpp_2m', scheduler: 'karras' }
 
 export class ComfyBackend implements GenerationBackend {
@@ -44,6 +51,7 @@ export class ComfyBackend implements GenerationBackend {
   private running: Run | null = null
   private readonly manifestModels: ManifestModel[]
   private readonly template: WorkflowTemplate
+  private readonly fragments: ComposeInput['fragments']
 
   constructor(
     private readonly process: ComfyProcess,
@@ -52,6 +60,9 @@ export class ComfyBackend implements GenerationBackend {
     const manifest = JSON.parse(readFileSync(join(backendDir, 'manifest.json'), 'utf-8')) as { models: ManifestModel[] }
     this.manifestModels = manifest.models
     this.template = parseTemplate(readFileSync(join(backendDir, 'workflows', `${WORKFLOW}.json`), 'utf-8'))
+    this.fragments = Object.fromEntries(
+      FRAGMENTS.map((n) => [n, parseFragment(readFileSync(join(backendDir, 'workflows', 'fragments', `${n}.json`), 'utf-8'))])
+    ) as ComposeInput['fragments']
   }
 
   status(): BackendStatus {
@@ -90,11 +101,39 @@ export class ComfyBackend implements GenerationBackend {
       const controlnet = this.manifestModels.find((m) => m.kind === 'controlnet')
       if (!model) throw new Error(`The model "${job.checkpoint}" isn't installed.`)
       if (!controlnet) throw new Error('The ControlNet model is missing from the manifest.')
+      const ipadapter = this.manifestModels.find((m) => m.kind === 'ipadapter')
+      const clipVision = this.manifestModels.find((m) => m.kind === 'clip_vision')
 
-      const depth = Buffer.from(job.depthPng.replace(/^data:image\/png;base64,/, ''), 'base64')
+      const depth = pngBytes(job.depthPng)
       const depthName = await client.upload(`secondteam-depth-${job.shotId}.png`, depth)
-      const pose = Buffer.from(job.posePng.replace(/^data:image\/png;base64,/, ''), 'base64')
+      const pose = pngBytes(job.posePng)
       const poseName = await client.upload(`secondteam-pose-${job.shotId}.png`, pose)
+      const idName = await client.upload(`secondteam-id-${job.shotId}.png`, pngBytes(job.idPng))
+
+      // Reference images: each entity's, and the project style images, uploaded once per Generate.
+      const needsReferences = job.entities.some((e) => e.images.length) || Boolean(job.style?.images.length)
+      if (needsReferences && (!ipadapter || !clipVision)) {
+        throw new Error('Reference images need the IP-Adapter models. Run: node scripts/fetch-backend.mjs')
+      }
+      const entities: ComposeInput['entities'] = []
+      for (const e of job.entities) {
+        const images: string[] = []
+        if (e.kind !== 'object') {
+          for (const [i, file] of e.images.entries()) {
+            images.push(await client.upload(`secondteam-ref-${e.ownerId}-${i}.png`, await readAssetAsPng(job.folder, e.kind, e.ownerId, file)))
+          }
+        }
+        entities.push({ name: e.name, color: parseInt(e.color.slice(1), 16), text: e.text, images, weight: e.strength })
+      }
+      let style: ComposeInput['style'] = null
+      if (job.style?.images.length) {
+        const images: string[] = []
+        for (const [i, file] of job.style.images.entries()) {
+          images.push(await client.upload(`secondteam-style-${i}.png`, await readAssetAsPng(job.folder, 'style', null, file)))
+        }
+        style = { images, weight: job.style.strength }
+      }
+
       const blur = depthBlur(job.width)
       // No figure in frame: a pose guide of strength 0 is skipped.
       const poseStrength = job.hasPose ? job.poseStrength : 0
@@ -102,26 +141,44 @@ export class ComfyBackend implements GenerationBackend {
       for (let index = 0; index < job.seeds.length && !run.cancelled; index++) {
         const seed = job.seeds[index]
         emit({ type: 'take-start', index, total: job.seeds.length, seed })
-        const prompt = fillTemplate(this.template, {
-          checkpoint: model.file,
-          controlnet: controlnet.file,
-          positive: job.positive,
-          negative: job.negative,
-          depth_image: depthName,
-          depth_blur_radius: blur.radius,
-          depth_blur_sigma: blur.sigma,
-          cn_strength: job.strength,
-          cn_start: job.start,
-          cn_end: job.end,
-          pose_image: poseName,
-          pose_strength: poseStrength,
-          pose_end: job.poseEnd,
-          width: job.width,
-          height: job.height,
-          seed,
-          steps: job.steps,
-          cfg: job.cfg
+        const { prompt, skipped } = composeWorkflow({
+          base: this.template,
+          fragments: this.fragments,
+          entities,
+          style,
+          feather: featherMask(job.feather),
+          referenceEnd: job.referenceEnd,
+          maxReferences: MAX_REFERENCED,
+          values: {
+            checkpoint: model.file,
+            controlnet: controlnet.file,
+            ipadapter: ipadapter?.file ?? '',
+            clip_vision: clipVision?.file ?? '',
+            id_image: idName,
+            positive: job.positive,
+            negative: job.negative,
+            depth_image: depthName,
+            depth_blur_radius: blur.radius,
+            depth_blur_sigma: blur.sigma,
+            cn_strength: job.strength,
+            cn_start: job.start,
+            cn_end: job.end,
+            pose_image: poseName,
+            pose_strength: poseStrength,
+            pose_end: job.poseEnd,
+            width: job.width,
+            height: job.height,
+            seed,
+            steps: job.steps,
+            cfg: job.cfg
+          }
         })
+        if (skipped.length && index === 0) {
+          emit({
+            type: 'notice',
+            message: `Too many references for one take: left out ${skipped.join(', ')} (their prompts still apply). The limit is ${MAX_REFERENCED}.`
+          })
+        }
         const png = await this.runOne(client, prompt, index, emit, run)
         if (!png) break // cancelled
 
@@ -145,6 +202,13 @@ export class ComfyBackend implements GenerationBackend {
             pose: poseStrength > 0 ? { strength: poseStrength, end: job.poseEnd } : null
           },
           sampler: { steps: job.steps, cfg: job.cfg, ...SAMPLER },
+          continuity: {
+            entities: job.entities.map((e) => ({ name: e.name, kind: e.kind, text: e.text, images: e.images, strength: e.strength })),
+            style: job.style,
+            feather: job.feather,
+            referenceEnd: job.referenceEnd,
+            skipped
+          },
           workflow: WORKFLOW,
           backend: { comfyui: this.process.current.comfyVersion },
           extra: job.extra

@@ -11,6 +11,9 @@ export type SnapMode = 'off' | 'grid' | 'surface'
 export const SNAP_MODES: SnapMode[] = ['off', 'grid', 'surface']
 /** work: object colours under even work light. clay: uniform grey lit only by the scene's lights. */
 export type Shading = 'work' | 'clay'
+export type LeftTab = 'outliner' | 'cast' | 'props'
+/** A cast member or prop shown in Properties. */
+export type EntityRef = { kind: 'cast' | 'prop'; id: string }
 
 interface UiState {
   selection: string[]
@@ -36,6 +39,9 @@ interface UiState {
   thumbnails: Record<string, string>
   /** Live readouts per camera (height, tilt, subject distance, shot size, angle). */
   shotInfo: Record<string, ShotInfo>
+  leftTab: LeftTab
+  /** The cast member or prop being edited in Properties (clears when something in the set is selected). */
+  entity: EntityRef | null
 
   select: (ids: string[]) => void
   selectJoint: (joint: JointName | null) => void
@@ -52,6 +58,9 @@ interface UiState {
   setFlySpeed: (speed: number) => void
   setThumbnails: (thumbnails: Record<string, string>) => void
   setShotInfo: (shotInfo: Record<string, ShotInfo>) => void
+  setLeftTab: (tab: LeftTab) => void
+  /** Show a cast member or prop in Properties (null = none). */
+  selectEntity: (entity: EntityRef | null) => void
 }
 
 export const useUi = create<UiState>()((set) => ({
@@ -69,8 +78,10 @@ export const useUi = create<UiState>()((set) => ({
   flySpeed: 1.5,
   thumbnails: {},
   shotInfo: {},
+  leftTab: 'outliner',
+  entity: null,
 
-  select: (ids) => set({ selection: ids, selectedJoint: null }),
+  select: (ids) => set((s) => ({ selection: ids, selectedJoint: null, entity: ids.length ? null : s.entity })),
   selectJoint: (selectedJoint) => set({ selectedJoint }),
   toggleSelected: (id) =>
     set((s) => ({
@@ -99,5 +110,7 @@ export const useUi = create<UiState>()((set) => ({
   setShading: (shading) => set({ shading, shadingAuto: false }),
   setFlySpeed: (flySpeed) => set({ flySpeed: Math.min(20, Math.max(0.1, flySpeed)) }),
   setThumbnails: (thumbnails) => set({ thumbnails }),
-  setShotInfo: (shotInfo) => set({ shotInfo })
+  setShotInfo: (shotInfo) => set({ shotInfo }),
+  setLeftTab: (leftTab) => set({ leftTab }),
+  selectEntity: (entity) => set(entity ? { entity, selection: [], selectedJoint: null } : { entity: null })
 }))

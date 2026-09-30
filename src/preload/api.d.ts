@@ -54,6 +54,19 @@ export interface SecondTeamApi {
     takeId: string
   ) => Promise<{ image: string; meta: TakeMeta } | { error: string }>
 
+  /**
+   * Pick images and copy them into the project (assets\cast|props\<id>\ or assets\style\).
+   * `room` = how many more the entry can take. Returns the new file names.
+   */
+  addReferenceImages: (
+    folder: string,
+    kind: 'cast' | 'props' | 'style',
+    ownerId: string | null,
+    room: number
+  ) => Promise<{ files: string[] } | { error: string }>
+  /** A small JPEG data URL of a reference image, or null if it can't be read. */
+  referenceThumbnail: (folder: string, kind: 'cast' | 'props' | 'style', ownerId: string | null, file: string) => Promise<string | null>
+
   confirmDiscard: (projectName: string) => Promise<'save' | 'discard' | 'cancel'>
   showError: (message: string) => Promise<void>
 }

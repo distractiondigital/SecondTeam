@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
-import { Lock, X } from 'lucide-react'
-import { useDocument } from '../state/documentStore'
+import { Lock, Star, X } from 'lucide-react'
 import type { TakeMeta } from '../../../shared/takes'
-import { closeTake, stepTake, useGeneration } from '../state/generation'
+import { activeScene, useDocument } from '../state/documentStore'
+import { closeTake, stepTake, toggleCircleTake, useGeneration } from '../state/generation'
 
 // A take, large, over the viewport: with its seed, model and prompt. ← / → flip through the
 // shot's takes (newer / older); Esc closes. Other shortcuts pause while it's open.
@@ -20,6 +20,10 @@ function guides(meta: TakeMeta): string {
 export default function TakeViewer() {
   const viewer = useGeneration((s) => s.viewer)
   const list = useGeneration((s) => (viewer ? s.takes[viewer.shotId] : undefined))
+  const circled = useDocument((s) => {
+    const n = viewer ? activeScene(s).nodes[viewer.shotId] : undefined
+    return n?.type === 'camera' && viewer ? n.circleTake === viewer.takeId : false
+  })
 
   useEffect(() => {
     if (!viewer) return
@@ -52,6 +56,13 @@ export default function TakeViewer() {
           </span>
         </span>
         <span className="pass-tabs" />
+        <button
+          className={circled ? 'active circle-button' : 'circle-button'}
+          onClick={() => viewer && toggleCircleTake(viewer.shotId, viewer.takeId)}
+          title="The circle take is the one the storyboard uses (one per shot)"
+        >
+          <Star size={14} fill={circled ? 'currentColor' : 'none'} /> {circled ? 'Circle take' : 'Circle this take'}
+        </button>
         {meta && (
           <button
             onClick={() => useDocument.getState().updateGeneration({ seed: meta.seed, seedLocked: true })}

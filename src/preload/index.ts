@@ -42,6 +42,9 @@ const api: SecondTeamApi = {
   listTakes: (folder, sceneId, shotId) => ipcRenderer.invoke('takes:list', folder, sceneId, shotId),
   readTake: (folder, sceneId, shotId, takeId) => ipcRenderer.invoke('takes:read', folder, sceneId, shotId, takeId),
 
+  addReferenceImages: (folder, kind, ownerId, room) => ipcRenderer.invoke('assets:add', folder, kind, ownerId, room),
+  referenceThumbnail: (folder, kind, ownerId, file) => ipcRenderer.invoke('assets:thumb', folder, kind, ownerId, file),
+
   confirmDiscard: (projectName) => ipcRenderer.invoke('dialog:confirmDiscard', projectName),
   showError: (message) => ipcRenderer.invoke('dialog:error', message)
 }

@@ -1491,7 +1491,8 @@ input {
   font-weight: 600;
 }
 
-.take-error {
+.take-error,
+.take-notice {
   color: #e0555a;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1602,4 +1603,198 @@ input {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.take-notice {
+  color: var(--accent);
+}
+
+/* ---------- Left tabs, Cast & Props ---------- */
+.left-tabs {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-bar {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.tab-bar button {
+  flex: 1;
+  padding: 6px 0;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.tab-bar button.active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+.entity-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.entity-header .tool-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: auto;
+  padding: 2px 8px;
+  font-weight: normal;
+}
+
+.entity-row {
+  padding-left: 10px;
+  cursor: pointer;
+}
+
+.entity-row.selected {
+  background: var(--accent-soft);
+}
+
+.entity-meta {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.cast-dot {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.link-row {
+  display: block;
+  width: 100%;
+  padding: 3px 0;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.link-row:hover:not(:disabled) {
+  color: var(--accent);
+}
+
+.link-row:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.link-select {
+  display: flex;
+  gap: 6px;
+}
+
+.link-select .preset-select {
+  flex: 1;
+  min-width: 0;
+}
+
+.ref-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.ref-thumb,
+.ref-add {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  font-size: 10px;
+}
+
+.ref-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ref-add {
+  cursor: pointer;
+  color: var(--text-dim);
+}
+
+.ref-add:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.ref-remove {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: none;
+  padding: 1px;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  border-radius: 3px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.ref-thumb:hover .ref-remove {
+  display: flex;
+}
+
+/* ---------- Circle takes ---------- */
+.circle-star {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  padding: 2px;
+  background: rgba(0, 0, 0, 0.55);
+  border: none;
+  border-radius: 3px;
+  color: #fff;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.take-card:hover .circle-star,
+.take-card.circled .circle-star {
+  opacity: 1;
+}
+
+.take-card.circled {
+  border-color: var(--accent);
+}
+
+.take-card.circled .circle-star {
+  color: var(--accent);
+}
+
+.pass-header .circle-button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.shot-thumb.circled {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }

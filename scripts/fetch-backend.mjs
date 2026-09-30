@@ -1,4 +1,4 @@
-// Downloads the AI backend (ComfyUI portable + models) listed in backend/manifest.json into the
+// Downloads the AI backend (ComfyUI portable + add-ons + models) listed in backend/manifest.json into the
 // project's ComfyUI folder, resuming partial downloads and checking every file's SHA256.
 //
 //   node scripts/fetch-backend.mjs            everything marked "default"
@@ -8,7 +8,7 @@
 // The only network calls are the URLs in the manifest.
 
 import { createHash } from 'crypto'
-import { createReadStream, createWriteStream, existsSync, readFileSync, statSync } from 'fs'
+import { createReadStream, createWriteStream, existsSync, readFileSync, statSync, writeFileSync } from 'fs'
 import { mkdir, readdir, rename, rm, unlink } from 'fs/promises'
 import { spawnSync } from 'child_process'
 import { dirname, join, resolve } from 'path'
@@ -96,12 +96,33 @@ async function installModel(m) {
   console.log(`✓ ${m.name}`)
 }
 
+/** A ComfyUI add-on (custom node), unpacked into ComfyUI\ComfyUI\custom_nodes\<folder>. */
+async function installCustomNode(n) {
+  const target = join(comfyRoot, 'ComfyUI', 'custom_nodes', n.folder)
+  const marker = join(target, '.secondteam-version')
+  if (existsSync(marker) && readFileSync(marker, 'utf-8').trim() === n.version) return console.log(`✓ ${n.name} already installed`)
+  if (!SEVEN_ZIP) throw new Error('7-Zip is needed to unpack add-ons (https://www.7-zip.org).')
+  const archive = join(downloads, `${n.id}.zip`)
+  console.log(`↓ ${n.name} (${n.license})`)
+  await download(n, archive)
+  const staging = join(comfyRoot, '_unpack')
+  await rm(staging, { recursive: true, force: true })
+  const r = spawnSync(SEVEN_ZIP, ['x', archive, `-o${staging}`, '-y', '-bso0', '-bsp0'], { stdio: 'inherit' })
+  if (r.status !== 0) throw new Error(`Unpacking ${n.name} failed.`)
+  await rm(target, { recursive: true, force: true })
+  await rename(join(staging, n.archiveFolder), target)
+  await rm(staging, { recursive: true, force: true })
+  writeFileSync(marker, n.version)
+  console.log(`✓ ${n.name}`)
+}
+
 const wanted = process.argv.slice(2)
 const pick = (id, isDefault) => (wanted.length ? wanted.includes(id) : isDefault)
 try {
   await mkdir(downloads, { recursive: true })
   if (pick('comfyui', true) || !existsSync(join(comfyRoot, 'python_embeded'))) await installComfy()
   for (const m of manifest.models) if (pick(m.id, m.default)) await installModel(m)
+  for (const n of manifest.customNodes ?? []) if (pick(n.id, n.default)) await installCustomNode(n)
   await rm(downloads, { recursive: true, force: true })
   console.log('All done.')
 } catch (err) {

@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Eye, Layers, Plus, Video } from 'lucide-react'
 import { compareShotNumbers } from '../../../shared/camera'
 import { sceneLabel, type CameraNode } from '../../../shared/project'
 import { activateShot, addShot, lookThrough } from '../state/actions'
 import { activeScene, useDocument } from '../state/documentStore'
+import { loadTakes, useGeneration } from '../state/generation'
 import { useUi } from '../state/uiStore'
 
 // The Master scene, then every camera setup in shot order with a live thumbnail of its frame.
@@ -32,7 +33,16 @@ function ShotRow({ camera, drag }: { camera: CameraNode; drag: DragProps }) {
   const selected = useUi((s) => s.selection.includes(camera.id))
   const looking = useUi((s) => s.lookThroughId === camera.id)
   const active = useDocument((s) => s.activeShotId === camera.id)
-  const thumbnail = useUi((s) => s.thumbnails[camera.id])
+  const live = useUi((s) => s.thumbnails[camera.id])
+  // Once a shot has a circle take, the Shot list shows it instead of the live greybox render.
+  const circle = useGeneration((s) =>
+    camera.circleTake ? s.takes[camera.id]?.find((t) => t.id === camera.circleTake)?.thumbnail : undefined
+  )
+  const takesLoaded = useGeneration((s) => camera.id in s.takes)
+  useEffect(() => {
+    if (camera.circleTake && !takesLoaded) void loadTakes(camera.id)
+  }, [camera.circleTake, camera.id, takesLoaded])
+  const thumbnail = circle ?? live
   const info = useUi((s) => s.shotInfo[camera.id])
   const size = camera.sizeOverride ?? info?.size?.label
   const angle = camera.angleOverride ?? info?.angle
@@ -65,7 +75,9 @@ function ShotRow({ camera, drag }: { camera: CameraNode; drag: DragProps }) {
       onDoubleClick={() => lookThrough(camera.id)}
       title="Click to edit this shot · double-click to look through it · drag to reorder"
     >
-      <div className="shot-thumb">{thumbnail ? <img src={thumbnail} alt="" /> : <Video size={18} />}</div>
+      <div className={`shot-thumb${circle ? ' circled' : ''}`} title={circle ? 'Circle take' : undefined}>
+        {thumbnail ? <img src={thumbnail} alt="" /> : <Video size={18} />}
+      </div>
       <div className="shot-text">
         <div className="shot-number">
           {camera.shotNumber}

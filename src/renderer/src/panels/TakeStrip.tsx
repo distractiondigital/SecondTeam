@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
-import { Sparkles, X } from 'lucide-react'
+import { Sparkles, Star, X } from 'lucide-react'
 import { activeScene, useDocument } from '../state/documentStore'
-import { cancelGeneration, generateBlocker, generateShot, loadTakes, openTake, useGeneration } from '../state/generation'
+import { cancelGeneration, generateBlocker, generateShot, loadTakes, openTake, toggleCircleTake, useGeneration } from '../state/generation'
 import { useUi } from '../state/uiStore'
 import BackendStatus from './BackendStatus'
 
@@ -30,6 +30,7 @@ export default function TakeStrip() {
   const takes = useGeneration((s) => (shot ? s.takes[shot.id] : undefined))
   const job = useGeneration((s) => s.job)
   const error = useGeneration((s) => s.error)
+  const notice = useGeneration((s) => s.notice)
   useGeneration((s) => s.status)
 
   const shotId = shot?.id ?? null
@@ -43,6 +44,12 @@ export default function TakeStrip() {
   }, [projectPath, sceneId])
 
   const jobHere = job && shot && job.shotId === shot.id
+  const circle = useDocument((s) => {
+    const n = shot ? activeScene(s).nodes[shot.id] : undefined
+    return n?.type === 'camera' ? n.circleTake : null
+  })
+  // The circle take first, then newest first.
+  const ordered = takes ? [...takes.filter((t) => t.id === circle), ...takes.filter((t) => t.id !== circle)] : undefined
   const blocker = generateBlocker()
 
   return (
@@ -60,6 +67,7 @@ export default function TakeStrip() {
           </button>
         )}
         {error && <span className="take-error" title={error}>{error}</span>}
+        {!error && notice && <span className="take-notice" title={notice}>{notice}</span>}
         <BackendStatus />
       </div>
       <div className="take-list">
@@ -79,16 +87,29 @@ export default function TakeStrip() {
           </div>
         )}
         {shot &&
-          takes?.map((t) => (
-            <button
+          ordered?.map((t) => (
+            <div
               key={t.id}
-              className="take-card"
+              role="button"
+              tabIndex={0}
+              className={`take-card${t.id === circle ? ' circled' : ''}`}
               onClick={() => void openTake(shot.id, t.id)}
+              onKeyDown={(e) => e.key === 'Enter' && void openTake(shot.id, t.id)}
               title={`Seed ${t.seed} · ${t.checkpoint} · ${new Date(t.createdAt).toLocaleString()}`}
             >
               <img src={t.thumbnail} alt="" />
               <div className="take-caption">Seed {t.seed}</div>
-            </button>
+              <button
+                className="circle-star"
+                title={t.id === circle ? 'Circle take (click to un-circle)' : 'Make this the circle take (used on the storyboard)'}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  toggleCircleTake(shot.id, t.id)
+                }}
+              >
+                <Star size={14} fill={t.id === circle ? 'currentColor' : 'none'} />
+              </button>
+            </div>
           ))}
         {shot && takes?.length === 0 && !jobHere && (
           <p className="hint">{projectPath ? 'No takes yet. Press Generate.' : 'Save the project to generate takes.'}</p>

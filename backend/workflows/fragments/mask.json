@@ -1,0 +1,60 @@
+{
+  "name": "Entity mask",
+  "description": "One cast member's / prop's area of the frame: its flat colour in the Object ID pass, grown and blurred by the feather amount.",
+  "outputs": {
+    "mask": [
+      "mask",
+      0
+    ]
+  },
+  "nodes": {
+    "pick": {
+      "class_type": "ImageColorToMask",
+      "inputs": {
+        "image": "{{in:id_image}}",
+        "color": "{{color}}"
+      }
+    },
+    "grow": {
+      "class_type": "GrowMask",
+      "inputs": {
+        "mask": [
+          "pick",
+          0
+        ],
+        "expand": "{{grow}}",
+        "tapered_corners": true
+      }
+    },
+    "img": {
+      "class_type": "MaskToImage",
+      "inputs": {
+        "mask": [
+          "grow",
+          0
+        ]
+      }
+    },
+    "blur": {
+      "class_type": "ImageBlur",
+      "inputs": {
+        "image": [
+          "img",
+          0
+        ],
+        "blur_radius": "{{blur_radius}}",
+        "sigma": "{{blur_sigma}}"
+      }
+    },
+    "mask": {
+      "class_type": "ImageToMask",
+      "inputs": {
+        "image": [
+          "blur",
+          0
+        ],
+        "channel": "red"
+      }
+    }
+  }
+}

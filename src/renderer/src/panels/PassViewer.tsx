@@ -92,9 +92,9 @@ export default function PassViewer() {
         )}
         {tab === 'id' && (
           <div className="pass-legend">
-            {result.legend.length === 0 && <span>No visible objects</span>}
+            {result.legend.length === 0 && <span>Nothing linked to cast or props, and no described objects</span>}
             {result.legend.map((e) => (
-              <span key={e.nodeId}>
+              <span key={e.key} title={e.pixels === 0 ? 'Not in frame' : undefined} className={e.pixels === 0 ? 'dim' : undefined}>
                 <i style={{ background: e.color }} /> {e.name}
               </span>
             ))}

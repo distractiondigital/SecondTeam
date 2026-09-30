@@ -68,7 +68,8 @@ export async function renderAndSavePasses(shotId: string): Promise<PassView | nu
   if (!shot || shot.type !== 'camera' || !gl || !threeScene) return null
 
   const kit = state.project.camera
-  const result = renderPasses({ gl, scene: threeScene, shot, kit, nodes, rootIds: scene.rootIds })
+  const { cast, props } = state.project
+  const result = renderPasses({ gl, scene: threeScene, shot, kit, nodes, rootIds: scene.rootIds, cast, props })
   if (!result) return null
 
   const view: PassView = {

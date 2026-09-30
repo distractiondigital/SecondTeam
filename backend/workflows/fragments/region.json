@@ -1,0 +1,41 @@
+{
+  "name": "Regional prompt",
+  "description": "A cast member's / prop's own prompt, applied only inside its mask and added to the prompt chain.",
+  "outputs": {
+    "positive": [
+      "combine",
+      0
+    ]
+  },
+  "nodes": {
+    "text": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "text": "{{text}}",
+        "clip": "{{in:clip}}"
+      }
+    },
+    "masked": {
+      "class_type": "ConditioningSetMask",
+      "inputs": {
+        "conditioning": [
+          "text",
+          0
+        ],
+        "mask": "{{in:mask}}",
+        "strength": "{{strength}}",
+        "set_cond_area": "default"
+      }
+    },
+    "combine": {
+      "class_type": "ConditioningCombine",
+      "inputs": {
+        "conditioning_1": "{{in:positive}}",
+        "conditioning_2": [
+          "masked",
+          0
+        ]
+      }
+    }
+  }
+}

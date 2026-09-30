@@ -3,7 +3,9 @@ import {
   COCO_KEYPOINTS,
   COCO_LIMBS,
   depthToGrey,
+  entityKey,
   figureKeypoints,
+  idColor,
   idLegend,
   isSafeId,
   sdxlSize,
@@ -115,30 +117,50 @@ describe('depth', () => {
 })
 
 describe('object ID', () => {
-  const base = { parentId: null, position: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1], hidden: false, locked: false }
+  const base = { parentId: null, position: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1], hidden: false, locked: false, description: '' }
   const nodes = {
-    a: { ...base, id: 'a', name: 'Table', type: 'primitive', primitive: 'box' },
-    g: { ...base, id: 'g', name: 'Chairs', type: 'group', childIds: ['c'] },
-    c: { ...base, id: 'c', name: 'Chair', type: 'primitive', primitive: 'box', parentId: 'g' },
-    m: { ...base, id: 'm', name: 'Maribel', type: 'mannequin' },
-    h: { ...base, id: 'h', name: 'Hidden', type: 'primitive', hidden: true },
-    l: { ...base, id: 'l', name: 'Key', type: 'light' },
-    k: { ...base, id: 'k', name: 'Shot 1A', type: 'camera' },
-    e: { ...base, id: 'e', name: 'Empty group', type: 'group', childIds: [] }
+    f1: { ...base, id: 'f1', name: 'Figure 1', type: 'mannequin', castId: 'maribel' },
+    f2: { ...base, id: 'f2', name: 'Figure 2', type: 'mannequin', castId: 'maribel' },
+    f3: { ...base, id: 'f3', name: 'Figure 3', type: 'mannequin', castId: null, description: 'a waiter' },
+    f4: { ...base, id: 'f4', name: 'Extra', type: 'mannequin', castId: null },
+    g: { ...base, id: 'g', name: 'Car', type: 'group', childIds: ['w', 'b'], propId: 'car' },
+    w: { ...base, id: 'w', name: 'Wheel', type: 'primitive', parentId: 'g', propId: null },
+    b: { ...base, id: 'b', name: 'Body', type: 'primitive', parentId: 'g', propId: null },
+    wall: { ...base, id: 'wall', name: 'Wall', type: 'primitive', propId: null },
+    gone: { ...base, id: 'gone', name: 'Hidden crate', type: 'primitive', propId: 'crate', hidden: true },
+    k: { ...base, id: 'k', name: 'Shot 1A', type: 'camera' }
   } as unknown as Record<string, SceneNode>
+  const cast = [
+    { id: 'detective', name: 'Detective' },
+    { id: 'maribel', name: 'Maribel' }
+  ]
+  const props = [
+    { id: 'crate', name: 'Crate' },
+    { id: 'car', name: 'Car' }
+  ]
 
-  it('gives each visible top-level object, group and figure its own colour', () => {
-    const legend = idLegend(['a', 'g', 'm', 'h', 'l', 'k', 'e'], nodes)
-    expect(legend.map((e) => e.name)).toEqual(['Table', 'Chairs', 'Maribel'])
+  it('finds what each figure or object is: its own link, its group, or its description', () => {
+    expect(entityKey('f1', nodes)).toBe('cast:maribel')
+    expect(entityKey('w', nodes)).toBe('prop:car')
+    expect(entityKey('f3', nodes)).toBe('node:f3')
+    expect(entityKey('f4', nodes)).toBeNull()
+    expect(entityKey('wall', nodes)).toBeNull()
+  })
+
+  it('gives each cast member, prop and described object in the scene one colour', () => {
+    const legend = idLegend(['f1', 'f2', 'f3', 'f4', 'g', 'wall', 'gone', 'k'], nodes, cast, props)
+    // Cast first (the Detective has no figure here), then props (the crate is hidden), then objects.
+    expect(legend.map((e) => [e.key, e.name, e.nodeIds])).toEqual([
+      ['cast:maribel', 'Maribel', ['f1', 'f2']],
+      ['prop:car', 'Car', ['w', 'b']],
+      ['node:f3', 'Figure 3', ['f3']]
+    ])
     expect(new Set(legend.map((e) => e.color)).size).toBe(3)
     expect(legend.every((e) => /^#[0-9a-f]{6}$/.test(e.color) && e.color !== '#000000')).toBe(true)
   })
 
   it('keeps colours distinct past the palette', () => {
-    const many: Record<string, SceneNode> = {}
-    const ids = Array.from({ length: 40 }, (_, i) => `n${i}`)
-    for (const id of ids) many[id] = { ...nodes.a, id } as SceneNode
-    expect(new Set(idLegend(ids, many).map((e) => e.color)).size).toBe(40)
+    expect(new Set(Array.from({ length: 40 }, (_, i) => idColor(i))).size).toBe(40)
   })
 })
 

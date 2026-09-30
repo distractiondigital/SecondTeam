@@ -5,10 +5,15 @@ import {
   clampScale,
   createEmptyProject,
   createEmptyScene,
+  DEFAULT_REFERENCE_STRENGTH,
+  isSafeFileName,
+  MAX_REFERENCE_IMAGES,
   newId,
   repairCamera,
   type Anchor,
   type CameraNode,
+  type CastMember,
+  type Prop,
   type GroupNode,
   type LightNode,
   type MannequinNode,
@@ -77,13 +82,15 @@ export type CameraField =
   | 'lightingOverride'
   | 'description'
   | 'notes'
+  | 'circleTake'
 
 export type LightField = 'stops' | 'kelvin' | 'softness' | 'shadows' | 'coneAngle' | 'falloff'
 const LIGHT_FIELDS: LightField[] = ['stops', 'kelvin', 'softness', 'shadows', 'coneAngle', 'falloff']
 
 export type NodePatch = Partial<
   Pick<PrimitiveNode, 'name' | 'position' | 'rotation' | 'scale' | 'color' | 'hidden' | 'locked'> &
-    Pick<MannequinNode, 'height' | 'build' | 'limits'> &
+    Pick<MannequinNode, 'height' | 'build' | 'limits' | 'castId'> &
+    Pick<PrimitiveNode, 'propId'> &
     Pick<CameraNode, CameraField> &
     Pick<LightNode, LightField>
 >
@@ -97,7 +104,8 @@ const CAMERA_FIELDS: CameraField[] = [
   'angleOverride',
   'lightingOverride',
   'description',
-  'notes'
+  'notes',
+  'circleTake'
 ]
 
 /** Which node types each patch field applies to (fields not listed apply to every node). */
@@ -106,9 +114,13 @@ const FIELD_TYPES: Partial<Record<keyof NodePatch, SceneNode['type'][]>> = {
   height: ['mannequin'],
   build: ['mannequin'],
   limits: ['mannequin'],
+  castId: ['mannequin'],
+  propId: ['primitive', 'group'],
   scale: ['primitive', 'group'], // a figure's size comes from its height; cameras don't scale
   ...Object.fromEntries(CAMERA_FIELDS.map((f) => [f, ['camera']])),
-  ...Object.fromEntries(LIGHT_FIELDS.map((f) => [f, ['light']]))
+  ...Object.fromEntries(LIGHT_FIELDS.map((f) => [f, ['light']])),
+  // Shots describe their frame; figures, objects and groups describe themselves for regional prompts.
+  description: ['camera', 'primitive', 'group', 'mannequin']
 }
 
 /** Where a new camera comes from: the current view, plus optional settings to copy. */
@@ -162,6 +174,18 @@ interface DocumentState {
   updateGeneration: (patch: Partial<GenerationSettings>) => void
   /** The project's style text, added to every prompt. */
   setStyleText: (text: string) => void
+  /** Style reference images (file names in assets/style/). */
+  setStyleImages: (images: string[]) => void
+
+  /** Add a cast member or prop; returns its id. */
+  addCast: (init?: Partial<Omit<CastMember, 'id'>>) => string
+  updateCast: (id: string, patch: Partial<Omit<CastMember, 'id'>>) => void
+  /** Delete a cast member; figures linked to it (in every scene) become unlinked. */
+  deleteCast: (id: string) => void
+  addProp: (init?: Partial<Omit<Prop, 'id'>>) => string
+  updateProp: (id: string, patch: Partial<Omit<Prop, 'id'>>) => void
+  /** Delete a prop; objects and groups linked to it (in every scene) become unlinked. */
+  deleteProp: (id: string) => void
 
   /** Switch to another scene (back to its own set, not a shot). */
   setSceneId: (sceneId: string) => void
@@ -368,6 +392,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
           // A new shot made from another starts with its description (usually the same action).
           description: shot?.description ?? '',
           notes: '',
+          circleTake: null,
           // A shot made while another shot is active starts from that shot's version of the set.
           overrides: shot ? toPlainValue(shot.overrides)! : {}
         }
@@ -396,6 +421,84 @@ export const useDocument = create<DocumentState>()((set, get) => {
       if (get().project.styleText === text) return
       change((_scene, project) => {
         project.styleText = text
+      })
+    },
+
+    setStyleImages: (images) => {
+      change((_scene, project) => {
+        project.styleImages = images.filter(isSafeFileName).slice(0, MAX_REFERENCE_IMAGES)
+      })
+    },
+
+    addCast: (init = {}) => {
+      const id = newId()
+      change((_scene, project) => {
+        project.cast.push({
+          id,
+          name: init.name?.trim() || `Cast ${project.cast.length + 1}`,
+          description: init.description ?? '',
+          color: init.color ?? FIGURE_COLORS[project.cast.length % FIGURE_COLORS.length],
+          images: (init.images ?? []).filter(isSafeFileName).slice(0, MAX_REFERENCE_IMAGES),
+          strength: clampStrength(init.strength ?? DEFAULT_REFERENCE_STRENGTH)
+        })
+      })
+      return id
+    },
+
+    updateCast: (id, patch) => {
+      change((_scene, project) => {
+        const c = project.cast.find((x) => x.id === id)
+        if (!c) return
+        if (patch.name !== undefined) c.name = patch.name.trim() || c.name
+        if (patch.description !== undefined) c.description = patch.description
+        if (patch.color !== undefined) c.color = patch.color
+        if (patch.images !== undefined) c.images = patch.images.filter(isSafeFileName).slice(0, MAX_REFERENCE_IMAGES)
+        if (patch.strength !== undefined) c.strength = clampStrength(patch.strength)
+      })
+    },
+
+    deleteCast: (id) => {
+      change((_scene, project) => {
+        project.cast = project.cast.filter((c) => c.id !== id)
+        for (const s of project.scenes) {
+          for (const n of Object.values(s.nodes)) if (n.type === 'mannequin' && n.castId === id) n.castId = null
+        }
+      })
+    },
+
+    addProp: (init = {}) => {
+      const id = newId()
+      change((_scene, project) => {
+        project.props.push({
+          id,
+          name: init.name?.trim() || `Prop ${project.props.length + 1}`,
+          description: init.description ?? '',
+          images: (init.images ?? []).filter(isSafeFileName).slice(0, MAX_REFERENCE_IMAGES),
+          strength: clampStrength(init.strength ?? DEFAULT_REFERENCE_STRENGTH)
+        })
+      })
+      return id
+    },
+
+    updateProp: (id, patch) => {
+      change((_scene, project) => {
+        const p = project.props.find((x) => x.id === id)
+        if (!p) return
+        if (patch.name !== undefined) p.name = patch.name.trim() || p.name
+        if (patch.description !== undefined) p.description = patch.description
+        if (patch.images !== undefined) p.images = patch.images.filter(isSafeFileName).slice(0, MAX_REFERENCE_IMAGES)
+        if (patch.strength !== undefined) p.strength = clampStrength(patch.strength)
+      })
+    },
+
+    deleteProp: (id) => {
+      change((_scene, project) => {
+        project.props = project.props.filter((p) => p.id !== id)
+        for (const s of project.scenes) {
+          for (const n of Object.values(s.nodes)) {
+            if ((n.type === 'primitive' || n.type === 'group') && n.propId === id) n.propId = null
+          }
+        }
       })
     },
 
@@ -535,6 +638,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
           build: DEFAULT_BUILD,
           color: FIGURE_COLORS[figureCount % FIGURE_COLORS.length],
           castId: null,
+          description: '',
           limits: true,
           pose: POSE_PRESETS.standing.make(proportions(DEFAULT_HEIGHT, DEFAULT_BUILD))
         }
@@ -717,7 +821,9 @@ export const useDocument = create<DocumentState>()((set, get) => {
           scale: [1, 1, 1],
           hidden: false,
           locked: false,
-          childIds: []
+          childIds: [],
+          propId: null,
+          description: ''
         }
         scene.nodes[id] = group
         insertAfter(scene, members[0], id)
@@ -830,6 +936,10 @@ function round(n: number): number {
 
 function average(values: number[]): number {
   return values.reduce((a, b) => a + b, 0) / values.length
+}
+
+function clampStrength(v: number): number {
+  return Number.isFinite(v) ? Math.min(1.5, Math.max(0, v)) : DEFAULT_REFERENCE_STRENGTH
 }
 
 function sameValue(a: unknown, b: unknown): boolean {

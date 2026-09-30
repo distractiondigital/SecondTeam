@@ -5,6 +5,7 @@ import { Outlines } from '@react-three/drei'
 import { proportions, type JointName, type Proportions } from '../../../shared/mannequin'
 import type { MannequinNode, Vec3 } from '../../../shared/project'
 import { useUi } from '../state/uiStore'
+import { useDocument } from '../state/documentStore'
 import { CLAY_COLOR } from './clay'
 import { CLICK_DRAG_TOLERANCE, handleNodeClick, handleNodeDoubleClick, noRaycast, SELECTION_COLOR, toRadians } from './selection'
 
@@ -70,8 +71,10 @@ export default function MannequinView({ node, selected, clickable, passive = fal
   const selectedJoint = useUi((s) =>
     !passive && s.selection.length === 1 && s.selection[0] === id ? s.selectedJoint : null
   )
-  const bodyColor = node.color
-  const ballColor = useMemo(() => '#' + new Color(node.color).multiplyScalar(0.72).getHexString(), [node.color])
+  // A figure linked to a cast member wears that cast member's colour.
+  const castColor = useDocument((s) => (node.castId ? s.project.cast.find((c) => c.id === node.castId)?.color : undefined))
+  const bodyColor = castColor ?? node.color
+  const ballColor = useMemo(() => '#' + new Color(bodyColor).multiplyScalar(0.72).getHexString(), [bodyColor])
 
   const onClick = (e: ThreeEvent<MouseEvent>, joint: JointName) => {
     const ui = useUi.getState()

@@ -1,0 +1,19 @@
+{
+  "name": "Batch images",
+  "description": "Two images (or batches) as one batch.",
+  "outputs": {
+    "image": [
+      "batch",
+      0
+    ]
+  },
+  "nodes": {
+    "batch": {
+      "class_type": "ImageBatch",
+      "inputs": {
+        "image1": "{{in:a}}",
+        "image2": "{{in:b}}"
+      }
+    }
+  }
+}

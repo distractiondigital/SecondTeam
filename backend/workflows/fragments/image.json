@@ -1,0 +1,18 @@
+{
+  "name": "Reference image",
+  "description": "One uploaded reference image.",
+  "outputs": {
+    "image": [
+      "load",
+      0
+    ]
+  },
+  "nodes": {
+    "load": {
+      "class_type": "LoadImage",
+      "inputs": {
+        "image": "{{image}}"
+      }
+    }
+  }
+}

@@ -207,7 +207,7 @@ describe('figures', () => {
     expect(figure(copy).pose).toEqual(figure(a).pose)
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(8)
+    expect(loaded.schemaVersion).toBe(9)
   })
 
   it('saves poses into the project and applies them to other figures', () => {
@@ -443,6 +443,62 @@ describe('generation settings', () => {
   })
 })
 
+describe('cast, props and circle takes', () => {
+  it('adds, edits and deletes cast members; deleting unlinks their figures', () => {
+    const fig = doc().addMannequin()
+    const maribel = doc().addCast({ name: 'Maribel', description: 'woman, olive raincoat', images: ['a.png', '../evil.png'] })
+    expect(doc().project.cast[0]).toMatchObject({ name: 'Maribel', images: ['a.png'] })
+    doc().updateNode(fig, { castId: maribel })
+    const f = scene().nodes[fig]
+    expect(f.type === 'mannequin' && f.castId).toBe(maribel)
+    doc().updateCast(maribel, { strength: 9, name: '  ' })
+    expect(doc().project.cast[0]).toMatchObject({ strength: 1.5, name: 'Maribel' })
+    doc().deleteCast(maribel)
+    const g = scene().nodes[fig]
+    expect(g.type === 'mannequin' && g.castId).toBeNull()
+    doc().undo()
+    const h = scene().nodes[fig]
+    expect(h.type === 'mannequin' && h.castId).toBe(maribel)
+  })
+
+  it('links props to objects and groups, and describes unlinked things', () => {
+    const box = doc().addPrimitive('box')
+    const crate = doc().addProp({ name: 'Crate' })
+    doc().updateNode(box, { propId: crate })
+    doc().updateNode(box, { description: 'a rusty oil drum' })
+    const b = scene().nodes[box]
+    expect(b.type === 'primitive' && [b.propId, b.description]).toEqual([crate, 'a rusty oil drum'])
+    doc().deleteProp(crate)
+    const c = scene().nodes[box]
+    expect(c.type === 'primitive' && c.propId).toBeNull()
+  })
+
+  it('circles one take per shot, with undo, and saves it all', () => {
+    const shot = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
+    doc().updateNode(shot, { circleTake: '20260930-010203-abcd' })
+    doc().setStyleImages(['still.jpg', 'x.exe'])
+    const loaded = parseProject(serializeProject(doc().project))
+    const c = Object.values(loaded.scenes[0].nodes).find((n) => n.type === 'camera')
+    expect(c?.type === 'camera' && c.circleTake).toBe('20260930-010203-abcd')
+    expect(loaded.styleImages).toEqual(['still.jpg'])
+    doc().undo()
+    doc().undo()
+    const d = scene().nodes[shot]
+    expect(d.type === 'camera' && d.circleTake).toBeNull()
+  })
+
+  it('loads older projects with empty cast and props', () => {
+    const raw = JSON.parse(serializeProject(doc().project))
+    raw.schemaVersion = 8
+    raw.cast = [{ id: 'c1', name: 'Old', images: ['ok.png', 'C:\bad.png'] }, { nope: 1 }]
+    delete raw.styleImages
+    const p = parseProject(JSON.stringify(raw))
+    expect(p.cast).toHaveLength(1)
+    expect(p.cast[0]).toMatchObject({ id: 'c1', images: ['ok.png'], strength: 0.8 })
+    expect(p.styleImages).toEqual([])
+  })
+})
+
 describe('older project files', () => {
   it('turns v4 per-camera settings into the project camera and renames numbered shots', () => {
     const raw = {
@@ -472,7 +528,7 @@ describe('older project files', () => {
       ]
     }
     const p = parseProject(JSON.stringify(raw))
-    expect(p.schemaVersion).toBe(8)
+    expect(p.schemaVersion).toBe(9)
     expect(p.camera.sensor.preset).toBe('alexa35')
     expect(p.camera.delivery).toBe('2.39')
     expect(p.scenes[0].number).toBe(1)
@@ -493,7 +549,7 @@ describe('older project files', () => {
     const raw = JSON.parse(serializeProject(doc().project))
     raw.schemaVersion = 1
     delete raw.camera
-    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(8)
+    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(9)
   })
 })
 describe('master scene and per-shot changes', () => {
@@ -601,7 +657,7 @@ describe('master scene and per-shot changes', () => {
     doc().updateNode(box, { hidden: true })
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(8)
+    expect(loaded.schemaVersion).toBe(9)
   })
 
   it('leaves the shot if undo removes its camera', () => {

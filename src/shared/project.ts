@@ -28,7 +28,8 @@ import { DEFAULT_GENERATION, repairGeneration, type GenerationSettings } from '.
 // v1: M1 (primitives, groups). v2: M2 adds mannequins. v3: M3 adds cameras.
 // v4: per-shot changes (camera.overrides). v5: numbered scenes, shots 1A/1B…, one camera kit per project.
 // v6: lights. v7: scene.floor (automatic floor in renders). v8: shot descriptions, project.generation.
-export const SCHEMA_VERSION = 8
+// v9: cast and props (with reference images), links from figures/groups, style images, circle takes.
+export const SCHEMA_VERSION = 9
 
 export type Vec3 = [number, number, number]
 
@@ -73,6 +74,10 @@ export interface PrimitiveNode extends NodeBase {
 export interface GroupNode extends NodeBase {
   type: 'group'
   childIds: string[]
+  /** Link to a Prop entry: the whole group is that prop (e.g. a car built from boxes). */
+  propId: string | null
+  /** Optional description for prompts when it isn't linked to a prop. */
+  description: string
 }
 
 /** A posable human figure. Its scale stays 1; height and build set its size. */
@@ -84,8 +89,10 @@ export interface MannequinNode extends NodeBase {
   build: number
   /** Viewport colour (Milestone 7: taken from the linked cast member). */
   color: string
-  /** Link to a Cast entry (Milestone 7). */
+  /** Link to a Cast entry. */
   castId: string | null
+  /** Optional description for prompts when it isn't linked to a cast member (e.g. 'a waiter'). */
+  description: string
   /** Keep joints inside realistic ranges. */
   limits: boolean
   pose: Pose
@@ -112,6 +119,8 @@ export interface CameraNode extends NodeBase {
   /** What's in the frame, for the prompt (e.g. 'a woman waits at a rainy bus stop'). */
   description: string
   notes: string
+  /** The chosen take (its id in the shot's takes folder); the storyboard uses it. */
+  circleTake: string | null
   /** This shot's changes to other objects; everything else follows the Master scene. */
   overrides: ShotOverrides
 }
@@ -157,13 +166,72 @@ export interface Project {
   scenes: Scene[]
   /** The camera body and format every shot uses. */
   camera: CameraKit
-  // Filled in by later milestones; kept as open records so older files still load.
-  cast: unknown[]
-  props: unknown[]
+  /** Characters, project-wide so they stay the same across scenes. */
+  cast: CastMember[]
+  props: Prop[]
+  /** Style reference images (file names in assets/style/). */
+  styleImages: string[]
   /** Poses saved into this project (the app-wide library is stored separately). */
   poses: SavedPose[]
   /** AI generation settings (model, strictness, takes, seed…). */
   generation: GenerationSettings
+}
+
+/** A cast member: a character that stays the same from shot to shot. */
+export interface CastMember {
+  id: string
+  name: string
+  /** For the prompt, e.g. 'woman in her 20s, curly dark hair, olive raincoat'. */
+  description: string
+  /** Viewport colour of linked figures. */
+  color: string
+  /** Reference image file names in assets/cast/<id>/. */
+  images: string[]
+  /** How strongly the reference images guide the look, 0–1.5. */
+  strength: number
+}
+
+/** A prop: a story object that stays the same from shot to shot. */
+export interface Prop {
+  id: string
+  name: string
+  description: string
+  /** Reference image file names in assets/props/<id>/. */
+  images: string[]
+  strength: number
+}
+
+export const MAX_REFERENCE_IMAGES = 4
+export const DEFAULT_REFERENCE_STRENGTH = 0.8
+
+/** Reference image file names: plain names only, never paths. */
+export function isSafeFileName(name: unknown): name is string {
+  return typeof name === 'string' && /^[\w][\w .()-]{0,120}\.(png|jpe?g)$/i.test(name) && !name.includes('..')
+}
+
+function sanitizeImages(raw: unknown): string[] {
+  return Array.isArray(raw) ? raw.filter(isSafeFileName).slice(0, MAX_REFERENCE_IMAGES) : []
+}
+
+function sanitizeEntries(raw: unknown, isCast: boolean): (CastMember | Prop)[] {
+  if (!Array.isArray(raw)) return []
+  const seen = new Set<string>()
+  const out: (CastMember | Prop)[] = []
+  raw.forEach((r, i) => {
+    const e = (r && typeof r === 'object' ? r : {}) as Partial<CastMember>
+    if (typeof e.id !== 'string' || !e.id || seen.has(e.id)) return
+    seen.add(e.id)
+    const strength = typeof e.strength === 'number' && Number.isFinite(e.strength) ? Math.min(1.5, Math.max(0, e.strength)) : DEFAULT_REFERENCE_STRENGTH
+    const base = {
+      id: e.id,
+      name: typeof e.name === 'string' && e.name.trim() ? e.name : isCast ? `Cast ${i + 1}` : `Prop ${i + 1}`,
+      description: typeof e.description === 'string' ? e.description : '',
+      images: sanitizeImages(e.images),
+      strength
+    }
+    out.push(isCast ? { ...base, color: typeof e.color === 'string' ? e.color : FIGURE_COLORS[i % FIGURE_COLORS.length] } : base)
+  })
+  return out
 }
 
 export function newId(): string {
@@ -190,6 +258,7 @@ export function createEmptyProject(name = 'Untitled'): Project {
     camera: structuredClone(DEFAULT_KIT),
     cast: [],
     props: [],
+    styleImages: [],
     poses: [],
     generation: structuredClone(DEFAULT_GENERATION)
   }
@@ -291,6 +360,7 @@ export function repairCamera(c: CameraNode): void {
   c.lightingOverride = typeof c.lightingOverride === 'string' && c.lightingOverride ? c.lightingOverride : null
   c.description = typeof c.description === 'string' ? c.description : ''
   c.notes = typeof c.notes === 'string' ? c.notes : ''
+  c.circleTake = typeof c.circleTake === 'string' && c.circleTake ? c.circleTake : null
 }
 
 /** Fill in fields added after a file was saved, and fix values that would break the viewport. */
@@ -300,6 +370,10 @@ function repairNode(node: SceneNode, scene: Scene): void {
     // Files from before anchors existed: planes were centred, everything else sat on its base.
     if (node.primitive === 'plane') node.anchor = 'center'
     else if (!ANCHORS.includes(node.anchor)) node.anchor = 'bottom'
+  }
+  if (node.type === 'group' || node.type === 'primitive') {
+    node.propId = typeof node.propId === 'string' ? node.propId : null
+    node.description = typeof node.description === 'string' ? node.description : ''
   }
   if (node.type === 'camera') {
     repairCamera(node)
@@ -320,6 +394,7 @@ function repairNode(node: SceneNode, scene: Scene): void {
     node.build = clampBuild(node.build ?? DEFAULT_BUILD)
     node.limits = node.limits !== false
     node.castId = typeof node.castId === 'string' ? node.castId : null
+    node.description = typeof node.description === 'string' ? node.description : ''
     node.color = typeof node.color === 'string' ? node.color : FIGURE_COLORS[0]
     const rest = restPose()
     for (const j of JOINT_NAMES) if (!isVec3(node.pose.joints[j])) node.pose.joints[j] = rest.joints[j]
@@ -362,8 +437,9 @@ export function parseProject(json: string): Project {
     styleText: typeof p.styleText === 'string' ? p.styleText : '',
     scenes: p.scenes,
     camera: repairKit(p.camera),
-    cast: Array.isArray(p.cast) ? p.cast : [],
-    props: Array.isArray(p.props) ? p.props : [],
+    cast: sanitizeEntries(p.cast, true) as CastMember[],
+    props: sanitizeEntries(p.props, false) as Prop[],
+    styleImages: sanitizeImages(p.styleImages),
     poses: sanitizeSavedPoses(p.poses),
     generation: repairGeneration(p.generation)
   }

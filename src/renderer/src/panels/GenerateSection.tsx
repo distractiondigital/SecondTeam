@@ -5,6 +5,7 @@ import { useDocument } from '../state/documentStore'
 import { currentModel, generateBlocker, generateShot, shotPrompt, useGeneration } from '../state/generation'
 import { useUi } from '../state/uiStore'
 import NumberField from './NumberField'
+import ReferenceImages from './ReferenceImages'
 
 // In a shot's Properties: what's in the frame, the prompt that will be sent, and Generate.
 // Below the camera body: the project-wide generation settings (model, style, strictness…).
@@ -56,6 +57,7 @@ export function GenerateSection({ node }: { node: CameraNode }) {
 export function GenerationSettingsSection() {
   const g = useDocument((s) => s.project.generation)
   const style = useDocument((s) => s.project.styleText)
+  const styleImages = useDocument((s) => s.project.styleImages)
   const models = useGeneration((s) => s.models)
   const model = useGeneration(() => currentModel())
   const update = (patch: Partial<GenerationSettings>) => useDocument.getState().updateGeneration(patch)
@@ -98,6 +100,28 @@ export function GenerationSettingsSection() {
           onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
         />
 
+        <div className="prop-title prop-title-spaced" title="Images that set the look of every shot: a film still, an artbook page, a sketch. Applied gently, together with the Style text.">
+          Style reference
+        </div>
+        <ReferenceImages kind="style" ownerId={null} images={styleImages} onChange={(images) => useDocument.getState().setStyleImages(images)} />
+        {styleImages.length > 0 && (
+          <div className="slider-row">
+            <span className="slider-end">Subtle</span>
+            <input
+              type="range"
+              className="slider"
+              min={0}
+              max={1}
+              step={0.05}
+              value={g.styleStrength}
+              onPointerDown={() => useDocument.getState().beginGesture('styleStrength')}
+              onPointerUp={() => useDocument.getState().endGesture('styleStrength')}
+              onChange={(e) => update({ styleStrength: Number(e.target.value) })}
+            />
+            <span className="slider-end">Strong</span>
+          </div>
+        )}
+
         <div className="prop-title prop-title-spaced" title="How closely the image follows the shapes of your set (the depth pass). Figures follow their pose skeletons at any setting.">
           Strictness {g.strictness === null && <span className="dim">· Custom</span>}
         </div>
@@ -110,6 +134,8 @@ export function GenerationSettingsSection() {
             max={1}
             step={0.05}
             value={g.strictness ?? 0.5}
+            onPointerDown={() => useDocument.getState().beginGesture('strictness')}
+            onPointerUp={() => useDocument.getState().endGesture('strictness')}
             onChange={(e) => {
               const s = Number(e.target.value)
               update({ strictness: s, ...strictnessToControl(s) })
@@ -165,6 +191,13 @@ export function GenerationSettingsSection() {
           <div className="vec3-row">
             <NumberField label="Str" value={g.poseStrength} kind="factor" step={0.05} min={0} max={1.5} onCommit={(poseStrength) => update({ poseStrength })} />
             <NumberField label="End" value={g.poseEnd} kind="factor" step={0.05} min={0} max={1} onCommit={(poseEnd) => update({ poseEnd })} />
+          </div>
+          <div className="prop-title prop-title-spaced" title="Cast and props: how soft the edge of each one's area is (pixels), and at what point in the steps their reference images stop guiding. Raise Feather or lower End if one character's look leaks onto another.">
+            Cast & props · feather · reference end
+          </div>
+          <div className="vec3-row">
+            <NumberField label="Feather" value={g.feather} kind="factor" step={1} min={0} max={64} onCommit={(feather) => update({ feather: Math.round(feather) })} />
+            <NumberField label="End" value={g.referenceEnd} kind="factor" step={0.05} min={0.1} max={1} onCommit={(referenceEnd) => update({ referenceEnd })} />
           </div>
           <div className="prop-title prop-title-spaced">Negative prompt</div>
           <textarea

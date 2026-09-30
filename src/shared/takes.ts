@@ -33,6 +33,15 @@ export interface GenerationJob {
   posePng: string
   /** False when no figure is in frame: the pose guide is skipped. */
   hasPose: boolean
+  /** The Object ID pass (masks for regional prompts and references). */
+  idPng: string
+  /** Cast members, props and described objects in frame. */
+  entities: JobEntity[]
+  /** Project style reference images, or null. */
+  style: { images: string[]; strength: number } | null
+  /** Mask softness (px) and where references stop guiding. */
+  feather: number
+  referenceEnd: number
   positive: string
   negative: string
   checkpoint: string
@@ -47,6 +56,20 @@ export interface GenerationJob {
   seeds: number[]
   /** Anything else worth keeping in each take's sidecar (lens, shot size…). */
   extra: Record<string, unknown>
+}
+
+export interface JobEntity {
+  name: string
+  kind: 'cast' | 'props' | 'object'
+  /** Cast member / prop id (for its images folder), or the object's node id. */
+  ownerId: string
+  /** Its colour in the Object ID pass, '#rrggbb'. */
+  color: string
+  /** Its own prompt (null = none). */
+  text: string | null
+  /** Reference image file names in its assets folder. */
+  images: string[]
+  strength: number
 }
 
 export interface TakeInfo {
@@ -79,6 +102,15 @@ export interface TakeMeta {
     depth: { strength: number; start: number; end: number; blur: number }
     pose: { strength: number; end: number } | null
   }
+  /** Cast, props and style references used (M7). */
+  continuity?: {
+    entities: { name: string; kind: string; text: string | null; images: string[]; strength: number }[]
+    style: { images: string[]; strength: number } | null
+    feather: number
+    referenceEnd: number
+    /** Left out to stay within the graphics card's memory. */
+    skipped: string[]
+  }
   sampler: { steps: number; cfg: number; sampler: string; scheduler: string }
   workflow: string
   backend: { comfyui: string | null }
@@ -87,6 +119,7 @@ export interface TakeMeta {
 
 export type GenerationEvent =
   | { type: 'take-start'; index: number; total: number; seed: number }
+  | { type: 'notice'; message: string }
   | { type: 'progress'; index: number; value: number; max: number }
   | { type: 'preview'; index: number; dataUrl: string }
   | { type: 'take-done'; index: number; take: TakeInfo }

@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { buildPrompt, randomSeed, takeSeeds } from '../../../shared/prompt'
-import type { BackendStatus, GenerationEvent, InstalledModel, TakeInfo, TakeMeta } from '../../../shared/takes'
+import type { IdEntry } from '../../../shared/passes'
+import type { SceneNode } from '../../../shared/project'
+import type { BackendStatus, GenerationEvent, InstalledModel, JobEntity, TakeInfo, TakeMeta } from '../../../shared/takes'
 import { activeScene, sceneForShot, useDocument } from './documentStore'
 import { renderAndSavePasses } from './passes'
 import { useUi } from './uiStore'
@@ -39,6 +41,8 @@ interface GenerationState {
   viewer: OpenTake | null
   /** Last error from a Generate, shown in the take strip. */
   error: string | null
+  /** A heads-up from the last Generate (e.g. references left out). */
+  notice: string | null
 }
 
 export const useGeneration = create<GenerationState>()(() => ({
@@ -47,7 +51,8 @@ export const useGeneration = create<GenerationState>()(() => ({
   job: null,
   takes: {},
   viewer: null,
-  error: null
+  error: null,
+  notice: null
 }))
 
 const api = () => window.secondTeam
@@ -72,7 +77,9 @@ export function connectGeneration(): () => void {
 function onEvent(e: GenerationEvent): void {
   const { job } = useGeneration.getState()
   if (!job) return
-  if (e.type === 'take-start') {
+  if (e.type === 'notice') {
+    useGeneration.setState({ notice: e.message })
+  } else if (e.type === 'take-start') {
     useGeneration.setState({ job: { ...job, index: e.index, seed: e.seed, step: 0, preview: null } })
   } else if (e.type === 'progress') {
     useGeneration.setState({ job: { ...job, step: e.value, steps: e.max } })
@@ -147,6 +154,7 @@ export async function generateShot(shotId: string): Promise<void> {
 
   useGeneration.setState({
     error: null,
+    notice: null,
     job: {
       sceneId: scene.id,
       shotId,
@@ -178,6 +186,11 @@ export async function generateShot(shotId: string): Promise<void> {
     depthPng: passes.result.images.depth,
     posePng: passes.result.images.pose,
     hasPose: passes.result.figures > 0,
+    idPng: passes.result.images.id,
+    entities: jobEntities(passes.result.legend, shotId),
+    style: state.project.styleImages.length ? { images: state.project.styleImages, strength: settings.styleStrength } : null,
+    feather: settings.feather,
+    referenceEnd: settings.referenceEnd,
     positive: shotPrompt(shotId),
     negative: settings.negative,
     checkpoint: model.file,
@@ -200,6 +213,28 @@ export async function generateShot(shotId: string): Promise<void> {
       strictness: settings.strictness
     }
   })
+}
+
+/** The cast members, props and described objects in frame, with their prompts and reference images. */
+function jobEntities(legend: IdEntry[], shotId: string): JobEntity[] {
+  const { project } = useDocument.getState()
+  const nodes: Record<string, SceneNode> = sceneForShot(useDocument.getState(), shotId)
+  const out: JobEntity[] = []
+  for (const e of legend) {
+    if (!e.pixels) continue // not in frame
+    if (e.kind === 'cast') {
+      const c = project.cast.find((x) => x.id === e.refId)
+      if (c) out.push({ name: c.name, kind: 'cast', ownerId: c.id, color: e.color, text: c.description.trim() || null, images: c.images, strength: c.strength })
+    } else if (e.kind === 'prop') {
+      const p = project.props.find((x) => x.id === e.refId)
+      if (p) out.push({ name: p.name, kind: 'props', ownerId: p.id, color: e.color, text: p.description.trim() || null, images: p.images, strength: p.strength })
+    } else {
+      const n = nodes[e.refId]
+      const text = n && 'description' in n ? n.description.trim() : ''
+      if (text) out.push({ name: e.name, kind: 'object', ownerId: e.refId, color: e.color, text, images: [], strength: 0 })
+    }
+  }
+  return out
 }
 
 export async function cancelGeneration(): Promise<void> {
@@ -228,6 +263,17 @@ export function stepTake(direction: 1 | -1): void {
   const i = list.findIndex((t) => t.id === viewer.takeId)
   const next = list[i + direction]
   if (next) void openTake(viewer.shotId, next.id)
+}
+
+/** The shot's circle take, or null. */
+export function circleTakeOf(shotId: string): string | null {
+  const n = activeScene(useDocument.getState()).nodes[shotId]
+  return n?.type === 'camera' ? n.circleTake : null
+}
+
+/** Circle this take (the one the storyboard uses), or un-circle it if it already is. Undoable. */
+export function toggleCircleTake(shotId: string, takeId: string): void {
+  useDocument.getState().updateNode(shotId, { circleTake: circleTakeOf(shotId) === takeId ? null : takeId })
 }
 
 export function closeTake(): void {

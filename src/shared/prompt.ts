@@ -18,6 +18,12 @@ export interface GenerationSettings {
   /** Pose guide (the figures' OpenPose skeletons): strength and end, as fractions of the steps. */
   poseStrength: number
   poseEnd: number
+  /** Style reference images' strength (low: a look, not a copy). */
+  styleStrength: number
+  /** Softness of each cast member's / prop's mask edge, in pixels. */
+  feather: number
+  /** Where cast and prop references stop guiding, as a fraction of the steps. */
+  referenceEnd: number
   /** Takes per Generate. */
   takes: number
   seed: number
@@ -37,6 +43,9 @@ export const DEFAULT_GENERATION: GenerationSettings = {
   ...strictnessToControl(0.5),
   poseStrength: 0.7,
   poseEnd: 0.8,
+  styleStrength: 0.35,
+  feather: 16,
+  referenceEnd: 0.8,
   takes: 2,
   seed: 1,
   seedLocked: false
@@ -63,6 +72,15 @@ export function depthBlur(width: number): { radius: number; sigma: number } {
   return { radius, sigma: round(clamp(radius / 3, 0.1, 10)) }
 }
 
+/** Feather (px) as mask operations: grow the mask by half, then blur by the full amount. */
+export function featherMask(feather: number): { grow: number; blurRadius: number; blurSigma: number } {
+  const f = clamp(feather, 0, 64)
+  return { grow: Math.round(f / 2), blurRadius: Math.round(clamp(f, 1, 31)), blurSigma: round(clamp(f / 3, 0.1, 10)) }
+}
+
+/** Most cast members / props whose reference images are used in one take (graphics-card memory). */
+export const MAX_REFERENCED = 6
+
 export function repairGeneration(raw: unknown): GenerationSettings {
   const r = (raw && typeof raw === 'object' ? raw : {}) as Partial<GenerationSettings>
   const d = DEFAULT_GENERATION
@@ -83,6 +101,9 @@ export function repairGeneration(raw: unknown): GenerationSettings {
     end: fromStrictness?.end ?? Math.max(start, num(r.end, d.end, 0, 1)),
     poseStrength: num(r.poseStrength, d.poseStrength, 0, 1.5),
     poseEnd: num(r.poseEnd, d.poseEnd, 0, 1),
+    styleStrength: num(r.styleStrength, d.styleStrength, 0, 1.5),
+    feather: Math.round(num(r.feather, d.feather, 0, 64)),
+    referenceEnd: num(r.referenceEnd, d.referenceEnd, 0.1, 1),
     takes: Math.round(num(r.takes, d.takes, 1, MAX_TAKES)),
     seed: Math.round(num(r.seed, d.seed, 0, MAX_SEED)),
     seedLocked: r.seedLocked === true

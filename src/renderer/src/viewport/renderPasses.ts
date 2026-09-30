@@ -22,15 +22,17 @@ import {
   COCO_COLORS,
   COCO_LIMBS,
   depthToGrey,
+  entityKey,
   figureKeypoints,
   idLegend,
+  isShown,
   poseStroke,
   sdxlSize,
   type FigurePoints,
   type IdEntry,
   type PassKind
 } from '../../../shared/passes'
-import type { CameraNode, SceneNode } from '../../../shared/project'
+import type { CameraNode, CastMember, Prop, SceneNode } from '../../../shared/project'
 import { CLAY_COLOR } from './clay'
 import { isHelper, pixelsToCanvas, renderToCanvas, shotCamera, withHidden } from './renderShot'
 import { hasLights } from './SceneNodes'
@@ -59,6 +61,8 @@ export interface PassInput {
   /** The shot's version of the set. */
   nodes: Record<string, SceneNode>
   rootIds: string[]
+  cast: CastMember[]
+  props: Prop[]
 }
 
 const VERTEX = /* glsl */ `
@@ -139,9 +143,9 @@ function bySide(make: (side: Side) => Material): (mesh: Mesh) => Material {
   }
 }
 
-/** The top-level set object a mesh belongs to (by node id), or null for the floor. */
-function ownerOf(o: Object3D, rootIds: Set<string>): string | null {
-  for (let p: Object3D | null = o; p; p = p.parent) if (rootIds.has(p.name)) return p.name
+/** The nearest scene node (figure, object, group) a mesh belongs to, or null (e.g. the floor). */
+function nodeOf(o: Object3D, nodes: Record<string, SceneNode>): string | null {
+  for (let p: Object3D | null = o; p; p = p.parent) if (p.name in nodes) return p.name
   return null
 }
 
@@ -173,7 +177,7 @@ function opaque(canvas: HTMLCanvasElement): HTMLCanvasElement {
 }
 
 export function renderPasses(input: PassInput): PassResult | null {
-  const { gl, scene, shot, kit, nodes, rootIds } = input
+  const { gl, scene, shot, kit, nodes, rootIds, cast, props } = input
   const { width: w, height: h } = sdxlSize(deliveryFrame(opticsFor(kit, shot.focalLength)).ratio)
   scene.updateMatrixWorld(true)
   const camera = shotCamera(scene, shot, kit, w / h)
@@ -197,16 +201,16 @@ export function renderPasses(input: PassInput): PassResult | null {
 
       const { canvas: depth, near, far } = renderDepth(gl, scene, camera, w, h, track)
 
-      const legend = idLegend(rootIds, nodes)
-      const colors = new Map(legend.map((e) => [e.nodeId, e.color]))
-      const roots = new Set(rootIds)
+      const legend = idLegend(rootIds, nodes, cast, props)
+      const colors = new Map(legend.map((e) => [e.key, e.color]))
       const idMaterials = new Map<string, Material>()
       const black = bySide((side) => track(shader(FLAT_FRAGMENT, side, [0, 0, 0])))
       const id = withMaterials(
         scene,
         (mesh) => {
-          const owner = ownerOf(mesh, roots)
-          const color = owner ? colors.get(owner) : undefined
+          const node = nodeOf(mesh, nodes)
+          const entity = node ? entityKey(node, nodes) : null
+          const color = entity ? colors.get(entity) : undefined
           if (!color) return black(mesh)
           const key = `${color}:${sideOf(mesh)}`
           if (!idMaterials.has(key)) {
@@ -221,6 +225,7 @@ export function renderPasses(input: PassInput): PassResult | null {
       )
 
       const { canvas: pose, figures } = drawPose(scene, camera, nodes, w, h)
+      countPixels(id, legend)
 
       return {
         width: w,
@@ -414,10 +419,16 @@ function drawPose(
   return { canvas, figures }
 }
 
-/** Visible, and not inside a hidden group. */
-function isShown(id: string, nodes: Record<string, SceneNode>): boolean {
-  for (let n: SceneNode | undefined = nodes[id]; n; n = n.parentId ? nodes[n.parentId] : undefined) {
-    if (n.hidden) return false
+/** How many pixels of each legend colour the ID pass has (0 = that entity isn't in frame). */
+function countPixels(canvas: HTMLCanvasElement, legend: IdEntry[]): void {
+  const data = canvas.getContext('2d')!.getImageData(0, 0, canvas.width, canvas.height).data
+  const byColor = new Map<number, IdEntry>()
+  for (const e of legend) {
+    e.pixels = 0
+    byColor.set(parseInt(e.color.slice(1), 16), e)
   }
-  return true
+  for (let i = 0; i < data.length; i += 4) {
+    const e = byColor.get((data[i] << 16) | (data[i + 1] << 8) | data[i + 2])
+    if (e) e.pixels!++
+  }
 }

@@ -4,6 +4,7 @@ import { deleteSelected, groupSelected, ungroupSelected } from '../state/actions
 import { activeScene, editedNodes, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import CameraProperties from './CameraProperties'
+import { EntityProperties, LinkSection } from './CastProps'
 import LightProperties from './LightProperties'
 import OverrideBar from './OverrideBar'
 import { FigureSection, JointProperties } from './FigureProperties'
@@ -80,6 +81,8 @@ function NodeProperties({ node }: { node: SceneNode }) {
           {node.type === 'primitive' ? PRIMITIVES[node.primitive].label : node.type === 'mannequin' ? 'Figure' : 'Group'}
         </div>
       </div>
+
+      <LinkSection node={node} />
 
       <Vec3Row
         title="Position"
@@ -189,6 +192,18 @@ export default function PropertiesPanel() {
   const nodes = useDocument((s) => editedNodes(s))
   const live = selection.filter((id) => id in nodes)
   const single = live.length === 1 ? nodes[live[0]] : null
+  const entity = useUi((s) => s.entity)
+
+  if (entity && live.length === 0) {
+    return (
+      <aside className="panel properties">
+        <div className="panel-header">{entity.kind === 'cast' ? 'Cast member' : 'Prop'}</div>
+        <div className="panel-body">
+          <EntityProperties kind={entity.kind} id={entity.id} />
+        </div>
+      </aside>
+    )
+  }
 
   if (single?.type === 'camera') {
     return (

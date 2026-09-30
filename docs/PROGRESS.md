@@ -9,24 +9,25 @@
 | 4 | Lights & clay render | ✅ Done (tested by Spencer 2026-09-30) | Sun / point / spot / ambient lights (stops, Kelvin, softness, shadows, spot cone); Work/Clay shading with auto Clay in camera view; soft shadows; per-shot light cheats; clay thumbnails; automatic lighting description per shot. |
 | 5 | Render passes | ✅ Done (tested by Spencer 2026-09-30) | Clay, depth, normals, object ID and OpenPose passes per shot at the SDXL size (about 1 MP, sides in 64s); saved into the project folder with a `passes.json` sidecar; pass viewer. Automatic floor in renders (per-scene toggle). |
 | 6 | First AI frames | ✅ Done (tested by Spencer 2026-09-30) | Managed ComfyUI 0.38 (starts hidden with the app); RealVisXL V5 + SDXL 1.0 + Union ControlNet (depth) from a pinned, licence-checked manifest; depth (softened) + pose guides; prompt from frame description + which way the subject faces + shot size/angle + lens + lighting + style; strictness, takes, seed lock; live previews, cancel; take strip + viewer; takes saved with full sidecars. |
-| 7 | Continuity | ⬜ Next | |
-| 8 | Storyboard | ⬜ | |
+| 7 | Continuity | 🔶 Built, waiting for Spencer's test | Cast and Props (description, up to 4 reference images, strength) with links from figures/objects/groups and per-object descriptions; ID pass per cast/prop/described object; regional prompts + masked IP-Adapter references per entity; project style reference images; feather / reference end controls; circle takes (strip, viewer, Shot list thumbnail). |
+| 8 | Storyboard | ⬜ Next | |
 | 9 | Plug-and-play | ⬜ | |
 | 10 | Polish | ⬜ | Includes **Posing 2** (Spencer, 2026-09-29): IK hands/feet, head look-at target that flows subtly into the torso, choosing which end of a limb stays put (e.g. plant a foot). |
 
 ## Where we are (2026-09-30)
-Milestones 0–6 are done and tested. The whole "build the shot" half of the app works:
+Milestones 0–6 are done and tested; Milestone 7 (continuity) is built and waiting for your test. The whole "build the shot" half of the app works:
 - Greybox a set with shapes, posed figures and lights.
 - Break a project into scenes (01, 02…) and shots (1A, 1B…). Each shot has its own camera and can cheat anything in the set just for that shot.
 - Look through any shot with real sensor/lens/squeeze maths, frame guides, and readouts for height, tilt, distance, shot size, angle and lighting.
 - Save and reopen projects as `Name.secondteam` folders.
 - Render each shot's control images (clay, depth, normals, object ID, pose) and flip through them.
 - Generate AI frames for a shot on your own PC and keep every take with its seed and settings.
+- Keep characters and props consistent across shots with cast/prop descriptions and reference images, and circle the best take.
 
-The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `node scripts/fetch-backend.mjs`. There are 113 automated checks (`npm test`), and all pass.
+The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `node scripts/fetch-backend.mjs`. There are 123 automated checks (`npm test`), and all pass.
 
 ## Things to know
-- **Project files:** saved projects are format **v8**. Every older format still opens, but a build from before a format change can't open a newer file.
+- **Project files:** saved projects are format **v9**. Every older format still opens, but a build from before a format change can't open a newer file.
 - **What undo covers:**
   - Undo goes back 200 steps and covers every change to the project, including per-shot changes, lights and deleting a scene.
   - Selection, switching scenes and the saved-pose *library* (the one shared across projects) aren't undoable. Poses saved into a project are.
@@ -43,11 +44,15 @@ The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `no
 - **Pose pass** draws joints even when another object hides them.
 - **Generating:** the first take after starting loads the model (about 10 s extra); after that a take takes about 7 s at 30 steps on the 5070 Ti. Switching models reloads. Takes live only in the project folder (not in `project.json`), so the project must be saved first.
 - **Strictness** controls the depth guide (the shapes of the set): mid-point = strength 0.6 for the first 65% of the steps. Figures are guided by their pose skeletons at any strictness (Advanced → Pose guide). If objects in the set are ignored, slide toward Traces blocking; if everything looks like grey blocks, toward Loose.
+- **Cast & props:** takes with them take about 30 s (each one's region is worked out separately). Describe looks, not names ("young woman, curly dark hair", not "Maribel"). A style reference image can override text-only details (e.g. hair colour) at higher strengths; reference images per character hold up best.
+- **Reference images** are copied into the project folder, so it stays self-contained. Removing one from a list keeps the file (so undo works).
 - **Updating the app:** if the app is open while I change code, it reloads itself, and unsaved work can be lost. Save and close it before a work session, and restart with `start.bat` afterwards.
 - **For development** (in `CLAUDE.md`): files use LF line endings, enforced by `.gitattributes`. Changes to `src/main` or `src/preload` need an app restart.
 
 ## What's next
-**Milestone 7: Continuity.** Cast and Props with reference images, linked to figures and objects; regional prompts per object (using the ID pass); reference images applied only inside each one's mask (IP-Adapter); pose control from the pose pass; a project style reference image; circle takes. This needs extra models (IP-Adapter + CLIP vision); I'll list them with their licences in the plan.
+**Milestone 7:** test continuity (checklist in the chat), then I'll mark it done.
+
+**Milestone 8: Storyboard.** A board of every shot's circle take in shot order (drag to reorder), with shot number, lens/size/angle and editable description and dialogue/action notes per panel; export a PDF (2, 3 or 6 panels per page, landscape) and a PNG sequence.
 
 ## Decisions log
 - 2026-09-29: Name "Second Team" (working title). Stack: Electron + React + three.js (R3F) + managed ComfyUI. SDXL first for ControlNet/IP-Adapter maturity and commercial licence.
@@ -91,9 +96,14 @@ The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `no
 - 2026-09-30 (M6): Prompt = frame description (new per-shot field) + shot size, angle + lens (+ "anamorphic" at ≥1.3× squeeze) + lighting phrase + project style text. Strictness 0–1 → strength 0.35–0.9 and end 0.4–1.0 (editing those by hand = Custom). Defaults: 30 steps, CFG 5, 2 takes. Settings are project-wide in `project.generation` (schema **v8**).
 - 2026-09-30 (M6): Takes live on disk only (`takes\<date-time-id>.png/.json/.thumb.jpg`), listed by the main process; not in project.json (circle takes in M7 will reference them). The AI status light sits in the take strip header (the top bar had no room).
 - 2026-09-30 (M6 feedback): Spencer's takes traced the mannequin's ball joints and showed figures from behind. Depth alone can't tell front from back. Fix: **pose control moved forward from M7**: the pose pass guides the figures (Union ControlNet type openpose, strength 0.7 for 80% of the steps; skipped when no figure is in frame), the depth pass is **softened** before use (Gaussian blur ≈ width/185 px) and the strictness range lowered (strength 0.35–0.85, end 0.4–0.9; old projects follow the new mapping automatically). The prompt also says which way the subject figure faces ("facing the camera", "in profile, facing camera left"…), measured from its chest. Tested on Spencer's shot: text alone didn't turn the figure around; the pose guide did.
+- 2026-09-30 (M7): Reference images via **ComfyUI_IPAdapter_plus** (cubiq, GPL-3.0, pinned at a0f451a; approved by Spencer: it runs inside ComfyUI and no code is copied into Second Team) with **IP-Adapter Plus SDXL ViT-H** + the **CLIP ViT-H** encoder (h94/IP-Adapter, Apache-2.0). Face-ID models deliberately excluded (InsightFace models are non-commercial).
+- 2026-09-30 (M7): Cast and Props are project-wide (continuity across scenes): description, ≤4 reference images copied into `assets\cast|props\<id>\`, strength (default 0.8); cast has a viewport colour. Figures link with `castId`; objects **and groups** with `propId`; any figure/object/group can instead have its own description. The ID pass has one colour per cast member / prop / described object (nearest linked or described node upward wins).
+- 2026-09-30 (M7): Workflow = `sdxl-continuity.json` + fragments instantiated per entity (mask from the ID pass via ImageColorToMask → GrowMask → blur; regional prompt via ConditioningSetMask/Combine; IPAdapterAdvanced with attn_mask, weight_type linear, end 0.8). Style reference = IPAdapterAdvanced "style transfer", default 0.35. Feather 16 px. Max 6 referenced entities per take (the rest keep their prompts; a notice names them). Only entities actually in frame (pixel count in the ID pass) are sent.
+- 2026-09-30 (M7): Circle take = `CameraNode.circleTake` (undoable), star on take cards and in the viewer, circled take first in the strip and as the Shot list thumbnail. Schema **v9**.
 - 2026-09-30: The repo keeps LF line endings in the working copy (`.gitattributes`); mixed endings had been making some scripted edits silently miss.
 
 ## Ideas / later
+- Face-consistent references for cast (a commercially licensed face model, if one appears); pick which reference image is the 'face'.
 - Takes: delete / hide a take, compare two takes side by side, sharper live previews (TAESD preview models, MIT licence, ~10 MB).
 - Pose pass: leave out joints hidden behind other objects (like a real OpenPose detection); hands (OpenPose hand keypoints) once figures have hands.
 - Pass viewer: overlay the pose on the clay render; render passes for every shot in a scene at once.

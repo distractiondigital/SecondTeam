@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { JOINTS } from '../../shared/mannequin'
 import { useShortcuts } from './hooks/useShortcuts'
-import Outliner from './panels/Outliner'
+import LeftTabs from './panels/CastProps'
 import PropertiesPanel from './panels/PropertiesPanel'
 import ShotList from './panels/ShotList'
 import TakeStrip from './panels/TakeStrip'
@@ -67,7 +67,7 @@ export default function App() {
       </header>
       <div className="workspace">
         <div className="left-column">
-          <Outliner />
+          <LeftTabs />
           <ShotList />
         </div>
         <main className="viewport">

@@ -104,7 +104,7 @@ In the Properties panel, **drag left/right on any number box** to change it (hol
 - Lights work with per-shot changes, so you can cheat a light for one setup. Shot list thumbnails show each shot lit.
 
 ## AI frames (Generate)
-**One-time setup** (downloads about 18 GB into the `ComfyUI` folder here; Git ignores it):
+**One-time setup** (downloads about 21 GB into the `ComfyUI` folder here; Git ignores it):
 
 ```
 node scripts/fetch-backend.mjs
@@ -116,7 +116,9 @@ It downloads ComfyUI (the local AI engine) and the models listed in `backend/man
 |---|---|---|
 | RealVisXL V5.0 | Photoreal film stills | OpenRAIL++-M |
 | SDXL 1.0 (stock) | Most versatile across art styles (sketches, paintings, fantasy art) | OpenRAIL++-M |
-| ControlNet Union SDXL ProMax | Makes the image follow your set (depth now; pose later) | Apache-2.0 |
+| ControlNet Union SDXL ProMax | Makes the image follow your set (depth) and figures (pose) | Apache-2.0 |
+| IP-Adapter Plus SDXL + CLIP ViT-H encoder | Reference images for cast, props and style | Apache-2.0 |
+| ComfyUI_IPAdapter_plus (add-on inside ComfyUI) | Runs the reference images | GPL-3.0 (runs inside ComfyUI; not part of Second Team's code) |
 
 **Using it**
 - The app starts the AI engine by itself in the background. The **AI** light at the right of the take strip shows *Starting…* then *Ready* (click it for the log or a restart). It's closed when you quit.
@@ -125,6 +127,21 @@ It downloads ComfyUI (the local AI engine) and the models listed in `backend/man
 - Click a take to see it large (← / → to flip, Esc to close) with its seed and settings. **Use this seed** locks the seed so you can change one thing and compare.
 - **Generation (whole project)**, below the camera body in a shot's Properties: **Model**, **Style** (e.g. *moody 16mm film still* or *pencil sketchbook drawing*), **Strictness** (how closely the set's shapes are followed, from *Loose* to *Traces blocking*), **Takes** per Generate, **Seed** (locked = the same seed each time; unlocked = random), and **Advanced**: steps, CFG, the depth guide's strength/start/end, the pose guide's strength/end, and the negative prompt.
 - The project must be saved: takes are stored in it as `scenes\<scene id>\shots\<shot id>\takes\` (the PNG, a thumbnail, and a `.json` with the seed, prompt, model and licence, and every setting).
+
+## Cast, props and continuity
+Keep characters and story objects looking the same from shot to shot.
+
+- The left column has three tabs: **Outliner | Cast | Props**. In **Cast** or **Props**, click **＋ New**, then fill it in on the right:
+  - **Description**: how it looks, e.g. *young woman in her 20s, curly dark hair, olive raincoat*. It becomes that one's own prompt, applied only to its part of the frame. Describe the look, not the name.
+  - **Reference images** (up to 4, PNG or JPEG): photos or drawings of how it should look. They're copied into the project (`assets\cast\…`, `assets\props\…`) and guide only its part of the frame.
+  - **Reference strength**, and for cast a **viewport colour** (linked figures wear it).
+  - **Linked to** lists every figure or object that is this one, in every scene.
+- **Linking:** select a figure → Properties → **Cast** → pick one (or *New cast member…*). Select an object or a group → **Prop**. A whole group can be one prop (a car built from boxes). Something that isn't a cast member or prop can still get its own **Description** (e.g. *a rusty oil drum*).
+- The **Object ID** pass now has one colour per cast member, prop and described object (two figures of the same character share a colour).
+- **Style reference** (Generation, whole project): images that set the look of every shot (a film still, an artbook page, a sketch), with a Subtle ↔ Strong slider. It works alongside the Style text. At higher strengths it can override details that come only from text; characters with their own reference images hold up best.
+- **Advanced → Cast & props:** **Feather** (how soft each one's edge is) and **End** (when references stop guiding). Raise Feather or lower End if one character's look leaks onto another.
+- **Circle takes:** click the ☆ on a take (or *Circle this take* in the take viewer). One per shot; it moves to the front of the strip and becomes the shot's thumbnail in the Shot list. The storyboard will use it. Ctrl+Z undoes it.
+- Takes with cast and props take longer (about 30 s instead of 7), because each one's part of the frame is worked out separately. At most 6 cast members/props with reference images are used per take; the strip says who was left out.
 
 ## Render passes
 The images the AI will work from (Milestone 6), rendered from a shot's camera through its delivery frame:

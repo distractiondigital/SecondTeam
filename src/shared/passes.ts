@@ -277,38 +277,89 @@ export const ID_PALETTE: [number, number, number][] = [
   [128, 128, 128]
 ]
 
+/** Something with its own region in the frame: a cast member, a prop, or an object described on its own. */
 export interface IdEntry {
-  nodeId: string
+  /** 'cast:<id>', 'prop:<id>' or 'node:<id>'. */
+  key: string
+  kind: 'cast' | 'prop' | 'object'
+  /** The cast member's / prop's id, or the described object's node id. */
+  refId: string
   name: string
   /** '#rrggbb' */
   color: string
+  /** The figures / objects in this scene that are it. */
+  nodeIds: string[]
+  /** Its share of the frame in the rendered ID pass (filled in after rendering; 0 = not in frame). */
+  pixels?: number
 }
 
 const hex = (c: [number, number, number]): string => '#' + c.map((v) => v.toString(16).padStart(2, '0')).join('')
 
-/**
- * One colour per visible figure and top-level object or group, in outliner order. (Milestone 7
- * switches this to one colour per linked Cast member or Prop.)
- */
-export function idLegend(rootIds: string[], nodes: Record<string, SceneNode>): IdEntry[] {
-  const entries: IdEntry[] = []
-  for (const id of rootIds) {
-    const n = nodes[id]
-    if (!n || n.hidden || n.type === 'camera' || n.type === 'light') continue
-    if (n.type === 'group' && !hasVisibleSolid(n.id, nodes)) continue
-    const i = entries.length
-    // Past the palette, vary the brightness so later colours still differ.
-    const base = ID_PALETTE[i % ID_PALETTE.length]
-    const round = Math.floor(i / ID_PALETTE.length)
-    const color = base.map((v) => Math.max(1, Math.round(v * (round % 2 ? 0.6 : 1)))) as [number, number, number]
-    entries.push({ nodeId: n.id, name: n.name, color: hex(color) })
-  }
-  return entries
+/** The palette colour for the i-th entry (past the palette, darker variants so they still differ). */
+export function idColor(i: number): string {
+  const base = ID_PALETTE[i % ID_PALETTE.length]
+  const round = Math.floor(i / ID_PALETTE.length)
+  return hex(base.map((v) => Math.max(1, Math.round(v * (round % 2 ? 0.6 : 1)))) as [number, number, number])
 }
 
-function hasVisibleSolid(id: string, nodes: Record<string, SceneNode>): boolean {
-  const n = nodes[id]
-  if (!n || n.hidden) return false
-  if (n.type === 'primitive' || n.type === 'mannequin') return true
-  return n.type === 'group' && n.childIds.some((c) => hasVisibleSolid(c, nodes))
+/** Visible, and not inside a hidden group. */
+export function isShown(id: string, nodes: Record<string, SceneNode>): boolean {
+  for (let n: SceneNode | undefined = nodes[id]; n; n = n.parentId ? nodes[n.parentId] : undefined) {
+    if (n.hidden) return false
+  }
+  return true
+}
+
+/**
+ * Which entity a node belongs to: the nearest of itself and its parent groups that is linked to a
+ * cast member or prop, or has its own description. null = part of the background.
+ */
+export function entityKey(id: string, nodes: Record<string, SceneNode>): string | null {
+  for (let n: SceneNode | undefined = nodes[id]; n; n = n.parentId ? nodes[n.parentId] : undefined) {
+    if (n.type === 'mannequin' && n.castId) return `cast:${n.castId}`
+    if ((n.type === 'primitive' || n.type === 'group') && n.propId) return `prop:${n.propId}`
+    if ((n.type === 'primitive' || n.type === 'group' || n.type === 'mannequin') && n.description.trim()) return `node:${n.id}`
+  }
+  return null
+}
+
+/**
+ * The Object ID legend: one flat colour per cast member, prop and described object that has a
+ * visible figure or object in this scene: cast first, then props, then objects (outliner order).
+ * A cast member with two figures is one entry.
+ */
+export function idLegend(
+  rootIds: string[],
+  nodes: Record<string, SceneNode>,
+  cast: { id: string; name: string }[],
+  props: { id: string; name: string }[]
+): IdEntry[] {
+  const members = new Map<string, string[]>()
+  // Walk in outliner order so described objects keep that order.
+  const walk = (id: string) => {
+    const n = nodes[id]
+    if (!n) return
+    if ((n.type === 'primitive' || n.type === 'mannequin') && isShown(id, nodes)) {
+      const key = entityKey(id, nodes)
+      if (key) members.set(key, [...(members.get(key) ?? []), id])
+    }
+    if (n.type === 'group') n.childIds.forEach(walk)
+  }
+  rootIds.forEach(walk)
+
+  const entries: Omit<IdEntry, 'color'>[] = []
+  for (const c of cast) {
+    const ids = members.get(`cast:${c.id}`)
+    if (ids) entries.push({ key: `cast:${c.id}`, kind: 'cast', refId: c.id, name: c.name, nodeIds: ids })
+  }
+  for (const p of props) {
+    const ids = members.get(`prop:${p.id}`)
+    if (ids) entries.push({ key: `prop:${p.id}`, kind: 'prop', refId: p.id, name: p.name, nodeIds: ids })
+  }
+  for (const [key, ids] of members) {
+    if (!key.startsWith('node:')) continue
+    const id = key.slice(5)
+    entries.push({ key, kind: 'object', refId: id, name: nodes[id]?.name ?? id, nodeIds: ids })
+  }
+  return entries.map((e, i) => ({ ...e, color: idColor(i) }))
 }

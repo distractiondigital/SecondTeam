@@ -61,6 +61,56 @@
       "style": "Guides the image from the render passes (depth now; pose, normals and segmentation later).",
       "default": true,
       "required": true
+    },
+    {
+      "id": "ipadapter-plus-sdxl-vith",
+      "name": "IP-Adapter Plus SDXL (ViT-H)",
+      "kind": "ipadapter",
+      "family": "sdxl",
+      "file": "ip-adapter-plus_sdxl_vit-h.safetensors",
+      "folder": "ipadapter",
+      "url": "https://huggingface.co/h94/IP-Adapter/resolve/main/sdxl_models/ip-adapter-plus_sdxl_vit-h.safetensors",
+      "sha256": "3f5062b8400c94b7159665b21ba5c62acdcd7682262743d7f2aefedef00e6581",
+      "size": 847517512,
+      "license": "Apache-2.0",
+      "licenseUrl": "https://huggingface.co/h94/IP-Adapter",
+      "commercial": true,
+      "style": "Makes cast, props and the style reference follow their reference images.",
+      "default": true,
+      "required": true
+    },
+    {
+      "id": "clip-vision-vith",
+      "name": "CLIP ViT-H image encoder",
+      "kind": "clip_vision",
+      "family": "sdxl",
+      "file": "CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors",
+      "folder": "clip_vision",
+      "url": "https://huggingface.co/h94/IP-Adapter/resolve/main/models/image_encoder/model.safetensors",
+      "sha256": "6ca9667da1ca9e0b0f75e46bb030f7e011f44f86cbfb8d5a36590fcd7507b030",
+      "size": 2528373448,
+      "license": "Apache-2.0 (h94/IP-Adapter; original LAION CLIP ViT-H-14 is MIT)",
+      "licenseUrl": "https://huggingface.co/h94/IP-Adapter",
+      "commercial": true,
+      "style": "Reads reference images for IP-Adapter.",
+      "default": true,
+      "required": true
+    }
+  ],
+  "customNodes": [
+    {
+      "id": "comfyui-ipadapter-plus",
+      "name": "ComfyUI_IPAdapter_plus (cubiq)",
+      "version": "a0f451a5113cf9becb0847b92884cb10cbdec0ef",
+      "url": "https://github.com/cubiq/ComfyUI_IPAdapter_plus/archive/a0f451a5113cf9becb0847b92884cb10cbdec0ef.zip",
+      "sha256": "c6c49c82aa65cb96b93bdf9f9b547f9c95310a2668a7a9aaa0285cccf4590347",
+      "size": 306422,
+      "license": "GPL-3.0",
+      "licenseUrl": "https://github.com/cubiq/ComfyUI_IPAdapter_plus/blob/main/LICENSE",
+      "notes": "ComfyUI add-on (runs inside ComfyUI). No code is copied into Second Team. Approved by Spencer 2026-09-30.",
+      "archiveFolder": "ComfyUI_IPAdapter_plus-a0f451a5113cf9becb0847b92884cb10cbdec0ef",
+      "folder": "ComfyUI_IPAdapter_plus",
+      "default": true
     }
   ]
 }
