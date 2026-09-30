@@ -1,2 +1,4 @@
-* text=auto
+# Keep source files with LF line endings in the working copy too (the editing tools and
+# scripts expect one style); only the Windows launcher uses CRLF.
+* text=auto eol=lf
 *.bat text eol=crlf

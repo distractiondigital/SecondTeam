@@ -23,7 +23,7 @@ import NumberField from './NumberField'
 // Properties for posable figures: the whole-figure section and the joint-posing section.
 
 /** A slider where one drag is one undo step. */
-function GestureSlider(props: {
+export function GestureSlider(props: {
   value: number
   min: number
   max: number

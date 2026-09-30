@@ -6,7 +6,7 @@
 | 1 | Set building | ✅ Done (tested by Spencer 2026-09-29) | Six primitives; gizmo with snapping; outliner (tree, rename, hide, lock); properties with real-size fields; m/ft; group/duplicate/delete; full undo/redo; save/open `.secondteam` folders; unsaved-changes prompts. Snap modes (Off/Grid/Surface, Ctrl to flip), anchors. 23 automated tests. |
 | 2 | Mannequins | ✅ Done (tested by Spencer 2026-09-29) | 17-joint FK figure; click a body part to pose; realistic limits (toggle per figure); 7 presets + mirror; height (child→adult proportions) and build. Follow-up: user pose presets (project + app library), 42 automated tests. |
 | 3 | Cameras & shot list | ✅ Done (tested by Spencer 2026-09-29) | Shot cameras from the current view; camera view with game-style fly controls; sensors incl. PYXIS 12K / ALEXA 35; squeeze; frame guides + delivery frame; HUD readouts; shot size/angle; shot list with live thumbnails. 56 automated tests. |
-| 4 | Lights & clay render | ⬜ | |
+| 4 | Lights & clay render | 🟨 Built, awaiting Spencer's test | Sun / point / spot / ambient lights (stops, Kelvin, softness, shadows, spot cone); Work/Clay shading with auto Clay in camera view; soft shadows; per-shot light cheats; clay thumbnails; automatic lighting description per shot. 86 automated tests. |
 | 5 | Render passes | ⬜ | |
 | 6 | First AI frames | ⬜ | |
 | 7 | Continuity | ⬜ | |
@@ -50,8 +50,14 @@
 
 - 2026-09-29 (M3 feedback): **Scenes & shots** (Spencer): a project has numbered scenes (picker at the top of the Outliner: new / duplicate-set / rename / delete); each scene's set is what we called Master; shots are named 1A, 1B… (I and O skipped) and added from the Shot list (＋ Add shot); cameras belong to shots and are hidden from the Outliner and never grouped. **One camera body per project** (sensor, squeeze, guides, delivery frame, thirds in `project.camera`); lens, focus, placement per shot. Schema **v5**; v4 files convert (kit from the first shot, numeric shots renamed 1A…).
 - 2026-09-29 (M3 feedback): Number boxes can be dragged to scrub values (Shift fine, Ctrl coarse; pointer lock so drags don't stop at the screen edge; one drag = one undo step). Shots can be dragged to reorder; shot names always follow list order (reorder and delete rename them), so the shot name is no longer editable by hand.
+- 2026-09-30 (M4): Lights are scene nodes (schema **v6**) with an extra **Ambient** type (soft sky fill) beyond the spec's sun/point/spot, so clay shadows aren't pure black. Brightness in **stops** (Spencer): 0 = standard key (2.5 three.js units at the subject; point/spot reach that at 2 m with inverse-square falloff). Colour temperature via a blackbody fit (`src/shared/lighting.ts`).
+- 2026-09-30 (M4): **Work / Clay** shading (Spencer): Clay = uniform matte grey (#b5b5b5), scene lights only, variance shadow maps (per-light softness = blur radius); camera view switches to Clay automatically and back only if it did the switching. A scene with no lights falls back to a dim fill plus a note. Thumbnails render in Clay when the shot has lights.
+- 2026-09-30 (M4): Lighting description = key light (most light on the subject) described relative to the camera (front / three-quarter / side / behind, high / top / low), hard/soft, warm/cool, rim from behind, contrast from key:fill in stops. Overridable per shot.
+- 2026-09-30: The repo now keeps LF line endings in the working copy too (`.gitattributes`); mixed endings had been making some scripted edits silently miss.
 
 ## Ideas / later
+- Light gels / colours beyond colour temperature; practical lights (lamps) as props that emit light.
+- Area / soft-box lights, flags and bounce.
 - Shoot order: a separate order for the shooting schedule that doesn't rename shots (Spencer).
 - Fly controls (right-mouse + WASD) in the free view too.
 - Show other cameras' positions in camera view as small markers (currently hidden for a clean frame).

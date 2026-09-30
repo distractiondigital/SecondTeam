@@ -207,7 +207,7 @@ describe('figures', () => {
     expect(figure(copy).pose).toEqual(figure(a).pose)
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(5)
+    expect(loaded.schemaVersion).toBe(6)
   })
 
   it('saves poses into the project and applies them to other figures', () => {
@@ -360,6 +360,46 @@ describe('scenes', () => {
   })
 })
 
+describe('lights', () => {
+  const lamp = (id: string, shotId: string | null = null) => {
+    const n = sceneForShot(doc(), shotId)[id]
+    if (n.type !== 'light') throw new Error('not a light')
+    return n
+  }
+
+  it('adds lights aimed down and forward, with sensible defaults', () => {
+    const sun = doc().addLight('sun', [1, 2])
+    expect(lamp(sun).name).toBe('Sun 1')
+    expect(lamp(sun).position).toEqual([1, 2.5, 2])
+    expect(lamp(sun).stops).toBe(0)
+    const amb = doc().addLight('ambient')
+    expect(lamp(amb).shadows).toBe(false)
+    expect(lamp(amb).stops).toBe(-2)
+  })
+
+  it('keeps values in range and never scales lights', () => {
+    const spot = doc().addLight('spot')
+    doc().updateNode(spot, { stops: 12, kelvin: 500, softness: 3, coneAngle: 400, scale: [2, 2, 2] })
+    expect([lamp(spot).stops, lamp(spot).kelvin, lamp(spot).softness, lamp(spot).coneAngle]).toEqual([6, 1800, 1, 120])
+    expect(lamp(spot).scale).toEqual([1, 1, 1])
+  })
+
+  it('can be cheated per shot', () => {
+    const sun = doc().addLight('sun')
+    const shot = doc().addCamera({ position: [0, 1.6, 4], rotation: [0, 0, 0] })
+    doc().setActiveShot(shot)
+    doc().updateNode(sun, { stops: 1, kelvin: 3200 })
+    expect([lamp(sun, shot).stops, lamp(sun, shot).kelvin]).toEqual([1, 3200])
+    expect([lamp(sun).stops, lamp(sun).kelvin]).toEqual([0, 5600])
+  })
+
+  it('saves and loads lights', () => {
+    doc().addLight('spot')
+    const loaded = parseProject(serializeProject(doc().project))
+    expect(loaded).toEqual(doc().project)
+  })
+})
+
 describe('older project files', () => {
   it('turns v4 per-camera settings into the project camera and renames numbered shots', () => {
     const raw = {
@@ -389,7 +429,7 @@ describe('older project files', () => {
       ]
     }
     const p = parseProject(JSON.stringify(raw))
-    expect(p.schemaVersion).toBe(5)
+    expect(p.schemaVersion).toBe(6)
     expect(p.camera.sensor.preset).toBe('alexa35')
     expect(p.camera.delivery).toBe('2.39')
     expect(p.scenes[0].number).toBe(1)
@@ -406,7 +446,7 @@ describe('older project files', () => {
     const raw = JSON.parse(serializeProject(doc().project))
     raw.schemaVersion = 1
     delete raw.camera
-    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(5)
+    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(6)
   })
 })
 describe('master scene and per-shot changes', () => {
@@ -514,7 +554,7 @@ describe('master scene and per-shot changes', () => {
     doc().updateNode(box, { hidden: true })
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(5)
+    expect(loaded.schemaVersion).toBe(6)
   })
 
   it('leaves the shot if undo removes its camera', () => {

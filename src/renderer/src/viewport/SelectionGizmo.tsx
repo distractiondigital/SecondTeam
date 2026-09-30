@@ -68,7 +68,7 @@ export default function SelectionGizmo() {
   // While posing a joint, the joint gizmo takes over.
   if (selectedJoint && node.type === 'mannequin') return null
   // A figure's size comes from its Height setting, and cameras don't scale.
-  if ((node.type === 'mannequin' || node.type === 'camera') && mode === 'scale') return null
+  if ((node.type === 'mannequin' || node.type === 'camera' || node.type === 'light') && mode === 'scale') return null
   // Don't put a gizmo on the camera you're looking through (it would sit on the lens).
   if (lookId === targetId) return null
 

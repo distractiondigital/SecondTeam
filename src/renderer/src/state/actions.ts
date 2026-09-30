@@ -1,4 +1,5 @@
 import { compareShotNumbers } from '../../../shared/camera'
+import type { LightKind } from '../../../shared/lighting'
 import { sceneLabel, type CameraNode, type PrimitiveType } from '../../../shared/project'
 import { viewportBridge } from '../viewport/viewportBridge'
 import { activeScene, editedNodes, useDocument } from './documentStore'
@@ -17,6 +18,11 @@ export function liveSelection(): string[] {
 
 export function addPrimitive(type: PrimitiveType): void {
   const id = doc().addPrimitive(type, viewportBridge.getGroundPoint())
+  ui().select([id])
+}
+
+export function addLight(kind: LightKind): void {
+  const id = doc().addLight(kind, viewportBridge.getGroundPoint())
   ui().select([id])
 }
 

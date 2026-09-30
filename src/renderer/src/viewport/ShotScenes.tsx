@@ -1,9 +1,9 @@
 import { useEffect, useMemo } from 'react'
 import { Color, Scene } from 'three'
 import { createPortal } from '@react-three/fiber'
-import { activeScene, useDocument } from '../state/documentStore'
+import { activeScene, sceneForShot, useDocument } from '../state/documentStore'
 import GroundGrid from './GroundGrid'
-import SceneNodes from './SceneNodes'
+import SceneNodes, { hasLights } from './SceneNodes'
 
 // A hidden copy of the set for every shot, each showing that shot's version (Master plus the
 // shot's own changes). They're never drawn on screen; ShotTracker renders thumbnails and
@@ -25,6 +25,8 @@ export function WorkLights() {
 export const shotScenes = new Map<string, Scene>()
 
 function ShotScene({ shotId }: { shotId: string }) {
+  // Thumbnails show the shot lit (Clay); a scene without lights falls back to the work look.
+  const clay = useDocument((s) => hasLights(sceneForShot(s, shotId)))
   const scene = useMemo(() => {
     const s = new Scene()
     s.background = new Color(BACKGROUND)
@@ -39,9 +41,9 @@ function ShotScene({ shotId }: { shotId: string }) {
 
   return createPortal(
     <>
-      <WorkLights />
+      {!clay && <WorkLights />}
       <GroundGrid />
-      <SceneNodes shotId={shotId} passive />
+      <SceneNodes shotId={shotId} passive clay={clay} />
     </>,
     scene
   )

@@ -3,6 +3,14 @@ import { ChevronDown, Clapperboard, ChevronRight, Eye, EyeOff, Folder, Lock, Loc
 import { activeScene, editedNodes, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import ScenePicker from './ScenePicker'
+import { LIGHT_ICONS } from './lightIcons'
+import { kelvinToRgb, type LightKind } from '../../../shared/lighting'
+
+function LightIcon({ kind, kelvin }: { kind: LightKind; kelvin: number }) {
+  const Icon = LIGHT_ICONS[kind]
+  const [r, g, b] = kelvinToRgb(kelvin)
+  return <Icon size={14} className="row-icon" style={{ color: `rgb(${r * 255}, ${g * 255}, ${b * 255})` }} />
+}
 
 // The object list: a tree of the scene's objects and groups.
 
@@ -75,6 +83,8 @@ function OutlinerRow({ id, depth, inHidden }: { id: string; depth: number; inHid
         )}
         {node.type === 'group' ? (
           <Folder size={14} className="row-icon" />
+        ) : node.type === 'light' ? (
+          <LightIcon kind={node.kind} kelvin={node.kelvin} />
         ) : node.type === 'mannequin' ? (
           <PersonStanding size={14} className="row-icon" style={{ color: node.color }} />
         ) : (

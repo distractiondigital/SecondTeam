@@ -17,7 +17,13 @@ export const OVERRIDABLE_FIELDS = [
   'pose',
   'height',
   'build',
-  'limits'
+  'limits',
+  'stops',
+  'kelvin',
+  'softness',
+  'shadows',
+  'coneAngle',
+  'falloff'
 ] as const
 export type OverridableField = (typeof OVERRIDABLE_FIELDS)[number]
 
@@ -32,6 +38,12 @@ export interface NodeOverride {
   height?: number
   build?: number
   limits?: boolean
+  stops?: number
+  kelvin?: number
+  softness?: number
+  shadows?: boolean
+  coneAngle?: number
+  falloff?: number
 }
 
 export type ShotOverrides = Record<string, NodeOverride>
@@ -45,6 +57,8 @@ export function overridableFor(node: SceneNode): OverridableField[] {
       return ['position', 'rotation', 'scale', 'hidden']
     case 'mannequin':
       return ['position', 'rotation', 'hidden', 'color', 'pose', 'height', 'build', 'limits']
+    case 'light':
+      return ['position', 'rotation', 'hidden', 'stops', 'kelvin', 'softness', 'shadows', 'coneAngle', 'falloff']
     case 'camera':
       return []
   }
@@ -105,6 +119,9 @@ export function overriddenFields(overrides: ShotOverrides | undefined, id: strin
   return o ? (OVERRIDABLE_FIELDS.filter((f) => o[f] !== undefined) as OverridableField[]) : []
 }
 
+type NumberField = 'height' | 'build' | 'stops' | 'kelvin' | 'softness' | 'coneAngle' | 'falloff'
+const NUMBER_FIELDS: string[] = ['height', 'build', 'stops', 'kelvin', 'softness', 'coneAngle', 'falloff']
+
 const isVec3 = (v: unknown): v is Vec3 =>
   Array.isArray(v) && v.length === 3 && v.every((n) => typeof n === 'number' && Number.isFinite(n))
 
@@ -121,10 +138,10 @@ export function sanitizeOverrides(raw: unknown, nodes: Record<string, SceneNode>
       const x = v[f]
       if (x === undefined) continue
       if ((f === 'position' || f === 'rotation' || f === 'scale') && isVec3(x)) o[f] = x
-      else if ((f === 'hidden' || f === 'limits') && typeof x === 'boolean') o[f] = x
+      else if ((f === 'hidden' || f === 'limits' || f === 'shadows') && typeof x === 'boolean') o[f] = x
       else if (f === 'color' && typeof x === 'string') o.color = x
       else if (f === 'anchor' && (x === 'bottom' || x === 'center' || x === 'top')) o.anchor = x
-      else if ((f === 'height' || f === 'build') && typeof x === 'number' && Number.isFinite(x)) o[f] = x
+      else if (NUMBER_FIELDS.includes(f) && typeof x === 'number' && Number.isFinite(x)) o[f as NumberField] = x
       else if (f === 'pose') {
         const pose = sanitizePose(x)
         if (pose) o.pose = pose

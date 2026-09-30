@@ -21,7 +21,9 @@ import {
 } from 'lucide-react'
 import { PRIMITIVE_TYPES, type PrimitiveType } from '../../../shared/project'
 import { PRIMITIVES } from '../../../shared/primitives'
-import { addMannequin, addPrimitive, redo, toggleCameraView, undo } from '../state/actions'
+import { addLight, addMannequin, addPrimitive, redo, toggleCameraView, undo } from '../state/actions'
+import { LIGHT_KINDS, LIGHT_LABELS } from '../../../shared/lighting'
+import { LIGHT_ICONS } from './lightIcons'
 import { useDocument } from '../state/documentStore'
 import { newProject, openProject, saveProject, saveProjectAs } from '../state/projectIO'
 import { useUi, type GizmoMode, type SnapMode } from '../state/uiStore'
@@ -41,6 +43,13 @@ const GIZMO_MODES: { mode: GizmoMode; label: string; key: string; icon: LucideIc
   { mode: 'rotate', label: 'Rotate', key: 'E', icon: Rotate3d },
   { mode: 'scale', label: 'Scale', key: 'R', icon: Scale3d }
 ]
+
+const LIGHT_DESCRIPTIONS = {
+  sun: 'a sun (daylight from one direction; only its angle matters)',
+  point: 'a point light (a bare bulb)',
+  spot: 'a spot light (a beam with a cone)',
+  ambient: 'an ambient fill (soft, even light from the sky)'
+}
 
 const HOLD_CTRL = 'Hold Ctrl while dragging to flip grid snapping on or off. Shift+Tab cycles modes.'
 
@@ -95,6 +104,7 @@ export default function Toolbar() {
   const gizmoMode = useUi((s) => s.gizmoMode)
   const snapMode = useUi((s) => s.snapMode)
   const lookingThrough = useUi((s) => s.lookThroughId !== null)
+  const shading = useUi((s) => s.shading)
   const units = useUi((s) => s.units)
   const canUndo = useDocument((s) => s.past.length > 0)
   const canRedo = useDocument((s) => s.future.length > 0)
@@ -129,7 +139,36 @@ export default function Toolbar() {
         <ToolButton icon={PersonStanding} label="Figure" title="Add a posable figure" onClick={addMannequin} />
       </Group>
 
+      <Group label="Lights">
+        {LIGHT_KINDS.map((kind) => (
+          <ToolButton
+            key={kind}
+            icon={LIGHT_ICONS[kind]}
+            label={LIGHT_LABELS[kind]}
+            title={`Add ${LIGHT_DESCRIPTIONS[kind]}`}
+            onClick={() => addLight(kind)}
+            showLabel={false}
+          />
+        ))}
+      </Group>
+
       <Group label="View">
+        <div className="segmented">
+          <button
+            className={shading === 'work' ? 'active' : ''}
+            title="Work shading: object colours under even light"
+            onClick={() => ui().setShading('work')}
+          >
+            Work
+          </button>
+          <button
+            className={shading === 'clay' ? 'active' : ''}
+            title="Clay shading: grey surfaces lit only by the scene's lights, with shadows (automatic in camera view)"
+            onClick={() => ui().setShading('clay')}
+          >
+            Clay
+          </button>
+        </div>
         <ToolButton
           icon={Eye}
           label="Camera view"

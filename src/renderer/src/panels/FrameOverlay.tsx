@@ -42,6 +42,7 @@ export default function FrameOverlay({ container }: { container: RefObject<HTMLE
     kit.sensor.preset === 'custom' ? `${kit.sensor.width}×${kit.sensor.height} mm` : SENSOR_PRESETS[kit.sensor.preset].label
   const size = node.sizeOverride ?? info?.size?.label
   const angle = node.angleOverride ?? info?.angle
+  const lighting = node.lightingOverride ?? info?.lighting
 
   return (
     <div className="frame-overlay">
@@ -101,6 +102,7 @@ export default function FrameOverlay({ container }: { container: RefObject<HTMLE
           </>
         )}
         {(size || angle) && <span className="hud-size">{[size, angle].filter(Boolean).join(' · ')}</span>}
+        {lighting && <span className="hud-lighting">{lighting}</span>}
       </div>
 
       <div className="hud hud-help">

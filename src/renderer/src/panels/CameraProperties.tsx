@@ -170,6 +170,23 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
             ))}
           </select>
         </div>
+        <div className="prop-title prop-title-spaced" title="Worked out from the scene's lights; type your own to override">
+          Lighting
+        </div>
+        <input
+          key={node.id + (node.lightingOverride ?? '')}
+          className="name-input plain"
+          defaultValue={node.lightingOverride ?? ''}
+          placeholder={info?.lighting ? `Auto: ${info.lighting}` : 'Auto: (no lights in this scene)'}
+          title={info?.lighting ? `Auto: ${info.lighting}` : undefined}
+          disabled={disabled}
+          onBlur={(e) => {
+            const text = e.target.value.trim()
+            if (text !== (node.lightingOverride ?? '')) update({ lightingOverride: text || null })
+          }}
+          onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+        />
+        {info?.lighting && !node.lightingOverride && <p className="hint small">{info.lighting}</p>}
       </div>
 
       <div className="prop-section">

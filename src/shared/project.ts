@@ -22,10 +22,12 @@ import {
   type CameraKit
 } from './camera'
 import { sanitizeOverrides, type ShotOverrides } from './overrides'
+import { clampCone, clampKelvin, clampStops, clampUnit, LIGHT_KINDS, type LightKind } from './lighting'
 
 // v1: M1 (primitives, groups). v2: M2 adds mannequins. v3: M3 adds cameras.
 // v4: per-shot changes (camera.overrides). v5: numbered scenes, shots 1A/1B…, one camera kit per project.
-export const SCHEMA_VERSION = 5
+// v6: lights.
+export const SCHEMA_VERSION = 6
 
 export type Vec3 = [number, number, number]
 
@@ -104,12 +106,31 @@ export interface CameraNode extends NodeBase {
   subjectId: string | null
   sizeOverride: string | null
   angleOverride: string | null
+  /** Hand-written lighting description; null = worked out from the lights. */
+  lightingOverride: string | null
   notes: string
   /** This shot's changes to other objects; everything else follows the Master scene. */
   overrides: ShotOverrides
 }
 
-export type SceneNode = PrimitiveNode | GroupNode | MannequinNode | CameraNode
+/** A light. Sun and spot shine down their local -Z; ambient is an even fill with no direction. */
+export interface LightNode extends NodeBase {
+  type: 'light'
+  kind: LightKind
+  /** Brightness in stops: 0 = standard key, +1 = twice as bright. */
+  stops: number
+  /** Colour temperature. */
+  kelvin: number
+  /** 0 = hard shadows, 1 = very soft. */
+  softness: number
+  shadows: boolean
+  /** Spot: full cone angle in degrees. */
+  coneAngle: number
+  /** Spot: how soft the edge of the beam is, 0-1. */
+  falloff: number
+}
+
+export type SceneNode = PrimitiveNode | GroupNode | MannequinNode | CameraNode | LightNode
 
 export interface Scene {
   id: string
@@ -236,6 +257,8 @@ function checkNode(node: unknown, id: string, scene: Scene): void {
     if (!Array.isArray(n!.childIds) || !n!.childIds.every((c) => c in scene.nodes)) bad('child list')
   } else if (n!.type === 'camera') {
     if (typeof (n as Partial<CameraNode>).focalLength !== 'number') bad('lens')
+  } else if (n!.type === 'light') {
+    if (!LIGHT_KINDS.includes((n as Partial<LightNode>).kind as LightKind)) bad('light type')
   } else if (n!.type === 'mannequin') {
     const pose = n!.pose as Partial<Pose> | undefined
     if (!pose || typeof pose !== 'object' || typeof pose.joints !== 'object' || pose.joints === null) bad('pose')
@@ -257,6 +280,7 @@ export function repairCamera(c: CameraNode): void {
   c.subjectId = typeof c.subjectId === 'string' ? c.subjectId : null
   c.sizeOverride = typeof c.sizeOverride === 'string' && c.sizeOverride ? c.sizeOverride : null
   c.angleOverride = typeof c.angleOverride === 'string' && c.angleOverride ? c.angleOverride : null
+  c.lightingOverride = typeof c.lightingOverride === 'string' && c.lightingOverride ? c.lightingOverride : null
   c.notes = typeof c.notes === 'string' ? c.notes : ''
 }
 
@@ -271,6 +295,15 @@ function repairNode(node: SceneNode, scene: Scene): void {
   if (node.type === 'camera') {
     repairCamera(node)
     node.overrides = sanitizeOverrides(node.overrides, scene.nodes)
+  }
+  if (node.type === 'light') {
+    node.scale = [1, 1, 1]
+    node.stops = clampStops(node.stops ?? 0)
+    node.kelvin = clampKelvin(node.kelvin ?? 5600)
+    node.softness = clampUnit(node.softness ?? 0.5)
+    node.shadows = node.shadows !== false
+    node.coneAngle = clampCone(node.coneAngle ?? 40)
+    node.falloff = clampUnit(node.falloff ?? 0.3)
   }
   if (node.type === 'mannequin') {
     node.scale = [1, 1, 1]

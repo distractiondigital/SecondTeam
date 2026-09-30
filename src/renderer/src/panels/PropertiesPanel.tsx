@@ -4,6 +4,7 @@ import { deleteSelected, groupSelected, ungroupSelected } from '../state/actions
 import { activeScene, editedNodes, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import CameraProperties from './CameraProperties'
+import LightProperties from './LightProperties'
 import OverrideBar from './OverrideBar'
 import { FigureSection, JointProperties } from './FigureProperties'
 import NumberField, { type NumberKind } from './NumberField'
@@ -195,6 +196,18 @@ export default function PropertiesPanel() {
         <div className="panel-header">Camera</div>
         <div className="panel-body">
           <CameraProperties node={single} />
+        </div>
+      </aside>
+    )
+  }
+
+  if (single?.type === 'light') {
+    return (
+      <aside className="panel properties">
+        <div className="panel-header">Light</div>
+        <div className="panel-body">
+          <OverrideBar id={single.id} />
+          <LightProperties node={single} />
         </div>
       </aside>
     )

@@ -15,7 +15,13 @@ const FIELD_LABELS: Record<OverridableField, string> = {
   pose: 'pose',
   height: 'height',
   build: 'build',
-  limits: 'joint limits'
+  limits: 'joint limits',
+  stops: 'brightness',
+  kelvin: 'colour temperature',
+  softness: 'softness',
+  shadows: 'shadows',
+  coneAngle: 'cone angle',
+  falloff: 'beam edge'
 }
 
 export default function OverrideBar({ id }: { id: string }) {

@@ -10,6 +10,7 @@ import {
   type Anchor,
   type CameraNode,
   type GroupNode,
+  type LightNode,
   type MannequinNode,
   type PrimitiveNode,
   type PrimitiveType,
@@ -44,10 +45,19 @@ import {
   nextShotName,
   renumberShot,
   repairKit,
+  rotationFromPanTiltRoll,
   shotLetters,
   type CameraKit
 } from '../../../shared/camera'
 import { applyOverride, effectiveNodes, isOverridable } from '../../../shared/overrides'
+import {
+  clampCone,
+  clampKelvin,
+  clampStops,
+  clampUnit,
+  LIGHT_LABELS,
+  type LightKind
+} from '../../../shared/lighting'
 
 // The document store holds the project: everything that is saved to disk and can be undone.
 // Undo works by keeping whole-project snapshots. Immer shares unchanged parts between
@@ -63,12 +73,17 @@ export type CameraField =
   | 'subjectId'
   | 'sizeOverride'
   | 'angleOverride'
+  | 'lightingOverride'
   | 'notes'
+
+export type LightField = 'stops' | 'kelvin' | 'softness' | 'shadows' | 'coneAngle' | 'falloff'
+const LIGHT_FIELDS: LightField[] = ['stops', 'kelvin', 'softness', 'shadows', 'coneAngle', 'falloff']
 
 export type NodePatch = Partial<
   Pick<PrimitiveNode, 'name' | 'position' | 'rotation' | 'scale' | 'color' | 'hidden' | 'locked'> &
     Pick<MannequinNode, 'height' | 'build' | 'limits'> &
-    Pick<CameraNode, CameraField>
+    Pick<CameraNode, CameraField> &
+    Pick<LightNode, LightField>
 >
 
 const CAMERA_FIELDS: CameraField[] = [
@@ -78,6 +93,7 @@ const CAMERA_FIELDS: CameraField[] = [
   'subjectId',
   'sizeOverride',
   'angleOverride',
+  'lightingOverride',
   'notes'
 ]
 
@@ -88,7 +104,8 @@ const FIELD_TYPES: Partial<Record<keyof NodePatch, SceneNode['type'][]>> = {
   build: ['mannequin'],
   limits: ['mannequin'],
   scale: ['primitive', 'group'], // a figure's size comes from its height; cameras don't scale
-  ...Object.fromEntries(CAMERA_FIELDS.map((f) => [f, ['camera']]))
+  ...Object.fromEntries(CAMERA_FIELDS.map((f) => [f, ['camera']])),
+  ...Object.fromEntries(LIGHT_FIELDS.map((f) => [f, ['light']]))
 }
 
 /** Where a new camera comes from: the current view, plus optional settings to copy. */
@@ -103,6 +120,10 @@ function normalizeField(key: keyof NodePatch, value: unknown): unknown {
   if (key === 'scale') return clampScale(value as Vec3)
   if (key === 'height') return clampHeight(value as number)
   if (key === 'build') return clampBuild(value as number)
+  if (key === 'stops') return clampStops(value as number)
+  if (key === 'kelvin') return clampKelvin(value as number)
+  if (key === 'softness' || key === 'falloff') return clampUnit(value as number)
+  if (key === 'coneAngle') return clampCone(value as number)
   return value
 }
 
@@ -147,6 +168,8 @@ interface DocumentState {
   reorderShots: (cameraIds: string[]) => void
 
   addMannequin: (groundPoint?: [number, number]) => string
+  /** Add a light at the view centre, 2.5 m up; sun and spot start aimed down and forward. */
+  addLight: (kind: LightKind, groundPoint?: [number, number]) => string
   /** Set one joint's rotation (degrees); clamped to realistic limits if the figure has them on. */
   setJointRotation: (id: string, joint: JointName, rotation: Vec3) => void
   /** Pelvis shift from standing, as a fraction of the figure's height. */
@@ -332,6 +355,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
           subjectId: null,
           sizeOverride: null,
           angleOverride: null,
+          lightingOverride: null,
           notes: '',
           // A shot made while another shot is active starts from that shot's version of the set.
           overrides: shot ? toPlainValue(shot.overrides)! : {}
@@ -429,6 +453,35 @@ export const useDocument = create<DocumentState>()((set, get) => {
           anchor
         })
       })
+    },
+
+    addLight: (kind, groundPoint = [0, 0]) => {
+      const id = newId()
+      change((scene) => {
+        const aimed = kind === 'sun' || kind === 'spot'
+        const node: LightNode = {
+          id,
+          type: 'light',
+          kind,
+          name: nextName(scene, LIGHT_LABELS[kind]),
+          parentId: null,
+          position: [round(groundPoint[0]), kind === 'ambient' ? 3 : 2.5, round(groundPoint[1])],
+          // Aimed down and forward: pan 30°, tilt down 45° (sun) or 60° (spot).
+          rotation: aimed ? rotationFromPanTiltRoll(30, kind === 'sun' ? -45 : -60, 0) : [0, 0, 0],
+          scale: [1, 1, 1],
+          hidden: false,
+          locked: false,
+          stops: kind === 'ambient' ? -2 : 0,
+          kelvin: kind === 'sun' ? 5600 : kind === 'ambient' ? 7000 : 3200,
+          softness: kind === 'ambient' ? 1 : 0.4,
+          shadows: kind !== 'ambient',
+          coneAngle: 40,
+          falloff: 0.3
+        }
+        scene.nodes[id] = node
+        scene.rootIds.push(id)
+      })
+      return id
     },
 
     addMannequin: (groundPoint = [0, 0]) => {

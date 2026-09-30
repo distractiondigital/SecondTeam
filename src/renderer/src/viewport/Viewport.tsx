@@ -4,13 +4,13 @@ import { Canvas } from '@react-three/fiber'
 import { GizmoHelper, GizmoViewport, OrbitControls } from '@react-three/drei'
 import EditingBanner from '../panels/EditingBanner'
 import FrameOverlay from '../panels/FrameOverlay'
-import { useDocument } from '../state/documentStore'
+import { editedNodes, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import FrameController from './FrameController'
 import GroundGrid from './GroundGrid'
 import JointGizmo from './JointGizmo'
 import LookThrough from './LookThrough'
-import SceneNodes from './SceneNodes'
+import SceneNodes, { hasLights } from './SceneNodes'
 import SelectionGizmo from './SelectionGizmo'
 import ShotScenes, { BACKGROUND, WorkLights } from './ShotScenes'
 import ShotTracker from './ShotTracker'
@@ -27,10 +27,13 @@ export default function Viewport() {
   const container = useRef<HTMLDivElement>(null)
   const lookingThrough = useUi((s) => s.lookThroughId !== null)
   const activeShotId = useDocument((s) => s.activeShotId)
+  const clay = useUi((s) => s.shading === 'clay')
+  const lit = useDocument((s) => hasLights(editedNodes(s)))
 
   return (
     <div className={`viewport-wrap${activeShotId ? ' in-shot' : ''}`} ref={container}>
       <Canvas
+        shadows="variance"
         camera={{ position: [6, 4, 8], fov: 40, near: 0.05, far: 1000 }}
         onPointerMissed={(e) => {
           // Clicking empty space steps back out of joint posing, then clears the selection.
@@ -41,11 +44,13 @@ export default function Viewport() {
         }}
       >
         <color attach="background" args={[BACKGROUND]} />
-        <WorkLights />
+        {/* Work shading: even work light. Clay: only the scene's lights (a dim fill if there are none). */}
+        {!clay && <WorkLights />}
+        {clay && !lit && <hemisphereLight args={['#ffffff', '#444444', 0.6]} />}
 
         <GroundGrid />
         {/* The set as the shot being edited sees it (Master if none). */}
-        <SceneNodes shotId={activeShotId} />
+        <SceneNodes shotId={activeShotId} clay={clay} />
         <ShotScenes />
         <SelectionGizmo />
         <JointGizmo />
@@ -63,6 +68,7 @@ export default function Viewport() {
       </Canvas>
       <FrameOverlay container={container} />
       <EditingBanner />
+      {clay && !lit && <div className="viewport-note">No lights in this scene: add one from the toolbar.</div>}
     </div>
   )
 }

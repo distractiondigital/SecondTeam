@@ -5,6 +5,7 @@ import { Outlines } from '@react-three/drei'
 import { proportions, type JointName, type Proportions } from '../../../shared/mannequin'
 import type { MannequinNode, Vec3 } from '../../../shared/project'
 import { useUi } from '../state/uiStore'
+import { CLAY_COLOR } from './clay'
 import { CLICK_DRAG_TOLERANCE, handleNodeClick, handleNodeDoubleClick, noRaycast, SELECTION_COLOR, toRadians } from './selection'
 
 // A smooth artist's mannequin: nested joint groups (forward kinematics) with simple
@@ -58,9 +59,11 @@ interface Props {
   clickable: boolean
   /** A hidden per-shot copy: no joint highlighting. */
   passive?: boolean
+  /** Clay shading: matte grey, casts and receives shadows. */
+  clay?: boolean
 }
 
-export default function MannequinView({ node, selected, clickable, passive = false }: Props) {
+export default function MannequinView({ node, selected, clickable, passive = false, clay = false }: Props) {
   const { id, pose } = node
   const p = useMemo(() => proportions(node.height, node.build), [node.height, node.build])
   const g = useGeometries(p)
@@ -88,6 +91,8 @@ export default function MannequinView({ node, selected, clickable, passive = fal
       <mesh
         key={key}
         geometry={geometry}
+        castShadow={clay}
+        receiveShadow={clay}
         position={position}
         scale={scale}
         userData={{ joint }}
@@ -96,8 +101,8 @@ export default function MannequinView({ node, selected, clickable, passive = fal
         onDoubleClick={clickable ? (e) => handleNodeDoubleClick(e, id) : undefined}
       >
         <meshStandardMaterial
-          color={ball ? ballColor : bodyColor}
-          roughness={0.7}
+          color={clay ? CLAY_COLOR : ball ? ballColor : bodyColor}
+          roughness={clay ? 0.92 : 0.7}
           metalness={0}
           emissive={highlighted || selected ? SELECTION_COLOR : '#000000'}
           emissiveIntensity={highlighted ? 0.55 : selected ? 0.1 : 0}

@@ -1,6 +1,7 @@
 import { Box3, Euler, MathUtils, Matrix4, Mesh, Quaternion, Vector3, type Object3D } from 'three'
 import { cameraAngle, fieldOfView, opticsFor, shotSize, type CameraKit, type ShotSize } from '../../../shared/camera'
-import type { CameraNode, Scene } from '../../../shared/project'
+import type { CameraNode, Scene, Vec3 } from '../../../shared/project'
+import { describeLighting, type LightSample } from '../../../shared/lighting'
 
 // Live readouts for a shot camera, measured from the rendered 3D scene (so posed and grouped
 // figures are exact): camera height, tilt, roll, distance to the subject, and the shot-size /
@@ -18,6 +19,8 @@ export interface ShotInfo {
   distance: number | null
   size: ShotSize | null
   angle: string
+  /** e.g. 'Soft key light from camera left, warm tungsten' ('' when the scene has no lights). */
+  lighting: string
 }
 
 /** World position, pan/tilt/roll (degrees) of a rendered camera object. */
@@ -104,7 +107,38 @@ export function computeShotInfo(scene: Scene, camera: CameraNode, kit: CameraKit
     size = shotSize(2 * depth * tanV, subject.size)
   }
 
+  // Lighting, measured at the subject (or 3 m in front of the lens) as seen from this camera.
+  const forward = new Vector3(0, 0, -1).applyQuaternion(pose.quaternion)
+  const right = new Vector3(1, 0, 0).applyQuaternion(pose.quaternion)
+  const measureAt = subject?.point ?? pose.position.clone().addScaledVector(forward, 3)
+  const samples: LightSample[] = []
+  for (const n of Object.values(scene.nodes)) {
+    if (n.type !== 'light' || n.hidden) continue
+    const o = three.getObjectByName(n.id)
+    if (!o) continue
+    const q = new Quaternion()
+    const p = new Vector3()
+    o.updateWorldMatrix(true, false)
+    o.matrixWorld.decompose(p, q, new Vector3())
+    samples.push({
+      id: n.id,
+      kind: n.kind,
+      position: p.toArray() as Vec3,
+      direction: new Vector3(0, 0, -1).applyQuaternion(q).toArray() as Vec3,
+      stops: n.stops,
+      kelvin: n.kelvin,
+      softness: n.softness,
+      coneAngle: n.coneAngle,
+      falloff: n.falloff
+    })
+  }
+  const lighting = describeLighting(samples, measureAt.toArray() as Vec3, {
+    forward: forward.toArray() as Vec3,
+    right: right.toArray() as Vec3
+  })
+
   return {
+    lighting,
     height: pose.position.y,
     pan: pose.pan,
     tilt: pose.tilt,

@@ -95,6 +95,13 @@ In the Properties panel, **drag left/right on any number box** to change it (hol
 - **Camera body (whole project)**, below that: sensor (Super 35, Full Frame, Blackmagic PYXIS 12K, ARRI ALEXA 35, Custom), anamorphic squeeze (1.0–2.0), **frame guides** (16:9, 1.85, 2:1, 2.35, 2.39, 4:3, 1:1, 9:16, 4:5, custom), the **delivery frame** (what gets rendered later) and rule of thirds. These are the same for every shot in the project.
 - The HUD and Shot list show camera height, tilt, distance to the subject, and the **shot size and angle** (e.g. "Medium close-up · Slight high angle"), worked out from the nearest figure in frame. Override them in Properties if you like.
 
+## Lights & clay
+- **Lights** (toolbar): **Sun** (daylight from one direction; only its angle matters), **Point** (a bare bulb), **Spot** (a beam) and **Ambient** (soft even fill from the sky). Aim sun and spot with the rotate gizmo (E) or Pan/Tilt in Properties.
+- Light Properties: **intensity in stops** (0 = a standard key, +1 = twice as bright), **colour temperature** in Kelvin (with Candle / Tungsten / Daylight / Overcast / Shade presets), **softness** (hard to soft shadows), casts shadows, and for spots the cone angle and beam edge. Point and spot lights fall off with distance like real ones.
+- **Work / Clay** (toolbar): Work shows object colours under even light; **Clay** shows every surface in matte grey, lit only by your lights, with shadows. Looking through a camera switches to Clay automatically (and back when you leave, if you were in Work).
+- Each shot gets an automatic **lighting description** (e.g. "Soft key light from camera left, rim light from behind, warm tungsten, high contrast"), shown in the camera HUD and the shot's Properties, where you can overwrite it. It will go into the AI prompt.
+- Lights work with per-shot changes, so you can cheat a light for one setup. Shot list thumbnails show each shot lit.
+
 ## A scene's set and per-shot changes
 - Each scene has its own **set**, which every shot in it starts from. The top row of the Shot list (e.g. "Scene 01") edits it; clicking a shot (or looking through its camera) edits *that shot's version* instead. A banner over the viewport always says which (the viewport gets an orange frame while you're in a shot).
 - In a shot, moving, rotating, resizing, posing, recolouring or hiding something changes it **for that shot only**. Everything you haven't changed in a shot keeps following the scene's set. **Delete** in a shot only hides the object there; delete in the scene's set removes it everywhere. New objects always go into the scene's set.
