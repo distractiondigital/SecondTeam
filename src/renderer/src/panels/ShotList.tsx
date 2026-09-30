@@ -1,7 +1,7 @@
-import { Eye, Layers, Video } from 'lucide-react'
+import { Eye, Layers, Plus, Video } from 'lucide-react'
 import { compareShotNumbers } from '../../../shared/camera'
-import type { CameraNode } from '../../../shared/project'
-import { activateShot, addCamera, lookThrough } from '../state/actions'
+import { sceneLabel, type CameraNode } from '../../../shared/project'
+import { activateShot, addShot, lookThrough } from '../state/actions'
 import { activeScene, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 
@@ -70,6 +70,7 @@ function ShotRow({ camera }: { camera: CameraNode }) {
 export default function ShotList() {
   const nodes = useDocument((s) => activeScene(s).nodes)
   const masterActive = useDocument((s) => s.activeShotId === null)
+  const label = useDocument((s) => sceneLabel(activeScene(s)))
   const cameras = Object.values(nodes)
     .filter((n): n is CameraNode => n.type === 'camera')
     .sort((a, b) => compareShotNumbers(a.shotNumber, b.shotNumber))
@@ -81,27 +82,23 @@ export default function ShotList() {
         <div
           className={`shot-row master${masterActive ? ' active' : ''}`}
           onClick={() => activateShot(null)}
-          title="Edit the Master scene: changes flow to every shot that hasn't changed that object"
+          title="Edit the scene's own set: changes flow to every shot that hasn't changed that object"
         >
           <div className="shot-thumb master-thumb">
             <Layers size={18} />
           </div>
           <div className="shot-text">
-            <div className="shot-number">Master scene</div>
+            <div className="shot-number">{label}</div>
             <div className="shot-desc">The set every shot starts from</div>
           </div>
         </div>
-        {cameras.length === 0 ? (
-          <p className="hint">
-            No shots yet. Frame something in the viewport, then click{' '}
-            <button className="inline-link" onClick={addCamera}>
-              Camera
-            </button>{' '}
-            to place a camera there.
-          </p>
-        ) : (
-          cameras.map((c) => <ShotRow key={c.id} camera={c} />)
-        )}
+        {cameras.map((c) => (
+          <ShotRow key={c.id} camera={c} />
+        ))}
+        <button className="add-shot" onClick={addShot} title="New shot with its camera where your view is now">
+          <Plus size={14} /> Add shot
+        </button>
+        {cameras.length === 0 && <p className="hint">Frame something in the viewport, then add a shot.</p>}
       </div>
     </section>
   )

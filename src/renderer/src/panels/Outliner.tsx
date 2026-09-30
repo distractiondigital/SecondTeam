@@ -1,7 +1,8 @@
 import { useState, type MouseEvent } from 'react'
-import { ChevronDown, Clapperboard, ChevronRight, Eye, EyeOff, Folder, Lock, LockOpen, PersonStanding, Video } from 'lucide-react'
+import { ChevronDown, Clapperboard, ChevronRight, Eye, EyeOff, Folder, Lock, LockOpen, PersonStanding } from 'lucide-react'
 import { activeScene, editedNodes, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
+import ScenePicker from './ScenePicker'
 
 // The object list: a tree of the scene's objects and groups.
 
@@ -38,7 +39,7 @@ function OutlinerRow({ id, depth, inHidden }: { id: string; depth: number; inHid
   const selected = useUi((s) => s.selection.includes(id))
   const renaming = useUi((s) => s.renamingId === id)
   const [expanded, setExpanded] = useState(true)
-  if (!node) return null
+  if (!node || node.type === 'camera') return null
 
   const onRowClick = (e: MouseEvent) => {
     const ui = useUi.getState()
@@ -74,8 +75,6 @@ function OutlinerRow({ id, depth, inHidden }: { id: string; depth: number; inHid
         )}
         {node.type === 'group' ? (
           <Folder size={14} className="row-icon" />
-        ) : node.type === 'camera' ? (
-          <Video size={14} className="row-icon" />
         ) : node.type === 'mannequin' ? (
           <PersonStanding size={14} className="row-icon" style={{ color: node.color }} />
         ) : (
@@ -110,16 +109,20 @@ function OutlinerRow({ id, depth, inHidden }: { id: string; depth: number; inHid
 }
 
 export default function Outliner() {
-  const sceneName = useDocument((s) => activeScene(s).name)
+  // Cameras belong to their shots (see the Shot list), so they aren't listed here.
   const rootIds = useDocument((s) => activeScene(s).rootIds)
+  const nodes = useDocument((s) => activeScene(s).nodes)
+  const setIds = rootIds.filter((id) => nodes[id]?.type !== 'camera')
   return (
     <aside className="panel outliner">
-      <div className="panel-header">Outliner · {sceneName}</div>
+      <div className="panel-header">
+        <ScenePicker />
+      </div>
       <div className="panel-body" onClick={(e) => e.target === e.currentTarget && useUi.getState().select([])}>
-        {rootIds.length === 0 ? (
+        {setIds.length === 0 ? (
           <p className="hint">The set is empty. Use Add in the toolbar to place a box, plane or other shape.</p>
         ) : (
-          rootIds.map((id) => <OutlinerRow key={id} id={id} depth={0} inHidden={false} />)
+          setIds.map((id) => <OutlinerRow key={id} id={id} depth={0} inHidden={false} />)
         )}
       </div>
     </aside>

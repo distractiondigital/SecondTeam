@@ -73,7 +73,8 @@ In the Properties panel, type values and press Enter. Lengths accept either unit
 - The pelvis joint also has a **Hip offset** for lowering the body (sitting, lying down).
 
 ## Cameras & shots
-- **Add → Camera** places a shot camera where your view is now: frame it up in the free view, then click Camera. Shots number themselves (1, 2, 3…); rename one to e.g. `12A` in Properties. The **Shot list** (below the Outliner) sorts shots naturally and shows a live thumbnail of each frame. Click a shot to select it, double-click to look through it.
+- A project has **scenes** (Scene 01, Scene 02…). Pick, add, duplicate (same set, no shots), rename (number + title, e.g. "INT. KITCHEN – NIGHT") or delete scenes from the scene picker at the top of the Outliner.
+- Each scene has **shots**: frame something up in the viewport, then click **＋ Add shot** at the bottom of the **Shot list**. Shots are named after the scene: 1A, 1B, 1C… (I and O are skipped, like on a slate). Every shot has its own camera; cameras don't appear in the Outliner. The Shot list shows a live thumbnail of each shot. Click a shot to edit it, double-click to look through it.
 - **Numpad 0** or **`** (the key left of 1), or the eye button in the toolbar, looks through the selected camera. **Esc**, `, Numpad 0 or the **Exit camera view** button take you back. In camera view:
 
 | Control | Action |
@@ -90,13 +91,14 @@ In the Properties panel, type values and press Enter. Lengths accept either unit
 | ← / → | Previous / next shot |
 
   Let go of the right mouse button to get the cursor back and click or move things in the set while framed up. Each right-button session (everything you do while holding it) is one undo step.
-- **Camera Properties**: sensor (Super 35, Full Frame, Blackmagic PYXIS 12K, ARRI ALEXA 35, Custom), focal length, focus distance, anamorphic squeeze (1.0–2.0), pan/tilt/roll, **frame guides** (16:9, 1.85, 2:1, 2.35, 2.39, 4:3, 1:1, 9:16, 4:5, custom) and which one is the **delivery frame** (what gets rendered later), rule of thirds, the shot's subject, and notes.
+- **Shot properties**: focal length, focus distance, pan/tilt/roll, the shot's subject, and notes.
+- **Camera body (whole project)**, below that: sensor (Super 35, Full Frame, Blackmagic PYXIS 12K, ARRI ALEXA 35, Custom), anamorphic squeeze (1.0–2.0), **frame guides** (16:9, 1.85, 2:1, 2.35, 2.39, 4:3, 1:1, 9:16, 4:5, custom), the **delivery frame** (what gets rendered later) and rule of thirds. These are the same for every shot in the project.
 - The HUD and Shot list show camera height, tilt, distance to the subject, and the **shot size and angle** (e.g. "Medium close-up · Slight high angle"), worked out from the nearest figure in frame. Override them in Properties if you like.
 
-## Master scene and per-shot changes
-- The **Master scene** is the set every shot starts from. The top row of the Shot list edits it; clicking a shot (or looking through its camera) edits *that shot's version* instead. A banner over the viewport always says which (the viewport gets an orange frame while you're in a shot).
-- In a shot, moving, rotating, resizing, posing, recolouring or hiding something changes it **for that shot only**. Everything you haven't changed in a shot keeps following Master. **Delete** in a shot only hides the object there; delete in Master removes it everywhere. New objects always go into Master.
-- A new camera made while a shot is active starts from that shot's version; one made from Master starts clean.
+## A scene's set and per-shot changes
+- Each scene has its own **set**, which every shot in it starts from. The top row of the Shot list (e.g. "Scene 01") edits it; clicking a shot (or looking through its camera) edits *that shot's version* instead. A banner over the viewport always says which (the viewport gets an orange frame while you're in a shot).
+- In a shot, moving, rotating, resizing, posing, recolouring or hiding something changes it **for that shot only**. Everything you haven't changed in a shot keeps following the scene's set. **Delete** in a shot only hides the object there; delete in the scene's set removes it everywhere. New objects always go into the scene's set.
+- A new camera made while a shot is active starts from that shot's version; one made from the scene's set starts clean.
 - Select a changed object to see **Changed in Shot 3: position, pose**, with **Revert to master** (drop this shot's change) and **Push to master** (make it the Master version). Changed objects show a clapperboard badge in the Outliner.
 
 ## Projects

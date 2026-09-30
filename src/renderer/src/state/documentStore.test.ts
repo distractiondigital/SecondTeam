@@ -207,7 +207,7 @@ describe('figures', () => {
     expect(figure(copy).pose).toEqual(figure(a).pose)
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(4)
+    expect(loaded.schemaVersion).toBe(5)
   })
 
   it('saves poses into the project and applies them to other figures', () => {
@@ -240,7 +240,7 @@ describe('figures', () => {
   })
 })
 
-describe('cameras', () => {
+describe('shots and cameras', () => {
   const cam = (id: string) => {
     const n = scene().nodes[id]
     if (n.type !== 'camera') throw new Error('not a camera')
@@ -248,52 +248,153 @@ describe('cameras', () => {
   }
   const view = { position: [1, 1.6, 4] as [number, number, number], rotation: [-5, 20, 0] as [number, number, number] }
 
-  it('adds numbered shots from the view, copying lens settings when asked', () => {
+  it('names shots after the scene: 1A, 1B…', () => {
     const a = doc().addCamera(view)
-    expect(cam(a).shotNumber).toBe('1')
-    expect(cam(a).name).toBe('Shot 1')
-    expect(cam(a).sensor.preset).toBe('ff')
+    expect(cam(a).shotNumber).toBe('1A')
+    expect(cam(a).name).toBe('Shot 1A')
     expect(cam(a).position).toEqual([1, 1.6, 4])
-    const b = doc().addCamera({ ...view, template: { focalLength: 85, squeeze: 2, guides: ['2.39'], delivery: '2.39' } })
-    expect(cam(b).shotNumber).toBe('2')
+    const b = doc().addCamera({ ...view, focalLength: 85 })
+    expect(cam(b).shotNumber).toBe('1B')
     expect(cam(b).focalLength).toBe(85)
-    expect(cam(b).delivery).toBe('2.39')
   })
 
-  it('keeps settings valid and the default name in step with the shot number', () => {
+  it('new shots take the active shot lens', () => {
+    const a = doc().addCamera({ ...view, focalLength: 50 })
+    doc().setActiveShot(a)
+    const b = doc().addCamera(view)
+    expect(cam(b).focalLength).toBe(50)
+  })
+
+  it('keeps lens valid and the default name in step with the shot number', () => {
     const a = doc().addCamera(view)
-    doc().updateNode(a, { focalLength: 2000, squeeze: 1.73, shotNumber: '12A', scale: [3, 3, 3] })
+    doc().updateNode(a, { focalLength: 2000, shotNumber: '12A', scale: [3, 3, 3] })
     expect(cam(a).focalLength).toBe(600)
-    expect(cam(a).squeeze).toBe(1.7)
     expect(cam(a).name).toBe('Shot 12A')
     expect(cam(a).scale).toEqual([1, 1, 1])
-    doc().updateNode(a, { delivery: '2.39' }) // not an enabled guide
-    expect(cam(a).delivery).toBe('sensor')
   })
 
-  it('gives duplicated cameras new shot numbers', () => {
+  it('shares one camera body across the project, undoably', () => {
+    doc().updateCameraKit({ squeeze: 1.73, guides: ['2.39', '16:9'], delivery: '2.39' })
+    expect(doc().project.camera.squeeze).toBe(1.7)
+    expect(doc().project.camera.delivery).toBe('2.39')
+    doc().updateCameraKit({ delivery: 'custom:9' }) // not an enabled guide
+    expect(doc().project.camera.delivery).toBe('sensor')
+    doc().undo()
+    expect(doc().project.camera.delivery).toBe('2.39')
+  })
+
+  it('gives duplicated cameras the next letter', () => {
     const a = doc().addCamera(view)
-    doc().updateNode(a, { shotNumber: '7' })
     const [copy] = doc().duplicateNodes([a])
-    expect(cam(copy).shotNumber).toBe('8')
-    expect(cam(copy).name).toBe('Shot 8')
+    expect(cam(copy).shotNumber).toBe('1B')
   })
 
-  it('saves and loads cameras', () => {
-    const a = doc().addCamera({ ...view, template: { guides: ['16:9', 'custom:2.2'], delivery: 'custom:2.2' } })
+  it('never groups cameras', () => {
+    const box = doc().addPrimitive('box')
+    const a = doc().addCamera(view)
+    const g = doc().groupNodes([box, a])!
+    expect(cam(a).parentId).toBeNull()
+    expect(scene().nodes[g].type === 'group' && (scene().nodes[g] as { childIds: string[] }).childIds).toEqual([box])
+  })
+
+  it('saves and loads the project camera', () => {
+    doc().updateCameraKit({ guides: ['16:9', 'custom:2.2'], delivery: 'custom:2.2' })
+    doc().addCamera(view)
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    const c = loaded.scenes[0].nodes[a]
-    expect(c.type === 'camera' && c.delivery).toBe('custom:2.2')
-  })
-
-  it('still opens older files', () => {
-    const raw = JSON.parse(serializeProject(doc().project))
-    raw.schemaVersion = 1
-    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(4)
+    expect(loaded.camera.delivery).toBe('custom:2.2')
   })
 })
 
+describe('scenes', () => {
+  it('adds empty scenes and copies of the set without shots', () => {
+    const box = doc().addPrimitive('box')
+    doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
+    const s2 = doc().addScene(true)
+    expect(doc().sceneId).toBe(s2)
+    expect(scene().number).toBe(2)
+    expect(Object.values(scene().nodes).map((n) => n.type)).toEqual(['primitive'])
+    expect(box in scene().nodes).toBe(true)
+    expect(doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] }) && scene().rootIds.length).toBe(2)
+    const shot = Object.values(scene().nodes).find((n) => n.type === 'camera')
+    expect(shot?.type === 'camera' && shot.shotNumber).toBe('2A')
+    doc().addScene(false)
+    expect(scene().number).toBe(3)
+    expect(scene().rootIds).toEqual([])
+  })
+
+  it('renames a scene and its shots together', () => {
+    const a = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
+    doc().renameScene(5, 'EXT. STREET')
+    expect(scene().number).toBe(5)
+    expect(scene().name).toBe('EXT. STREET')
+    const c = scene().nodes[a]
+    expect(c.type === 'camera' && [c.shotNumber, c.name]).toEqual(['5A', 'Shot 5A'])
+  })
+
+  it('switching scenes leaves the shot; deleting keeps at least one scene', () => {
+    const a = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
+    doc().setActiveShot(a)
+    const first = doc().sceneId
+    doc().addScene(false)
+    expect(doc().activeShotId).toBeNull()
+    doc().deleteScene()
+    expect(doc().sceneId).toBe(first)
+    expect(doc().project.scenes).toHaveLength(1)
+    doc().deleteScene()
+    expect(doc().project.scenes).toHaveLength(1)
+  })
+})
+
+describe('older project files', () => {
+  it('turns v4 per-camera settings into the project camera and renames numbered shots', () => {
+    const raw = {
+      schemaVersion: 4,
+      name: 'Old',
+      scenes: [
+        {
+          id: 's1',
+          name: 'Scene 1',
+          notes: '',
+          rootIds: ['c1', 'c2'],
+          nodes: {
+            c1: {
+              id: 'c1', type: 'camera', name: 'Shot 1', parentId: null, position: [0, 1, 3], rotation: [0, 0, 0],
+              scale: [1, 1, 1], hidden: false, locked: false, shotNumber: '1', focalLength: 50, focusDistance: null,
+              sensor: { preset: 'alexa35', width: 27.99, height: 19.22 }, squeeze: 2, guides: ['2.39'], delivery: '2.39',
+              thirds: true, subjectId: null, sizeOverride: null, angleOverride: null, notes: '', overrides: {}
+            },
+            c2: {
+              id: 'c2', type: 'camera', name: 'Shot 2', parentId: null, position: [0, 1, 3], rotation: [0, 0, 0],
+              scale: [1, 1, 1], hidden: false, locked: false, shotNumber: '2', focalLength: 35, focusDistance: null,
+              sensor: { preset: 'ff', width: 36, height: 24 }, squeeze: 1, guides: [], delivery: 'sensor',
+              thirds: false, subjectId: null, sizeOverride: null, angleOverride: null, notes: '', overrides: {}
+            }
+          }
+        }
+      ]
+    }
+    const p = parseProject(JSON.stringify(raw))
+    expect(p.schemaVersion).toBe(5)
+    expect(p.camera.sensor.preset).toBe('alexa35')
+    expect(p.camera.delivery).toBe('2.39')
+    expect(p.scenes[0].number).toBe(1)
+    expect(p.scenes[0].name).toBe('')
+    const shots = Object.values(p.scenes[0].nodes).map((n) => (n.type === 'camera' ? [n.shotNumber, n.name] : null))
+    expect(shots).toEqual([
+      ['1A', 'Shot 1A'],
+      ['1B', 'Shot 1B']
+    ])
+    expect('sensor' in p.scenes[0].nodes.c1).toBe(false)
+  })
+
+  it('still opens v1 files', () => {
+    const raw = JSON.parse(serializeProject(doc().project))
+    raw.schemaVersion = 1
+    delete raw.camera
+    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(5)
+  })
+})
 describe('master scene and per-shot changes', () => {
   const view = { position: [0, 1.6, 5] as [number, number, number], rotation: [0, 0, 0] as [number, number, number] }
   const seen = (shotId: string | null, id: string) => sceneForShot(doc(), shotId)[id]
@@ -399,7 +500,7 @@ describe('master scene and per-shot changes', () => {
     doc().updateNode(box, { hidden: true })
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(4)
+    expect(loaded.schemaVersion).toBe(5)
   })
 
   it('leaves the shot if undo removes its camera', () => {

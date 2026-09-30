@@ -48,6 +48,8 @@
 - 2026-09-29 (M3 feedback): Undo steps now have owners (`beginGesture(owner)`/`endGesture(owner)`); only the starter can close one and overlapping ones merge, so one right-button camera session = one undo step. Left Ctrl also moves down; Esc / ` / an Exit button leave camera view (no numpad needed).
 - 2026-09-29 (M3 feedback): **Master scene + per-shot changes** (Spencer's design). Each camera stores its shot's overrides (schema **v4**); everything visual can differ per shot (transform, size, anchor, pose, height, build, colour, visibility, limits); structure, names and locks are Master-only. The Shot list sets the active shot; edits in a shot become overrides, new shots copy the active shot's overrides, delete-in-shot hides, and there are Revert / Push to master buttons. Every shot has a hidden copy of the set (R3F portal) used for its thumbnail, readouts and (M5) render passes.
 
+- 2026-09-29 (M3 feedback): **Scenes & shots** (Spencer): a project has numbered scenes (picker at the top of the Outliner: new / duplicate-set / rename / delete); each scene's set is what we called Master; shots are named 1A, 1B… (I and O skipped) and added from the Shot list (＋ Add shot); cameras belong to shots and are hidden from the Outliner and never grouped. **One camera body per project** (sensor, squeeze, guides, delivery frame, thirds in `project.camera`); lens, focus, placement per shot. Schema **v5**; v4 files convert (kit from the first shot, numeric shots renamed 1A…).
+
 ## Ideas / later
 - Fly controls (right-mouse + WASD) in the free view too.
 - Show other cameras' positions in camera view as small markers (currently hidden for a clean frame).

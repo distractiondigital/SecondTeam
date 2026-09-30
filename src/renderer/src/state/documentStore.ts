@@ -4,6 +4,7 @@ import { Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import {
   clampScale,
   createEmptyProject,
+  createEmptyScene,
   newId,
   repairCamera,
   type Anchor,
@@ -38,7 +39,7 @@ import {
   type Pose,
   type PresetName
 } from '../../../shared/mannequin'
-import { nextShotNumber, SENSOR_PRESETS } from '../../../shared/camera'
+import { nextShotName, renumberShot, repairKit, type CameraKit } from '../../../shared/camera'
 import { applyOverride, effectiveNodes, isOverridable } from '../../../shared/overrides'
 
 // The document store holds the project: everything that is saved to disk and can be undone.
@@ -50,12 +51,7 @@ const DUPLICATE_OFFSET = 0.5 // metres along X, so a duplicate is visible next t
 
 export type CameraField =
   | 'shotNumber'
-  | 'sensor'
   | 'focalLength'
-  | 'squeeze'
-  | 'guides'
-  | 'delivery'
-  | 'thirds'
   | 'focusDistance'
   | 'subjectId'
   | 'sizeOverride'
@@ -70,12 +66,7 @@ export type NodePatch = Partial<
 
 const CAMERA_FIELDS: CameraField[] = [
   'shotNumber',
-  'sensor',
   'focalLength',
-  'squeeze',
-  'guides',
-  'delivery',
-  'thirds',
   'focusDistance',
   'subjectId',
   'sizeOverride',
@@ -97,7 +88,8 @@ const FIELD_TYPES: Partial<Record<keyof NodePatch, SceneNode['type'][]>> = {
 export interface CameraSpawn {
   position: Vec3
   rotation: Vec3
-  template?: Partial<Pick<CameraNode, 'sensor' | 'focalLength' | 'squeeze' | 'guides' | 'delivery' | 'thirds'>>
+  /** Lens for the new shot (defaults to the active shot's, or 35 mm). */
+  focalLength?: number
 }
 
 function normalizeField(key: keyof NodePatch, value: unknown): unknown {
@@ -131,8 +123,19 @@ interface DocumentState {
   updateNodes: (ids: string[], patch: NodePatch) => void
   /** Move a primitive's origin to its bottom, middle or top without moving the object. */
   setAnchor: (id: string, anchor: Anchor) => void
-  /** Add a shot camera at a viewpoint; it gets the next shot number. */
+  /** Add a shot (its camera) at a viewpoint; it gets the scene's next letter (1A, 1B…). */
   addCamera: (spawn: CameraSpawn) => string
+  /** Change the project-wide camera body/format (sensor, squeeze, guides, delivery, thirds). */
+  updateCameraKit: (patch: Partial<CameraKit>) => void
+
+  /** Switch to another scene (back to its own set, not a shot). */
+  setSceneId: (sceneId: string) => void
+  /** Add an empty scene, or a copy of the current scene's set (without shots). Returns its id. */
+  addScene: (copyCurrent: boolean) => string
+  /** Change the current scene's number and/or title; its shots are renamed to match. */
+  renameScene: (number: number, name: string) => void
+  /** Delete the current scene (not the last one). */
+  deleteScene: () => void
 
   addMannequin: (groundPoint?: [number, number]) => string
   /** Set one joint's rotation (degrees); clamped to realistic limits if the figure has them on. */
@@ -303,8 +306,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
       const id = newId()
       edit(({ scene, shot }) => {
         const shots = Object.values(scene.nodes).flatMap((n) => (n.type === 'camera' ? [n.shotNumber] : []))
-        const shotNumber = nextShotNumber(shots)
-        const t = spawn.template ?? {}
+        const shotNumber = nextShotName(scene.number, shots)
         const node: CameraNode = {
           id,
           type: 'camera',
@@ -316,12 +318,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
           hidden: false,
           locked: false,
           shotNumber,
-          sensor: t.sensor ? { ...t.sensor } : { preset: 'ff', width: SENSOR_PRESETS.ff.width, height: SENSOR_PRESETS.ff.height },
-          focalLength: t.focalLength ?? 35,
-          squeeze: t.squeeze ?? 1,
-          guides: t.guides ? [...t.guides] : [],
-          delivery: t.delivery ?? 'sensor',
-          thirds: t.thirds ?? false,
+          focalLength: spawn.focalLength ?? shot?.focalLength ?? 35,
           focusDistance: null,
           subjectId: null,
           sizeOverride: null,
@@ -335,6 +332,68 @@ export const useDocument = create<DocumentState>()((set, get) => {
         scene.rootIds.push(id)
       })
       return id
+    },
+
+    updateCameraKit: (patch) => {
+      change((_scene, project) => {
+        const next = repairKit({ ...toPlainValue(project.camera), ...patch })
+        if (!sameValue(toPlainValue(project.camera), next)) project.camera = next
+      })
+    },
+
+    setSceneId: (sceneId) => {
+      if (get().project.scenes.some((s) => s.id === sceneId)) set({ sceneId, activeShotId: null })
+    },
+
+    addScene: (copyCurrent) => {
+      const current = activeScene(get())
+      const number = Math.max(0, ...get().project.scenes.map((s) => s.number)) + 1
+      const scene = createEmptyScene(number)
+      if (copyCurrent) {
+        // The set without its shots: drop cameras (and group entries pointing at them).
+        const plain = JSON.parse(JSON.stringify(current)) as Scene
+        for (const node of Object.values(plain.nodes)) {
+          if (node.type === 'camera') delete plain.nodes[node.id]
+        }
+        for (const node of Object.values(plain.nodes)) {
+          if (node.type === 'group') node.childIds = node.childIds.filter((c) => c in plain.nodes)
+        }
+        scene.nodes = plain.nodes
+        scene.rootIds = plain.rootIds.filter((id) => id in plain.nodes)
+      }
+      change((_scene, project) => {
+        const i = project.scenes.findIndex((s) => s.id === current.id)
+        project.scenes.splice(i + 1, 0, scene)
+      })
+      set({ sceneId: scene.id, activeShotId: null })
+      return scene.id
+    },
+
+    renameScene: (number, name) => {
+      change((scene) => {
+        const n = Math.max(1, Math.round(number)) || scene.number
+        if (n !== scene.number) {
+          for (const node of Object.values(scene.nodes)) {
+            if (node.type !== 'camera') continue
+            const renamed = renumberShot(node.shotNumber, scene.number, n)
+            if (node.name === `Shot ${node.shotNumber}`) node.name = `Shot ${renamed}`
+            node.shotNumber = renamed
+          }
+          scene.number = n
+        }
+        if (scene.name !== name.trim()) scene.name = name.trim()
+      })
+    },
+
+    deleteScene: () => {
+      const { project, sceneId } = get()
+      if (project.scenes.length < 2) return
+      const i = project.scenes.findIndex((s) => s.id === sceneId)
+      change((_scene, draft) => {
+        draft.scenes.splice(i, 1)
+      })
+      const remaining = get().project.scenes
+      set({ sceneId: remaining[Math.max(0, i - 1)].id, activeShotId: null })
     },
 
     setAnchor: (id, anchor) => {
@@ -506,7 +565,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
             const n = scene.nodes[d]
             if (n.type !== 'camera') continue
             const others = Object.values(scene.nodes).flatMap((o) => (o.type === 'camera' && o.id !== d ? [o.shotNumber] : []))
-            n.shotNumber = nextShotNumber(others)
+            n.shotNumber = nextShotName(scene.number, others)
             n.name = `Shot ${n.shotNumber}`
           }
           insertAfter(scene, original, copyId)
@@ -519,7 +578,10 @@ export const useDocument = create<DocumentState>()((set, get) => {
     groupNodes: (ids) => {
       let groupId: string | null = null
       change((scene) => {
-        const members = topLevelOnly(scene, ids).map((id) => scene.nodes[id]).filter(Boolean)
+        // Cameras belong to their shots, so they're never grouped with set pieces.
+        const members = topLevelOnly(scene, ids)
+          .map((id) => scene.nodes[id])
+          .filter((n) => n && n.type !== 'camera')
         if (members.length === 0) return
         // Keep the group where its members are: same parent if they share one, otherwise top level.
         const parentId = members.every((m) => m.parentId === members[0].parentId) ? members[0].parentId : null

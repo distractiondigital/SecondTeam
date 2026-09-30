@@ -17,12 +17,11 @@ import {
   Circle,
   Square,
   Undo2,
-  Video,
   type LucideIcon
 } from 'lucide-react'
 import { PRIMITIVE_TYPES, type PrimitiveType } from '../../../shared/project'
 import { PRIMITIVES } from '../../../shared/primitives'
-import { addCamera, addMannequin, addPrimitive, redo, toggleCameraView, undo } from '../state/actions'
+import { addMannequin, addPrimitive, redo, toggleCameraView, undo } from '../state/actions'
 import { useDocument } from '../state/documentStore'
 import { newProject, openProject, saveProject, saveProjectAs } from '../state/projectIO'
 import { useUi, type GizmoMode, type SnapMode } from '../state/uiStore'
@@ -128,7 +127,6 @@ export default function Toolbar() {
           />
         ))}
         <ToolButton icon={PersonStanding} label="Figure" title="Add a posable figure" onClick={addMannequin} />
-        <ToolButton icon={Video} label="Camera" title="Add a shot camera where the view is now" onClick={addCamera} />
       </Group>
 
       <Group label="View">

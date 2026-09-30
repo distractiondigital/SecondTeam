@@ -8,6 +8,7 @@ import {
   rotationFromPanTiltRoll,
   SENSOR_PRESET_IDS,
   SENSOR_PRESETS,
+  type CameraKit,
   type SensorPreset
 } from '../../../shared/camera'
 import type { CameraNode, Vec3 } from '../../../shared/project'
@@ -17,8 +18,9 @@ import { useUi } from '../state/uiStore'
 import { formatLengthLabel } from '../units'
 import NumberField from './NumberField'
 
-// Properties for a shot camera: shot number, placement (pan/tilt/roll), lens and sensor,
-// frame guides and delivery frame, subject and the shot-size / angle readouts, notes.
+// Properties for a shot: its name, camera placement (pan/tilt/roll), lens, subject, the shot-size /
+// angle readouts and notes. Below that, the project-wide camera body: sensor, squeeze, frame guides,
+// delivery frame and thirds (the same for every shot).
 
 const SIZE_LABELS = ['Extreme close-up', 'Close-up', 'Medium close-up', 'Medium shot', 'Medium wide shot', 'Wide shot', 'Extreme wide shot']
 const ANGLE_LABELS = ['Eye level', 'Slight high angle', 'High angle', 'Overhead', 'Slight low angle', 'Low angle', "Worm's-eye", 'Eye level, Dutch']
@@ -46,15 +48,9 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
   const lookingThrough = useUi((s) => s.lookThroughId === node.id)
   const units = useUi((s) => s.units)
   const nodes = useDocument((s) => activeScene(s).nodes)
-  const [customGuide, setCustomGuide] = useState('')
   const ptr = panTiltRoll(node.rotation)
 
   const subjects = Object.values(nodes).filter((n) => n.type !== 'camera')
-  const toggleGuide = (id: string, on: boolean) => {
-    const guides = on ? [...node.guides, id] : node.guides.filter((g) => g !== id)
-    update({ guides, delivery: !on && node.delivery === id ? 'sensor' : node.delivery })
-  }
-  const customGuides = node.guides.filter((g) => g.startsWith('custom:'))
 
   return (
     <>
@@ -113,39 +109,8 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
       </div>
 
       <div className="prop-section">
-        <div className="prop-title">Lens & sensor</div>
-        <select
-          className="preset-select"
-          value={node.sensor.preset}
-          disabled={disabled}
-          onChange={(e) => {
-            const preset = e.target.value as SensorPreset
-            const size = preset === 'custom' ? node.sensor : SENSOR_PRESETS[preset]
-            update({ sensor: { preset, width: size.width, height: size.height } })
-          }}
-        >
-          {SENSOR_PRESET_IDS.map((id) => (
-            <option key={id} value={id}>
-              {SENSOR_PRESETS[id].label}
-              {id !== 'custom' ? ` (${SENSOR_PRESETS[id].width} × ${SENSOR_PRESETS[id].height} mm)` : ''}
-            </option>
-          ))}
-        </select>
-        {node.sensor.preset === 'custom' && (
-          <div className="vec3-row spaced">
-            {(['width', 'height'] as const).map((k) => (
-              <NumberField
-                key={k}
-                label={k === 'width' ? 'W mm' : 'H mm'}
-                value={node.sensor[k]}
-                kind="factor"
-                disabled={disabled}
-                onCommit={(value) => update({ sensor: { ...node.sensor, [k]: value } })}
-              />
-            ))}
-          </div>
-        )}
-        <div className="vec3-row spaced">
+        <div className="prop-title">Lens</div>
+        <div className="vec3-row">
           <NumberField
             label="Focal mm"
             value={node.focalLength}
@@ -161,79 +126,7 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
             onCommit={(v) => update({ focusDistance: v > 0 ? v : null })}
           />
         </div>
-        <div className="prop-title prop-title-spaced">Anamorphic squeeze</div>
-        <div className="slider-row">
-          <input
-            type="range"
-            className="slider"
-            min={1}
-            max={2}
-            step={0.1}
-            value={node.squeeze}
-            disabled={disabled}
-            onChange={(e) => update({ squeeze: Number(e.target.value) })}
-          />
-          <span className="slider-end">{node.squeeze.toFixed(1)}×</span>
-        </div>
       </div>
-
-      <div className="prop-section">
-        <div className="prop-title">Frame guides</div>
-        <div className="guide-grid">
-          {GUIDE_PRESETS.map((g) => (
-            <label key={g.id} className="prop-check">
-              <input
-                type="checkbox"
-                checked={node.guides.includes(g.id)}
-                disabled={disabled}
-                onChange={(e) => toggleGuide(g.id, e.target.checked)}
-              />
-              {g.label}
-            </label>
-          ))}
-          {customGuides.map((g) => (
-            <label key={g} className="prop-check">
-              <input type="checkbox" checked disabled={disabled} onChange={() => toggleGuide(g, false)} />
-              {guideLabel(g)}
-            </label>
-          ))}
-        </div>
-        <div className="slider-row spaced">
-          <input
-            className="name-input plain"
-            placeholder="Custom ratio, e.g. 2.2"
-            value={customGuide}
-            onChange={(e) => setCustomGuide(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key !== 'Enter') return
-              const id = `custom:${Number(customGuide.replace(',', '.'))}`
-              if (guideRatio(id) !== null && !node.guides.includes(id)) toggleGuide(id, true)
-              setCustomGuide('')
-            }}
-          />
-        </div>
-        <div className="prop-title prop-title-spaced" title="The frame that gets rendered and sent to the AI">
-          Delivery frame
-        </div>
-        <select
-          className="preset-select"
-          value={node.delivery}
-          disabled={disabled}
-          onChange={(e) => update({ delivery: e.target.value })}
-        >
-          <option value="sensor">Full sensor</option>
-          {node.guides.map((g) => (
-            <option key={g} value={g}>
-              {guideLabel(g)}
-            </option>
-          ))}
-        </select>
-        <label className="prop-check">
-          <input type="checkbox" checked={node.thirds} disabled={disabled} onChange={(e) => update({ thirds: e.target.checked })} />
-          Rule of thirds
-        </label>
-      </div>
-
       <div className="prop-section">
         <div className="prop-title">Subject & shot</div>
         <select
@@ -303,6 +196,8 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
         />
       </div>
 
+      <CameraBodySection />
+
       <div className="prop-section prop-checks">
         <label>
           <input type="checkbox" checked={node.hidden} onChange={(e) => update({ hidden: e.target.checked })} />
@@ -315,9 +210,128 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
       </div>
       <div className="prop-actions">
         <button onClick={deleteSelected}>
-          <Trash2 size={14} /> Delete camera
+          <Trash2 size={14} /> Delete shot
         </button>
       </div>
     </>
+  )
+}
+
+/** The camera body and format: one setting for every shot in the project. */
+function CameraBodySection() {
+  const kit = useDocument((s) => s.project.camera)
+  const updateKit = (patch: Partial<CameraKit>) => useDocument.getState().updateCameraKit(patch)
+  const [customGuide, setCustomGuide] = useState('')
+  const toggleGuide = (id: string, on: boolean) => {
+    const guides = on ? [...kit.guides, id] : kit.guides.filter((g) => g !== id)
+    updateKit({ guides, delivery: !on && kit.delivery === id ? 'sensor' : kit.delivery })
+  }
+  const customGuides = kit.guides.filter((g) => g.startsWith('custom:'))
+
+  return (
+    <div className="camera-body">
+      <div className="camera-body-heading">
+        Camera body <span>whole project · shared by every shot</span>
+      </div>
+        <div className="prop-section">
+          <select
+            className="preset-select"
+            value={kit.sensor.preset}
+            onChange={(e) => {
+              const preset = e.target.value as SensorPreset
+              const size = preset === 'custom' ? kit.sensor : SENSOR_PRESETS[preset]
+              updateKit({ sensor: { preset, width: size.width, height: size.height } })
+            }}
+          >
+            {SENSOR_PRESET_IDS.map((id) => (
+              <option key={id} value={id}>
+                {SENSOR_PRESETS[id].label}
+                {id !== 'custom' ? ` (${SENSOR_PRESETS[id].width} × ${SENSOR_PRESETS[id].height} mm)` : ''}
+              </option>
+            ))}
+          </select>
+          {kit.sensor.preset === 'custom' && (
+            <div className="vec3-row spaced">
+              {(['width', 'height'] as const).map((k) => (
+                <NumberField
+                  key={k}
+                  label={k === 'width' ? 'W mm' : 'H mm'}
+                  value={kit.sensor[k]}
+                  kind="factor"
+                  onCommit={(value) => updateKit({ sensor: { ...kit.sensor, [k]: value } })}
+                />
+              ))}
+            </div>
+          )}
+          <div className="prop-title prop-title-spaced">Anamorphic squeeze</div>
+          <div className="slider-row">
+            <input
+              type="range"
+              className="slider"
+              min={1}
+              max={2}
+              step={0.1}
+              value={kit.squeeze}
+              onChange={(e) => updateKit({ squeeze: Number(e.target.value) })}
+            />
+            <span className="slider-end">{kit.squeeze.toFixed(1)}×</span>
+          </div>
+        </div>
+
+        <div className="prop-section">
+          <div className="prop-title">Frame guides</div>
+          <div className="guide-grid">
+            {GUIDE_PRESETS.map((g) => (
+              <label key={g.id} className="prop-check">
+                <input
+                  type="checkbox"
+                  checked={kit.guides.includes(g.id)}
+                  onChange={(e) => toggleGuide(g.id, e.target.checked)}
+                />
+                {g.label}
+              </label>
+            ))}
+            {customGuides.map((g) => (
+              <label key={g} className="prop-check">
+                <input type="checkbox" checked onChange={() => toggleGuide(g, false)} />
+                {guideLabel(g)}
+              </label>
+            ))}
+          </div>
+          <div className="slider-row spaced">
+            <input
+              className="name-input plain"
+              placeholder="Custom ratio, e.g. 2.2"
+              value={customGuide}
+              onChange={(e) => setCustomGuide(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key !== 'Enter') return
+                const id = `custom:${Number(customGuide.replace(',', '.'))}`
+                if (guideRatio(id) !== null && !kit.guides.includes(id)) toggleGuide(id, true)
+                setCustomGuide('')
+              }}
+            />
+          </div>
+          <div className="prop-title prop-title-spaced" title="The frame that gets rendered and sent to the AI">
+            Delivery frame
+          </div>
+          <select
+            className="preset-select"
+            value={kit.delivery}
+            onChange={(e) => updateKit({ delivery: e.target.value })}
+          >
+            <option value="sensor">Full sensor</option>
+            {kit.guides.map((g) => (
+              <option key={g} value={g}>
+                {guideLabel(g)}
+              </option>
+            ))}
+          </select>
+          <label className="prop-check">
+            <input type="checkbox" checked={kit.thirds} onChange={(e) => updateKit({ thirds: e.target.checked })} />
+            Rule of thirds
+          </label>
+        </div>
+    </div>
   )
 }

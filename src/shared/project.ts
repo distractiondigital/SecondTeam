@@ -15,17 +15,17 @@ import {
 } from './mannequin'
 import {
   clampFocal,
-  clampSensorSize,
-  clampSqueeze,
-  guideRatio,
-  SENSOR_PRESETS,
-  type Sensor
+  compareShotNumbers,
+  DEFAULT_KIT,
+  nextShotName,
+  repairKit,
+  type CameraKit
 } from './camera'
 import { sanitizeOverrides, type ShotOverrides } from './overrides'
 
 // v1: M1 (primitives, groups). v2: M2 adds mannequins. v3: M3 adds cameras.
-// v4: per-shot changes (camera.overrides).
-export const SCHEMA_VERSION = 4
+// v4: per-shot changes (camera.overrides). v5: numbered scenes, shots 1A/1B…, one camera kit per project.
+export const SCHEMA_VERSION = 5
 
 export type Vec3 = [number, number, number]
 
@@ -88,20 +88,16 @@ export interface MannequinNode extends NodeBase {
   pose: Pose
 }
 
-/** A shot camera (camera setup). Looks down its local -Z; its scale stays 1. */
+/**
+ * A shot: its camera placement and lens. Looks down its local -Z; its scale stays 1.
+ * The camera body and format (sensor, squeeze, guides, delivery frame) are project-wide: Project.camera.
+ */
 export interface CameraNode extends NodeBase {
   type: 'camera'
+  /** Shot name, e.g. '1A'. */
   shotNumber: string
-  sensor: Sensor
   /** Millimetres. */
   focalLength: number
-  /** Anamorphic squeeze, 1.0-2.0. */
-  squeeze: number
-  /** Frame guides shown in camera view, e.g. '16:9', '2.39', 'custom:2.2'. */
-  guides: string[]
-  /** The frame that gets rendered: 'sensor' or one of the guides. */
-  delivery: string
-  thirds: boolean
   /** Metres, or null if not set. */
   focusDistance: number | null
   /** The object or figure the shot is about; null = the nearest figure in frame. */
@@ -117,6 +113,9 @@ export type SceneNode = PrimitiveNode | GroupNode | MannequinNode | CameraNode
 
 export interface Scene {
   id: string
+  /** Scene number from the script: 1, 2, 3… Shots are named after it (1A, 1B…). */
+  number: number
+  /** Optional title, e.g. 'INT. KITCHEN – NIGHT'. */
   name: string
   notes: string
   nodes: Record<string, SceneNode>
@@ -130,6 +129,8 @@ export interface Project {
   defaultAspect: string
   styleText: string
   scenes: Scene[]
+  /** The camera body and format every shot uses. */
+  camera: CameraKit
   // Filled in by later milestones; kept as open records so older files still load.
   cast: unknown[]
   props: unknown[]
@@ -141,8 +142,14 @@ export function newId(): string {
   return crypto.randomUUID()
 }
 
-export function createEmptyScene(name = 'Scene 1'): Scene {
-  return { id: newId(), name, notes: '', nodes: {}, rootIds: [] }
+export function createEmptyScene(number = 1, name = ''): Scene {
+  return { id: newId(), number, name, notes: '', nodes: {}, rootIds: [] }
+}
+
+/** 'Scene 01', or 'Scene 01 · INT. KITCHEN' when it has a title. */
+export function sceneLabel(scene: Pick<Scene, 'number' | 'name'>): string {
+  const label = `Scene ${String(scene.number).padStart(2, '0')}`
+  return scene.name.trim() ? ` · ${scene.name.trim()}` : label
 }
 
 export function createEmptyProject(name = 'Untitled'): Project {
@@ -152,6 +159,7 @@ export function createEmptyProject(name = 'Untitled'): Project {
     defaultAspect: '16:9',
     styleText: '',
     scenes: [createEmptyScene()],
+    camera: structuredClone(DEFAULT_KIT),
     cast: [],
     props: [],
     poses: []
@@ -169,7 +177,41 @@ export function migrateProject(raw: Record<string, unknown>): Record<string, unk
       `This project was saved by a newer version of Second Team (format ${version}). Please update the app.`
     )
   }
+  if (version < 5 && Array.isArray(raw.scenes)) migrateToV5(raw)
   return raw
+}
+
+type Loose = Record<string, any> // eslint-disable-line @typescript-eslint/no-explicit-any
+
+/**
+ * v4 -> v5: number the scenes, take the project camera kit from the first shot's camera, and
+ * rename plain-number shots (1, 2, 3) to the scene's letters (1A, 1B, 1C).
+ */
+function migrateToV5(raw: Loose): void {
+  let kit: Loose | undefined
+  ;(raw.scenes as Loose[]).forEach((scene, i) => {
+    if (!scene || typeof scene !== 'object') return
+    if (typeof scene.number !== 'number') {
+      scene.number = i + 1
+      if (typeof scene.name !== 'string' || /^Scene\s+\d+$/i.test(scene.name.trim())) scene.name = ''
+    }
+    const cameras = Object.values((scene.nodes ?? {}) as Loose)
+      .filter((n: Loose) => n?.type === 'camera')
+      .sort((a: Loose, b: Loose) => compareShotNumbers(String(a.shotNumber), String(b.shotNumber)))
+    if (!kit && cameras[0]) {
+      const c = cameras[0]
+      kit = { sensor: c.sensor, squeeze: c.squeeze, guides: c.guides, delivery: c.delivery, thirds: c.thirds }
+    }
+    const names: string[] = cameras.map((c: Loose) => String(c.shotNumber)).filter((s) => !/^\d+$/.test(s))
+    for (const c of cameras) {
+      if (!/^\d+$/.test(String(c.shotNumber))) continue
+      const next = nextShotName(scene.number, names)
+      if (c.name === `Shot ${c.shotNumber}`) c.name = `Shot ${next}`
+      c.shotNumber = next
+      names.push(next)
+    }
+  })
+  raw.camera = kit ?? raw.camera
 }
 
 function isVec3(v: unknown): v is Vec3 {
@@ -193,8 +235,7 @@ function checkNode(node: unknown, id: string, scene: Scene): void {
   } else if (n!.type === 'group') {
     if (!Array.isArray(n!.childIds) || !n!.childIds.every((c) => c in scene.nodes)) bad('child list')
   } else if (n!.type === 'camera') {
-    const c = n as Partial<CameraNode>
-    if (typeof c.focalLength !== 'number' || !c.sensor || typeof c.sensor !== 'object') bad('lens or sensor')
+    if (typeof (n as Partial<CameraNode>).focalLength !== 'number') bad('lens')
   } else if (n!.type === 'mannequin') {
     const pose = n!.pose as Partial<Pose> | undefined
     if (!pose || typeof pose !== 'object' || typeof pose.joints !== 'object' || pose.joints === null) bad('pose')
@@ -207,18 +248,10 @@ function checkNode(node: unknown, id: string, scene: Scene): void {
 /** Keep a camera's settings in range and fill any missing ones. */
 export function repairCamera(c: CameraNode): void {
   c.scale = [1, 1, 1]
-  c.shotNumber = typeof c.shotNumber === 'string' && c.shotNumber.trim() ? c.shotNumber.trim() : '1'
-  const preset = c.sensor?.preset in SENSOR_PRESETS ? c.sensor.preset : 'ff'
-  c.sensor = {
-    preset,
-    width: clampSensorSize(c.sensor?.width ?? SENSOR_PRESETS[preset].width),
-    height: clampSensorSize(c.sensor?.height ?? SENSOR_PRESETS[preset].height)
-  }
+  c.shotNumber = typeof c.shotNumber === 'string' && c.shotNumber.trim() ? c.shotNumber.trim() : '1A'
   c.focalLength = clampFocal(c.focalLength)
-  c.squeeze = clampSqueeze(c.squeeze ?? 1)
-  c.guides = Array.isArray(c.guides) ? [...new Set(c.guides.filter((g) => guideRatio(g) !== null))] : []
-  if (c.delivery !== 'sensor' && !c.guides.includes(c.delivery)) c.delivery = 'sensor'
-  c.thirds = c.thirds === true
+  // Body and format settings now live on the project (older files kept them per camera).
+  for (const legacy of ['sensor', 'squeeze', 'guides', 'delivery', 'thirds']) delete (c as Loose)[legacy]
   c.focusDistance =
     typeof c.focusDistance === 'number' && Number.isFinite(c.focusDistance) ? Math.max(0.1, c.focusDistance) : null
   c.subjectId = typeof c.subjectId === 'string' ? c.subjectId : null
@@ -276,6 +309,8 @@ export function parseProject(json: string): Project {
       throw new ProjectFileError(`The object list in ${scene.name} is damaged.`)
     }
     for (const node of Object.values(scene.nodes)) repairNode(node, scene)
+    if (typeof scene.number !== 'number' || !Number.isFinite(scene.number)) scene.number = p.scenes.indexOf(scene) + 1
+    if (typeof scene.name !== 'string') scene.name = ''
   }
   return {
     schemaVersion: SCHEMA_VERSION,
@@ -283,6 +318,7 @@ export function parseProject(json: string): Project {
     defaultAspect: typeof p.defaultAspect === 'string' ? p.defaultAspect : '16:9',
     styleText: typeof p.styleText === 'string' ? p.styleText : '',
     scenes: p.scenes,
+    camera: repairKit(p.camera),
     cast: Array.isArray(p.cast) ? p.cast : [],
     props: Array.isArray(p.props) ? p.props : [],
     poses: sanitizeSavedPoses(p.poses)

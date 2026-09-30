@@ -1,5 +1,5 @@
 import { compareShotNumbers } from '../../../shared/camera'
-import type { CameraNode, PrimitiveType } from '../../../shared/project'
+import { sceneLabel, type CameraNode, type PrimitiveType } from '../../../shared/project'
 import { viewportBridge } from '../viewport/viewportBridge'
 import { activeScene, editedNodes, useDocument } from './documentStore'
 import { useUi } from './uiStore'
@@ -32,25 +32,38 @@ export function camerasInShotOrder(): CameraNode[] {
     .sort((a, b) => compareShotNumbers(a.shotNumber, b.shotNumber))
 }
 
-/** New shot camera where the view is now, copying lens settings from a selected camera. */
-export function addCamera(): void {
-  const nodes = activeScene(doc()).nodes
-  const selected = liveSelection().map((id) => nodes[id]).find((n) => n?.type === 'camera')
-  const template = selected?.type === 'camera' ? selected : undefined
-  const id = doc().addCamera({
-    ...viewportBridge.getViewPose(),
-    template: template && {
-      sensor: template.sensor,
-      focalLength: template.focalLength,
-      squeeze: template.squeeze,
-      guides: template.guides,
-      delivery: template.delivery,
-      thirds: template.thirds
-    }
-  })
+/**
+ * New shot (1A, 1B…) with its camera where the view is now: the free view, or the current shot's
+ * camera while looking through it. Its lens copies the active shot's.
+ */
+export function addShot(): void {
+  const id = doc().addCamera(viewportBridge.getViewPose())
   ui().select([id])
   // Working in a shot? Carry on in the new one (it started from the active shot's version).
   if (doc().activeShotId) activateShot(id)
+}
+
+/** Switch scene: back to that scene's own set, out of camera view, nothing selected. */
+export function switchScene(sceneId: string): void {
+  ui().setLookThrough(null)
+  ui().select([])
+  doc().setSceneId(sceneId)
+}
+
+export function newScene(copyCurrent: boolean): void {
+  ui().setLookThrough(null)
+  ui().select([])
+  doc().addScene(copyCurrent)
+}
+
+export async function deleteCurrentScene(): Promise<void> {
+  const scene = activeScene(doc())
+  const shots = Object.values(scene.nodes).filter((n) => n.type === 'camera').length
+  const what = `${sceneLabel(scene)}${shots ? ` and its ${shots} shot${shots === 1 ? '' : 's'}` : ''}`
+  if (!window.confirm(`Delete ${what}? You can undo this with Ctrl+Z.`)) return
+  ui().setLookThrough(null)
+  ui().select([])
+  doc().deleteScene()
 }
 
 /** Look through a shot camera (it becomes the shot being edited), or back to the free view (null). */

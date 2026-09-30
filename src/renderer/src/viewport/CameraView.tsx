@@ -2,9 +2,10 @@ import { useMemo } from 'react'
 import { BufferGeometry, Float32BufferAttribute } from 'three'
 import type { ThreeEvent } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
-import { deliveryFrame } from '../../../shared/camera'
+import { deliveryFrame, opticsFor } from '../../../shared/camera'
 import type { CameraNode } from '../../../shared/project'
 import { lookThrough } from '../state/actions'
+import { useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import { handleNodeClick, handleNodeDoubleClick, noRaycast, SELECTION_COLOR } from './selection'
 
@@ -45,7 +46,8 @@ interface Props {
 export default function CameraView({ node, selected, clickable }: Props) {
   // In camera view, all camera bodies and frustums are hidden so the frame shows only the set.
   const lookingThrough = useUi((s) => s.lookThroughId !== null)
-  const frame = deliveryFrame(node)
+  const kit = useDocument((s) => s.project.camera)
+  const frame = deliveryFrame(opticsFor(kit, node.focalLength))
   const depth = node.focusDistance ?? FRUSTUM_LENGTH
   const halfW = (frame.width / 2 / node.focalLength) * depth
   const halfH = (frame.height / 2 / node.focalLength) * depth

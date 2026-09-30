@@ -105,18 +105,103 @@ export function fieldOfView(c: CameraOptics): { horizontal: number; vertical: nu
   }
 }
 
+// ---------- Project camera kit ----------
+
+/** The camera body and format shared by every shot in the project (the lens is per shot). */
+export interface CameraKit {
+  sensor: Sensor
+  squeeze: number
+  guides: string[]
+  delivery: string
+  thirds: boolean
+}
+
+export const DEFAULT_KIT: CameraKit = {
+  sensor: { preset: 'ff', width: SENSOR_PRESETS.ff.width, height: SENSOR_PRESETS.ff.height },
+  squeeze: 1,
+  guides: [],
+  delivery: 'sensor',
+  thirds: false
+}
+
+/** Full optics for one shot: the project's camera body plus that shot's lens. */
+export function opticsFor(kit: CameraKit, focalLength: number): CameraOptics & CameraKit {
+  return { ...kit, focalLength }
+}
+
+/** Keep a camera kit valid: sensor sizes, squeeze in range, known guides, delivery among them. */
+export function repairKit(raw: Partial<CameraKit> | undefined): CameraKit {
+  const k = raw ?? {}
+  const preset = k.sensor && k.sensor.preset in SENSOR_PRESETS ? k.sensor.preset : 'ff'
+  const guides = Array.isArray(k.guides) ? [...new Set(k.guides.filter((g) => guideRatio(g) !== null))] : []
+  const delivery = typeof k.delivery === 'string' && (k.delivery === 'sensor' || guides.includes(k.delivery)) ? k.delivery : 'sensor'
+  return {
+    sensor: {
+      preset,
+      width: clampSensorSize(k.sensor?.width ?? SENSOR_PRESETS[preset].width),
+      height: clampSensorSize(k.sensor?.height ?? SENSOR_PRESETS[preset].height)
+    },
+    squeeze: clampSqueeze(k.squeeze ?? 1),
+    guides,
+    delivery,
+    thirds: k.thirds === true
+  }
+}
+
 // ---------- Shot numbers ----------
+
+// Shot letters skip I and O so they can't be misread as 1 and 0 on slates and reports.
+const SHOT_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
+
+/** Letters for the n-th shot of a scene (0 → A, 23 → Z, 24 → AA, 25 → AB…). */
+export function shotLetters(n: number): string {
+  let s = ''
+  let k = n + 1
+  while (k > 0) {
+    k--
+    s = SHOT_ALPHABET[k % SHOT_ALPHABET.length] + s
+    k = Math.floor(k / SHOT_ALPHABET.length)
+  }
+  return s
+}
+
+/** Position of a letter run in the shot sequence (A → 0, AA → 24), or -1 if it isn't one. */
+export function shotLetterIndex(letters: string): number {
+  if (!letters || [...letters].some((c) => !SHOT_ALPHABET.includes(c))) return -1
+  let n = 0
+  for (const c of letters) n = n * SHOT_ALPHABET.length + SHOT_ALPHABET.indexOf(c) + 1
+  return n - 1
+}
+
+/** The next shot name in a scene: 1A, 1B… after the highest one in use. */
+export function nextShotName(sceneNumber: number, existing: string[]): string {
+  const prefix = String(sceneNumber)
+  let highest = -1
+  for (const s of existing) {
+    const m = s.trim().toUpperCase().match(/^(\d+)([A-Z]+)$/)
+    if (m && m[1] === prefix) highest = Math.max(highest, shotLetterIndex(m[2]))
+  }
+  return prefix + shotLetters(highest + 1)
+}
+
+/** A shot name after its scene is renumbered: "3B" → "5B". Names that don't follow the pattern are kept. */
+export function renumberShot(name: string, oldScene: number, newScene: number): string {
+  const m = name.trim().match(/^(\d+)([A-Za-z]+)$/)
+  return m && Number(m[1]) === oldScene ? `${newScene}${m[2].toUpperCase()}` : name
+}
 
 function splitShot(s: string): [number, string] {
   const m = s.trim().match(/^(\d+)(.*)$/)
   return m ? [Number(m[1]), m[2].trim().toUpperCase()] : [Number.POSITIVE_INFINITY, s.trim().toUpperCase()]
 }
 
-/** Natural order for shot numbers: 2, 9, 12, 12A, 12B, 13, then anything without a number. */
+/** Natural order for shot numbers: 2, 9, 12, 12A, 12B, 12Z, 12AA, 13, then anything without a number. */
 export function compareShotNumbers(a: string, b: string): number {
   const [na, sa] = splitShot(a)
   const [nb, sb] = splitShot(b)
   if (na !== nb) return na - nb
+  // Letter runs sort like spreadsheet columns: Z comes before AA.
+  if (/^[A-Z]*$/.test(sa) && /^[A-Z]*$/.test(sb) && sa.length !== sb.length) return sa.length - sb.length
   return sa < sb ? -1 : sa > sb ? 1 : 0
 }
 

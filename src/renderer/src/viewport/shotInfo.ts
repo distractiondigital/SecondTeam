@@ -1,5 +1,5 @@
 import { Box3, Euler, MathUtils, Matrix4, Mesh, Quaternion, Vector3, type Object3D } from 'three'
-import { cameraAngle, fieldOfView, shotSize, type ShotSize } from '../../../shared/camera'
+import { cameraAngle, fieldOfView, opticsFor, shotSize, type CameraKit, type ShotSize } from '../../../shared/camera'
 import type { CameraNode, Scene } from '../../../shared/project'
 
 // Live readouts for a shot camera, measured from the rendered 3D scene (so posed and grouped
@@ -67,11 +67,11 @@ function subjectPoint(scene: Scene, id: string, three: Object3D): SubjectPoint |
   return { id, name: node.name, point, size: box.max.y - box.min.y, eyeY: null }
 }
 
-export function computeShotInfo(scene: Scene, camera: CameraNode, three: Object3D): ShotInfo | null {
+export function computeShotInfo(scene: Scene, camera: CameraNode, kit: CameraKit, three: Object3D): ShotInfo | null {
   const object = three.getObjectByName(camera.id)
   if (!object) return null
   const pose = cameraPose(object)
-  const fov = fieldOfView(camera)
+  const fov = fieldOfView(opticsFor(kit, camera.focalLength))
   const toCamera = new Matrix4().compose(pose.position, pose.quaternion, new Vector3(1, 1, 1)).invert()
   const tanH = Math.tan(MathUtils.degToRad(fov.horizontal / 2))
   const tanV = Math.tan(MathUtils.degToRad(fov.vertical / 2))

@@ -5,7 +5,11 @@ import {
   deliveryFrame,
   fieldOfView,
   guideRatio,
+  nextShotName,
   nextShotNumber,
+  renumberShot,
+  shotLetterIndex,
+  shotLetters,
   panTiltRoll,
   rotationFromPanTiltRoll,
   SENSOR_PRESETS,
@@ -51,6 +55,21 @@ describe('shot numbers', () => {
   it('sorts naturally', () => {
     const shots = ['13', '12B', '2', 'Insert', '12', '12A']
     expect([...shots].sort(compareShotNumbers)).toEqual(['2', '12', '12A', '12B', '13', 'Insert'])
+  })
+
+  it('letters shots A-Z without I and O, then AA', () => {
+    expect([0, 1, 7, 8, 12, 13, 23, 24, 25].map(shotLetters)).toEqual(['A', 'B', 'H', 'J', 'N', 'P', 'Z', 'AA', 'AB'])
+    for (const n of [0, 5, 23, 24, 100, 600]) expect(shotLetterIndex(shotLetters(n))).toBe(n)
+    expect(shotLetterIndex('I')).toBe(-1)
+  })
+
+  it('names the next shot in a scene and renumbers shots with their scene', () => {
+    expect(nextShotName(1, [])).toBe('1A')
+    expect(nextShotName(1, ['1A', '1B', '2A', 'Insert'])).toBe('1C')
+    expect(nextShotName(3, ['3H'])).toBe('3J')
+    expect(renumberShot('3B', 3, 5)).toBe('5B')
+    expect(renumberShot('Insert', 3, 5)).toBe('Insert')
+    expect(['1AA', '1Z', '1B', '2A', '1A'].sort(compareShotNumbers)).toEqual(['1A', '1B', '1Z', '1AA', '2A'])
   })
 
   it('suggests the next number', () => {

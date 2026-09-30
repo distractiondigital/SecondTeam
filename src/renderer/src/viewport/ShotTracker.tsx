@@ -37,7 +37,7 @@ export default function ShotTracker() {
         scene.updateMatrixWorld(true)
         // Measure against this shot's version of the set (e.g. a figure's per-shot height).
         const shotScene = { ...docScene, nodes: sceneForShot(useDocument.getState(), c.id) }
-        const i = computeShotInfo(shotScene, c, scene)
+        const i = computeShotInfo(shotScene, c, useDocument.getState().project.camera, scene)
         if (i) info[c.id] = i
       }
       useUi.getState().setShotInfo(info)
@@ -50,7 +50,7 @@ export default function ShotTracker() {
         const scene = shotScenes.get(c.id)
         if (c.type !== 'camera' || !scene) continue
         scene.updateMatrixWorld(true)
-        const canvas = renderShot(gl, scene, c, THUMBNAIL_WIDTH)
+        const canvas = renderShot(gl, scene, c, useDocument.getState().project.camera, THUMBNAIL_WIDTH)
         if (canvas) thumbnails[c.id] = canvas.toDataURL('image/jpeg', 0.82)
       }
       useUi.getState().setThumbnails(thumbnails)
@@ -65,7 +65,7 @@ export default function ShotTracker() {
 
     schedule()
     const unsubscribe = useDocument.subscribe((state, previous) => {
-      if (state.project !== previous.project) schedule()
+      if (state.project !== previous.project || state.sceneId !== previous.sceneId) schedule()
     })
     return () => {
       unsubscribe()

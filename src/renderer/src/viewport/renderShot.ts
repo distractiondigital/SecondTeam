@@ -6,7 +6,7 @@ import {
   type Scene as ThreeScene,
   type WebGLRenderer
 } from 'three'
-import { deliveryFrame, fieldOfView } from '../../../shared/camera'
+import { deliveryFrame, fieldOfView, opticsFor, type CameraKit } from '../../../shared/camera'
 import type { CameraNode } from '../../../shared/project'
 import { cameraPose } from './shotInfo'
 
@@ -23,16 +23,18 @@ export function renderShot(
   gl: WebGLRenderer,
   scene: ThreeScene,
   node: CameraNode,
+  kit: CameraKit,
   width: number
 ): HTMLCanvasElement | null {
+  const optics = opticsFor(kit, node.focalLength)
   const object = scene.getObjectByName(node.id)
   if (!object) return null
-  const frame = deliveryFrame(node)
+  const frame = deliveryFrame(optics)
   const w = Math.round(width)
   const h = Math.max(1, Math.round(width / frame.ratio))
 
   const pose = cameraPose(object)
-  const camera = new PerspectiveCamera(fieldOfView(node).vertical, frame.ratio, 0.05, 1000)
+  const camera = new PerspectiveCamera(fieldOfView(optics).vertical, frame.ratio, 0.05, 1000)
   camera.position.copy(pose.position)
   camera.quaternion.copy(pose.quaternion)
   camera.updateMatrixWorld()

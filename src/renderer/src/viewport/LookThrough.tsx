@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Euler, MathUtils, Matrix4, Quaternion, Vector3, type PerspectiveCamera } from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
-import { clampFocal } from '../../../shared/camera'
+import { clampFocal, opticsFor } from '../../../shared/camera'
 import type { Vec3 } from '../../../shared/project'
 import { activeScene, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
@@ -278,7 +278,8 @@ export default function LookThrough() {
       camera.position.copy(pose.position)
       camera.quaternion.copy(pose.quaternion)
     }
-    camera.fov = viewFit(node, size.width, size.height).verticalFov
+    const kit = useDocument.getState().project.camera
+    camera.fov = viewFit(opticsFor(kit, node.focalLength), size.width, size.height).verticalFov
     camera.aspect = size.width / Math.max(1, size.height)
     camera.near = 0.02
     camera.updateProjectionMatrix()

@@ -1,6 +1,6 @@
 import { useEffect, useState, type RefObject } from 'react'
 import { X } from 'lucide-react'
-import { SENSOR_PRESETS, guideLabel } from '../../../shared/camera'
+import { guideLabel, opticsFor, SENSOR_PRESETS } from '../../../shared/camera'
 import { activeScene, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import { formatLengthLabel } from '../units'
@@ -32,12 +32,14 @@ export default function FrameOverlay({ container }: { container: RefObject<HTMLE
   const info = useUi((s) => (lookId ? s.shotInfo[lookId] : undefined))
   const units = useUi((s) => s.units)
   const flySpeed = useUi((s) => s.flySpeed)
+  const kit = useDocument((s) => s.project.camera)
   const { width, height } = useSize(container)
   if (!lookId || node?.type !== 'camera' || width === 0) return null
 
-  const fit = viewFit(node, width, height)
+  const fit = viewFit(opticsFor(kit, node.focalLength), width, height)
   const d = fit.delivery
-  const sensorName = node.sensor.preset === 'custom' ? `${node.sensor.width}×${node.sensor.height} mm` : SENSOR_PRESETS[node.sensor.preset].label
+  const sensorName =
+    kit.sensor.preset === 'custom' ? `${kit.sensor.width}×${kit.sensor.height} mm` : SENSOR_PRESETS[kit.sensor.preset].label
   const size = node.sizeOverride ?? info?.size?.label
   const angle = node.angleOverride ?? info?.angle
 
@@ -45,8 +47,8 @@ export default function FrameOverlay({ container }: { container: RefObject<HTMLE
     <div className="frame-overlay">
       {/* The delivery frame; its huge shadow shades everything outside it. */}
       <div className="frame-delivery" style={box(d)}>
-        <span className="frame-tag">{guideLabel(node.delivery)}</span>
-        {node.thirds && (
+        <span className="frame-tag">{guideLabel(kit.delivery)}</span>
+        {kit.thirds && (
           <>
             <div className="thirds v" style={{ left: '33.333%' }} />
             <div className="thirds v" style={{ left: '66.667%' }} />
@@ -55,9 +57,9 @@ export default function FrameOverlay({ container }: { container: RefObject<HTMLE
           </>
         )}
       </div>
-      {node.delivery !== 'sensor' && <div className="frame-image" style={box(fit.image)} />}
+      {kit.delivery !== 'sensor' && <div className="frame-image" style={box(fit.image)} />}
       {fit.guides
-        .filter((g) => g.id !== node.delivery)
+        .filter((g) => g.id !== kit.delivery)
         .map((g) => (
           <div key={g.id} className="frame-guide" style={box(g.rect)}>
             <span className="frame-tag">{g.label}</span>
@@ -75,7 +77,7 @@ export default function FrameOverlay({ container }: { container: RefObject<HTMLE
           />
         </label>
         <span>{sensorName}</span>
-        {node.squeeze > 1 && <span>{node.squeeze.toFixed(1)}× anamorphic</span>}
+        {kit.squeeze > 1 && <span>{kit.squeeze.toFixed(1)}× anamorphic</span>}
       </div>
 
       <button className="hud-exit" onClick={() => useUi.getState().setLookThrough(null)} title="Back to the free view (Esc, ` or Numpad 0)">
