@@ -4,12 +4,13 @@
 
 import type { SceneNode } from './project'
 
-export const PASS_KINDS = ['clay', 'depth', 'normal', 'id', 'pose'] as const
+export const PASS_KINDS = ['clay', 'depth', 'depthSet', 'normal', 'id', 'pose'] as const
 export type PassKind = (typeof PASS_KINDS)[number]
 
 export const PASS_LABELS: Record<PassKind, string> = {
   clay: 'Clay',
   depth: 'Depth',
+  depthSet: 'Depth (set)',
   normal: 'Normals',
   id: 'Object ID',
   pose: 'Pose'
@@ -229,13 +230,22 @@ export function poseStroke(width: number, height: number): { stick: number; dot:
  * map: nearest surface white, farthest black, empty black. It's inverse depth (disparity), the
  * curve MiDaS / Depth Anything produce and depth ControlNets are trained on.
  */
-export function depthToGrey(distances: Float32Array): { grey: Uint8Array; near: number; far: number } {
+export function depthToGrey(
+  distances: Float32Array,
+  /** Use this range instead of the frame's own (so a second render matches the first's greys). */
+  range?: { near: number; far: number }
+): { grey: Uint8Array; near: number; far: number } {
   let near = Infinity
   let far = 0
-  for (const d of distances) {
-    if (d > 0) {
-      if (d < near) near = d
-      if (d > far) far = d
+  if (range && range.far > 0) {
+    near = range.near
+    far = range.far
+  } else {
+    for (const d of distances) {
+      if (d > 0) {
+        if (d < near) near = d
+        if (d > far) far = d
+      }
     }
   }
   const grey = new Uint8Array(distances.length)
@@ -245,7 +255,7 @@ export function depthToGrey(distances: Float32Array): { grey: Uint8Array; near: 
   for (let i = 0; i < distances.length; i++) {
     const d = distances[i]
     if (d <= 0) continue
-    grey[i] = b - a < 1e-9 ? 255 : Math.round(((1 / d - a) / (b - a)) * 255)
+    grey[i] = b - a < 1e-9 ? 255 : Math.round(Math.min(1, Math.max(0, (1 / d - a) / (b - a))) * 255)
   }
   return { grey, near, far }
 }

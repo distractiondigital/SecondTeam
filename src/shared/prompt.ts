@@ -22,11 +22,6 @@ export interface GenerationSettings {
   styleStrength: number
   /** Softness of each cast member's / prop's mask edge, in pixels. */
   feather: number
-  /**
-   * How much a cast member's / prop's own description outweighs the whole-frame prompt inside its
-   * area (1 = equal: the frame description can leak onto it, e.g. "a young woman" onto a detective).
-   */
-  regionStrength: number
   /** Where cast and prop references stop guiding, as a fraction of the steps. */
   referenceEnd: number
   /** Takes per Generate. */
@@ -50,7 +45,6 @@ export const DEFAULT_GENERATION: GenerationSettings = {
   poseEnd: 0.8,
   styleStrength: 0.35,
   feather: 16,
-  regionStrength: 1.8,
   referenceEnd: 0.8,
   takes: 2,
   seed: 1,
@@ -109,7 +103,6 @@ export function repairGeneration(raw: unknown): GenerationSettings {
     poseEnd: num(r.poseEnd, d.poseEnd, 0, 1),
     styleStrength: num(r.styleStrength, d.styleStrength, 0, 1.5),
     feather: Math.round(num(r.feather, d.feather, 0, 64)),
-    regionStrength: num(r.regionStrength, d.regionStrength, 0.5, 4),
     referenceEnd: num(r.referenceEnd, d.referenceEnd, 0.1, 1),
     takes: Math.round(num(r.takes, d.takes, 1, MAX_TAKES)),
     seed: Math.round(num(r.seed, d.seed, 0, MAX_SEED)),
@@ -153,6 +146,15 @@ export function buildPrompt(p: PromptParts): string {
     .map((s) => (s ?? '').trim().replace(/[\s,]+$/, ''))
     .filter(Boolean)
     .join(', ')
+}
+
+/**
+ * A cast member's / prop's own prompt: its description and (for a figure) which way it faces, plus
+ * the shot's shared context (size, angle, lens, lighting, style), because the frame description
+ * doesn't reach inside its area.
+ */
+export function regionPrompt(description: string, facing: string | null, p: Omit<PromptParts, 'description' | 'facing'>): string {
+  return buildPrompt({ ...p, description, facing })
 }
 
 type V3 = [number, number, number]

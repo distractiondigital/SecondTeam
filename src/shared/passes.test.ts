@@ -110,6 +110,12 @@ describe('depth', () => {
     expect(grey[1]).toBe(Math.round((0.25 / 0.75) * 255))
   })
 
+  it('can use the range of another render, so a second pass matches its greys', () => {
+    const { grey } = depthToGrey(new Float32Array([2, 8]), { near: 1, far: 4 })
+    expect(grey[0]).toBe(Math.round((0.25 / 0.75) * 255))
+    expect(grey[1]).toBe(0) // beyond the far end: clamped to black
+  })
+
   it('copes with a flat or empty frame', () => {
     expect(depthToGrey(new Float32Array([3, 3])).grey[0]).toBe(255)
     expect(depthToGrey(new Float32Array([0, 0])).far).toBe(0)

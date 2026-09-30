@@ -1,0 +1,9 @@
+{
+  "name": "Frame prompt outside the cast and props",
+  "description": "The whole-frame prompt, applied only where no cast member or prop is, so it can't leak onto them (e.g. 'a young woman' onto a detective). Each one's area gets its own prompt instead.",
+  "outputs": { "positive": ["masked", 0] },
+  "nodes": {
+    "invert": { "class_type": "InvertMask", "inputs": { "mask": "{{in:mask}}" } },
+    "masked": { "class_type": "ConditioningSetMask", "inputs": { "conditioning": "{{in:positive}}", "mask": ["invert", 0], "strength": 1, "set_cond_area": "default" } }
+  }
+}

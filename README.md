@@ -140,7 +140,9 @@ Keep characters and story objects looking the same from shot to shot.
 - **Linking:** select a figure → Properties → **Cast** → pick one (or *New cast member…*). Select an object or a group → **Prop**. A whole group can be one prop (a car built from boxes). Something that isn't a cast member or prop can still get its own **Description** (e.g. *a rusty oil drum*).
 - The **Object ID** pass now has one colour per cast member, prop and described object (two figures of the same character share a colour).
 - **Style reference** (Generation, whole project): images that set the look of every shot (a film still, an artbook page, a sketch), with a Subtle ↔ Strong slider. It works alongside the Style text. At higher strengths it can override details that come only from text; characters with their own reference images hold up best.
-- **Advanced → Cast & props:** **Own** (how much each one's own description outweighs the frame description in its area; default 1.8), **Feather** (how soft each one's edge is) and **End** (when references stop guiding). If one character takes on another's traits, raise Own; if a look leaks across an edge, raise Feather or lower End.
+- **How the prompts are split:** the **Frame description** applies only to the parts of the frame that aren't a cast member, prop or described object. Each of those gets its own prompt instead: its description, which way *that* figure faces, plus the shot size, lens, lighting and style. So one character's words can't land on another.
+- **Figures and depth:** the AI gets the depth of the **set without the figures** (the pass viewer's **Depth (set)** tab). Figures are shaped by their pose skeleton, their own prompt and references, never by the mannequin's ball joints, and the pose decides which way they face.
+- **Advanced → Cast & props:** **Feather** (how soft each one's edge is) and **End** (when references stop guiding). If a look leaks across an edge, raise Feather or lower End.
 - **Good references:** at least a few hundred pixels tall, showing what should carry over (a full-length outfit shot, a face close-up; several are combined, keeping each one's detail). Make the description agree with them: if the photo shows a cloak and vest, don't write "sweater".
 - **Circle takes:** click the ☆ on a take (or *Circle this take* in the take viewer). One per shot; it keeps its place in the strip (marked with a filled star and an orange border) and becomes the shot's thumbnail in the Shot list. The storyboard will use it. Ctrl+Z undoes it.
 - Takes with cast and props take longer (about 30 s instead of 7), because each one's part of the frame is worked out separately. At most 6 cast members/props with reference images are used per take; the strip says who was left out.
@@ -150,10 +152,11 @@ The images the AI will work from (Milestone 6), rendered from a shot's camera th
 - Select a shot and click **Render passes** in its Properties. The **pass viewer** opens over the viewport:
   - **Clay**: the lit grey set.
   - **Depth**: near is white, far is black.
+  - **Depth (set)**: the same without the figures; this is the one the AI uses.
   - **Normals**: which way each surface faces (blue/lilac faces the lens).
   - **Object ID**: a flat colour per object or figure, with a legend.
   - **Pose**: an OpenPose skeleton of each figure.
-- Flip between them with **← / →** or **1–5**; **Esc** closes. **Re-render** after changing the shot.
+- Flip between them with **← / →** or **1–6**; **Esc** closes. **Re-render** after changing the shot.
 - The size is set automatically for the AI model (SDXL): about one megapixel in the delivery frame's shape, e.g. 1536 × 640 for 2.39.
 - If the project is saved, the passes are also written into it: `scenes\<scene id>\shots\<shot id>\passes\` (five PNGs plus `passes.json`). **Show in folder** opens it.
 - Renders and Shot list thumbnails include an automatic endless floor at ground level. Turn it off per scene with **Floor in renders** in the scene menu (top of the Outliner), e.g. for a rooftop or when you've built your own ground.

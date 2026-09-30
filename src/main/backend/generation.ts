@@ -43,7 +43,7 @@ interface Run {
 }
 
 const WORKFLOW = 'sdxl-continuity'
-const FRAGMENTS = ['mask', 'region', 'image', 'batch', 'reference', 'style'] as const
+const FRAGMENTS = ['mask', 'region', 'image', 'batch', 'reference', 'style', 'union', 'background'] as const
 const SAMPLER = { sampler: 'dpmpp_2m', scheduler: 'karras' }
 
 export class ComfyBackend implements GenerationBackend {
@@ -149,7 +149,9 @@ export class ComfyBackend implements GenerationBackend {
           feather: featherMask(job.feather),
           referenceEnd: job.referenceEnd,
           maxReferences: MAX_REFERENCED,
-          regionStrength: job.regionStrength,
+          // The frame prompt stays out of cast and props' areas (each has its own full prompt), so it
+          // can't leak onto them ("a young woman" onto the detective).
+          frameOutsideRegions: true,
           // Keep each reference image's detail (an outfit shot and a face close-up both count).
           combineEmbeds: 'concat',
           values: {
@@ -210,7 +212,6 @@ export class ComfyBackend implements GenerationBackend {
             style: job.style,
             feather: job.feather,
             referenceEnd: job.referenceEnd,
-            regionStrength: job.regionStrength,
             skipped
           },
           workflow: WORKFLOW,

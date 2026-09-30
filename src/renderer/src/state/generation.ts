@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { buildPrompt, randomSeed, takeSeeds } from '../../../shared/prompt'
+import { buildPrompt, randomSeed, regionPrompt, takeSeeds } from '../../../shared/prompt'
 import type { IdEntry } from '../../../shared/passes'
 import type { SceneNode } from '../../../shared/project'
 import type { BackendStatus, GenerationEvent, InstalledModel, JobEntity, TakeInfo, TakeMeta } from '../../../shared/takes'
@@ -183,15 +183,15 @@ export async function generateShot(shotId: string): Promise<void> {
     shotName: shot.shotNumber,
     width: passes.result.width,
     height: passes.result.height,
-    depthPng: passes.result.images.depth,
+    // The set without the figures: figures follow their pose and prompts, not the mannequin's shape.
+    depthPng: passes.result.images.depthSet,
     posePng: passes.result.images.pose,
     hasPose: passes.result.figures > 0,
     idPng: passes.result.images.id,
-    entities: jobEntities(passes.result.legend, shotId),
+    entities: jobEntities(passes.result.legend, shotId, passes.result.facings),
     style: state.project.styleImages.length ? { images: state.project.styleImages, strength: settings.styleStrength } : null,
     feather: settings.feather,
     referenceEnd: settings.referenceEnd,
-    regionStrength: settings.regionStrength,
     positive: shotPrompt(shotId),
     negative: settings.negative,
     checkpoint: model.file,
@@ -217,21 +217,38 @@ export async function generateShot(shotId: string): Promise<void> {
 }
 
 /** The cast members, props and described objects in frame, with their prompts and reference images. */
-function jobEntities(legend: IdEntry[], shotId: string): JobEntity[] {
-  const { project } = useDocument.getState()
-  const nodes: Record<string, SceneNode> = sceneForShot(useDocument.getState(), shotId)
+function jobEntities(legend: IdEntry[], shotId: string, facings: Record<string, string | null>): JobEntity[] {
+  const state = useDocument.getState()
+  const { project } = state
+  const nodes: Record<string, SceneNode> = sceneForShot(state, shotId)
+  const shot = nodes[shotId]
+  const info = useUi.getState().shotInfo[shotId]
+  const context = {
+    size: shot?.type === 'camera' ? (shot.sizeOverride ?? info?.size?.label ?? null) : null,
+    angle: shot?.type === 'camera' ? (shot.angleOverride ?? info?.angle ?? null) : null,
+    focalLength: shot?.type === 'camera' ? shot.focalLength : 35,
+    squeeze: project.camera.squeeze,
+    lighting: shot?.type === 'camera' ? (shot.lightingOverride ?? info?.lighting ?? '') : '',
+    style: project.styleText
+  }
+  // Its own full prompt: description, which way its figure faces, and the shot's context.
+  const own = (description: string, e: IdEntry): string | null => {
+    if (!description.trim()) return null
+    const figure = e.nodeIds.find((id) => nodes[id]?.type === 'mannequin')
+    return regionPrompt(description.trim(), figure ? (facings[figure] ?? null) : null, context)
+  }
   const out: JobEntity[] = []
   for (const e of legend) {
     if (!e.pixels) continue // not in frame
     if (e.kind === 'cast') {
       const c = project.cast.find((x) => x.id === e.refId)
-      if (c) out.push({ name: c.name, kind: 'cast', ownerId: c.id, color: e.color, text: c.description.trim() || null, images: c.images, strength: c.strength })
+      if (c) out.push({ name: c.name, kind: 'cast', ownerId: c.id, color: e.color, text: own(c.description, e), images: c.images, strength: c.strength })
     } else if (e.kind === 'prop') {
       const p = project.props.find((x) => x.id === e.refId)
-      if (p) out.push({ name: p.name, kind: 'props', ownerId: p.id, color: e.color, text: p.description.trim() || null, images: p.images, strength: p.strength })
+      if (p) out.push({ name: p.name, kind: 'props', ownerId: p.id, color: e.color, text: own(p.description, e), images: p.images, strength: p.strength })
     } else {
       const n = nodes[e.refId]
-      const text = n && 'description' in n ? n.description.trim() : ''
+      const text = own(n && 'description' in n ? n.description : '', e)
       if (text) out.push({ name: e.name, kind: 'object', ownerId: e.refId, color: e.color, text, images: [], strength: 0 })
     }
   }

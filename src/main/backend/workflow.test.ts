@@ -8,7 +8,7 @@ const read = (p: string) => readFileSync(join(root, p), 'utf-8')
 
 const template = parseTemplate(read('backend/workflows/sdxl-continuity.json'))
 const fragments = Object.fromEntries(
-  ['mask', 'region', 'image', 'batch', 'reference', 'style'].map((n) => [n, parseFragment(read(`backend/workflows/fragments/${n}.json`))])
+  ['mask', 'region', 'image', 'batch', 'reference', 'style', 'union', 'background'].map((n) => [n, parseFragment(read(`backend/workflows/fragments/${n}.json`))])
 ) as ComposeInput['fragments']
 const values = {
   checkpoint: 'RealVisXL_V5.0_fp16.safetensors',
@@ -103,6 +103,22 @@ describe('workflow templates', () => {
         if (Array.isArray(v) && v.length === 2 && typeof v[0] === 'string') expect(p[v[0]], String(v[0])).toBeDefined()
       }
     }
+  })
+
+  it('can keep the frame prompt out of the areas of the cast and props', () => {
+    const { prompt: p } = compose({
+      frameOutsideRegions: true,
+      entities: [
+        { name: 'Maribel', color: 1, text: 'young woman', images: [], weight: 1 },
+        { name: 'Detective', color: 2, text: 'man in his 50s', images: [], weight: 1 }
+      ]
+    })
+    // The frame prompt is masked to everything outside both areas, then the regions are added.
+    expect(p['e1.union.add'].inputs).toMatchObject({ destination: ['e0.mask.mask', 0], source: ['e1.mask.mask', 0], operation: 'add' })
+    expect(p['frame.invert'].inputs.mask).toEqual(['e1.union.add', 0])
+    expect(p['frame.masked'].inputs.conditioning).toEqual(['2', 0])
+    expect(p['e0.region.combine'].inputs.conditioning_1).toEqual(['frame.masked', 0])
+    expect(p['7'].inputs.positive).toEqual(['e1.region.combine', 0])
   })
 
   it('keeps references within the memory limit and names who was left out', () => {

@@ -111,7 +111,10 @@ export interface ComposeEntity {
 
 export interface ComposeInput {
   base: WorkflowTemplate
-  fragments: Record<'mask' | 'region' | 'image' | 'batch' | 'reference' | 'style', Fragment>
+  fragments: Record<'mask' | 'region' | 'image' | 'batch' | 'reference' | 'style', Fragment> & {
+    union?: Fragment
+    background?: Fragment
+  }
   /** Values for the base graph's placeholders (not its in: links). */
   values: TemplateValues
   entities: ComposeEntity[]
@@ -128,6 +131,11 @@ export interface ComposeInput {
   regionStrength?: number
   /** How several reference images of one entity are combined: 'concat' keeps each one's detail. */
   combineEmbeds?: 'concat' | 'average'
+  /**
+   * Apply the frame prompt only outside the cast's and props' areas (each area then has only its own
+   * prompt, which should carry the shared context: shot, lens, lighting, style).
+   */
+  frameOutsideRegions?: boolean
 }
 
 // Where the base graph's chains start.
@@ -176,13 +184,14 @@ export function composeWorkflow(input: ComposeInput): { prompt: Graph; skipped: 
 
   const skipped: string[] = []
   let referenced = 0
-  input.entities.forEach((e, i) => {
-    const prefix = `e${i}`
+  // Each entity's mask (only for those that need one: a prompt or references in use).
+  const plans = input.entities.map((e, i) => {
     const useImages = e.images.length > 0 && referenced < input.maxReferences
-    if (e.images.length > 0 && !useImages) skipped.push(e.name)
-    if (!e.text && !useImages) return
+    if (useImages) referenced++
+    else if (e.images.length > 0) skipped.push(e.name)
+    if (!e.text && !useImages) return null
     const mask = add(
-      instantiate(f.mask, `${prefix}.mask`, {
+      instantiate(f.mask, `e${i}.mask`, {
         'in:id_image': ID_IMAGE,
         color: e.color,
         grow: input.feather.grow,
@@ -190,6 +199,23 @@ export function composeWorkflow(input: ComposeInput): { prompt: Graph; skipped: 
         blur_sigma: input.feather.blurSigma
       })
     ).mask
+    return { e, i, mask, useImages }
+  })
+
+  // The frame prompt, optionally kept out of every cast member's / prop's area.
+  const regions = plans.filter((p): p is NonNullable<typeof p> => Boolean(p?.e.text))
+  if (input.frameOutsideRegions && regions.length && f.union && f.background) {
+    let union = regions[0].mask
+    regions.slice(1).forEach((r) => {
+      union = add(instantiate(f.union!, `e${r.i}.union`, { 'in:a': union, 'in:b': r.mask })).mask
+    })
+    positive = add(instantiate(f.background, 'frame', { 'in:positive': positive, 'in:mask': union })).positive
+  }
+
+  for (const plan of plans) {
+    if (!plan) continue
+    const { e, i, mask, useImages } = plan
+    const prefix = `e${i}`
     if (e.text) {
       positive = add(
         instantiate(f.region, `${prefix}.region`, {
@@ -202,7 +228,6 @@ export function composeWorkflow(input: ComposeInput): { prompt: Graph; skipped: 
       ).positive
     }
     if (useImages) {
-      referenced++
       model = add(
         instantiate(f.reference, `${prefix}.ref`, {
           'in:model': model,
@@ -216,7 +241,7 @@ export function composeWorkflow(input: ComposeInput): { prompt: Graph; skipped: 
         })
       ).model
     }
-  })
+  }
 
   const base = fillTemplate(input.base, { ...input.values, 'in:model': model, 'in:positive': positive })
   Object.assign(graph, base)

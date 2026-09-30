@@ -33,6 +33,7 @@ import {
   type PassKind
 } from '../../../shared/passes'
 import type { CameraNode, CastMember, Prop, SceneNode } from '../../../shared/project'
+import { facingPhrase } from '../../../shared/prompt'
 import { CLAY_COLOR } from './clay'
 import { isHelper, pixelsToCanvas, renderToCanvas, shotCamera, withHidden } from './renderShot'
 import { hasLights } from './SceneNodes'
@@ -51,6 +52,8 @@ export interface PassResult {
   depthRange: { near: number; far: number }
   /** Figures with at least part of their skeleton in the pose pass. */
   figures: number
+  /** Which way each figure faces as this camera sees it, by node id ('facing the camera', …). */
+  facings: Record<string, string | null>
 }
 
 export interface PassInput {
@@ -200,6 +203,14 @@ export function renderPasses(input: PassInput): PassResult | null {
       )
 
       const { canvas: depth, near, far } = renderDepth(gl, scene, camera, w, h, track)
+      // The same depth without the figures: what the AI gets. Figures are shaped by their pose
+      // skeletons and prompts instead, so the mannequins' ball joints and round heads can't show
+      // through (or turn someone around).
+      const { canvas: depthSet } = withHidden(
+        scene,
+        (o) => nodes[o.name]?.type === 'mannequin',
+        () => renderDepth(gl, scene, camera, w, h, track, { near, far })
+      )
 
       const legend = idLegend(rootIds, nodes, cast, props)
       const colors = new Map(legend.map((e) => [e.key, e.color]))
@@ -226,6 +237,7 @@ export function renderPasses(input: PassInput): PassResult | null {
 
       const { canvas: pose, figures } = drawPose(scene, camera, nodes, w, h)
       countPixels(id, legend)
+      const facings = figureFacings(scene, camera, nodes)
 
       return {
         width: w,
@@ -233,13 +245,15 @@ export function renderPasses(input: PassInput): PassResult | null {
         images: {
           clay: clay.toDataURL('image/png'),
           depth: depth.toDataURL('image/png'),
+          depthSet: depthSet.toDataURL('image/png'),
           normal: normal.toDataURL('image/png'),
           id: id.toDataURL('image/png'),
           pose: pose.toDataURL('image/png')
         },
         legend,
         depthRange: { near, far },
-        figures
+        figures,
+        facings
       }
     })
   } finally {
@@ -285,7 +299,8 @@ function renderDepth(
   camera: PerspectiveCamera,
   w: number,
   h: number,
-  track: <M extends Material>(m: M) => M
+  track: <M extends Material>(m: M) => M,
+  range?: { near: number; far: number }
 ): { canvas: HTMLCanvasElement; near: number; far: number } {
   const target = new WebGLRenderTarget(w, h, { type: FloatType })
   const previous = gl.getRenderTarget()
@@ -302,13 +317,36 @@ function renderDepth(
   }
   const distances = new Float32Array(w * h)
   for (let i = 0; i < w * h; i++) distances[i] = floats[i * 4]
-  const { grey, near, far } = depthToGrey(distances)
+  const { grey, near, far } = depthToGrey(distances, range)
   const rgba = new Uint8ClampedArray(w * h * 4)
   for (let i = 0; i < w * h; i++) {
     rgba[i * 4] = rgba[i * 4 + 1] = rgba[i * 4 + 2] = grey[i]
     rgba[i * 4 + 3] = 255
   }
   return { canvas: pixelsToCanvas(rgba, w, h, true), near, far }
+}
+
+/** Which way each visible figure's body (its chest) faces, as this camera sees it. */
+function figureFacings(
+  scene: ThreeScene,
+  camera: PerspectiveCamera,
+  nodes: Record<string, SceneNode>
+): Record<string, string | null> {
+  const right = new Vector3(1, 0, 0).applyQuaternion(camera.quaternion)
+  const out: Record<string, string | null> = {}
+  for (const node of Object.values(nodes)) {
+    if (node.type !== 'mannequin' || !isShown(node.id, nodes)) continue
+    const chest = scene.getObjectByName(`${node.id}:chest`)
+    if (!chest) continue
+    const forward = new Vector3(0, 0, 1).applyQuaternion(chest.getWorldQuaternion(new Quaternion()))
+    const toLens = camera.position.clone().sub(chest.getWorldPosition(new Vector3()))
+    out[node.id] = facingPhrase(
+      forward.toArray() as [number, number, number],
+      toLens.toArray() as [number, number, number],
+      right.toArray() as [number, number, number]
+    )
+  }
+  return out
 }
 
 const FIGURE_SOURCES = [

@@ -3,6 +3,7 @@ import {
   buildPrompt,
   depthBlur,
   facingPhrase,
+  regionPrompt,
   DEFAULT_GENERATION,
   MAX_TAKES,
   repairGeneration,
@@ -32,6 +33,21 @@ describe('prompt', () => {
     expect(
       buildPrompt({ ...parts, description: '  a street, ', facing: null, size: null, angle: null, lighting: '', style: '', squeeze: 2, focalLength: 49.6 })
     ).toBe('a street, 50mm anamorphic lens')
+  })
+})
+
+describe('region prompts', () => {
+  it('give a cast member their own facing and the context of the shot', () => {
+    expect(
+      regionPrompt('man in his 50s, beige trench coat', 'in profile, facing camera right', {
+        size: 'Medium shot',
+        angle: 'Eye level',
+        focalLength: 75,
+        squeeze: 1,
+        lighting: 'Soft key light from camera right',
+        style: 'D&D artbook style'
+      })
+    ).toBe('man in his 50s, beige trench coat, in profile, facing camera right, medium shot, eye level, 75mm lens, soft key light from camera right, D&D artbook style')
   })
 })
 

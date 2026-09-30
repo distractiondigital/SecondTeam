@@ -1,0 +1,8 @@
+{
+  "name": "Mask union",
+  "description": "Two masks added together (every cast member's and prop's area).",
+  "outputs": { "mask": ["add", 0] },
+  "nodes": {
+    "add": { "class_type": "MaskComposite", "inputs": { "destination": "{{in:a}}", "source": "{{in:b}}", "x": 0, "y": 0, "operation": "add" } }
+  }
+}
