@@ -16,6 +16,8 @@ import type { MannequinNode, Vec3 } from '../../../shared/project'
 import { useDocument } from '../state/documentStore'
 import { usePoseLibrary } from '../state/poseLibrary'
 import { useUi } from '../state/uiStore'
+import { METRES_PER_FOOT, type Units } from '../units'
+import { useCtrlHeld } from '../viewport/gizmoShared'
 import NumberField from './NumberField'
 
 // Properties for posable figures: the whole-figure section and the joint-posing section.
@@ -50,23 +52,33 @@ function GestureSlider(props: {
   )
 }
 
+/** Hold Ctrl on the height slider to land on whole inches (feet mode) or whole centimetres (metres). */
+function snapHeight(metres: number, units: Units): number {
+  const unit = units === 'ft' ? METRES_PER_FOOT / 12 : 0.01
+  return Math.round(metres / unit) * unit
+}
+
 export function FigureSection({ node }: { node: MannequinNode }) {
   const doc = useDocument.getState()
   const projectPoses = useDocument((s) => s.project.poses)
   const libraryPoses = usePoseLibrary((s) => s.poses)
+  const units = useUi((s) => s.units)
+  const ctrlHeld = useCtrlHeld()
   const disabled = node.locked
   return (
     <>
       <div className="prop-section">
-        <div className="prop-title">Height</div>
+        <div className="prop-title" title="Hold Ctrl while dragging the slider for whole inches (ft) or centimetres (m)">
+          Height
+        </div>
         <div className="slider-row">
           <GestureSlider
             value={node.height}
             min={MIN_HEIGHT}
             max={MAX_HEIGHT}
-            step={0.01}
+            step={0.001}
             disabled={disabled}
-            onChange={(height) => doc.updateNode(node.id, { height })}
+            onChange={(height) => doc.updateNode(node.id, { height: ctrlHeld ? snapHeight(height, units) : height })}
           />
           <div className="slider-value">
             <NumberField

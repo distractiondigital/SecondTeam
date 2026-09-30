@@ -5,7 +5,7 @@
 | 0 | Scaffold | ✅ Done (tested by Spencer 2026-09-29) | Electron window with an R3F viewport, a metre grid, orbit controls and an axis gizmo. `start.bat` launcher. |
 | 1 | Set building | ✅ Done (tested by Spencer 2026-09-29) | Six primitives; gizmo with snapping; outliner (tree, rename, hide, lock); properties with real-size fields; m/ft; group/duplicate/delete; full undo/redo; save/open `.secondteam` folders; unsaved-changes prompts. Snap modes (Off/Grid/Surface, Ctrl to flip), anchors. 23 automated tests. |
 | 2 | Mannequins | ✅ Done (tested by Spencer 2026-09-29) | 17-joint FK figure; click a body part to pose; realistic limits (toggle per figure); 7 presets + mirror; height (child→adult proportions) and build. Follow-up: user pose presets (project + app library), 42 automated tests. |
-| 3 | Cameras & shot list | 🟨 Built, awaiting Spencer's test | Shot cameras from the current view; camera view with game-style fly controls; sensors incl. PYXIS 12K / ALEXA 35; squeeze; frame guides + delivery frame; HUD readouts; shot size/angle; shot list with live thumbnails. 56 automated tests. |
+| 3 | Cameras & shot list | ✅ Done (tested by Spencer 2026-09-29) | Shot cameras from the current view; camera view with game-style fly controls; sensors incl. PYXIS 12K / ALEXA 35; squeeze; frame guides + delivery frame; HUD readouts; shot size/angle; shot list with live thumbnails. 56 automated tests. |
 | 4 | Lights & clay render | ⬜ | |
 | 5 | Render passes | ⬜ | |
 | 6 | First AI frames | ⬜ | |

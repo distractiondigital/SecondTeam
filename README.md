@@ -65,7 +65,7 @@ The grid is in real-world units. In metres: faint lines every 1 m, stronger ever
 In the Properties panel, **drag left/right on any number box** to change it (hold Shift for fine steps, Ctrl for big ones; one drag is one undo step), or click it to type a value and press Enter. Lengths accept either unit system whatever the display is set to, e.g. `2.5`, `150cm`, `6' 2"` or `6ft 2in`.
 
 ## Figures (posable mannequins)
-- **Add → Figure** puts a mannequin on the floor. Click it once to select the whole figure: move and rotate it with the gizmo, and set **Height** (0.9–2.1 m; short figures get child proportions) and **Build** in Properties.
+- **Add → Figure** puts a mannequin on the floor. Click it once to select the whole figure: move and rotate it with the gizmo, and set **Height** (0.9–2.1 m; short figures get child proportions; hold Ctrl while dragging the slider for whole inches in feet mode, or whole centimetres) and **Build** in Properties.
 - With the figure selected, **click a body part** to pose the joint that moves it (forearm → elbow, thigh → hip, head → head…). Drag the rings, or type angles in Properties. Hold **Ctrl** for 15° steps. **Esc** or clicking empty space goes back to the whole figure.
 - **Presets**: Standing, Walking, Sitting, Pointing, Arms crossed, Looking over shoulder, Lying down. **Mirror L↔R** swaps sides. **Reset pose** returns to standing.
 - **Saved poses**: name the current pose and **Save to project** (travels with the project folder) or **Save to library** (on this PC, available in every project). Saved poses appear in the preset menu and in the Saved poses list, where you can apply them to any figure, copy between project and library, or delete them. Poses scale to each figure's height.
