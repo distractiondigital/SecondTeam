@@ -2,7 +2,7 @@
 
 | # | Milestone | Status | Notes |
 |---|---|---|---|
-| 0 | Scaffold | ✅ Built, awaiting Spencer's test | Electron window with an R3F viewport, a metre grid, orbit controls and an axis gizmo. `start.bat` launcher. |
+| 0 | Scaffold | ✅ Done (tested by Spencer 2026-09-29) | Electron window with an R3F viewport, a metre grid, orbit controls and an axis gizmo. `start.bat` launcher. |
 | 1 | Set building | ⬜ | |
 | 2 | Mannequins | ⬜ | |
 | 3 | Cameras & shot list | ⬜ | |
