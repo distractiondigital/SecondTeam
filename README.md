@@ -29,22 +29,46 @@ While `npm run dev` is running, most UI edits show up in the window instantly.
 ## Other commands
 | Command | What it does |
 |---|---|
+| `npm test` | Runs the automated checks (undo/redo, grouping, saving, units) |
 | `npm run typecheck` | Checks the code for type errors without running it |
 | `npm run build` | Typecheck, then build the app into `out/` |
 | `npm start` | Run the built app from `out/` (no live reload) |
 | `npm run dist` | Build a Windows installer into `release/` (set up properly in Milestone 9) |
 
-## Viewport controls
-- **Left-drag:** orbit
-- **Right-drag:** pan
+## Viewport controls (Blender-style)
+- **Middle-drag:** orbit
+- **Shift + middle-drag:** pan
 - **Scroll:** zoom
+- **Left-click:** select. **Ctrl/Shift + click** adds to the selection. Clicking empty space clears it.
+- Clicking an object inside a group selects the whole group. **Double-click** selects just that object.
 
-The grid is in metres: faint lines every 1 m, stronger lines every 10 m.
+The grid is in real-world units. In metres: faint lines every 1 m, stronger every 10 m. In feet: every 1 ft and 10 ft.
+
+## Keyboard shortcuts
+| Key | Action |
+|---|---|
+| W / E / R | Move / rotate / scale gizmo |
+| Shift+Tab | Snapping on/off (0.1 m or ½ ft, 15°, 0.1× scale) |
+| F | Frame the selection (or everything) |
+| Ctrl+D | Duplicate |
+| Del or X | Delete |
+| Ctrl+G / Ctrl+Shift+G | Group / ungroup |
+| H | Hide / show |
+| F2 | Rename |
+| Esc | Deselect |
+| Ctrl+Z / Ctrl+Y (or Ctrl+Shift+Z) | Undo / redo |
+| Ctrl+N / Ctrl+O / Ctrl+S / Ctrl+Shift+S | New / open / save / save as |
+
+In the Properties panel, type values and press Enter. Lengths accept either unit system whatever the display is set to, e.g. `2.5`, `150cm`, `6' 2"` or `6ft 2in`.
+
+## Projects
+A project is a folder called `Name.secondteam` containing `project.json` (the set, in plain readable JSON) and folders for reference images, renders and exports. To open one, choose that folder in the Open dialog. The project's name is the folder's name.
 
 ## Project layout
 ```
 src/main/       Electron main process: the window, and later ComfyUI management
 src/preload/    The safe bridge between the UI and the main process
-src/renderer/   The React + three.js UI
+src/renderer/   The React + three.js UI (state/, viewport/, panels/)
+src/shared/     The project file format, used by both sides
 docs/           Spec and progress tracker
 ```

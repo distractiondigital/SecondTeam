@@ -32,8 +32,13 @@ Electron + React + TypeScript + Vite · three.js via react-three-fiber + drei ·
 ## Commands
 - Install dependencies: `npm install` (`start.bat` does this automatically when `package.json` or `package-lock.json` is newer than `node_modules\.install-stamp`)
 - Run in dev: `npm run dev`, or double-click `start.bat`
+- Tests: `npm test` (Vitest; store/undo, grouping, save round-trip, units)
 - Typecheck: `npm run typecheck`
 - Build: `npm run build` (typecheck + electron-vite build into `out/`)
 - Installer: `npm run dist` (electron-builder NSIS into `release/`; not validated until M9)
-- Layout: `src/main` (Electron main), `src/preload` (IPC bridge, typed in `src/preload/api.d.ts`), `src/renderer` (React + R3F UI). Scene units: 1 unit = 1 metre, Y up.
+- Layout: `src/main` (Electron main; `projectFiles.ts` = save/open IPC), `src/preload` (IPC bridge, typed in `src/preload/api.d.ts`), `src/shared` (project.json schema, primitives), `src/renderer/src` (`state/` Zustand stores + actions, `viewport/`, `panels/`). Scene units: 1 unit = 1 metre, rotations stored in degrees, Y up.
+- Document store (`state/documentStore.ts`) is the only place that changes the project; every change is an undo step (gizmo drags batched with `beginGesture`/`endGesture`). UI-only state lives in `state/uiStore.ts`.
+- `electron-vite dev` hot-reloads the UI but not `src/main` or `src/preload`: restart the app after changing those.
+- To drive the dev app in tests: `npx electron-vite dev --remoteDebuggingPort 9222`, then use the Chrome DevTools Protocol.
+- Editing files from Windows PowerShell 5: always pass `-Encoding UTF8` to `Get-Content`, or non-ASCII characters (·, ’, °) get corrupted.
 - Electron 44 downloads its binary lazily on first run (no postinstall). npm 11's allow-scripts warnings about esbuild and electron-winstaller are harmless.

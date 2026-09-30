@@ -1,9 +1,12 @@
 :root {
   --bg: #1b1c1f;
   --panel: #232428;
+  --panel-2: #2b2d32;
   --border: #33353a;
   --text: #d6d7da;
   --text-dim: #8b8e95;
+  --accent: #f2a33a;
+  --accent-soft: rgba(242, 163, 58, 0.18);
   font-family: 'Segoe UI', system-ui, sans-serif;
   font-size: 13px;
   color: var(--text);
@@ -22,17 +25,25 @@ body,
   overflow: hidden;
 }
 
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
 .app {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
+/* ---------- Top bar & toolbar ---------- */
+
 .topbar {
   display: flex;
   align-items: center;
-  gap: 16px;
-  height: 32px;
+  gap: 14px;
+  height: 44px;
   padding: 0 12px;
   background: var(--panel);
   border-bottom: 1px solid var(--border);
@@ -43,8 +54,12 @@ body,
   font-weight: 600;
 }
 
-.status {
+.project-name {
   color: var(--text-dim);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .version {
@@ -52,7 +67,353 @@ body,
   color: var(--text-dim);
 }
 
-.viewport {
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.tool-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 8px;
+  border-left: 1px solid var(--border);
+}
+
+.tool-group-label {
+  color: var(--text-dim);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 4px;
+}
+
+.tool-button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 7px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tool-button:hover:not(:disabled) {
+  background: var(--panel-2);
+  border-color: var(--border);
+}
+
+.tool-button.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.tool-button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.tool-button.text-only {
+  color: var(--text-dim);
+}
+
+.segmented {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.segmented button {
+  padding: 3px 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.segmented button.active {
+  background: var(--accent-soft);
+  color: #fff;
+}
+
+/* ---------- Workspace ---------- */
+
+.workspace {
   flex: 1;
   min-height: 0;
+  display: flex;
+}
+
+.viewport {
+  flex: 1;
+  min-width: 0;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  min-height: 0;
+}
+
+.outliner {
+  width: 250px;
+  border-right: 1px solid var(--border);
+}
+
+.properties {
+  width: 290px;
+  border-left: 1px solid var(--border);
+}
+
+.panel-header {
+  padding: 8px 10px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+}
+
+.panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 0;
+}
+
+.hint {
+  margin: 8px 12px;
+  color: var(--text-dim);
+  line-height: 1.45;
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+/* ---------- Outliner ---------- */
+
+.outliner-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding-right: 6px;
+  cursor: default;
+  user-select: none;
+}
+
+.outliner-row:hover {
+  background: var(--panel-2);
+}
+
+.outliner-row.selected {
+  background: var(--accent-soft);
+}
+
+.outliner-row.dim .row-name {
+  opacity: 0.45;
+}
+
+.expander {
+  width: 16px;
+  flex: none;
+}
+
+.row-icon {
+  color: var(--text-dim);
+  flex: none;
+}
+
+.color-chip {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex: none;
+  margin: 0 2px;
+}
+
+.row-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row-toggle {
+  flex: none;
+  opacity: 0.55;
+}
+
+.outliner-row:hover .row-toggle,
+.row-toggle.on {
+  opacity: 1;
+}
+
+.rename-input {
+  flex: 1;
+  min-width: 0;
+  padding: 1px 4px;
+  background: var(--bg);
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  outline: none;
+}
+
+/* ---------- Properties ---------- */
+
+.prop-section {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.prop-title {
+  color: var(--text-dim);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.prop-kind {
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.name-input {
+  width: 100%;
+  padding: 4px 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.name-input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.vec3-row {
+  display: flex;
+  gap: 6px;
+}
+
+.number-field {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+}
+
+.number-field:focus-within {
+  border-color: var(--accent);
+}
+
+.number-label {
+  padding: 0 5px;
+  color: var(--text-dim);
+  font-size: 11px;
+  user-select: none;
+}
+
+.number-field input {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 4px 4px 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  text-align: right;
+}
+
+.number-field input:disabled {
+  color: var(--text-dim);
+}
+
+.prop-inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.prop-inline .prop-title {
+  margin: 0;
+}
+
+.prop-inline input[type='color'] {
+  width: 44px;
+  height: 24px;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.prop-checks {
+  display: flex;
+  gap: 16px;
+}
+
+.prop-checks label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.prop-actions {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+}
+
+.prop-actions button {
+  padding: 4px 12px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.prop-actions button:hover {
+  border-color: var(--accent);
+}
+
+/* ---------- Status bar ---------- */
+
+.statusbar {
+  padding: 4px 12px;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 11.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: none;
 }

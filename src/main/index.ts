@@ -1,5 +1,10 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
+import { askToSave, registerProjectIpc } from './projectFiles'
+
+// Keep Electron's own cache and settings in %LOCALAPPDATA%\SecondTeam (not the default %APPDATA%).
+// Must run before the app is ready.
+app.setPath('userData', join(process.env['LOCALAPPDATA'] ?? app.getPath('appData'), 'SecondTeam', 'app-data'))
 
 // Only one copy of the app at a time. A second launch just focuses the existing window.
 if (!app.requestSingleInstanceLock()) {
@@ -7,6 +12,11 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 let mainWindow: BrowserWindow | null = null
+
+// Unsaved-changes state, reported by the UI.
+let hasUnsavedChanges = false
+let projectName = 'Untitled'
+let closeConfirmed = false
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
@@ -34,6 +44,19 @@ function createWindow(): void {
     if (url !== mainWindow?.webContents.getURL()) event.preventDefault()
   })
 
+  mainWindow.on('close', async (event) => {
+    if (closeConfirmed || !hasUnsavedChanges || !mainWindow) return
+    event.preventDefault()
+    const choice = await askToSave(mainWindow, projectName)
+    if (choice === 'discard') {
+      closeConfirmed = true
+      mainWindow.close()
+    } else if (choice === 'save') {
+      // The UI saves (possibly asking where), then calls app:closeNow if it succeeded.
+      mainWindow.webContents.send('app:saveAndClose')
+    }
+  })
+
   mainWindow.on('closed', () => {
     mainWindow = null
   })
@@ -55,6 +78,15 @@ app.on('second-instance', () => {
 
 app.whenReady().then(() => {
   ipcMain.handle('app:getVersion', () => app.getVersion())
+  ipcMain.on('app:setUnsaved', (_e, unsaved: boolean, name: string) => {
+    hasUnsavedChanges = unsaved
+    projectName = name
+  })
+  ipcMain.on('app:closeNow', () => {
+    closeConfirmed = true
+    mainWindow?.close()
+  })
+  registerProjectIpc(() => mainWindow)
   createWindow()
 })
 

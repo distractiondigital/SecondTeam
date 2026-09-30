@@ -1,6 +1,22 @@
 // Shape of the bridge exposed to the UI as `window.secondTeam`.
 export interface SecondTeamApi {
   getVersion: () => Promise<string>
+  /** Tell the main process whether there are unsaved changes (used when closing the window). */
+  setUnsaved: (unsaved: boolean, projectName: string) => void
+  /** Close the window without asking again (after a successful save). */
+  closeNow: () => void
+  /** Main asks the UI to save before closing. Returns an unsubscribe function. */
+  onSaveAndClose: (callback: () => void) => () => void
+
+  /** Ask where to save. Creates Name.secondteam\ and returns its path, or null if cancelled. */
+  saveProjectAs: (suggestedName: string) => Promise<{ path: string; name: string } | null>
+  /** Ask which project folder to open. */
+  openProject: () => Promise<{ path: string; json: string } | { error: string } | null>
+  /** Write project.json into a folder previously chosen through saveProjectAs or openProject. */
+  writeProject: (folder: string, json: string) => Promise<{ ok: true } | { error: string }>
+
+  confirmDiscard: (projectName: string) => Promise<'save' | 'discard' | 'cancel'>
+  showError: (message: string) => Promise<void>
 }
 
 declare global {
