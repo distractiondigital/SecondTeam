@@ -8,14 +8,14 @@
 | 3 | Cameras & shot list | ✅ Done (tested by Spencer 2026-09-29) | Scenes (01, 02…) with shots 1A, 1B…; cameras belong to shots; one camera body per project; camera view with game-style fly controls; frame guides + delivery frame; HUD readouts; shot size/angle; per-shot changes over each scene's set; shot list with live thumbnails, drag to reorder. |
 | 4 | Lights & clay render | ✅ Done (tested by Spencer 2026-09-30) | Sun / point / spot / ambient lights (stops, Kelvin, softness, shadows, spot cone); Work/Clay shading with auto Clay in camera view; soft shadows; per-shot light cheats; clay thumbnails; automatic lighting description per shot. |
 | 5 | Render passes | ✅ Done (tested by Spencer 2026-09-30) | Clay, depth, normals, object ID and OpenPose passes per shot at the SDXL size (about 1 MP, sides in 64s); saved into the project folder with a `passes.json` sidecar; pass viewer. Automatic floor in renders (per-scene toggle). |
-| 6 | First AI frames | 🔶 Built, waiting for Spencer's test | Managed ComfyUI 0.38 (starts hidden with the app); RealVisXL V5 + SDXL 1.0 + Union ControlNet (depth) from a pinned, licence-checked manifest; depth (softened) + pose guides; prompt from frame description + which way the subject faces + shot size/angle + lens + lighting + style; strictness, takes, seed lock; live previews, cancel; take strip + viewer; takes saved with full sidecars. |
+| 6 | First AI frames | ✅ Done (tested by Spencer 2026-09-30) | Managed ComfyUI 0.38 (starts hidden with the app); RealVisXL V5 + SDXL 1.0 + Union ControlNet (depth) from a pinned, licence-checked manifest; depth (softened) + pose guides; prompt from frame description + which way the subject faces + shot size/angle + lens + lighting + style; strictness, takes, seed lock; live previews, cancel; take strip + viewer; takes saved with full sidecars. |
 | 7 | Continuity | ⬜ Next | |
 | 8 | Storyboard | ⬜ | |
 | 9 | Plug-and-play | ⬜ | |
 | 10 | Polish | ⬜ | Includes **Posing 2** (Spencer, 2026-09-29): IK hands/feet, head look-at target that flows subtly into the torso, choosing which end of a limb stays put (e.g. plant a foot). |
 
 ## Where we are (2026-09-30)
-Milestones 0–5 are done and tested; Milestone 6 (first AI frames) is built and waiting for your test. The whole "build the shot" half of the app works:
+Milestones 0–6 are done and tested. The whole "build the shot" half of the app works:
 - Greybox a set with shapes, posed figures and lights.
 - Break a project into scenes (01, 02…) and shots (1A, 1B…). Each shot has its own camera and can cheat anything in the set just for that shot.
 - Look through any shot with real sensor/lens/squeeze maths, frame guides, and readouts for height, tilt, distance, shot size, angle and lighting.
@@ -47,8 +47,6 @@ The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `no
 - **For development** (in `CLAUDE.md`): files use LF line endings, enforced by `.gitattributes`. Changes to `src/main` or `src/preload` need an app restart.
 
 ## What's next
-**Milestone 6:** test the AI frames (checklist in the chat), then I'll mark it done.
-
 **Milestone 7: Continuity.** Cast and Props with reference images, linked to figures and objects; regional prompts per object (using the ID pass); reference images applied only inside each one's mask (IP-Adapter); pose control from the pose pass; a project style reference image; circle takes. This needs extra models (IP-Adapter + CLIP vision); I'll list them with their licences in the plan.
 
 ## Decisions log
