@@ -149,6 +149,9 @@ export class ComfyBackend implements GenerationBackend {
           feather: featherMask(job.feather),
           referenceEnd: job.referenceEnd,
           maxReferences: MAX_REFERENCED,
+          regionStrength: job.regionStrength,
+          // Keep each reference image's detail (an outfit shot and a face close-up both count).
+          combineEmbeds: 'concat',
           values: {
             checkpoint: model.file,
             controlnet: controlnet.file,
@@ -207,6 +210,7 @@ export class ComfyBackend implements GenerationBackend {
             style: job.style,
             feather: job.feather,
             referenceEnd: job.referenceEnd,
+            regionStrength: job.regionStrength,
             skipped
           },
           workflow: WORKFLOW,

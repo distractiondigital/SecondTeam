@@ -192,10 +192,11 @@ export function GenerationSettingsSection() {
             <NumberField label="Str" value={g.poseStrength} kind="factor" step={0.05} min={0} max={1.5} onCommit={(poseStrength) => update({ poseStrength })} />
             <NumberField label="End" value={g.poseEnd} kind="factor" step={0.05} min={0} max={1} onCommit={(poseEnd) => update({ poseEnd })} />
           </div>
-          <div className="prop-title prop-title-spaced" title="Cast and props: how soft the edge of each one's area is (pixels), and at what point in the steps their reference images stop guiding. Raise Feather or lower End if one character's look leaks onto another.">
-            Cast & props · feather · reference end
+          <div className="prop-title prop-title-spaced" title="Cast and props. Own: how much each one's own description outweighs the frame description in its area (raise it if one character takes on another's traits). Feather: how soft the edge of each one's area is (pixels). End: when their reference images stop guiding. Raise Feather or lower End if a look leaks onto a neighbour.">
+            Cast & props · own description · feather · reference end
           </div>
           <div className="vec3-row">
+            <NumberField label="Own" value={g.regionStrength} kind="factor" step={0.05} min={0.5} max={4} onCommit={(regionStrength) => update({ regionStrength })} />
             <NumberField label="Feather" value={g.feather} kind="factor" step={1} min={0} max={64} onCommit={(feather) => update({ feather: Math.round(feather) })} />
             <NumberField label="End" value={g.referenceEnd} kind="factor" step={0.05} min={0.1} max={1} onCommit={(referenceEnd) => update({ referenceEnd })} />
           </div>

@@ -121,6 +121,13 @@ export interface ComposeInput {
   referenceEnd: number
   /** Most entities whose references are used (graphics-card memory). */
   maxReferences: number
+  /**
+   * How strongly each regional prompt counts against the whole-frame prompt inside its area
+   * (they're averaged by strength there). Above 1 so a character's own description wins.
+   */
+  regionStrength?: number
+  /** How several reference images of one entity are combined: 'concat' keeps each one's detail. */
+  combineEmbeds?: 'concat' | 'average'
 }
 
 // Where the base graph's chains start.
@@ -185,7 +192,13 @@ export function composeWorkflow(input: ComposeInput): { prompt: Graph; skipped: 
     ).mask
     if (e.text) {
       positive = add(
-        instantiate(f.region, `${prefix}.region`, { 'in:clip': CLIP, 'in:mask': mask, 'in:positive': positive, text: e.text, strength: 1 })
+        instantiate(f.region, `${prefix}.region`, {
+          'in:clip': CLIP,
+          'in:mask': mask,
+          'in:positive': positive,
+          text: e.text,
+          strength: input.regionStrength ?? 1
+        })
       ).positive
     }
     if (useImages) {
@@ -198,7 +211,8 @@ export function composeWorkflow(input: ComposeInput): { prompt: Graph; skipped: 
           'in:image': images(`${prefix}.ref`, e.images),
           'in:mask': mask,
           weight: e.weight,
-          end: input.referenceEnd
+          end: input.referenceEnd,
+          combine: input.combineEmbeds ?? 'average'
         })
       ).model
     }

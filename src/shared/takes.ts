@@ -39,9 +39,10 @@ export interface GenerationJob {
   entities: JobEntity[]
   /** Project style reference images, or null. */
   style: { images: string[]; strength: number } | null
-  /** Mask softness (px) and where references stop guiding. */
+  /** Mask softness (px), where references stop guiding, and own-description weight. */
   feather: number
   referenceEnd: number
+  regionStrength: number
   positive: string
   negative: string
   checkpoint: string
@@ -108,6 +109,7 @@ export interface TakeMeta {
     style: { images: string[]; strength: number } | null
     feather: number
     referenceEnd: number
+    regionStrength?: number
     /** Left out to stay within the graphics card's memory. */
     skipped: string[]
   }

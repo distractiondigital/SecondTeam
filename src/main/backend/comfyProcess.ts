@@ -1,5 +1,5 @@
 import { spawn, spawnSync, type ChildProcess } from 'child_process'
-import { createWriteStream, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync, type WriteStream } from 'fs'
+import { createWriteStream, existsSync, mkdirSync, openSync, readFileSync, rmSync, writeFileSync, type WriteStream } from 'fs'
 import { createServer } from 'net'
 import { join } from 'path'
 import type { BackendStatus } from '../../shared/takes'
@@ -94,7 +94,7 @@ export class ComfyProcess {
     this.set({ state: 'starting', message: 'Starting the AI engine…', url: null })
 
     this.log?.end()
-    this.log = createWriteStream(this.status.logFile, { flags: 'w' })
+    this.log = this.openLog()
     this.log.write(`[Second Team] starting ComfyUI on ${url} at ${new Date().toISOString()}\n`)
     const child = spawn(
       this.python,
@@ -150,6 +150,29 @@ export class ComfyProcess {
       this.set({ state: 'error', message: "The AI engine didn't start in time. Open the log for details.", url: null })
       this.kill()
     }
+  }
+
+  /**
+   * The log file, emptied. Right after a restart the previous engine can still hold it open for a
+   * moment, so retry briefly, then fall back to a second file rather than logging nothing.
+   */
+  private openLog(): WriteStream {
+    const pause = new Int32Array(new SharedArrayBuffer(4))
+    for (const file of [this.status.logFile, this.status.logFile.replace(/\.log$/, '-2.log')]) {
+      for (let attempt = 0; attempt < 10; attempt++) {
+        try {
+          const stream = createWriteStream('', { fd: openSync(file, 'w') })
+          stream.on('error', () => undefined) // never let logging take the app down
+          if (file !== this.status.logFile) this.status = { ...this.status, logFile: file }
+          return stream
+        } catch {
+          Atomics.wait(pause, 0, 0, 200)
+        }
+      }
+    }
+    const nowhere = createWriteStream('', { fd: openSync('NUL', 'w') })
+    nowhere.on('error', () => undefined)
+    return nowhere
   }
 
   /** Stop ComfyUI and everything it started. Synchronous, so it's safe while the app quits. */

@@ -30,7 +30,7 @@
         "attn_mask": "{{in:mask}}",
         "weight": "{{weight}}",
         "weight_type": "linear",
-        "combine_embeds": "average",
+        "combine_embeds": "{{combine}}",
         "start_at": 0,
         "end_at": "{{end}}",
         "embeds_scaling": "V only"

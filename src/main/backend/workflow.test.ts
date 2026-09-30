@@ -87,6 +87,7 @@ describe('workflow templates', () => {
     expect(p['9'].inputs.model).toEqual(['e0.ref.apply', 0])
     expect(p['e0.ref.apply'].inputs.attn_mask).toEqual(['e0.mask.mask', 0])
     expect(p['e0.ref.apply'].inputs.end_at).toBe(0.8)
+    expect(p['e0.region.masked'].inputs.strength).toBe(1)
     // Two reference images are batched.
     expect(p['e0.ref.batch1.batch'].inputs).toEqual({ image1: ['e0.ref.img0.load', 0], image2: ['e0.ref.img1.load', 0] })
     // Prompt chain: global → Maribel → Crate → ControlNets.

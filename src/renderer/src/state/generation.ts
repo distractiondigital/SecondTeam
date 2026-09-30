@@ -191,6 +191,7 @@ export async function generateShot(shotId: string): Promise<void> {
     style: state.project.styleImages.length ? { images: state.project.styleImages, strength: settings.styleStrength } : null,
     feather: settings.feather,
     referenceEnd: settings.referenceEnd,
+    regionStrength: settings.regionStrength,
     positive: shotPrompt(shotId),
     negative: settings.negative,
     checkpoint: model.file,
