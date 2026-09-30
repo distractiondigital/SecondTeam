@@ -196,6 +196,27 @@ describe('figures', () => {
     expect(loaded.schemaVersion).toBe(2)
   })
 
+  it('saves poses into the project and applies them to other figures', () => {
+    const a = doc().addMannequin()
+    const b = doc().addMannequin()
+    doc().applyPreset(a, 'armsCrossed')
+    const poseId = doc().addProjectPose('Waiting', figure(a).pose)
+    doc().setPose(b, doc().project.poses[0].pose)
+    expect(figure(b).pose).toEqual(figure(a).pose)
+    const loaded = parseProject(serializeProject(doc().project))
+    expect(loaded.poses.map((p) => p.name)).toEqual(['Waiting'])
+    doc().deleteProjectPose(poseId)
+    expect(doc().project.poses).toHaveLength(0)
+    doc().undo()
+    expect(doc().project.poses).toHaveLength(1)
+  })
+
+  it('drops damaged saved poses when loading', () => {
+    const raw = JSON.parse(serializeProject(doc().project))
+    raw.poses = [{ id: 'x', name: 'Bad', pose: { joints: { head: 'nope' } } }, { name: 'No id' }]
+    expect(parseProject(JSON.stringify(raw)).poses).toEqual([])
+  })
+
   it('fills in missing joints when loading', () => {
     const a = doc().addMannequin()
     const raw = JSON.parse(serializeProject(doc().project))

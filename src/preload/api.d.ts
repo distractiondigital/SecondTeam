@@ -15,6 +15,10 @@ export interface SecondTeamApi {
   /** Write project.json into a folder previously chosen through saveProjectAs or openProject. */
   writeProject: (folder: string, json: string) => Promise<{ ok: true } | { error: string }>
 
+  /** The app-wide pose library (poses.json in %LOCALAPPDATA%\SecondTeam), or null if none yet. */
+  loadPoseLibrary: () => Promise<string | null>
+  savePoseLibrary: (json: string) => Promise<{ ok: true } | { error: string }>
+
   confirmDiscard: (projectName: string) => Promise<'save' | 'discard' | 'cancel'>
   showError: (message: string) => Promise<void>
 }

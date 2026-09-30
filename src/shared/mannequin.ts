@@ -222,6 +222,48 @@ export function withinLimits(joint: JointName, rotation: Vec3): boolean {
   return c.every((v, i) => Math.abs(v - rotation[i]) < 1e-9)
 }
 
+// ---------- Saved poses ----------
+
+/** A pose the user saved, in the project or in their app-wide library. */
+export interface SavedPose {
+  id: string
+  name: string
+  pose: Pose
+}
+
+const isVec3 = (v: unknown): v is Vec3 =>
+  Array.isArray(v) && v.length === 3 && v.every((n) => typeof n === 'number' && Number.isFinite(n))
+
+/** A clean copy of `raw` as a pose (missing joints at rest), or null if it isn't a pose. */
+export function sanitizePose(raw: unknown): Pose | null {
+  const r = raw as Partial<Pose> | null
+  if (!r || typeof r !== 'object' || !r.joints || typeof r.joints !== 'object') return null
+  const pose = restPose()
+  for (const j of JOINT_NAMES) {
+    const v = (r.joints as Record<string, unknown>)[j]
+    if (v !== undefined && !isVec3(v)) return null
+    if (v) pose.joints[j] = [...v] as Vec3
+  }
+  if (r.pelvisOffset !== undefined) {
+    if (!isVec3(r.pelvisOffset)) return null
+    pose.pelvisOffset = [...r.pelvisOffset] as Vec3
+  }
+  return pose
+}
+
+/** Keep only well-formed saved poses from a list read from disk. */
+export function sanitizeSavedPoses(raw: unknown): SavedPose[] {
+  if (!Array.isArray(raw)) return []
+  const out: SavedPose[] = []
+  for (const item of raw) {
+    const pose = sanitizePose(item?.pose)
+    if (pose && typeof item.id === 'string' && typeof item.name === 'string') {
+      out.push({ id: item.id, name: item.name, pose })
+    }
+  }
+  return out
+}
+
 // ---------- Poses ----------
 
 export function restPose(): Pose {

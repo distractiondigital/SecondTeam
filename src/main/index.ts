@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
+import { registerPoseLibraryIpc } from './poseLibrary'
 import { askToSave, registerProjectIpc } from './projectFiles'
 
 // Keep Electron's own cache and settings in %LOCALAPPDATA%\SecondTeam (not the default %APPDATA%).
@@ -87,6 +88,7 @@ app.whenReady().then(() => {
     mainWindow?.close()
   })
   registerProjectIpc(() => mainWindow)
+  registerPoseLibraryIpc()
   createWindow()
 })
 

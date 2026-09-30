@@ -4,7 +4,7 @@
 |---|---|---|---|
 | 0 | Scaffold | ✅ Done (tested by Spencer 2026-09-29) | Electron window with an R3F viewport, a metre grid, orbit controls and an axis gizmo. `start.bat` launcher. |
 | 1 | Set building | ✅ Done (tested by Spencer 2026-09-29) | Six primitives; gizmo with snapping; outliner (tree, rename, hide, lock); properties with real-size fields; m/ft; group/duplicate/delete; full undo/redo; save/open `.secondteam` folders; unsaved-changes prompts. Snap modes (Off/Grid/Surface, Ctrl to flip), anchors. 23 automated tests. |
-| 2 | Mannequins | 🟨 Built, awaiting Spencer's test | 17-joint FK figure; click a body part to pose; realistic limits (toggle per figure); 7 presets + mirror; height (child→adult proportions) and build; 40 automated tests. |
+| 2 | Mannequins | ✅ Done (tested by Spencer 2026-09-29) | 17-joint FK figure; click a body part to pose; realistic limits (toggle per figure); 7 presets + mirror; height (child→adult proportions) and build. Follow-up: user pose presets (project + app library), 42 automated tests. |
 | 3 | Cameras & shot list | ⬜ | |
 | 4 | Lights & clay render | ⬜ | |
 | 5 | Render passes | ⬜ | |
@@ -12,7 +12,7 @@
 | 7 | Continuity | ⬜ | |
 | 8 | Storyboard | ⬜ | |
 | 9 | Plug-and-play | ⬜ | |
-| 10 | Polish | ⬜ | |
+| 10 | Polish | ⬜ | Includes **Posing 2** (Spencer, 2026-09-29): IK hands/feet, head look-at target that flows subtly into the torso, choosing which end of a limb stays put (e.g. plant a foot). |
 
 ## Decisions log
 - 2026-09-29: Name "Second Team" (working title). Stack: Electron + React + three.js (R3F) + managed ComfyUI. SDXL first for ControlNet/IP-Adapter maturity and commercial licence.
@@ -35,8 +35,10 @@
 - 2026-09-29 (M2): The hip offset is stored as a fraction of height, so a sitting or lying figure stays correct when its height changes.
 - 2026-09-29 (M2): The head carries invisible nose/eye/ear marker points (`<id>:kp:*`) for the M5 OpenPose render.
 
+- 2026-09-29 (M2 follow-up): Saved poses live in both places (Spencer's choice): per project in `project.json` (`poses`, undoable) and an app-wide library in `%LOCALAPPDATA%\SecondTeam\poses.json` (saved immediately, not undoable). Poses store the hip offset relative to height, so they fit any figure.
+- 2026-09-29: IK / look-at / anchor-end posing are scheduled for M10 Polish (Spencer's choice) as one "Posing 2" piece sharing a single solver.
+
 ## Ideas / later
-- IK: drag a hand or foot and let the arm or leg follow.
 - Hands and fingers (fist, open, pointing) and costume/prop attachments on figures.
 - More pose presets (running, kneeling, leaning on a wall, crouching), plus saving your own.
 - Scene switcher / multiple scenes in the UI (the data model already supports them).

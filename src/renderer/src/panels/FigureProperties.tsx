@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { ArrowLeft, FlipHorizontal2, RotateCcw } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { ArrowLeft, FlipHorizontal2, FolderInput, Library, RotateCcw, Trash2 } from 'lucide-react'
 import {
   JOINTS,
   jointLimit,
@@ -9,10 +9,12 @@ import {
   PRESET_NAMES,
   proportions,
   type JointName,
-  type PresetName
+  type PresetName,
+  type SavedPose
 } from '../../../shared/mannequin'
 import type { MannequinNode, Vec3 } from '../../../shared/project'
 import { useDocument } from '../state/documentStore'
+import { usePoseLibrary } from '../state/poseLibrary'
 import { useUi } from '../state/uiStore'
 import NumberField from './NumberField'
 
@@ -50,6 +52,8 @@ function GestureSlider(props: {
 
 export function FigureSection({ node }: { node: MannequinNode }) {
   const doc = useDocument.getState()
+  const projectPoses = useDocument((s) => s.project.poses)
+  const libraryPoses = usePoseLibrary((s) => s.poses)
   const disabled = node.locked
   return (
     <>
@@ -95,16 +99,34 @@ export function FigureSection({ node }: { node: MannequinNode }) {
           className="preset-select"
           value=""
           disabled={disabled}
-          onChange={(e) => {
-            if (e.target.value) doc.applyPreset(node.id, e.target.value as PresetName)
-          }}
+          onChange={(e) => applyChoice(node.id, e.target.value)}
         >
           <option value="">Apply a preset…</option>
-          {PRESET_NAMES.map((name) => (
-            <option key={name} value={name}>
-              {POSE_PRESETS[name].label}
-            </option>
-          ))}
+          <optgroup label="Built-in">
+            {PRESET_NAMES.map((name) => (
+              <option key={name} value={`builtin:${name}`}>
+                {POSE_PRESETS[name].label}
+              </option>
+            ))}
+          </optgroup>
+          {projectPoses.length > 0 && (
+            <optgroup label="This project">
+              {projectPoses.map((p) => (
+                <option key={p.id} value={`project:${p.id}`}>
+                  {p.name}
+                </option>
+              ))}
+            </optgroup>
+          )}
+          {libraryPoses.length > 0 && (
+            <optgroup label="My library">
+              {libraryPoses.map((p) => (
+                <option key={p.id} value={`library:${p.id}`}>
+                  {p.name}
+                </option>
+              ))}
+            </optgroup>
+          )}
         </select>
         <div className="prop-actions tight">
           <button disabled={disabled} onClick={() => doc.mirrorPose(node.id)} title="Swap the left and right side of the pose">
@@ -125,7 +147,102 @@ export function FigureSection({ node }: { node: MannequinNode }) {
         </label>
         <p className="hint small">Click a body part to pose that joint.</p>
       </div>
+
+      <SavedPoses node={node} />
     </>
+  )
+}
+
+/** Apply a choice from the preset menu: "builtin:<name>", "project:<id>" or "library:<id>". */
+function applyChoice(figureId: string, value: string): void {
+  const [source, key] = value.split(':')
+  const doc = useDocument.getState()
+  if (source === 'builtin') doc.applyPreset(figureId, key as PresetName)
+  const saved =
+    source === 'project'
+      ? doc.project.poses.find((p) => p.id === key)
+      : source === 'library'
+        ? usePoseLibrary.getState().poses.find((p) => p.id === key)
+        : undefined
+  if (saved) doc.setPose(figureId, saved.pose)
+}
+
+/** Save the current pose, and manage saved poses in the project and the app-wide library. */
+function SavedPoses({ node }: { node: MannequinNode }) {
+  const [name, setName] = useState('')
+  const projectPoses = useDocument((s) => s.project.poses)
+  const libraryPoses = usePoseLibrary((s) => s.poses)
+  const doc = useDocument.getState()
+  const library = usePoseLibrary.getState()
+  const trimmed = name.trim()
+
+  const save = (where: 'project' | 'library') => {
+    if (!trimmed) return
+    if (where === 'project') doc.addProjectPose(trimmed, node.pose)
+    else library.add(trimmed, node.pose)
+    setName('')
+  }
+
+  const row = (pose: SavedPose, where: 'project' | 'library') => (
+    <div key={pose.id} className="saved-pose">
+      <button
+        className="saved-pose-name"
+        title="Apply this pose to the selected figure"
+        disabled={node.locked}
+        onClick={() => doc.setPose(node.id, pose.pose)}
+      >
+        {pose.name}
+      </button>
+      <button
+        className="icon-button"
+        title={where === 'project' ? 'Copy to my library (all projects)' : 'Copy into this project'}
+        onClick={() =>
+          where === 'project' ? library.add(pose.name, pose.pose) : doc.addProjectPose(pose.name, pose.pose)
+        }
+      >
+        {where === 'project' ? <Library size={14} /> : <FolderInput size={14} />}
+      </button>
+      <button
+        className="icon-button"
+        title="Delete this saved pose"
+        onClick={() => (where === 'project' ? doc.deleteProjectPose(pose.id) : library.remove(pose.id))}
+      >
+        <Trash2 size={14} />
+      </button>
+    </div>
+  )
+
+  return (
+    <div className="prop-section">
+      <div className="prop-title">Saved poses</div>
+      <input
+        className="name-input plain"
+        placeholder="Name this pose…"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && save('project')}
+      />
+      <div className="prop-actions tight">
+        <button disabled={!trimmed} onClick={() => save('project')} title="Save into this project (travels with the project folder)">
+          <FolderInput size={14} /> Save to project
+        </button>
+        <button disabled={!trimmed} onClick={() => save('library')} title="Save into your library (available in every project)">
+          <Library size={14} /> Save to library
+        </button>
+      </div>
+      {projectPoses.length > 0 && (
+        <>
+          <div className="saved-pose-heading">This project</div>
+          {projectPoses.map((p) => row(p, 'project'))}
+        </>
+      )}
+      {libraryPoses.length > 0 && (
+        <>
+          <div className="saved-pose-heading">My library</div>
+          {libraryPoses.map((p) => row(p, 'library'))}
+        </>
+      )}
+    </div>
   )
 }
 

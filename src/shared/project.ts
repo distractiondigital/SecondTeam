@@ -9,7 +9,9 @@ import {
   FIGURE_COLORS,
   JOINT_NAMES,
   restPose,
-  type Pose
+  sanitizeSavedPoses,
+  type Pose,
+  type SavedPose
 } from './mannequin'
 
 // v1: M1 (primitives, groups). v2: M2 adds mannequins.
@@ -96,6 +98,8 @@ export interface Project {
   // Filled in by later milestones; kept as open records so older files still load.
   cast: unknown[]
   props: unknown[]
+  /** Poses saved into this project (the app-wide library is stored separately). */
+  poses: SavedPose[]
 }
 
 export function newId(): string {
@@ -114,7 +118,8 @@ export function createEmptyProject(name = 'Untitled'): Project {
     styleText: '',
     scenes: [createEmptyScene()],
     cast: [],
-    props: []
+    props: [],
+    poses: []
   }
 }
 
@@ -214,7 +219,8 @@ export function parseProject(json: string): Project {
     styleText: typeof p.styleText === 'string' ? p.styleText : '',
     scenes: p.scenes,
     cast: Array.isArray(p.cast) ? p.cast : [],
-    props: Array.isArray(p.props) ? p.props : []
+    props: Array.isArray(p.props) ? p.props : [],
+    poses: sanitizeSavedPoses(p.poses)
   }
 }
 

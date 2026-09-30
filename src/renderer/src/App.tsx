@@ -5,6 +5,7 @@ import Outliner from './panels/Outliner'
 import PropertiesPanel from './panels/PropertiesPanel'
 import Toolbar from './panels/Toolbar'
 import { activeScene, useDocument } from './state/documentStore'
+import { usePoseLibrary } from './state/poseLibrary'
 import { projectDisplayName, syncWindowState } from './state/projectIO'
 import { useUi } from './state/uiStore'
 import Viewport from './viewport/Viewport'
@@ -43,6 +44,7 @@ export default function App() {
 
   useEffect(() => {
     window.secondTeam.getVersion().then(setVersion)
+    void usePoseLibrary.getState().load()
     return syncWindowState()
   }, [])
   useShortcuts()

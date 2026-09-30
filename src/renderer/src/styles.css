@@ -517,6 +517,40 @@ input {
   margin-right: 14px;
 }
 
+.name-input.plain {
+  font-weight: normal;
+}
+
+.saved-pose-heading {
+  margin: 10px 0 2px;
+  color: var(--text-dim);
+  font-size: 11px;
+}
+
+.saved-pose {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.saved-pose-name {
+  flex: 1;
+  min-width: 0;
+  padding: 3px 4px;
+  background: none;
+  border: none;
+  border-radius: 3px;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.saved-pose-name:hover:not(:disabled) {
+  background: var(--panel-2);
+}
+
 /* ---------- Status bar ---------- */
 
 .statusbar {

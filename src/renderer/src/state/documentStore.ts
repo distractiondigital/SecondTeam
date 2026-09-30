@@ -33,6 +33,7 @@ import {
   POSE_PRESETS,
   proportions,
   type JointName,
+  type Pose,
   type PresetName
 } from '../../../shared/mannequin'
 
@@ -93,6 +94,11 @@ interface DocumentState {
   applyPreset: (id: string, preset: PresetName) => void
   mirrorPose: (id: string) => void
   resetJoint: (id: string, joint: JointName) => void
+  /** Give a figure a whole pose (from a saved preset). */
+  setPose: (id: string, pose: Pose) => void
+  /** Save a pose into this project's preset list. Returns its id. */
+  addProjectPose: (name: string, pose: Pose) => string
+  deleteProjectPose: (poseId: string) => void
   deleteNodes: (ids: string[]) => void
   duplicateNodes: (ids: string[]) => string[]
   groupNodes: (ids: string[]) => string | null
@@ -267,6 +273,28 @@ export const useDocument = create<DocumentState>()((set, get) => {
         if (node?.type !== 'mannequin') return
         node.pose.joints[joint] = [0, 0, 0]
         if (joint === 'pelvis') node.pose.pelvisOffset = [0, 0, 0]
+      })
+    },
+
+    setPose: (id, pose) => {
+      change((scene) => {
+        const node = scene.nodes[id]
+        if (node?.type === 'mannequin') node.pose = structuredClone(pose)
+      })
+    },
+
+    addProjectPose: (name, pose) => {
+      const poseId = newId()
+      change((_scene, project) => {
+        project.poses.push({ id: poseId, name, pose: structuredClone(pose) })
+      })
+      return poseId
+    },
+
+    deleteProjectPose: (poseId) => {
+      change((_scene, project) => {
+        const i = project.poses.findIndex((p) => p.id === poseId)
+        if (i >= 0) project.poses.splice(i, 1)
       })
     },
 
