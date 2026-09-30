@@ -138,7 +138,14 @@ export function EntityProperties({ kind, id }: { kind: 'cast' | 'prop'; id: stri
         <div className="prop-title" title="Photos or drawings of how this should look. They guide only this one's part of the frame.">
           Reference images
         </div>
-        <ReferenceImages kind={kind === 'cast' ? 'cast' : 'props'} ownerId={id} images={entry.images} onChange={(images) => update({ images })} />
+        <ReferenceImages
+          kind={kind === 'cast' ? 'cast' : 'props'}
+          ownerId={id}
+          images={entry.images}
+          onChange={(images) => update({ images })}
+          pasteShortcut
+        />
+        <p className="hint small">Add files, or paste an image (Ctrl+V) copied from a browser, a screenshot or Explorer.</p>
         <div className="prop-title prop-title-spaced" title="How strongly the reference images shape the look. Lower it if the look leaks onto others.">
           Reference strength
         </div>

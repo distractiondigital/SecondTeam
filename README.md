@@ -133,7 +133,7 @@ Keep characters and story objects looking the same from shot to shot.
 
 - The left column has three tabs: **Outliner | Cast | Props**. In **Cast** or **Props**, click **＋ New**, then fill it in on the right:
   - **Description**: how it looks, e.g. *young woman in her 20s, curly dark hair, olive raincoat*. It becomes that one's own prompt, applied only to its part of the frame. Describe the look, not the name.
-  - **Reference images** (up to 4, PNG or JPEG): photos or drawings of how it should look. They're copied into the project (`assets\cast\…`, `assets\props\…`) and guide only its part of the frame.
+  - **Reference images** (up to 4, PNG or JPEG): photos or drawings of how it should look. Add files with the image button, or **paste** (the clipboard button, or **Ctrl+V** while the cast member or prop is open): an image copied from a browser or a screenshot tool, or image files copied in Explorer. They're copied into the project (`assets\cast\…`, `assets\props\…`) and guide only its part of the frame.
   - **Reference strength**, and for cast a **viewport colour** (linked figures wear it).
   - **Linked to** lists every figure or object that is this one, in every scene.
 - **Linking:** select a figure → Properties → **Cast** → pick one (or *New cast member…*). Select an object or a group → **Prop**. A whole group can be one prop (a car built from boxes). Something that isn't a cast member or prop can still get its own **Description** (e.g. *a rusty oil drum*).

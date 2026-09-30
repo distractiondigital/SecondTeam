@@ -64,6 +64,13 @@ export interface SecondTeamApi {
     ownerId: string | null,
     room: number
   ) => Promise<{ files: string[] } | { error: string }>
+  /** Save the image on the clipboard (or image files copied in Explorer) into the project, like addReferenceImages. */
+  pasteReferenceImages: (
+    folder: string,
+    kind: 'cast' | 'props' | 'style',
+    ownerId: string | null,
+    room: number
+  ) => Promise<{ files: string[] } | { error: string }>
   /** A small JPEG data URL of a reference image, or null if it can't be read. */
   referenceThumbnail: (folder: string, kind: 'cast' | 'props' | 'style', ownerId: string | null, file: string) => Promise<string | null>
 
