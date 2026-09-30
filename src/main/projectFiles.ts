@@ -1,7 +1,8 @@
 import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 import { existsSync } from 'fs'
-import { mkdir, readFile, rename, writeFile } from 'fs/promises'
+import { mkdir, readFile, writeFile } from 'fs/promises'
 import { basename, join, resolve } from 'path'
+import { safeRename } from './safeRename'
 
 // Saving and opening project folders (Name.secondteam\project.json).
 // The UI never passes arbitrary paths to write to: main only writes into folders the user
@@ -99,7 +100,7 @@ export function registerProjectIpc(getWindow: () => BrowserWindow | null): void 
       const target = join(folder, PROJECT_FILE)
       const temp = `${target}.tmp`
       await writeFile(temp, json, 'utf-8')
-      await rename(temp, target)
+      await safeRename(temp, target)
       return { ok: true }
     } catch (err) {
       return { error: `Couldn't save: ${(err as Error).message}` }

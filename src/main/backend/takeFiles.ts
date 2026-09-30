@@ -1,10 +1,11 @@
 import { nativeImage, shell } from 'electron'
 import { existsSync } from 'fs'
-import { mkdir, readdir, readFile, rename, writeFile } from 'fs/promises'
+import { mkdir, readdir, readFile, writeFile } from 'fs/promises'
 import { join, resolve } from 'path'
 import { isSafeId } from '../../shared/passes'
 import type { TakeInfo, TakeMeta } from '../../shared/takes'
 import { isApproved } from '../projectFiles'
+import { safeRename } from '../safeRename'
 
 // A shot's takes live in its project folder:
 //   Name.secondteam\scenes\<sceneId>\shots\<shotId>\takes\<takeId>.png  (+ .json sidecar, .thumb.jpg)
@@ -27,7 +28,7 @@ export function newTakeId(now = new Date()): string {
 
 async function writeAtomic(target: string, data: Buffer | string): Promise<void> {
   await writeFile(`${target}.tmp`, data)
-  await rename(`${target}.tmp`, target)
+  await safeRename(`${target}.tmp`, target)
 }
 
 function thumbnailOf(png: Buffer): Buffer {

@@ -1,9 +1,10 @@
 import { ipcMain, shell } from 'electron'
 import { existsSync } from 'fs'
-import { mkdir, rename, writeFile } from 'fs/promises'
+import { mkdir, writeFile } from 'fs/promises'
 import { join, resolve } from 'path'
 import { isSafeId, PASS_FILE_NAMES } from '../shared/passes'
 import { isApproved } from './projectFiles'
+import { safeRename } from './safeRename'
 
 // Saving a shot's render passes into its project folder:
 //   Name.secondteam\scenes\<sceneId>\shots\<shotId>\passes\{clay,depth,normal,id,pose}.png + passes.json
@@ -39,7 +40,7 @@ export function registerPassIpc(): void {
           // Temp file, then swap it in, so a half-written file never replaces a good one.
           const target = join(dir, name)
           await writeFile(`${target}.tmp`, data)
-          await rename(`${target}.tmp`, target)
+          await safeRename(`${target}.tmp`, target)
         }
         return { ok: true, path: dir }
       } catch (err) {

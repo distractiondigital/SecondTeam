@@ -1,7 +1,8 @@
 import { ipcMain } from 'electron'
 import { existsSync } from 'fs'
-import { mkdir, readFile, rename, writeFile } from 'fs/promises'
+import { mkdir, readFile, writeFile } from 'fs/promises'
 import { dirname, join } from 'path'
+import { safeRename } from './safeRename'
 
 // The user's app-wide libraries, available in every project:
 //   %LOCALAPPDATA%\SecondTeam\poses.json    saved poses
@@ -36,7 +37,7 @@ function registerLibrary(channel: string, file: string, label: string): void {
       await mkdir(dirname(path), { recursive: true })
       const temp = `${path}.tmp`
       await writeFile(temp, json, 'utf-8')
-      await rename(temp, path)
+      await safeRename(temp, path)
       return { ok: true }
     } catch (err) {
       return { error: `Couldn't save your ${label}: ${(err as Error).message}` }
