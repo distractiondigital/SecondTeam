@@ -5,6 +5,10 @@ import { parseProject, serializeProject } from '../../../shared/project'
 
 const doc = () => useDocument.getState()
 const scene = () => activeScene(doc())
+const anchorOf = (id: string) => {
+  const n = scene().nodes[id]
+  return n.type === 'primitive' ? n.anchor : null
+}
 const worldPos = (id: string) => new Vector3().setFromMatrixPosition(worldMatrix(scene(), id))
 
 beforeEach(() => doc().newProject())
@@ -102,6 +106,41 @@ describe('group / ungroup', () => {
     expect(scene().nodes[g]).toBeUndefined()
     expect(scene().rootIds).toEqual([a, b])
     expect(worldPos(a).distanceTo(moved)).toBeLessThan(1e-3)
+  })
+})
+
+describe('anchor and scale', () => {
+  it('changing the anchor keeps the object where it is', () => {
+    const a = doc().addPrimitive('box')
+    doc().updateNode(a, { rotation: [90, 0, 0], scale: [1, 2, 1] })
+    const before = worldPos(a)
+    doc().setAnchor(a, 'top')
+    // The origin moved to the top, which (rotated 90° about X) points along +Z, 2 m away.
+    expect(worldPos(a).clone().sub(before).toArray().map((n) => Number(n.toFixed(4)))).toEqual([0, 0, 2])
+    expect(anchorOf(a)).toBe('top')
+  })
+
+  it('planes stay centred', () => {
+    const p = doc().addPrimitive('plane')
+    doc().setAnchor(p, 'bottom')
+    expect(anchorOf(p)).toBe('center')
+  })
+
+  it('never lets a scale reach zero', () => {
+    const a = doc().addPrimitive('plane')
+    doc().updateNode(a, { scale: [1, 0, -2] })
+    expect(scene().nodes[a].scale).toEqual([1, 0.001, 0.001])
+  })
+
+  it('repairs zero scales and missing anchors in older files', () => {
+    const a = doc().addPrimitive('box')
+    const raw = JSON.parse(serializeProject(doc().project))
+    const node = raw.scenes[0].nodes[a]
+    node.scale = [1, 0, 1]
+    delete node.anchor
+    const loaded = parseProject(JSON.stringify(raw)).scenes[0].nodes[a]
+    expect(loaded.scale).toEqual([1, 0.001, 1])
+    expect(loaded.type === 'primitive' && loaded.anchor).toBe('bottom')
   })
 })
 

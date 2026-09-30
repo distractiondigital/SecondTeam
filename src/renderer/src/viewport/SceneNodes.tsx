@@ -5,7 +5,7 @@ import { Outlines } from '@react-three/drei'
 import type { Scene, SceneNode, Vec3 } from '../../../shared/project'
 import { activeScene, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
-import { GEOMETRIES } from './geometries'
+import { getGeometry } from './geometries'
 
 const SELECTION_COLOR = '#f2a33a'
 const CLICK_DRAG_TOLERANCE = 4 // pixels; a bigger mouse move counts as a drag, not a click
@@ -73,7 +73,7 @@ const NodeView = memo(function NodeView({ id, inSelection, inLocked }: NodeViewP
   return (
     <mesh
       {...common}
-      geometry={GEOMETRIES[node.primitive]}
+      geometry={getGeometry(node.primitive, node.anchor)}
       raycast={clickable ? undefined : noRaycast}
       onClick={clickable ? (e) => handleClick(e, id) : undefined}
       onDoubleClick={clickable ? (e) => handleDoubleClick(e, id) : undefined}

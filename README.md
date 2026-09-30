@@ -48,7 +48,8 @@ The grid is in real-world units. In metres: faint lines every 1 m, stronger ever
 | Key | Action |
 |---|---|
 | W / E / R | Move / rotate / scale gizmo |
-| Shift+Tab | Snapping on/off (0.1 m or ½ ft, 15°, 0.1× scale) |
+| Shift+Tab | Cycle snap mode: Off → Grid (0.1 m or ½ ft, 15°, 0.1× scale) → Surface (sides click flush against the floor and nearby objects) |
+| Hold Ctrl while dragging | Temporarily flip grid snapping on or off |
 | F | Frame the selection (or everything) |
 | Ctrl+D | Duplicate |
 | Del or X | Delete |
@@ -58,6 +59,8 @@ The grid is in real-world units. In metres: faint lines every 1 m, stronger ever
 | Esc | Deselect |
 | Ctrl+Z / Ctrl+Y (or Ctrl+Shift+Z) | Undo / redo |
 | Ctrl+N / Ctrl+O / Ctrl+S / Ctrl+Shift+S | New / open / save / save as |
+
+**Anchor** (Properties): Bottom / Middle / Top sets the point an object scales and rotates around, and its position is that point. With Bottom (the default), making something taller keeps it on the floor. Planes are always centred.
 
 In the Properties panel, type values and press Enter. Lengths accept either unit system whatever the display is set to, e.g. `2.5`, `150cm`, `6' 2"` or `6ft 2in`.
 

@@ -8,6 +8,17 @@ export type Vec3 = [number, number, number]
 export const PRIMITIVE_TYPES = ['box', 'cylinder', 'sphere', 'plane', 'capsule', 'cone'] as const
 export type PrimitiveType = (typeof PRIMITIVE_TYPES)[number]
 
+/** Where an object's origin sits along its height. Scaling and rotating happen around it. */
+export const ANCHORS = ['bottom', 'center', 'top'] as const
+export type Anchor = (typeof ANCHORS)[number]
+
+/** Smallest allowed scale on any axis. A zero scale makes an object impossible to click. */
+export const MIN_SCALE = 0.001
+
+export function clampScale(scale: Vec3): Vec3 {
+  return scale.map((s) => (Number.isFinite(s) ? Math.max(MIN_SCALE, s) : 1)) as Vec3
+}
+
 interface NodeBase {
   id: string
   name: string
@@ -24,6 +35,8 @@ export interface PrimitiveNode extends NodeBase {
   primitive: PrimitiveType
   /** Viewport colour only; does not affect generation. */
   color: string
+  /** Origin point along the height. Planes are always 'center'. */
+  anchor: Anchor
   /** Link to a Prop entry (Milestone 7). */
   propId: string | null
   /** Optional description override for prompts (Milestone 7). */
@@ -116,6 +129,16 @@ function checkNode(node: unknown, id: string, scene: Scene): void {
   }
 }
 
+/** Fill in fields added after a file was saved, and fix values that would break the viewport. */
+function repairNode(node: SceneNode): void {
+  node.scale = clampScale(node.scale)
+  if (node.type === 'primitive') {
+    // Files from before anchors existed: planes were centred, everything else sat on its base.
+    if (node.primitive === 'plane') node.anchor = 'center'
+    else if (!ANCHORS.includes(node.anchor)) node.anchor = 'bottom'
+  }
+}
+
 /** Parse and check a project.json string. Throws ProjectFileError with a friendly message. */
 export function parseProject(json: string): Project {
   let raw: unknown
@@ -139,6 +162,7 @@ export function parseProject(json: string): Project {
     if (!scene.rootIds.every((id) => id in scene.nodes)) {
       throw new ProjectFileError(`The object list in ${scene.name} is damaged.`)
     }
+    for (const node of Object.values(scene.nodes)) repairNode(node)
   }
   return {
     schemaVersion: SCHEMA_VERSION,

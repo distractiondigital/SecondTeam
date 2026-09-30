@@ -91,6 +91,11 @@ input {
   margin-right: 4px;
 }
 
+.tool-group-icon {
+  color: var(--text-dim);
+  margin-right: 4px;
+}
+
 .tool-button {
   display: flex;
   align-items: center;

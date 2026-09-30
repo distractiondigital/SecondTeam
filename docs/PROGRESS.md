@@ -3,7 +3,7 @@
 | # | Milestone | Status | Notes |
 |---|---|---|---|
 | 0 | Scaffold | ✅ Done (tested by Spencer 2026-09-29) | Electron window with an R3F viewport, a metre grid, orbit controls and an axis gizmo. `start.bat` launcher. |
-| 1 | Set building | 🟨 Built, awaiting Spencer's test | Six primitives; gizmo with snapping; outliner (tree, rename, hide, lock); properties with real-size fields; m/ft; group/duplicate/delete; full undo/redo; save/open `.secondteam` folders; unsaved-changes prompts. 14 automated tests. |
+| 1 | Set building | ✅ Done (tested by Spencer 2026-09-29) | Six primitives; gizmo with snapping; outliner (tree, rename, hide, lock); properties with real-size fields; m/ft; group/duplicate/delete; full undo/redo; save/open `.secondteam` folders; unsaved-changes prompts. Snap modes (Off/Grid/Surface, Ctrl to flip), anchors. 23 automated tests. |
 | 2 | Mannequins | ⬜ | |
 | 3 | Cameras & shot list | ⬜ | |
 | 4 | Lights & clay render | ⬜ | |
@@ -25,6 +25,9 @@
 - 2026-09-29 (M1): The project name = folder name (`Name.secondteam`). Main only writes into folders picked through a Save/Open dialog this session, and writes atomically (temp file, then rename).
 - 2026-09-29 (M1): Clicking an object in a group selects the outermost group; double-click selects the object itself. The gizmo works on one object or group at a time (multi-select → group them first).
 - 2026-09-29 (M1): New dependencies: immer (MIT), lucide-react icons (ISC), Vitest (MIT, dev only).
+- 2026-09-29 (M1 feedback): Snap is now a mode (Off / Grid / Surface), and holding Ctrl during a drag flips grid snapping (Blender-style). Snapped rotation locks to whole 15° increments (not 15° steps from the starting angle), so a stray rotation snaps back onto the grid. Surface = contact snap on bounding boxes within 15 cm, move gizmo only (Spencer's choice; exact for square-built sets, approximate for rotated ones).
+- 2026-09-29 (M1 feedback): Primitives have an anchor (bottom/center/top) that sets their origin; changing it keeps the object in place. Planes stay centre-only (Spencer's choice; build walls from thin boxes). Stored in project.json as `anchor`; older files load with the old behaviour.
+- 2026-09-29 (M1 bug): A plane whose hidden height scale reached 0 couldn't be clicked. Scales are now clamped to at least 0.001 everywhere (gizmo, fields, file load), and planes don't show the vertical scale handle.
 
 ## Ideas / later
 - Scene switcher / multiple scenes in the UI (the data model already supports them).

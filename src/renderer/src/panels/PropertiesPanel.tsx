@@ -1,5 +1,5 @@
-import type { SceneNode, Vec3 } from '../../../shared/project'
-import { PRIMITIVES } from '../../../shared/primitives'
+import { MIN_SCALE, type Anchor, type SceneNode, type Vec3 } from '../../../shared/project'
+import { PRIMITIVES, supportsAnchor } from '../../../shared/primitives'
 import { deleteSelected, groupSelected, ungroupSelected } from '../state/actions'
 import { activeScene, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
@@ -8,6 +8,12 @@ import NumberField, { type NumberKind } from './NumberField'
 const AXES = ['X', 'Y', 'Z'] as const
 const SIZE_LABELS = ['W', 'H', 'D'] as const
 const MIN_SIZE = 0.001 // metres
+
+const ANCHOR_OPTIONS: { anchor: Anchor; label: string; title: string }[] = [
+  { anchor: 'bottom', label: 'Bottom', title: 'Scale and rotate from the base. Growing it taller keeps it on the floor.' },
+  { anchor: 'center', label: 'Middle', title: 'Scale and rotate from the centre.' },
+  { anchor: 'top', label: 'Top', title: 'Scale and rotate from the top, e.g. something hanging from a ceiling.' }
+]
 
 function Vec3Row(props: {
   title: string
@@ -105,9 +111,32 @@ function NodeProperties({ node }: { node: SceneNode }) {
           values={node.scale}
           kind="factor"
           disabled={disabled}
-          min={0.001}
+          min={MIN_SCALE}
           onChange={(scale) => update(node.id, { scale })}
         />
+      )}
+
+      {node.type === 'primitive' && supportsAnchor(node.primitive) && (
+        <div className="prop-section">
+          <div className="prop-inline">
+            <span className="prop-title" title="The point the object scales and rotates around. Its position is this point.">
+              Anchor
+            </span>
+            <div className="segmented">
+              {ANCHOR_OPTIONS.map((o) => (
+                <button
+                  key={o.anchor}
+                  className={node.anchor === o.anchor ? 'active' : ''}
+                  disabled={disabled}
+                  title={o.title}
+                  onClick={() => useDocument.getState().setAnchor(node.id, o.anchor)}
+                >
+                  {o.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
 
       {node.type === 'primitive' && (

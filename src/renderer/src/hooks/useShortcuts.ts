@@ -47,7 +47,7 @@ export function useShortcuts(): void {
         return
       }
 
-      if (key === 'tab' && e.shiftKey) return run(ui.toggleSnapping)
+      if (key === 'tab' && e.shiftKey) return run(ui.cycleSnapMode)
       if (e.shiftKey) return
 
       switch (key) {

@@ -22,7 +22,8 @@ import { PRIMITIVES } from '../../../shared/primitives'
 import { addPrimitive, redo, undo } from '../state/actions'
 import { useDocument } from '../state/documentStore'
 import { newProject, openProject, saveProject, saveProjectAs } from '../state/projectIO'
-import { useUi, type GizmoMode } from '../state/uiStore'
+import { useUi, type GizmoMode, type SnapMode } from '../state/uiStore'
+import type { Units } from '../units'
 
 const PRIMITIVE_ICONS: Record<PrimitiveType, LucideIcon> = {
   box: Box,
@@ -37,6 +38,23 @@ const GIZMO_MODES: { mode: GizmoMode; label: string; key: string; icon: LucideIc
   { mode: 'translate', label: 'Move', key: 'W', icon: Move3d },
   { mode: 'rotate', label: 'Rotate', key: 'E', icon: Rotate3d },
   { mode: 'scale', label: 'Scale', key: 'R', icon: Scale3d }
+]
+
+const HOLD_CTRL = 'Hold Ctrl while dragging to flip grid snapping on or off. Shift+Tab cycles modes.'
+
+const SNAP_OPTIONS: { mode: SnapMode; label: string; title: (units: Units) => string }[] = [
+  { mode: 'off', label: 'Off', title: () => `No snapping. ${HOLD_CTRL}` },
+  {
+    mode: 'grid',
+    label: 'Grid',
+    title: (units) => `Move in ${units === 'm' ? '0.1 m' : '½ ft'} steps, rotate in 15° steps, scale in 0.1 steps. ${HOLD_CTRL}`
+  },
+  {
+    mode: 'surface',
+    label: 'Surface',
+    title: () =>
+      `When moving, an object's sides click flush against the floor and nearby objects (within 15 cm). ${HOLD_CTRL}`
+  }
 ]
 
 function ToolButton(props: {
@@ -73,7 +91,7 @@ function Group({ label, children }: { label: string; children: ReactNode }) {
 
 export default function Toolbar() {
   const gizmoMode = useUi((s) => s.gizmoMode)
-  const snapping = useUi((s) => s.snapping)
+  const snapMode = useUi((s) => s.snapMode)
   const units = useUi((s) => s.units)
   const canUndo = useDocument((s) => s.past.length > 0)
   const canRedo = useDocument((s) => s.future.length > 0)
@@ -119,13 +137,22 @@ export default function Toolbar() {
             showLabel={false}
           />
         ))}
-        <ToolButton
-          icon={Magnet}
-          label="Snap"
-          title={`Snapping ${snapping ? 'on' : 'off'} (Shift+Tab): ${units === 'm' ? '0.1 m' : '½ ft'}, 15°, 0.1× scale`}
-          active={snapping}
-          onClick={() => ui().toggleSnapping()}
-        />
+      </Group>
+
+      <Group label="Snap">
+        <Magnet size={15} strokeWidth={1.75} className="tool-group-icon" />
+        <div className="segmented">
+          {SNAP_OPTIONS.map((o) => (
+            <button
+              key={o.mode}
+              className={snapMode === o.mode ? 'active' : ''}
+              title={o.title(units)}
+              onClick={() => ui().setSnapMode(o.mode)}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
       </Group>
 
       <Group label="Units">

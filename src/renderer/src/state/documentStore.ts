@@ -2,8 +2,10 @@ import { create } from 'zustand'
 import { produce, type Draft } from 'immer'
 import { Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import {
+  clampScale,
   createEmptyProject,
   newId,
+  type Anchor,
   type GroupNode,
   type PrimitiveNode,
   type PrimitiveType,
@@ -12,7 +14,13 @@ import {
   type SceneNode,
   type Vec3
 } from '../../../shared/project'
-import { DEFAULT_PRIMITIVE_COLOR, PRIMITIVES } from '../../../shared/primitives'
+import {
+  anchorHeight,
+  DEFAULT_PRIMITIVE_COLOR,
+  defaultAnchor,
+  PRIMITIVES,
+  supportsAnchor
+} from '../../../shared/primitives'
 
 // The document store holds the project: everything that is saved to disk and can be undone.
 // Undo works by keeping whole-project snapshots. Immer shares unchanged parts between
@@ -43,6 +51,8 @@ interface DocumentState {
   addPrimitive: (primitive: PrimitiveType, groundPoint?: [number, number]) => string
   updateNode: (id: string, patch: NodePatch) => void
   updateNodes: (ids: string[], patch: NodePatch) => void
+  /** Move a primitive's origin to its bottom, middle or top without moving the object. */
+  setAnchor: (id: string, anchor: Anchor) => void
   deleteNodes: (ids: string[]) => void
   duplicateNodes: (ids: string[]) => string[]
   groupNodes: (ids: string[]) => string | null
@@ -104,6 +114,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
           hidden: false,
           locked: false,
           color: DEFAULT_PRIMITIVE_COLOR,
+          anchor: defaultAnchor(primitive),
           propId: null,
           description: ''
         }
@@ -121,11 +132,30 @@ export const useDocument = create<DocumentState>()((set, get) => {
           if (!node) continue
           for (const [key, value] of Object.entries(patch)) {
             if (key === 'color' && node.type !== 'primitive') continue
-            if (!sameValue((node as Record<string, unknown>)[key], value)) {
-              ;(node as Record<string, unknown>)[key] = value
+            const next = key === 'scale' ? clampScale(value as Vec3) : value
+            if (!sameValue((node as Record<string, unknown>)[key], next)) {
+              ;(node as Record<string, unknown>)[key] = next
             }
           }
         }
+      })
+    },
+
+    setAnchor: (id, anchor) => {
+      change((scene) => {
+        const node = scene.nodes[id]
+        if (!node || node.type !== 'primitive' || node.anchor === anchor || !supportsAnchor(node.primitive)) return
+        // The origin moves along the object's own (rotated, scaled) height axis; shift the
+        // position by the same amount so the object stays exactly where it is.
+        const rise = (anchorHeight(node.primitive, anchor) - anchorHeight(node.primitive, node.anchor)) * node.scale[1]
+        const euler = new Euler(...(node.rotation.map((d) => MathUtils.degToRad(d)) as Vec3), 'XYZ')
+        const shift = new Vector3(0, rise, 0).applyEuler(euler)
+        node.position = [
+          round(node.position[0] + shift.x),
+          round(node.position[1] + shift.y),
+          round(node.position[2] + shift.z)
+        ]
+        node.anchor = anchor
       })
     },
 
