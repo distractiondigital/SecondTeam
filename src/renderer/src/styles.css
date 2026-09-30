@@ -1,0 +1,58 @@
+:root {
+  --bg: #1b1c1f;
+  --panel: #232428;
+  --border: #33353a;
+  --text: #d6d7da;
+  --text-dim: #8b8e95;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 32px;
+  padding: 0 12px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+}
+
+.app-name {
+  font-weight: 600;
+}
+
+.status {
+  color: var(--text-dim);
+}
+
+.version {
+  margin-left: auto;
+  color: var(--text-dim);
+}
+
+.viewport {
+  flex: 1;
+  min-height: 0;
+}
