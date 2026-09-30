@@ -207,7 +207,7 @@ describe('figures', () => {
     expect(figure(copy).pose).toEqual(figure(a).pose)
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(7)
+    expect(loaded.schemaVersion).toBe(8)
   })
 
   it('saves poses into the project and applies them to other figures', () => {
@@ -416,6 +416,33 @@ describe('lights', () => {
   })
 })
 
+describe('generation settings', () => {
+  it('keeps settings in range as one undo step each, and saves them', () => {
+    doc().updateGeneration({ takes: 20, steps: 0 })
+    expect(doc().project.generation.takes).toBe(8)
+    expect(doc().project.generation.steps).toBe(1)
+    doc().updateGeneration({ strictness: null, strength: 1.2 })
+    doc().setStyleText('pencil sketch')
+    const loaded = parseProject(serializeProject(doc().project))
+    expect(loaded.generation.strength).toBe(1.2)
+    expect(loaded.generation.strictness).toBeNull()
+    expect(loaded.styleText).toBe('pencil sketch')
+    doc().undo()
+    doc().undo()
+    doc().undo()
+    expect(doc().project.generation.takes).toBe(2)
+  })
+
+  it('gives shots a description that new shots copy from the active shot', () => {
+    const a = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
+    doc().updateNode(a, { description: 'a rainy bus stop' })
+    doc().setActiveShot(a)
+    const b = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
+    const nb = scene().nodes[b]
+    expect(nb.type === 'camera' && nb.description).toBe('a rainy bus stop')
+  })
+})
+
 describe('older project files', () => {
   it('turns v4 per-camera settings into the project camera and renames numbered shots', () => {
     const raw = {
@@ -445,12 +472,15 @@ describe('older project files', () => {
       ]
     }
     const p = parseProject(JSON.stringify(raw))
-    expect(p.schemaVersion).toBe(7)
+    expect(p.schemaVersion).toBe(8)
     expect(p.camera.sensor.preset).toBe('alexa35')
     expect(p.camera.delivery).toBe('2.39')
     expect(p.scenes[0].number).toBe(1)
     expect(p.scenes[0].name).toBe('')
     expect(p.scenes[0].floor).toBe(true)
+    expect(p.generation.steps).toBe(30)
+    const shot = Object.values(p.scenes[0].nodes)[0]
+    expect(shot.type === 'camera' && shot.description).toBe('')
     const shots = Object.values(p.scenes[0].nodes).map((n) => (n.type === 'camera' ? [n.shotNumber, n.name] : null))
     expect(shots).toEqual([
       ['1A', 'Shot 1A'],
@@ -463,7 +493,7 @@ describe('older project files', () => {
     const raw = JSON.parse(serializeProject(doc().project))
     raw.schemaVersion = 1
     delete raw.camera
-    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(7)
+    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(8)
   })
 })
 describe('master scene and per-shot changes', () => {
@@ -571,7 +601,7 @@ describe('master scene and per-shot changes', () => {
     doc().updateNode(box, { hidden: true })
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(7)
+    expect(loaded.schemaVersion).toBe(8)
   })
 
   it('leaves the shot if undo removes its camera', () => {

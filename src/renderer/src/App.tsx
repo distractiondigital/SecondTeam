@@ -4,8 +4,10 @@ import { useShortcuts } from './hooks/useShortcuts'
 import Outliner from './panels/Outliner'
 import PropertiesPanel from './panels/PropertiesPanel'
 import ShotList from './panels/ShotList'
+import TakeStrip from './panels/TakeStrip'
 import Toolbar from './panels/Toolbar'
 import { activeScene, useDocument } from './state/documentStore'
+import { connectGeneration } from './state/generation'
 import { usePoseLibrary } from './state/poseLibrary'
 import { projectDisplayName, syncWindowState } from './state/projectIO'
 import { useUi } from './state/uiStore'
@@ -46,7 +48,12 @@ export default function App() {
   useEffect(() => {
     window.secondTeam.getVersion().then(setVersion)
     void usePoseLibrary.getState().load()
-    return syncWindowState()
+    const disconnect = connectGeneration()
+    const unsync = syncWindowState()
+    return () => {
+      disconnect()
+      unsync()
+    }
   }, [])
   useShortcuts()
 
@@ -65,6 +72,7 @@ export default function App() {
         </div>
         <main className="viewport">
           <Viewport />
+          <TakeStrip />
         </main>
         <PropertiesPanel />
       </div>

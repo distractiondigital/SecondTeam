@@ -1,0 +1,66 @@
+{
+  "manifestVersion": 1,
+  "comfyui": {
+    "id": "comfyui",
+    "name": "ComfyUI portable (NVIDIA)",
+    "version": "0.38.0",
+    "url": "https://github.com/Comfy-Org/ComfyUI/releases/download/v0.38.0/ComfyUI_windows_portable_nvidia.7z",
+    "sha256": "8f137eac345707fd7e42bcf8e29377415243011ca15522a86aed6c77331fbd56",
+    "size": 1994326521,
+    "license": "GPL-3.0",
+    "licenseUrl": "https://github.com/Comfy-Org/ComfyUI/blob/master/LICENSE",
+    "notes": "Runs as a separate program the app talks to over localhost; none of its code is part of Second Team.",
+    "archiveFolder": "ComfyUI_windows_portable"
+  },
+  "models": [
+    {
+      "id": "realvisxl-v5",
+      "name": "RealVisXL V5.0",
+      "kind": "checkpoint",
+      "family": "sdxl",
+      "file": "RealVisXL_V5.0_fp16.safetensors",
+      "folder": "checkpoints",
+      "url": "https://huggingface.co/SG161222/RealVisXL_V5.0/resolve/main/RealVisXL_V5.0_fp16.safetensors",
+      "sha256": "6a35a7855770ae9820a3c931d4964c3817b6d9e3c6f9c4dabb5b3a94e5643b80",
+      "size": 6938065488,
+      "license": "OpenRAIL++-M",
+      "licenseUrl": "https://huggingface.co/SG161222/RealVisXL_V5.0",
+      "commercial": true,
+      "style": "Photoreal, cinematic film stills.",
+      "default": true
+    },
+    {
+      "id": "sdxl-base-1.0",
+      "name": "SDXL 1.0 (stock)",
+      "kind": "checkpoint",
+      "family": "sdxl",
+      "file": "sd_xl_base_1.0.safetensors",
+      "folder": "checkpoints",
+      "url": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors",
+      "sha256": "31e35c80fc4829d14f90153f4c74cd59c90b779f6afe05a74cd6120b893f7e5b",
+      "size": 6938078334,
+      "license": "OpenRAIL++-M",
+      "licenseUrl": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/blob/main/LICENSE.md",
+      "commercial": true,
+      "style": "Most versatile across art styles: sketches, paintings, fantasy art, photos.",
+      "default": true
+    },
+    {
+      "id": "controlnet-union-sdxl-promax",
+      "name": "ControlNet Union SDXL ProMax (xinsir)",
+      "kind": "controlnet",
+      "family": "sdxl",
+      "file": "controlnet-union-sdxl-promax.safetensors",
+      "folder": "controlnet",
+      "url": "https://huggingface.co/xinsir/controlnet-union-sdxl-1.0/resolve/main/diffusion_pytorch_model_promax.safetensors",
+      "sha256": "9fae2e50cb431bfcbe05822b59ec2228df545ef27f711dea8949e9f4ed9f7cdc",
+      "size": 2513342408,
+      "license": "Apache-2.0",
+      "licenseUrl": "https://huggingface.co/xinsir/controlnet-union-sdxl-1.0",
+      "commercial": true,
+      "style": "Guides the image from the render passes (depth now; pose, normals and segmentation later).",
+      "default": true,
+      "required": true
+    }
+  ]
+}

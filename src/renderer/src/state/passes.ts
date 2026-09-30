@@ -46,42 +46,48 @@ export function stepPass(direction: 1 | -1): void {
 
 /** Render all five passes for a shot in the current scene, save them if the project has a folder, and show them. */
 export async function renderShotPasses(shotId: string): Promise<void> {
+  usePasses.setState({ rendering: true })
+  try {
+    // Let the button show "Rendering…" before the (briefly blocking) render starts.
+    await new Promise((r) => requestAnimationFrame(() => r(null)))
+    const view = await renderAndSavePasses(shotId)
+    if (view) usePasses.setState((s) => ({ view, tab: s.view ? s.tab : 'clay' }))
+  } finally {
+    usePasses.setState({ rendering: false })
+  }
+}
+
+/** Render a shot's passes and save them into the project folder (if it has one), without showing them. */
+export async function renderAndSavePasses(shotId: string): Promise<PassView | null> {
   const state = useDocument.getState()
   const scene = activeScene(state)
   const nodes = sceneForShot(state, shotId)
   const shot = nodes[shotId]
   const gl = getRenderer()
   const threeScene = shotScenes.get(shotId)
-  if (!shot || shot.type !== 'camera' || !gl || !threeScene) return
+  if (!shot || shot.type !== 'camera' || !gl || !threeScene) return null
 
-  usePasses.setState({ rendering: true })
-  try {
-    // Let the button show "Rendering…" before the (briefly blocking) render starts.
-    await new Promise((r) => requestAnimationFrame(() => r(null)))
-    const kit = state.project.camera
-    const result = renderPasses({ gl, scene: threeScene, shot, kit, nodes, rootIds: scene.rootIds })
-    if (!result) return
+  const kit = state.project.camera
+  const result = renderPasses({ gl, scene: threeScene, shot, kit, nodes, rootIds: scene.rootIds })
+  if (!result) return null
 
-    const view: PassView = {
-      sceneId: scene.id,
-      shotId,
-      shotName: shot.shotNumber,
-      result,
-      savedTo: null,
-      saveError: null
-    }
-    const folder = useUi.getState().projectPath
-    if (folder) {
-      const files: Record<string, string> = { 'passes.json': passesJson(shot, scene.number, scene.id, result) }
-      for (const kind of PASS_KINDS) files[`${kind}.png`] = result.images[kind]
-      const saved = await window.secondTeam.writePasses(folder, scene.id, shotId, files)
-      if ('error' in saved) view.saveError = saved.error
-      else view.savedTo = saved.path
-    }
-    usePasses.setState((s) => ({ view, tab: s.view ? s.tab : 'clay' }))
-  } finally {
-    usePasses.setState({ rendering: false })
+  const view: PassView = {
+    sceneId: scene.id,
+    shotId,
+    shotName: shot.shotNumber,
+    result,
+    savedTo: null,
+    saveError: null
   }
+  const folder = useUi.getState().projectPath
+  if (folder) {
+    const files: Record<string, string> = { 'passes.json': passesJson(shot, scene.number, scene.id, result) }
+    for (const kind of PASS_KINDS) files[`${kind}.png`] = result.images[kind]
+    const saved = await window.secondTeam.writePasses(folder, scene.id, shotId, files)
+    if ('error' in saved) view.saveError = saved.error
+    else view.savedTo = saved.path
+  }
+  return view
 }
 
 /** The sidecar M6 reads: size, lens, camera, the ID colour legend and the depth range. */

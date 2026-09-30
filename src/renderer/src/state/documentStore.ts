@@ -58,6 +58,7 @@ import {
   LIGHT_LABELS,
   type LightKind
 } from '../../../shared/lighting'
+import { repairGeneration, type GenerationSettings } from '../../../shared/prompt'
 
 // The document store holds the project: everything that is saved to disk and can be undone.
 // Undo works by keeping whole-project snapshots. Immer shares unchanged parts between
@@ -74,6 +75,7 @@ export type CameraField =
   | 'sizeOverride'
   | 'angleOverride'
   | 'lightingOverride'
+  | 'description'
   | 'notes'
 
 export type LightField = 'stops' | 'kelvin' | 'softness' | 'shadows' | 'coneAngle' | 'falloff'
@@ -94,6 +96,7 @@ const CAMERA_FIELDS: CameraField[] = [
   'sizeOverride',
   'angleOverride',
   'lightingOverride',
+  'description',
   'notes'
 ]
 
@@ -155,6 +158,10 @@ interface DocumentState {
   addCamera: (spawn: CameraSpawn) => string
   /** Change the project-wide camera body/format (sensor, squeeze, guides, delivery, thirds). */
   updateCameraKit: (patch: Partial<CameraKit>) => void
+  /** Change the project's generation settings (kept in range; one undo step). */
+  updateGeneration: (patch: Partial<GenerationSettings>) => void
+  /** The project's style text, added to every prompt. */
+  setStyleText: (text: string) => void
 
   /** Switch to another scene (back to its own set, not a shot). */
   setSceneId: (sceneId: string) => void
@@ -358,6 +365,8 @@ export const useDocument = create<DocumentState>()((set, get) => {
           sizeOverride: null,
           angleOverride: null,
           lightingOverride: null,
+          // A new shot made from another starts with its description (usually the same action).
+          description: shot?.description ?? '',
           notes: '',
           // A shot made while another shot is active starts from that shot's version of the set.
           overrides: shot ? toPlainValue(shot.overrides)! : {}
@@ -373,6 +382,20 @@ export const useDocument = create<DocumentState>()((set, get) => {
       change((_scene, project) => {
         const next = repairKit({ ...toPlainValue(project.camera), ...patch })
         if (!sameValue(toPlainValue(project.camera), next)) project.camera = next
+      })
+    },
+
+    updateGeneration: (patch) => {
+      change((_scene, project) => {
+        const next = repairGeneration({ ...toPlainValue(project.generation), ...patch })
+        if (!sameValue(toPlainValue(project.generation), next)) project.generation = next
+      })
+    },
+
+    setStyleText: (text) => {
+      if (get().project.styleText === text) return
+      change((_scene, project) => {
+        project.styleText = text
       })
     },
 

@@ -1,3 +1,5 @@
+import type { BackendStatus, GenerationEvent, GenerationJob, InstalledModel, TakeInfo, TakeMeta } from '../shared/takes'
+
 // Shape of the bridge exposed to the UI as `window.secondTeam`.
 export interface SecondTeamApi {
   getVersion: () => Promise<string>
@@ -31,6 +33,26 @@ export interface SecondTeamApi {
   ) => Promise<{ ok: true; path: string } | { error: string }>
   /** Open that passes folder in Explorer. */
   showPassFolder: (folder: string, sceneId: string, shotId: string) => Promise<{ ok: true } | { error: string }>
+
+  /** The AI engine (managed ComfyUI). */
+  backendStatus: () => Promise<BackendStatus>
+  onBackendStatus: (callback: (status: BackendStatus) => void) => () => void
+  restartBackend: () => Promise<void>
+  openBackendLog: () => Promise<{ ok: true } | { error: string }>
+  /** Checkpoints from the manifest that are installed. */
+  installedModels: () => Promise<InstalledModel[]>
+  /** Start generating; progress arrives through onGenerationEvent. */
+  generate: (job: GenerationJob) => Promise<{ ok: true }>
+  cancelGeneration: () => Promise<void>
+  onGenerationEvent: (callback: (event: GenerationEvent) => void) => () => void
+  /** A shot's takes, newest first. */
+  listTakes: (folder: string, sceneId: string, shotId: string) => Promise<TakeInfo[]>
+  readTake: (
+    folder: string,
+    sceneId: string,
+    shotId: string,
+    takeId: string
+  ) => Promise<{ image: string; meta: TakeMeta } | { error: string }>
 
   confirmDiscard: (projectName: string) => Promise<'save' | 'discard' | 'cancel'>
   showError: (message: string) => Promise<void>

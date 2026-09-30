@@ -8,24 +8,25 @@
 | 3 | Cameras & shot list | ✅ Done (tested by Spencer 2026-09-29) | Scenes (01, 02…) with shots 1A, 1B…; cameras belong to shots; one camera body per project; camera view with game-style fly controls; frame guides + delivery frame; HUD readouts; shot size/angle; per-shot changes over each scene's set; shot list with live thumbnails, drag to reorder. |
 | 4 | Lights & clay render | ✅ Done (tested by Spencer 2026-09-30) | Sun / point / spot / ambient lights (stops, Kelvin, softness, shadows, spot cone); Work/Clay shading with auto Clay in camera view; soft shadows; per-shot light cheats; clay thumbnails; automatic lighting description per shot. |
 | 5 | Render passes | ✅ Done (tested by Spencer 2026-09-30) | Clay, depth, normals, object ID and OpenPose passes per shot at the SDXL size (about 1 MP, sides in 64s); saved into the project folder with a `passes.json` sidecar; pass viewer. Automatic floor in renders (per-scene toggle). |
-| 6 | First AI frames | ⬜ Next | |
-| 7 | Continuity | ⬜ | |
+| 6 | First AI frames | 🔶 Built, waiting for Spencer's test | Managed ComfyUI 0.38 (starts hidden with the app); RealVisXL V5 + SDXL 1.0 + Union ControlNet (depth) from a pinned, licence-checked manifest; prompt from frame description + shot size/angle + lens + lighting + style; strictness, takes, seed lock; live previews, cancel; take strip + viewer; takes saved with full sidecars. |
+| 7 | Continuity | ⬜ Next | |
 | 8 | Storyboard | ⬜ | |
 | 9 | Plug-and-play | ⬜ | |
 | 10 | Polish | ⬜ | Includes **Posing 2** (Spencer, 2026-09-29): IK hands/feet, head look-at target that flows subtly into the torso, choosing which end of a limb stays put (e.g. plant a foot). |
 
 ## Where we are (2026-09-30)
-Milestones 0–5 are done and tested. The whole "build the shot" half of the app works:
+Milestones 0–5 are done and tested; Milestone 6 (first AI frames) is built and waiting for your test. The whole "build the shot" half of the app works:
 - Greybox a set with shapes, posed figures and lights.
 - Break a project into scenes (01, 02…) and shots (1A, 1B…). Each shot has its own camera and can cheat anything in the set just for that shot.
 - Look through any shot with real sensor/lens/squeeze maths, frame guides, and readouts for height, tilt, distance, shot size, angle and lighting.
 - Save and reopen projects as `Name.secondteam` folders.
 - Render each shot's control images (clay, depth, normals, object ID, pose) and flip through them.
+- Generate AI frames for a shot on your own PC and keep every take with its seed and settings.
 
-Nothing talks to an AI yet, and there's no ComfyUI install; that starts in Milestone 6. There are 98 automated checks (`npm test`), and all pass.
+The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `node scripts/fetch-backend.mjs`. There are 113 automated checks (`npm test`), and all pass.
 
 ## Things to know
-- **Project files:** saved projects are format **v7**. Every older format still opens, but a build from before a format change can't open a newer file.
+- **Project files:** saved projects are format **v8**. Every older format still opens, but a build from before a format change can't open a newer file.
 - **What undo covers:**
   - Undo goes back 200 steps and covers every change to the project, including per-shot changes, lights and deleting a scene.
   - Selection, switching scenes and the saved-pose *library* (the one shared across projects) aren't undoable. Poses saved into a project are.
@@ -40,18 +41,15 @@ Nothing talks to an AI yet, and there's no ComfyUI install; that starts in Miles
 - **Thumbnails** show the lit (Clay) look once a scene has at least one light; before that they use the work look. Thumbnails and passes include the automatic floor (the camera view doesn't).
 - **Depth pass contrast** is stretched to each frame's own nearest and farthest surface, so two shots of the same set can look different in brightness. That's normal for depth ControlNets.
 - **Pose pass** draws joints even when another object hides them.
+- **Generating:** the first take after starting loads the model (about 10 s extra); after that a take takes about 7 s at 30 steps on the 5070 Ti. Switching models reloads. Takes live only in the project folder (not in `project.json`), so the project must be saved first.
+- **Strictness** mid-point = depth guide strength 0.63 for the first 70% of the steps. If a take traced your blocking too literally, slide toward Loose; if it ignored the set, toward Traces blocking.
 - **Updating the app:** if the app is open while I change code, it reloads itself, and unsaved work can be lost. Save and close it before a work session, and restart with `start.bat` afterwards.
 - **For development** (in `CLAUDE.md`): files use LF line endings, enforced by `.gitattributes`. Changes to `src/main` or `src/preload` need an app restart.
 
 ## What's next
-**Milestone 6: First AI frames.** Press Generate on a shot and get images back: SDXL guided by the depth pass (ControlNet) plus a prompt built from the shot size, angle and lighting phrase, shown in a take strip under the viewport.
+**Milestone 6:** test the AI frames (checklist in the chat), then I'll mark it done.
 
-**Heads-up for Milestone 6 (first AI frames):** we'll set up a development copy of ComfyUI by hand before building the app's own installer in M9. Plan for:
-- about **30 GB** of free disk space for the models
-- about an hour with me to download and check them
-- your RTX 5070 Ti (16 GB), which is the target card
-
-Every model will have its licence recorded, and only commercially usable ones will be chosen, per the hard rules.
+**Milestone 7: Continuity.** Cast and Props with reference images, linked to figures and objects; regional prompts per object (using the ID pass); reference images applied only inside each one's mask (IP-Adapter); pose control from the pose pass; a project style reference image; circle takes. This needs extra models (IP-Adapter + CLIP vision); I'll list them with their licences in the plan.
 
 ## Decisions log
 - 2026-09-29: Name "Second Team" (working title). Stack: Electron + React + three.js (R3F) + managed ComfyUI. SDXL first for ControlNet/IP-Adapter maturity and commercial licence.
@@ -89,9 +87,15 @@ Every model will have its licence recorded, and only commercially usable ones wi
 - 2026-09-30 (M5): Depth pass = inverse depth (disparity) stretched to the frame's nearest/farthest surface (MiDaS / Depth Anything convention the depth ControlNets are trained on); empty = black. Normals = camera space, R right, G up, B toward the lens. ID = one flat colour per visible top-level object/group/figure, black background, legend in `passes.json` (switches to Cast/Prop in M7). Pose = OpenPose COCO-18 drawn like controlnet_aux (limbs at 60% colour, 4 px at 512 px, scaled); face points dropped when the head faces away, far ear/eye dropped in profile, off-frame points dropped.
 - 2026-09-30 (M5): Passes are saved to `scenes/<scene id>/shots/<shot id>/passes/` (internal ids, so renaming shots never orphans files). Main only writes the six known file names, only into an approved project folder, only for plain ids.
 - 2026-09-30 (before M6): **ComfyUI lives inside the project folder** (Spencer): `C:\Dev\SecondTeam\ComfyUI\` holds the whole backend (portable Python, ComfyUI, custom nodes, models, outputs). The entire folder is git-ignored, not just the models: it's many GB of downloaded binaries that the pinned manifest can recreate, and GitHub rejects files over 100 MB. `backend/` (manifest + workflow templates) stays in git. Vitest only looks in `src/` so it never runs ComfyUI's own tests. (The M9 installer's default location for end users is still open; the spec says `%LOCALAPPDATA%\SecondTeamackend`, and we'll revisit it then.)
+- 2026-09-30 (M6): ComfyUI **portable 0.38.0 (NVIDIA, PyTorch 2.14 + CUDA 13)** in `ComfyUI\`, started by the app (Spencer's choice) hidden on a free localhost port with `--preview-method auto`; killed with its children on quit; a pid file cleans up a leftover after dev reloads.
+- 2026-09-30 (M6): Models (Spencer picked RealVisXL + stock SDXL): **RealVisXL V5.0 fp16** (OpenRAIL++-M) and **SDXL 1.0 base** (OpenRAIL++-M) as checkpoints; **xinsir ControlNet Union SDXL ProMax** (Apache-2.0) for depth now and pose/normal/segment in M7. All URLs, sizes and SHA256 pinned in `backend/manifest.json`; a test fails if any model lacks a licence or isn't `commercial: true`. The **M9 wizard will let the user tick which models to download** (Spencer).
+- 2026-09-30 (M6): Workflow `backend/workflows/sdxl-depth.json`: core nodes only (no custom nodes): checkpoint → CLIP text → Union ControlNet (type depth, ControlNetApplyAdvanced) → KSampler dpmpp_2m/karras → PreviewImage (temp; the app copies the result into the project). One queued prompt per take, seeds seed, seed+1…
+- 2026-09-30 (M6): Prompt = frame description (new per-shot field) + shot size, angle + lens (+ "anamorphic" at ≥1.3× squeeze) + lighting phrase + project style text. Strictness 0–1 → strength 0.35–0.9 and end 0.4–1.0 (editing those by hand = Custom). Defaults: 30 steps, CFG 5, 2 takes. Settings are project-wide in `project.generation` (schema **v8**).
+- 2026-09-30 (M6): Takes live on disk only (`takes\<date-time-id>.png/.json/.thumb.jpg`), listed by the main process; not in project.json (circle takes in M7 will reference them). The AI status light sits in the take strip header (the top bar had no room).
 - 2026-09-30: The repo keeps LF line endings in the working copy (`.gitattributes`); mixed endings had been making some scripted edits silently miss.
 
 ## Ideas / later
+- Takes: delete / hide a take, compare two takes side by side, sharper live previews (TAESD preview models, MIT licence, ~10 MB).
 - Pose pass: leave out joints hidden behind other objects (like a real OpenPose detection); hands (OpenPose hand keypoints) once figures have hands.
 - Pass viewer: overlay the pose on the clay render; render passes for every shot in a scene at once.
 - Show where a light lands: an aim line from sun/spot to the surface it hits, and the spot's footprint (Spencer: hard to judge aim from the short cone icon).

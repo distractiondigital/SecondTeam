@@ -5,6 +5,7 @@ import { GizmoHelper, GizmoViewport, OrbitControls } from '@react-three/drei'
 import EditingBanner from '../panels/EditingBanner'
 import FrameOverlay from '../panels/FrameOverlay'
 import PassViewer from '../panels/PassViewer'
+import TakeViewer from '../panels/TakeViewer'
 import { editedNodes, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import FrameController from './FrameController'
@@ -72,6 +73,7 @@ export default function Viewport() {
       <FrameOverlay container={container} />
       <EditingBanner />
       <PassViewer />
+      <TakeViewer />
       {clay && !lit && <div className="viewport-note">No lights in this scene: add one from the toolbar.</div>}
     </div>
   )

@@ -29,7 +29,8 @@ While `npm run dev` is running, most UI edits show up in the window instantly.
 ## Other commands
 | Command | What it does |
 |---|---|
-| `npm test` | Runs the automated checks (undo/redo, grouping, saving, camera and lighting maths, render-pass maths) |
+| `npm test` | Runs the automated checks (undo/redo, grouping, saving, camera and lighting maths, render passes, prompts, workflows, model licences) |
+| `node scripts/fetch-backend.mjs` | Downloads/repairs the AI engine and models (about 18 GB) |
 | `npm run typecheck` | Checks the code for type errors without running it |
 | `npm run build` | Typecheck, then build the app into `out/` |
 | `npm start` | Run the built app from `out/` (no live reload) |
@@ -102,6 +103,29 @@ In the Properties panel, **drag left/right on any number box** to change it (hol
 - Each shot gets an automatic **lighting description** (e.g. "Soft key light from camera left, rim light from behind, warm tungsten, high contrast"), shown in the camera HUD and the shot's Properties, where you can overwrite it. It will go into the AI prompt.
 - Lights work with per-shot changes, so you can cheat a light for one setup. Shot list thumbnails show each shot lit.
 
+## AI frames (Generate)
+**One-time setup** (downloads about 18 GB into the `ComfyUI` folder here; Git ignores it):
+
+```
+node scripts/fetch-backend.mjs
+```
+
+It downloads ComfyUI (the local AI engine) and the models listed in `backend/manifest.json`, checks every file's checksum, and can be re-run to resume. Every model's licence is recorded there; all of them allow commercial use:
+
+| Model | Look | Licence |
+|---|---|---|
+| RealVisXL V5.0 | Photoreal film stills | OpenRAIL++-M |
+| SDXL 1.0 (stock) | Most versatile across art styles (sketches, paintings, fantasy art) | OpenRAIL++-M |
+| ControlNet Union SDXL ProMax | Makes the image follow your set (depth now; pose later) | Apache-2.0 |
+
+**Using it**
+- The app starts the AI engine by itself in the background. The **AI** light at the right of the take strip shows *Starting…* then *Ready* (click it for the log or a restart). It's closed when you quit.
+- Select a shot and write its **Frame description** in Properties (what's in the frame). The **Prompt** below it shows exactly what will be sent: your description, the shot size and angle, the lens, the lighting and the project style.
+- Press **Generate** (in Properties or the take strip). The shot's passes are rendered, and each take appears in the **take strip** under the viewport with a live preview while it's made. **Cancel** stops it.
+- Click a take to see it large (← / → to flip, Esc to close) with its seed and settings. **Use this seed** locks the seed so you can change one thing and compare.
+- **Generation (whole project)**, below the camera body in a shot's Properties: **Model**, **Style** (e.g. *moody 16mm film still* or *pencil sketchbook drawing*), **Strictness** (from *Loose* to *Traces blocking*), **Takes** per Generate, **Seed** (locked = the same seed each time; unlocked = random), and **Advanced**: steps, CFG, the depth guide's strength/start/end, and the negative prompt.
+- The project must be saved: takes are stored in it as `scenes\<scene id>\shots\<shot id>\takes\` (the PNG, a thumbnail, and a `.json` with the seed, prompt, model and licence, and every setting).
+
 ## Render passes
 The images the AI will work from (Milestone 6), rendered from a shot's camera through its delivery frame:
 - Select a shot and click **Render passes** in its Properties. The **pass viewer** opens over the viewport:
@@ -126,7 +150,9 @@ A project is a folder called `Name.secondteam` containing `project.json` (the se
 
 ## Project layout
 ```
-src/main/       Electron main process: the window, and later ComfyUI management
+src/main/       Electron main process: the window, files, and the managed ComfyUI (backend/)
+backend/        manifest.json (pinned AI engine + model downloads, with licences) and workflow templates
+scripts/        fetch-backend.mjs (downloads the AI engine and models)
 src/preload/    The safe bridge between the UI and the main process
 src/renderer/   The React + three.js UI (state/, viewport/, panels/)
 src/shared/     The project file format, used by both sides

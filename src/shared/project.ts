@@ -23,11 +23,12 @@ import {
 } from './camera'
 import { sanitizeOverrides, type ShotOverrides } from './overrides'
 import { clampCone, clampKelvin, clampStops, clampUnit, LIGHT_KINDS, type LightKind } from './lighting'
+import { DEFAULT_GENERATION, repairGeneration, type GenerationSettings } from './prompt'
 
 // v1: M1 (primitives, groups). v2: M2 adds mannequins. v3: M3 adds cameras.
 // v4: per-shot changes (camera.overrides). v5: numbered scenes, shots 1A/1B…, one camera kit per project.
-// v6: lights. v7: scene.floor (automatic floor in renders).
-export const SCHEMA_VERSION = 7
+// v6: lights. v7: scene.floor (automatic floor in renders). v8: shot descriptions, project.generation.
+export const SCHEMA_VERSION = 8
 
 export type Vec3 = [number, number, number]
 
@@ -108,6 +109,8 @@ export interface CameraNode extends NodeBase {
   angleOverride: string | null
   /** Hand-written lighting description; null = worked out from the lights. */
   lightingOverride: string | null
+  /** What's in the frame, for the prompt (e.g. 'a woman waits at a rainy bus stop'). */
+  description: string
   notes: string
   /** This shot's changes to other objects; everything else follows the Master scene. */
   overrides: ShotOverrides
@@ -159,6 +162,8 @@ export interface Project {
   props: unknown[]
   /** Poses saved into this project (the app-wide library is stored separately). */
   poses: SavedPose[]
+  /** AI generation settings (model, strictness, takes, seed…). */
+  generation: GenerationSettings
 }
 
 export function newId(): string {
@@ -185,7 +190,8 @@ export function createEmptyProject(name = 'Untitled'): Project {
     camera: structuredClone(DEFAULT_KIT),
     cast: [],
     props: [],
-    poses: []
+    poses: [],
+    generation: structuredClone(DEFAULT_GENERATION)
   }
 }
 
@@ -283,6 +289,7 @@ export function repairCamera(c: CameraNode): void {
   c.sizeOverride = typeof c.sizeOverride === 'string' && c.sizeOverride ? c.sizeOverride : null
   c.angleOverride = typeof c.angleOverride === 'string' && c.angleOverride ? c.angleOverride : null
   c.lightingOverride = typeof c.lightingOverride === 'string' && c.lightingOverride ? c.lightingOverride : null
+  c.description = typeof c.description === 'string' ? c.description : ''
   c.notes = typeof c.notes === 'string' ? c.notes : ''
 }
 
@@ -357,7 +364,8 @@ export function parseProject(json: string): Project {
     camera: repairKit(p.camera),
     cast: Array.isArray(p.cast) ? p.cast : [],
     props: Array.isArray(p.props) ? p.props : [],
-    poses: sanitizeSavedPoses(p.poses)
+    poses: sanitizeSavedPoses(p.poses),
+    generation: repairGeneration(p.generation)
   }
 }
 

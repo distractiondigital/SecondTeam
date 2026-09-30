@@ -17,6 +17,7 @@ import { renderShotPasses, usePasses } from '../state/passes'
 import { activeScene, editedNodes, useDocument, type NodePatch } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import { formatLengthLabel } from '../units'
+import { GenerateSection, GenerationSettingsSection } from './GenerateSection'
 import NumberField from './NumberField'
 
 // Properties for a shot: its name, camera placement (pan/tilt/roll), lens, subject, the shot-size /
@@ -67,6 +68,8 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
           </button>
         </div>
       </div>
+
+      <GenerateSection node={node} />
 
       <div className="prop-section">
         <div className="prop-title">Position</div>
@@ -213,6 +216,7 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
       </div>
 
       <CameraBodySection />
+      <GenerationSettingsSection />
 
       <div className="prop-section prop-checks">
         <label>

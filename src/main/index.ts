@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
+import { registerBackendIpc, stopBackend } from './backend/ipc'
 import { registerPassIpc } from './passFiles'
 import { registerPoseLibraryIpc } from './poseLibrary'
 import { askToSave, registerProjectIpc } from './projectFiles'
@@ -92,8 +93,13 @@ app.whenReady().then(() => {
   registerPoseLibraryIpc()
   registerPassIpc()
   createWindow()
+  // Start the AI engine (ComfyUI) in the background; the UI shows its status.
+  registerBackendIpc(() => mainWindow)
 })
 
 app.on('window-all-closed', () => {
   app.quit()
 })
+
+// Never leave ComfyUI running after the app is gone.
+app.on('will-quit', () => stopBackend())

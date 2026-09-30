@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
+import type { BackendStatus, GenerationEvent } from '../shared/takes'
 import type { SecondTeamApi } from './api'
 
 // The UI can only reach the Node side through the functions listed here.
@@ -21,6 +22,25 @@ const api: SecondTeamApi = {
 
   writePasses: (folder, sceneId, shotId, files) => ipcRenderer.invoke('passes:write', folder, sceneId, shotId, files),
   showPassFolder: (folder, sceneId, shotId) => ipcRenderer.invoke('passes:showFolder', folder, sceneId, shotId),
+
+  backendStatus: () => ipcRenderer.invoke('backend:status'),
+  onBackendStatus: (callback) => {
+    const listener = (_e: unknown, status: BackendStatus) => callback(status)
+    ipcRenderer.on('backend:status', listener)
+    return () => ipcRenderer.removeListener('backend:status', listener)
+  },
+  restartBackend: () => ipcRenderer.invoke('backend:restart'),
+  openBackendLog: () => ipcRenderer.invoke('backend:openLog'),
+  installedModels: () => ipcRenderer.invoke('backend:models'),
+  generate: (job) => ipcRenderer.invoke('generate:start', job),
+  cancelGeneration: () => ipcRenderer.invoke('generate:cancel'),
+  onGenerationEvent: (callback) => {
+    const listener = (_e: unknown, event: GenerationEvent) => callback(event)
+    ipcRenderer.on('generate:event', listener)
+    return () => ipcRenderer.removeListener('generate:event', listener)
+  },
+  listTakes: (folder, sceneId, shotId) => ipcRenderer.invoke('takes:list', folder, sceneId, shotId),
+  readTake: (folder, sceneId, shotId, takeId) => ipcRenderer.invoke('takes:read', folder, sceneId, shotId, takeId),
 
   confirmDiscard: (projectName) => ipcRenderer.invoke('dialog:confirmDiscard', projectName),
   showError: (message) => ipcRenderer.invoke('dialog:error', message)
