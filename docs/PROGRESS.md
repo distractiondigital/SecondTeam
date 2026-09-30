@@ -6,7 +6,7 @@
 | 1 | Set building | ✅ Done (tested by Spencer 2026-09-29) | Six primitives; gizmo with snapping; outliner (tree, rename, hide, lock); properties with real-size fields; m/ft; group/duplicate/delete; full undo/redo; save/open `.secondteam` folders; unsaved-changes prompts. Snap modes (Off/Grid/Surface, Ctrl to flip), anchors. 23 automated tests. |
 | 2 | Mannequins | ✅ Done (tested by Spencer 2026-09-29) | 17-joint FK figure; click a body part to pose; realistic limits (toggle per figure); 7 presets + mirror; height (child→adult proportions) and build. Follow-up: user pose presets (project + app library), 42 automated tests. |
 | 3 | Cameras & shot list | ✅ Done (tested by Spencer 2026-09-29) | Shot cameras from the current view; camera view with game-style fly controls; sensors incl. PYXIS 12K / ALEXA 35; squeeze; frame guides + delivery frame; HUD readouts; shot size/angle; shot list with live thumbnails. 56 automated tests. |
-| 4 | Lights & clay render | 🟨 Built, awaiting Spencer's test | Sun / point / spot / ambient lights (stops, Kelvin, softness, shadows, spot cone); Work/Clay shading with auto Clay in camera view; soft shadows; per-shot light cheats; clay thumbnails; automatic lighting description per shot. 86 automated tests. |
+| 4 | Lights & clay render | ✅ Done (tested by Spencer 2026-09-30) | Sun / point / spot / ambient lights (stops, Kelvin, softness, shadows, spot cone); Work/Clay shading with auto Clay in camera view; soft shadows; per-shot light cheats; clay thumbnails; automatic lighting description per shot. 86 automated tests. |
 | 5 | Render passes | ⬜ | |
 | 6 | First AI frames | ⬜ | |
 | 7 | Continuity | ⬜ | |
@@ -58,6 +58,7 @@
 ## Ideas / later
 - Light gels / colours beyond colour temperature; practical lights (lamps) as props that emit light.
 - Area / soft-box lights, flags and bounce.
+- Show where a light lands: an aim line from sun/spot to the surface it hits, and the spot's footprint on the floor (Spencer: hard to judge aim from the short cone icon).
 - Shoot order: a separate order for the shooting schedule that doesn't rename shots (Spencer).
 - Fly controls (right-mouse + WASD) in the free view too.
 - Show other cameras' positions in camera view as small markers (currently hidden for a clean frame).
