@@ -109,6 +109,7 @@ export function shotPrompt(shotId: string): string {
   const info = useUi.getState().shotInfo[shotId]
   return buildPrompt({
     description: shot.description,
+    facing: info?.facing ?? null,
     size: shot.sizeOverride ?? info?.size?.label ?? null,
     angle: shot.angleOverride ?? info?.angle ?? null,
     focalLength: shot.focalLength,
@@ -175,6 +176,8 @@ export async function generateShot(shotId: string): Promise<void> {
     width: passes.result.width,
     height: passes.result.height,
     depthPng: passes.result.images.depth,
+    posePng: passes.result.images.pose,
+    hasPose: passes.result.figures > 0,
     positive: shotPrompt(shotId),
     negative: settings.negative,
     checkpoint: model.file,
@@ -183,6 +186,8 @@ export async function generateShot(shotId: string): Promise<void> {
     strength: settings.strength,
     start: settings.start,
     end: settings.end,
+    poseStrength: settings.poseStrength,
+    poseEnd: settings.poseEnd,
     seeds,
     extra: {
       focalLength: shot.focalLength,
@@ -190,6 +195,7 @@ export async function generateShot(shotId: string): Promise<void> {
       angle: shot.angleOverride ?? info?.angle ?? null,
       lighting: shot.lightingOverride ?? info?.lighting ?? '',
       description: shot.description,
+      facing: info?.facing ?? null,
       style: state.project.styleText,
       strictness: settings.strictness
     }

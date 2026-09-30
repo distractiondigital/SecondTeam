@@ -47,6 +47,8 @@ export interface PassResult {
   legend: IdEntry[]
   /** Distance (m) of the nearest and farthest surface in the depth pass. */
   depthRange: { near: number; far: number }
+  /** Figures with at least part of their skeleton in the pose pass. */
+  figures: number
 }
 
 export interface PassInput {
@@ -218,7 +220,7 @@ export function renderPasses(input: PassInput): PassResult | null {
         () => opaque(onBlack(gl, scene, () => renderToCanvas(gl, scene, camera, w, h, { srgb: false, samples: 0 })))
       )
 
-      const pose = drawPose(scene, camera, nodes, w, h)
+      const { canvas: pose, figures } = drawPose(scene, camera, nodes, w, h)
 
       return {
         width: w,
@@ -231,7 +233,8 @@ export function renderPasses(input: PassInput): PassResult | null {
           pose: pose.toDataURL('image/png')
         },
         legend,
-        depthRange: { near, far }
+        depthRange: { near, far },
+        figures
       }
     })
   } finally {
@@ -326,7 +329,8 @@ function drawPose(
   nodes: Record<string, SceneNode>,
   w: number,
   h: number
-): HTMLCanvasElement {
+): { canvas: HTMLCanvasElement; figures: number } {
+  let figures = 0
   const canvas = document.createElement('canvas')
   canvas.width = w
   canvas.height = h
@@ -377,6 +381,7 @@ function drawPose(
       w,
       h
     )
+    if (keypoints.some(Boolean)) figures++
 
     // Limbs first, as OpenPose does: ellipses in 60% of the limb's colour, then the joints on top.
     COCO_LIMBS.forEach(([a, b], i) => {
@@ -406,7 +411,7 @@ function drawPose(
       ctx.fill()
     })
   }
-  return canvas
+  return { canvas, figures }
 }
 
 /** Visible, and not inside a hidden group. */

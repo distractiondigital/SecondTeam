@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildPrompt,
+  depthBlur,
+  facingPhrase,
   DEFAULT_GENERATION,
   MAX_TAKES,
   repairGeneration,
@@ -11,6 +13,7 @@ import {
 describe('prompt', () => {
   const parts = {
     description: 'a detective in a trench coat stands in a warehouse',
+    facing: 'facing the camera',
     size: 'Medium close-up',
     angle: 'Low angle',
     focalLength: 35,
@@ -21,13 +24,13 @@ describe('prompt', () => {
 
   it('joins description, shot, lens, lighting and style in order', () => {
     expect(buildPrompt(parts)).toBe(
-      'a detective in a trench coat stands in a warehouse, medium close-up, low angle, 35mm lens, hard key light from camera left, high contrast, moody 16mm film still'
+      'a detective in a trench coat stands in a warehouse, facing the camera, medium close-up, low angle, 35mm lens, hard key light from camera left, high contrast, moody 16mm film still'
     )
   })
 
   it('skips empty parts and trailing commas, and notes anamorphic lenses', () => {
     expect(
-      buildPrompt({ ...parts, description: '  a street, ', size: null, angle: null, lighting: '', style: '', squeeze: 2, focalLength: 49.6 })
+      buildPrompt({ ...parts, description: '  a street, ', facing: null, size: null, angle: null, lighting: '', style: '', squeeze: 2, focalLength: 49.6 })
     ).toBe('a street, 50mm anamorphic lens')
   })
 })
@@ -35,9 +38,37 @@ describe('prompt', () => {
 describe('strictness', () => {
   it('maps loose to strict onto ControlNet strength and end', () => {
     expect(strictnessToControl(0)).toEqual({ strength: 0.35, start: 0, end: 0.4 })
-    expect(strictnessToControl(0.5)).toEqual({ strength: 0.63, start: 0, end: 0.7 })
-    expect(strictnessToControl(1)).toEqual({ strength: 0.9, start: 0, end: 1 })
-    expect(strictnessToControl(7).strength).toBe(0.9)
+    expect(strictnessToControl(0.5)).toEqual({ strength: 0.6, start: 0, end: 0.65 })
+    expect(strictnessToControl(1)).toEqual({ strength: 0.85, start: 0, end: 0.9 })
+    expect(strictnessToControl(7).strength).toBe(0.85)
+  })
+
+  it('keeps the depth guide in step with strictness, even in older projects', () => {
+    const old = repairGeneration({ strictness: 0.5, strength: 0.63, end: 0.7 })
+    expect([old.strength, old.end]).toEqual([0.6, 0.65])
+    const custom = repairGeneration({ strictness: null, strength: 0.63, end: 0.7 })
+    expect([custom.strength, custom.end]).toEqual([0.63, 0.7])
+  })
+
+  it('softens the depth pass in proportion to the image width', () => {
+    expect(depthBlur(1664)).toEqual({ radius: 9, sigma: 3 })
+    expect(depthBlur(1024).radius).toBe(6)
+    expect(depthBlur(100000).radius).toBe(31)
+  })
+})
+
+describe('facing', () => {
+  // Camera on +Z looking toward -Z: its right is +X, and the lens is toward +Z from the figure.
+  const toCamera: [number, number, number] = [0, 0.2, 5]
+  const right: [number, number, number] = [1, 0, 0]
+  it('describes which way the figure faces, as the camera sees it', () => {
+    expect(facingPhrase([0, 0, 1], toCamera, right)).toBe('facing the camera')
+    expect(facingPhrase([0, 0, -1], toCamera, right)).toBe('seen from behind, back to the camera')
+    expect(facingPhrase([1, 0, 0], toCamera, right)).toBe('in profile, facing camera right')
+    expect(facingPhrase([-1, 0, 0], toCamera, right)).toBe('in profile, facing camera left')
+    expect(facingPhrase([0.7, 0, 0.7], toCamera, right)).toBe('three-quarter view, facing camera right')
+    expect(facingPhrase([-0.7, 0, -0.7], toCamera, right)).toBe('seen from behind at three-quarters, turned away to camera left')
+    expect(facingPhrase([0, 1, 0], toCamera, right)).toBeNull()
   })
 })
 

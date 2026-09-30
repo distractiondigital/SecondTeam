@@ -1,10 +1,21 @@
 import { useEffect } from 'react'
 import { Lock, X } from 'lucide-react'
 import { useDocument } from '../state/documentStore'
+import type { TakeMeta } from '../../../shared/takes'
 import { closeTake, stepTake, useGeneration } from '../state/generation'
 
 // A take, large, over the viewport: with its seed, model and prompt. ← / → flip through the
 // shot's takes (newer / older); Esc closes. Other shortcuts pause while it's open.
+
+/** The guides a take used, in words. (Takes from before the pose guide stored depth only.) */
+function guides(meta: TakeMeta): string {
+  const c = meta.controlnet as TakeMeta['controlnet'] & { strength?: number; end?: number }
+  const depth = c.depth ?? { strength: c.strength ?? 0, end: c.end ?? 0 }
+  const pct = (v: number) => `${Math.round(v * 100)}%`
+  const parts = [`Depth ${depth.strength} for ${pct(depth.end)} of steps`]
+  if (c.pose) parts.push(`pose ${c.pose.strength} for ${pct(c.pose.end)}`)
+  return parts.join(' · ')
+}
 
 export default function TakeViewer() {
   const viewer = useGeneration((s) => s.viewer)
@@ -64,9 +75,7 @@ export default function TakeViewer() {
           <span>
             {meta.model.name} <span className="dim">({meta.model.license})</span>
           </span>
-          <span>
-            Strictness: strength {meta.controlnet.strength}, end {meta.controlnet.end}
-          </span>
+          <span>{guides(meta)}</span>
           <span>
             {meta.sampler.steps} steps · CFG {meta.sampler.cfg}
           </span>

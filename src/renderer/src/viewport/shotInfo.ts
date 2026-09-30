@@ -2,6 +2,7 @@ import { Box3, Euler, MathUtils, Matrix4, Mesh, Quaternion, Vector3, type Object
 import { cameraAngle, fieldOfView, opticsFor, shotSize, type CameraKit, type ShotSize } from '../../../shared/camera'
 import type { CameraNode, Scene, Vec3 } from '../../../shared/project'
 import { describeLighting, type LightSample } from '../../../shared/lighting'
+import { facingPhrase } from '../../../shared/prompt'
 
 // Live readouts for a shot camera, measured from the rendered 3D scene (so posed and grouped
 // figures are exact): camera height, tilt, roll, distance to the subject, and the shot-size /
@@ -21,6 +22,8 @@ export interface ShotInfo {
   angle: string
   /** e.g. 'Soft key light from camera left, warm tungsten' ('' when the scene has no lights). */
   lighting: string
+  /** Which way the subject figure faces, e.g. 'facing the camera' (null if the subject isn't a figure). */
+  facing: string | null
 }
 
 /** World position, pan/tilt/roll (degrees) of a rendered camera object. */
@@ -137,8 +140,18 @@ export function computeShotInfo(scene: Scene, camera: CameraNode, kit: CameraKit
     right: right.toArray() as Vec3
   })
 
+  // Which way the subject figure's body (its chest) faces, relative to this camera.
+  let facing: string | null = null
+  const chest = subject && scene.nodes[subject.id]?.type === 'mannequin' ? three.getObjectByName(`${subject.id}:chest`) : null
+  if (subject && chest) {
+    const bodyForward = new Vector3(0, 0, 1).applyQuaternion(chest.getWorldQuaternion(new Quaternion()))
+    const toLens = pose.position.clone().sub(subject.point)
+    facing = facingPhrase(bodyForward.toArray() as Vec3, toLens.toArray() as Vec3, right.toArray() as Vec3)
+  }
+
   return {
     lighting,
+    facing,
     height: pose.position.y,
     pan: pose.pan,
     tilt: pose.tilt,

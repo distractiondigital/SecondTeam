@@ -15,6 +15,9 @@ export interface GenerationSettings {
   /** ControlNet start and end, as fractions of the steps. */
   start: number
   end: number
+  /** Pose guide (the figures' OpenPose skeletons): strength and end, as fractions of the steps. */
+  poseStrength: number
+  poseEnd: number
   /** Takes per Generate. */
   takes: number
   seed: number
@@ -32,6 +35,8 @@ export const DEFAULT_GENERATION: GenerationSettings = {
   cfg: 5,
   strictness: 0.5,
   ...strictnessToControl(0.5),
+  poseStrength: 0.7,
+  poseEnd: 0.8,
   takes: 2,
   seed: 1,
   seedLocked: false
@@ -40,10 +45,22 @@ export const DEFAULT_GENERATION: GenerationSettings = {
 export const MAX_TAKES = 8
 const MAX_SEED = 2 ** 32 - 1
 
-/** Strictness 0–1 as ControlNet settings: stronger, and guiding more of the steps, the stricter it is. */
+/**
+ * Strictness 0–1 as depth-guide settings: stronger, and guiding more of the steps, the stricter it
+ * is. (The pose guide has its own strength: figures follow their skeletons at any strictness.)
+ */
 export function strictnessToControl(s: number): { strength: number; start: number; end: number } {
   const t = clamp(s, 0, 1)
-  return { strength: round(0.35 + 0.55 * t), start: 0, end: round(0.4 + 0.6 * t) }
+  return { strength: round(0.35 + 0.5 * t), start: 0, end: round(0.4 + 0.5 * t) }
+}
+
+/**
+ * How much to soften the depth pass before it guides the image (Gaussian blur, in pixels for the
+ * given width): enough to lose the mannequin's ball joints, not the shapes of the set.
+ */
+export function depthBlur(width: number): { radius: number; sigma: number } {
+  const radius = Math.round(clamp(width / 185, 1, 31))
+  return { radius, sigma: round(clamp(radius / 3, 0.1, 10)) }
 }
 
 export function repairGeneration(raw: unknown): GenerationSettings {
@@ -51,16 +68,21 @@ export function repairGeneration(raw: unknown): GenerationSettings {
   const d = DEFAULT_GENERATION
   const num = (v: unknown, fallback: number, lo: number, hi: number) =>
     typeof v === 'number' && Number.isFinite(v) ? clamp(v, lo, hi) : fallback
-  const start = num(r.start, d.start, 0, 1)
+  const strictness = r.strictness === null ? null : num(r.strictness, d.strictness!, 0, 1)
+  // With a strictness set, the depth guide always follows it (so a remapped slider updates old projects).
+  const fromStrictness = strictness === null ? null : strictnessToControl(strictness)
+  const start = fromStrictness?.start ?? num(r.start, d.start, 0, 1)
   return {
     checkpoint: typeof r.checkpoint === 'string' && r.checkpoint ? r.checkpoint : null,
     negative: typeof r.negative === 'string' ? r.negative : d.negative,
     steps: Math.round(num(r.steps, d.steps, 1, 150)),
     cfg: num(r.cfg, d.cfg, 1, 20),
-    strictness: r.strictness === null ? null : num(r.strictness, d.strictness!, 0, 1),
-    strength: num(r.strength, d.strength, 0, 1.5),
+    strictness,
+    strength: fromStrictness?.strength ?? num(r.strength, d.strength, 0, 1.5),
     start,
-    end: Math.max(start, num(r.end, d.end, 0, 1)),
+    end: fromStrictness?.end ?? Math.max(start, num(r.end, d.end, 0, 1)),
+    poseStrength: num(r.poseStrength, d.poseStrength, 0, 1.5),
+    poseEnd: num(r.poseEnd, d.poseEnd, 0, 1),
     takes: Math.round(num(r.takes, d.takes, 1, MAX_TAKES)),
     seed: Math.round(num(r.seed, d.seed, 0, MAX_SEED)),
     seedLocked: r.seedLocked === true
@@ -79,6 +101,8 @@ export function takeSeeds(seed: number, takes: number): number[] {
 export interface PromptParts {
   /** What's in the frame, written for the shot. */
   description: string
+  /** Which way the subject figure faces, e.g. 'facing the camera' (null = no figure). */
+  facing: string | null
   /** e.g. 'Medium close-up' (the override if set). */
   size: string | null
   /** e.g. 'Low angle'. */
@@ -97,10 +121,33 @@ export function buildPrompt(p: PromptParts): string {
     .filter(Boolean)
     .map((s) => s!.toLowerCase())
     .join(', ')
-  return [p.description, shot, lens, p.lighting.toLowerCase(), p.style]
+  return [p.description, p.facing, shot, lens, p.lighting.toLowerCase(), p.style]
     .map((s) => (s ?? '').trim().replace(/[\s,]+$/, ''))
     .filter(Boolean)
     .join(', ')
+}
+
+type V3 = [number, number, number]
+
+/**
+ * Which way a figure faces as the camera sees it, from its body's forward direction, the direction
+ * from the figure to the lens, and the camera's right. Only the horizontal part counts.
+ */
+export function facingPhrase(bodyForward: V3, toCamera: V3, cameraRight: V3): string | null {
+  const flat = (v: V3): [number, number] | null => {
+    const l = Math.hypot(v[0], v[2])
+    return l < 1e-6 ? null : [v[0] / l, v[2] / l]
+  }
+  const f = flat(bodyForward)
+  const c = flat(toCamera)
+  const r = flat(cameraRight)
+  if (!f || !c || !r) return null
+  const toward = f[0] * c[0] + f[1] * c[1] // 1 = straight at the lens, -1 = straight away
+  const side = f[0] * r[0] + f[1] * r[1] > 0 ? 'right' : 'left'
+  if (toward > 0.82) return 'facing the camera'
+  if (toward < -0.82) return 'seen from behind, back to the camera'
+  if (Math.abs(toward) < 0.42) return `in profile, facing camera ${side}`
+  return toward > 0 ? `three-quarter view, facing camera ${side}` : `seen from behind at three-quarters, turned away to camera ${side}`
 }
 
 function clamp(v: number, lo: number, hi: number): number {

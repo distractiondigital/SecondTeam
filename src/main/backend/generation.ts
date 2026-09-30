@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import { depthBlur } from '../../shared/prompt'
 import type { BackendStatus, GenerationEvent, GenerationJob, InstalledModel, TakeMeta } from '../../shared/takes'
 import { ComfyClient } from './comfyClient'
 import { ComfyProcess } from './comfyProcess'
@@ -92,6 +93,11 @@ export class ComfyBackend implements GenerationBackend {
 
       const depth = Buffer.from(job.depthPng.replace(/^data:image\/png;base64,/, ''), 'base64')
       const depthName = await client.upload(`secondteam-depth-${job.shotId}.png`, depth)
+      const pose = Buffer.from(job.posePng.replace(/^data:image\/png;base64,/, ''), 'base64')
+      const poseName = await client.upload(`secondteam-pose-${job.shotId}.png`, pose)
+      const blur = depthBlur(job.width)
+      // No figure in frame: a pose guide of strength 0 is skipped.
+      const poseStrength = job.hasPose ? job.poseStrength : 0
 
       for (let index = 0; index < job.seeds.length && !run.cancelled; index++) {
         const seed = job.seeds[index]
@@ -102,9 +108,14 @@ export class ComfyBackend implements GenerationBackend {
           positive: job.positive,
           negative: job.negative,
           depth_image: depthName,
+          depth_blur_radius: blur.radius,
+          depth_blur_sigma: blur.sigma,
           cn_strength: job.strength,
           cn_start: job.start,
           cn_end: job.end,
+          pose_image: poseName,
+          pose_strength: poseStrength,
+          pose_end: job.poseEnd,
           width: job.width,
           height: job.height,
           seed,
@@ -127,7 +138,12 @@ export class ComfyBackend implements GenerationBackend {
           positive: job.positive,
           negative: job.negative,
           model: { file: model.file, name: model.name, license: model.license },
-          controlnet: { file: controlnet.file, license: controlnet.license, type: 'depth', strength: job.strength, start: job.start, end: job.end },
+          controlnet: {
+            file: controlnet.file,
+            license: controlnet.license,
+            depth: { strength: job.strength, start: job.start, end: job.end, blur: blur.radius },
+            pose: poseStrength > 0 ? { strength: poseStrength, end: job.poseEnd } : null
+          },
           sampler: { steps: job.steps, cfg: job.cfg, ...SAMPLER },
           workflow: WORKFLOW,
           backend: { comfyui: this.process.current.comfyVersion },

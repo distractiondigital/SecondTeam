@@ -98,7 +98,7 @@ export function GenerationSettingsSection() {
           onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
         />
 
-        <div className="prop-title prop-title-spaced" title="How closely the image follows your blocking (the depth pass)">
+        <div className="prop-title prop-title-spaced" title="How closely the image follows the shapes of your set (the depth pass). Figures follow their pose skeletons at any setting.">
           Strictness {g.strictness === null && <span className="dim">· Custom</span>}
         </div>
         <div className="slider-row">
@@ -158,6 +158,13 @@ export function GenerationSettingsSection() {
             <NumberField label="Str" value={g.strength} kind="factor" step={0.05} min={0} max={1.5} onCommit={(strength) => control({ strength })} />
             <NumberField label="Start" value={g.start} kind="factor" step={0.05} min={0} max={1} onCommit={(start) => control({ start })} />
             <NumberField label="End" value={g.end} kind="factor" step={0.05} min={0} max={1} onCommit={(end) => control({ end })} />
+          </div>
+          <div className="prop-title prop-title-spaced" title="How firmly figures follow their pose skeletons (the pose pass). Skipped when no figure is in frame.">
+            Pose guide · strength · end
+          </div>
+          <div className="vec3-row">
+            <NumberField label="Str" value={g.poseStrength} kind="factor" step={0.05} min={0} max={1.5} onCommit={(poseStrength) => update({ poseStrength })} />
+            <NumberField label="End" value={g.poseEnd} kind="factor" step={0.05} min={0} max={1} onCommit={(poseEnd) => update({ poseEnd })} />
           </div>
           <div className="prop-title prop-title-spaced">Negative prompt</div>
           <textarea

@@ -14,6 +14,11 @@ describe('workflow templates', () => {
     positive: 'a street at night',
     negative: 'blurry',
     depth_image: 'st-depth.png',
+    depth_blur_radius: 9,
+    depth_blur_sigma: 3,
+    pose_image: 'st-pose.png',
+    pose_strength: 0.7,
+    pose_end: 0.8,
     cn_strength: 0.6,
     cn_start: 0,
     cn_end: 0.7,
@@ -30,6 +35,11 @@ describe('workflow templates', () => {
     expect(p['8'].inputs.width).toBe(1536)
     expect(p['2'].inputs.text).toBe('a street at night')
     expect(p['9'].inputs.model).toEqual(['1', 0])
+    // Depth (softened) feeds the pose guide, which feeds the sampler.
+    expect(p['7'].inputs.image).toEqual(['15', 0])
+    expect(p['14'].inputs.positive).toEqual(['7', 0])
+    expect(p['9'].inputs.positive).toEqual(['14', 0])
+    expect(p['13'].inputs.type).toBe('openpose')
     expect(JSON.stringify(p)).not.toContain('{{')
     // The template itself is untouched.
     expect(template.prompt['9'].inputs.seed).toBe('{{seed}}')

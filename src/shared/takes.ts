@@ -28,8 +28,11 @@ export interface GenerationJob {
   shotName: string
   width: number
   height: number
-  /** The shot's depth pass as a PNG data URL. */
+  /** The shot's depth and pose passes as PNG data URLs. */
   depthPng: string
+  posePng: string
+  /** False when no figure is in frame: the pose guide is skipped. */
+  hasPose: boolean
   positive: string
   negative: string
   checkpoint: string
@@ -38,6 +41,8 @@ export interface GenerationJob {
   strength: number
   start: number
   end: number
+  poseStrength: number
+  poseEnd: number
   /** One take per seed. */
   seeds: number[]
   /** Anything else worth keeping in each take's sidecar (lens, shot size…). */
@@ -68,7 +73,12 @@ export interface TakeMeta {
   positive: string
   negative: string
   model: { file: string; name: string; license: string }
-  controlnet: { file: string; license: string; type: 'depth'; strength: number; start: number; end: number }
+  controlnet: {
+    file: string
+    license: string
+    depth: { strength: number; start: number; end: number; blur: number }
+    pose: { strength: number; end: number } | null
+  }
   sampler: { steps: number; cfg: number; sampler: string; scheduler: string }
   workflow: string
   backend: { comfyui: string | null }
