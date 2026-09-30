@@ -7,7 +7,7 @@
 | 2 | Mannequins | ✅ Done (tested by Spencer 2026-09-29) | 17-joint FK figure; click a body part to pose; realistic limits (toggle per figure); 7 presets + mirror; height (child→adult proportions) and build. Follow-up: user pose presets (project + app library). |
 | 3 | Cameras & shot list | ✅ Done (tested by Spencer 2026-09-29) | Scenes (01, 02…) with shots 1A, 1B…; cameras belong to shots; one camera body per project; camera view with game-style fly controls; frame guides + delivery frame; HUD readouts; shot size/angle; per-shot changes over each scene's set; shot list with live thumbnails, drag to reorder. |
 | 4 | Lights & clay render | ✅ Done (tested by Spencer 2026-09-30) | Sun / point / spot / ambient lights (stops, Kelvin, softness, shadows, spot cone); Work/Clay shading with auto Clay in camera view; soft shadows; per-shot light cheats; clay thumbnails; automatic lighting description per shot. |
-| 5 | Render passes | 🔶 Built, waiting for Spencer's test | Clay, depth, normals, object ID and OpenPose passes per shot at the SDXL size (about 1 MP, sides in 64s); saved into the project folder with a `passes.json` sidecar; pass viewer. Automatic floor in renders (per-scene toggle). |
+| 5 | Render passes | ✅ Done (tested by Spencer 2026-09-30) | Clay, depth, normals, object ID and OpenPose passes per shot at the SDXL size (about 1 MP, sides in 64s); saved into the project folder with a `passes.json` sidecar; pass viewer. Automatic floor in renders (per-scene toggle). |
 | 6 | First AI frames | ⬜ Next | |
 | 7 | Continuity | ⬜ | |
 | 8 | Storyboard | ⬜ | |
@@ -15,7 +15,7 @@
 | 10 | Polish | ⬜ | Includes **Posing 2** (Spencer, 2026-09-29): IK hands/feet, head look-at target that flows subtly into the torso, choosing which end of a limb stays put (e.g. plant a foot). |
 
 ## Where we are (2026-09-30)
-Milestones 0–4 are done and tested; Milestone 5 (render passes) is built and waiting for your test. The whole "build the shot" half of the app works:
+Milestones 0–5 are done and tested. The whole "build the shot" half of the app works:
 - Greybox a set with shapes, posed figures and lights.
 - Break a project into scenes (01, 02…) and shots (1A, 1B…). Each shot has its own camera and can cheat anything in the set just for that shot.
 - Look through any shot with real sensor/lens/squeeze maths, frame guides, and readouts for height, tilt, distance, shot size, angle and lighting.
@@ -44,8 +44,6 @@ Nothing talks to an AI yet, and there's no ComfyUI install; that starts in Miles
 - **For development** (in `CLAUDE.md`): files use LF line endings, enforced by `.gitattributes`. Changes to `src/main` or `src/preload` need an app restart.
 
 ## What's next
-**Milestone 5:** test the render passes (checklist in the chat), then I'll mark it done.
-
 **Milestone 6: First AI frames.** Press Generate on a shot and get images back: SDXL guided by the depth pass (ControlNet) plus a prompt built from the shot size, angle and lighting phrase, shown in a take strip under the viewport.
 
 **Heads-up for Milestone 6 (first AI frames):** we'll set up a development copy of ComfyUI by hand before building the app's own installer in M9. Plan for:
