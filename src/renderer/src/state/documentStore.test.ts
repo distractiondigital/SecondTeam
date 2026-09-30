@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { Vector3 } from 'three'
-import { activeScene, hasUnsavedChanges, useDocument, worldMatrix } from './documentStore'
+import { activeScene, hasUnsavedChanges, sceneForShot, useDocument, worldMatrix } from './documentStore'
 import { parseProject, serializeProject } from '../../../shared/project'
 
 const doc = () => useDocument.getState()
@@ -34,6 +34,20 @@ describe('undo / redo', () => {
     doc().beginGesture()
     for (let x = 1; x <= 10; x++) doc().updateNode(a, { position: [x, 0, 0] })
     doc().endGesture()
+    doc().undo()
+    expect(scene().nodes[a].position).toEqual([0, 0, 0])
+  })
+
+  it('only lets the owner of a gesture end it, and merges overlapping gestures', () => {
+    const a = doc().addPrimitive('box')
+    doc().beginGesture('fly')
+    doc().updateNode(a, { position: [1, 0, 0] })
+    doc().endGesture('slider') // someone else can't close the camera's undo step
+    doc().beginGesture('wheel')
+    doc().updateNode(a, { position: [2, 0, 0] })
+    doc().endGesture('wheel')
+    doc().updateNode(a, { position: [3, 0, 0] })
+    doc().endGesture('fly')
     doc().undo()
     expect(scene().nodes[a].position).toEqual([0, 0, 0])
   })
@@ -193,7 +207,7 @@ describe('figures', () => {
     expect(figure(copy).pose).toEqual(figure(a).pose)
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(3)
+    expect(loaded.schemaVersion).toBe(4)
   })
 
   it('saves poses into the project and applies them to other figures', () => {
@@ -276,7 +290,123 @@ describe('cameras', () => {
   it('still opens older files', () => {
     const raw = JSON.parse(serializeProject(doc().project))
     raw.schemaVersion = 1
-    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(3)
+    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(4)
+  })
+})
+
+describe('master scene and per-shot changes', () => {
+  const view = { position: [0, 1.6, 5] as [number, number, number], rotation: [0, 0, 0] as [number, number, number] }
+  const seen = (shotId: string | null, id: string) => sceneForShot(doc(), shotId)[id]
+  const cam = (id: string) => {
+    const n = scene().nodes[id]
+    if (n.type !== 'camera') throw new Error('not a camera')
+    return n
+  }
+
+  it('edits in a shot change only that shot', () => {
+    const box = doc().addPrimitive('box')
+    const s1 = doc().addCamera(view)
+    const s2 = doc().addCamera(view)
+    doc().setActiveShot(s2)
+    doc().updateNode(box, { position: [2, 0, 0], color: '#ff0000' })
+    expect(seen(s2, box).position).toEqual([2, 0, 0])
+    expect(seen(null, box).position).toEqual([0, 0, 0]) // Master unchanged
+    expect(seen(s1, box).position).toEqual([0, 0, 0])
+    // Master edits flow to shots that haven't changed that field.
+    doc().setActiveShot(null)
+    doc().updateNode(box, { position: [5, 0, 0], rotation: [0, 45, 0] })
+    expect(seen(s1, box).position).toEqual([5, 0, 0])
+    expect(seen(s2, box).position).toEqual([2, 0, 0])
+    expect(seen(s2, box).rotation).toEqual([0, 45, 0])
+  })
+
+  it('setting a value back to Master clears the change', () => {
+    const box = doc().addPrimitive('box')
+    const s1 = doc().addCamera(view)
+    doc().setActiveShot(s1)
+    doc().updateNode(box, { position: [2, 0, 0] })
+    doc().updateNode(box, { position: [0, 0, 0] })
+    expect(cam(s1).overrides).toEqual({})
+  })
+
+  it('new shots start from the active shot; shots made from Master start clean', () => {
+    const fig = doc().addMannequin()
+    const s1 = doc().addCamera(view)
+    doc().setActiveShot(s1)
+    doc().applyPreset(fig, 'sitting')
+    const s2 = doc().addCamera(view)
+    expect(seen(s2, fig)).toEqual(seen(s1, fig))
+    doc().setActiveShot(null)
+    const s3 = doc().addCamera(view)
+    expect(cam(s3).overrides).toEqual({})
+    // Later edits in shot 1 don't touch shot 2.
+    doc().setActiveShot(s1)
+    doc().applyPreset(fig, 'pointing')
+    const s2Fig = seen(s2, fig)
+    expect(s2Fig.type === 'mannequin' && s2Fig.pose.joints.kneeL[0]).toBe(90)
+  })
+
+  it('delete in a shot hides there only; delete in Master removes everywhere', () => {
+    const box = doc().addPrimitive('box')
+    const s1 = doc().addCamera(view)
+    const s2 = doc().addCamera(view)
+    doc().setActiveShot(s1)
+    doc().deleteNodes([box])
+    expect(seen(s1, box).hidden).toBe(true)
+    expect(seen(s2, box).hidden).toBe(false)
+    doc().setActiveShot(null)
+    doc().deleteNodes([box])
+    expect(scene().nodes[box]).toBeUndefined()
+    expect(cam(s1).overrides).toEqual({})
+  })
+
+  it('revert and push to master', () => {
+    const box = doc().addPrimitive('box')
+    const s1 = doc().addCamera(view)
+    const s2 = doc().addCamera(view)
+    doc().setActiveShot(s1)
+    doc().updateNode(box, { position: [3, 0, 0] })
+    doc().revertOverride(box)
+    expect(seen(s1, box).position).toEqual([0, 0, 0])
+    doc().updateNode(box, { position: [3, 0, 0] })
+    doc().pushOverrideToMaster(box)
+    expect(seen(null, box).position).toEqual([3, 0, 0])
+    expect(seen(s2, box).position).toEqual([3, 0, 0])
+    expect(cam(s1).overrides).toEqual({})
+  })
+
+  it('figures change pose, height and colour per shot, and it all undoes', () => {
+    const fig = doc().addMannequin()
+    const s1 = doc().addCamera(view)
+    doc().setActiveShot(s1)
+    doc().updateNode(fig, { height: 1.2, color: '#00ff00' })
+    doc().setJointRotation(fig, 'elbowL', [-90, 0, 0])
+    const f = seen(s1, fig)
+    expect(f.type === 'mannequin' && [f.height, f.color, f.pose.joints.elbowL[0]]).toEqual([1.2, '#00ff00', -90])
+    const master = seen(null, fig)
+    expect(master.type === 'mannequin' && master.height).toBe(1.75)
+    doc().undo()
+    doc().undo()
+    expect(cam(s1).overrides).toEqual({})
+  })
+
+  it('cameras are always edited directly, and saves keep shot changes', () => {
+    const box = doc().addPrimitive('box')
+    const s1 = doc().addCamera(view)
+    doc().setActiveShot(s1)
+    doc().updateNode(s1, { focalLength: 50 })
+    expect(cam(s1).focalLength).toBe(50)
+    doc().updateNode(box, { hidden: true })
+    const loaded = parseProject(serializeProject(doc().project))
+    expect(loaded).toEqual(doc().project)
+    expect(loaded.schemaVersion).toBe(4)
+  })
+
+  it('leaves the shot if undo removes its camera', () => {
+    const s1 = doc().addCamera(view)
+    doc().setActiveShot(s1)
+    doc().undo()
+    expect(doc().activeShotId).toBeNull()
   })
 })
 

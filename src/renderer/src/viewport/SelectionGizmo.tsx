@@ -3,8 +3,8 @@ import { Box3, MathUtils, Mesh, type Object3D } from 'three'
 import { useThree } from '@react-three/fiber'
 import { TransformControls } from '@react-three/drei'
 import type { TransformControls as TransformControlsImpl } from 'three-stdlib'
-import { clampScale, MIN_SCALE, type Scene, type Vec3 } from '../../../shared/project'
-import { activeScene, useDocument } from '../state/documentStore'
+import { clampScale, MIN_SCALE, type SceneNode, type Vec3 } from '../../../shared/project'
+import { activeScene, editedNodes, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import { moveSnap } from '../units'
 import { contactOffset, draggedAxes } from './contactSnap'
@@ -14,11 +14,11 @@ import { viewportBridge } from './viewportBridge'
 const SCALE_SNAP = 0.1
 
 /** Can this node be moved with the gizmo? Not if it, or a group it's in, is hidden or locked. */
-export function isMovable(scene: Scene, id: string): boolean {
-  let node = scene.nodes[id]
+export function isMovable(nodes: Record<string, SceneNode>, id: string): boolean {
+  let node = nodes[id]
   while (node) {
     if (node.hidden || node.locked) return false
-    node = node.parentId ? scene.nodes[node.parentId] : undefined!
+    node = node.parentId ? nodes[node.parentId] : undefined!
   }
   return true
 }
@@ -51,8 +51,8 @@ export default function SelectionGizmo() {
   const units = useUi((s) => s.units)
   const gridSnap = useGridSnap()
   const targetId = selection.length === 1 ? selection[0] : null
-  const node = useDocument((s) => (targetId ? activeScene(s).nodes[targetId] : undefined))
-  const movable = useDocument((s) => (targetId ? isMovable(activeScene(s), targetId) : false))
+  const node = useDocument((s) => (targetId ? editedNodes(s)[targetId] : undefined))
+  const movable = useDocument((s) => (targetId ? isMovable(editedNodes(s), targetId) : false))
   const threeScene = useThree((s) => s.scene)
   const [object, setObject] = useState<Object3D | null>(null)
   const controlsRef = useRef<TransformControlsImpl>(null)
@@ -115,12 +115,12 @@ export default function SelectionGizmo() {
       onMouseDown={() => {
         viewportBridge.gizmoBusy = true
         if (surfaceSnap) surfaceTargets.current = surfaceBoxes(threeScene, object)
-        useDocument.getState().beginGesture()
+        useDocument.getState().beginGesture('gizmo')
       }}
       onObjectChange={copyToDocument}
       onMouseUp={() => {
         copyToDocument()
-        useDocument.getState().endGesture()
+        useDocument.getState().endGesture('gizmo')
         // The browser sends a click right after the mouse is released; ignore that one.
         setTimeout(() => (viewportBridge.gizmoBusy = false), 0)
       }}

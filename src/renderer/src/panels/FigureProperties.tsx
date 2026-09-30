@@ -31,7 +31,7 @@ function GestureSlider(props: {
 }) {
   useEffect(() => {
     // End the gesture even if the mouse is released outside the slider.
-    const end = () => useDocument.getState().endGesture()
+    const end = () => useDocument.getState().endGesture('slider')
     window.addEventListener('pointerup', end)
     return () => window.removeEventListener('pointerup', end)
   }, [])
@@ -44,7 +44,7 @@ function GestureSlider(props: {
       step={props.step}
       value={props.value}
       disabled={props.disabled}
-      onPointerDown={() => useDocument.getState().beginGesture()}
+      onPointerDown={() => useDocument.getState().beginGesture('slider')}
       onChange={(e) => props.onChange(Number(e.target.value))}
     />
   )

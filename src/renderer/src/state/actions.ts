@@ -1,7 +1,7 @@
 import { compareShotNumbers } from '../../../shared/camera'
 import type { CameraNode, PrimitiveType } from '../../../shared/project'
 import { viewportBridge } from '../viewport/viewportBridge'
-import { activeScene, useDocument } from './documentStore'
+import { activeScene, editedNodes, useDocument } from './documentStore'
 import { useUi } from './uiStore'
 
 // Editing actions shared by the toolbar, panels and keyboard shortcuts.
@@ -49,9 +49,24 @@ export function addCamera(): void {
     }
   })
   ui().select([id])
+  // Working in a shot? Carry on in the new one (it started from the active shot's version).
+  if (doc().activeShotId) activateShot(id)
 }
 
-/** Look through the selected camera (or the first shot), or back to the free view. */
+/** Look through a shot camera (it becomes the shot being edited), or back to the free view (null). */
+export function lookThrough(id: string | null): void {
+  ui().setLookThrough(id)
+  if (id) doc().setActiveShot(id)
+}
+
+/** Edit a shot's version of the set, or the Master scene (null, which also leaves camera view). */
+export function activateShot(id: string | null): void {
+  doc().setActiveShot(id)
+  if (id === null) ui().setLookThrough(null)
+  else if (ui().lookThroughId) ui().setLookThrough(id)
+}
+
+/** Look through the selected camera (or the active / first shot), or back to the free view. */
 export function toggleCameraView(): void {
   if (ui().lookThroughId) {
     ui().setLookThrough(null)
@@ -59,8 +74,8 @@ export function toggleCameraView(): void {
   }
   const nodes = activeScene(doc()).nodes
   const selected = liveSelection().find((id) => nodes[id]?.type === 'camera')
-  const target = selected ?? camerasInShotOrder()[0]?.id
-  if (target) ui().setLookThrough(target)
+  const target = selected ?? doc().activeShotId ?? camerasInShotOrder()[0]?.id
+  if (target) lookThrough(target)
 }
 
 /** In camera view, jump to the previous (-1) or next (+1) shot. */
@@ -70,7 +85,7 @@ export function stepShot(direction: 1 | -1): void {
   if (!current || shots.length < 2) return
   const i = shots.findIndex((c) => c.id === current)
   const next = shots[(i + direction + shots.length) % shots.length]
-  ui().setLookThrough(next.id)
+  lookThrough(next.id)
   ui().select([next.id])
 }
 
@@ -103,7 +118,7 @@ export function ungroupSelected(): void {
 export function toggleHiddenSelected(): void {
   const ids = liveSelection()
   if (ids.length === 0) return
-  const nodes = activeScene(doc()).nodes
+  const nodes = editedNodes(doc())
   const anyVisible = ids.some((id) => !nodes[id].hidden)
   doc().updateNodes(ids, { hidden: anyVisible })
 }

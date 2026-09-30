@@ -1,4 +1,5 @@
 import { useEffect, useState, type RefObject } from 'react'
+import { X } from 'lucide-react'
 import { SENSOR_PRESETS, guideLabel } from '../../../shared/camera'
 import { activeScene, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
@@ -77,6 +78,10 @@ export default function FrameOverlay({ container }: { container: RefObject<HTMLE
         {node.squeeze > 1 && <span>{node.squeeze.toFixed(1)}× anamorphic</span>}
       </div>
 
+      <button className="hud-exit" onClick={() => useUi.getState().setLookThrough(null)} title="Back to the free view (Esc, ` or Numpad 0)">
+        <X size={14} /> Exit camera view
+      </button>
+
       <div className="hud hud-bottom">
         {info && (
           <>
@@ -94,8 +99,8 @@ export default function FrameOverlay({ container }: { container: RefObject<HTMLE
       </div>
 
       <div className="hud hud-help">
-        Hold right mouse: look · +WASD move · Space/C up/down · Q/E roll (Ctrl: level) · Scroll: dolly · Ctrl+scroll:
-        zoom · ←/→ shots · Numpad 0: exit · speed {flySpeed.toFixed(1)} m/s
+        Hold right mouse: look · +WASD move · Space up · C/Ctrl down · Q/E roll (Ctrl: level) · Scroll: dolly · Ctrl+scroll:
+        zoom · ←/→ shots · Esc or `: exit · speed {flySpeed.toFixed(1)} m/s
       </div>
     </div>
   )

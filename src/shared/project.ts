@@ -21,9 +21,11 @@ import {
   SENSOR_PRESETS,
   type Sensor
 } from './camera'
+import { sanitizeOverrides, type ShotOverrides } from './overrides'
 
 // v1: M1 (primitives, groups). v2: M2 adds mannequins. v3: M3 adds cameras.
-export const SCHEMA_VERSION = 3
+// v4: per-shot changes (camera.overrides).
+export const SCHEMA_VERSION = 4
 
 export type Vec3 = [number, number, number]
 
@@ -107,6 +109,8 @@ export interface CameraNode extends NodeBase {
   sizeOverride: string | null
   angleOverride: string | null
   notes: string
+  /** This shot's changes to other objects; everything else follows the Master scene. */
+  overrides: ShotOverrides
 }
 
 export type SceneNode = PrimitiveNode | GroupNode | MannequinNode | CameraNode
@@ -224,14 +228,17 @@ export function repairCamera(c: CameraNode): void {
 }
 
 /** Fill in fields added after a file was saved, and fix values that would break the viewport. */
-function repairNode(node: SceneNode): void {
+function repairNode(node: SceneNode, scene: Scene): void {
   node.scale = clampScale(node.scale)
   if (node.type === 'primitive') {
     // Files from before anchors existed: planes were centred, everything else sat on its base.
     if (node.primitive === 'plane') node.anchor = 'center'
     else if (!ANCHORS.includes(node.anchor)) node.anchor = 'bottom'
   }
-  if (node.type === 'camera') repairCamera(node)
+  if (node.type === 'camera') {
+    repairCamera(node)
+    node.overrides = sanitizeOverrides(node.overrides, scene.nodes)
+  }
   if (node.type === 'mannequin') {
     node.scale = [1, 1, 1]
     node.height = clampHeight(node.height ?? DEFAULT_HEIGHT)
@@ -268,7 +275,7 @@ export function parseProject(json: string): Project {
     if (!scene.rootIds.every((id) => id in scene.nodes)) {
       throw new ProjectFileError(`The object list in ${scene.name} is damaged.`)
     }
-    for (const node of Object.values(scene.nodes)) repairNode(node)
+    for (const node of Object.values(scene.nodes)) repairNode(node, scene)
   }
   return {
     schemaVersion: SCHEMA_VERSION,

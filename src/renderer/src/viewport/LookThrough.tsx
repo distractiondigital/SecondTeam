@@ -7,13 +7,14 @@ import { activeScene, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import { cameraPose } from './shotInfo'
 import { viewFit } from './viewFit'
+import { viewportBridge } from './viewportBridge'
 
 // Looking through a shot camera. The viewport's own camera copies the shot camera every frame
 // (with a wider field of view so the frame fits with a margin; FrameOverlay draws the frame).
 //
 // Controls while looking through (video-game / Unreal style):
 //   hold right mouse   look around (pan / tilt); cursor comes back on release
-//     + W A S D        move level (dolly / truck), Space / C up and down, Shift faster
+//     + W A S D        move level (dolly / truck), Space up, C or Left Ctrl down, Shift faster
 //     + scroll         fly speed
 //   Q / E              roll the horizon; Ctrl+Q or Ctrl+E levels it
 //   scroll             dolly in / out along the lens axis
@@ -25,7 +26,7 @@ const ROLL_SPEED = 30 // degrees per second
 const FAST = 3
 const DOLLY_STEP = 0.15 // metres per scroll notch at normal speed
 const WHEEL_GESTURE_END = 350 // ms after the last scroll notch
-const MOVE_KEYS = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'Space', 'KeyC'])
+const MOVE_KEYS = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'Space', 'KeyC', 'ControlLeft'])
 
 interface OrbitLike {
   enabled: boolean
@@ -118,15 +119,17 @@ export default function LookThrough() {
       state.flying = false
       state.working = null
       state.keys.clear()
+      viewportBridge.flying = false
       if (document.pointerLockElement === canvas) document.exitPointerLock()
-      doc().endGesture()
+      doc().endGesture('fly')
     }
 
     const onContextMenu = (e: Event) => e.preventDefault()
     const onPointerDown = (e: PointerEvent) => {
       if (e.button !== 2) return
       state.flying = true
-      doc().beginGesture()
+      viewportBridge.flying = true
+      doc().beginGesture('fly')
       canvas.requestPointerLock()
     }
     const onPointerMove = (e: PointerEvent) => {
@@ -156,7 +159,7 @@ export default function LookThrough() {
           setWorldPose(id, pose.position, pose.pan, pose.tilt, 0)
         } else {
           state.roll = e.code === 'KeyQ' ? -1 : 1
-          doc().beginGesture()
+          doc().beginGesture('roll')
         }
         return
       }
@@ -170,7 +173,7 @@ export default function LookThrough() {
       if ((e.code === 'KeyQ' && state.roll === -1) || (e.code === 'KeyE' && state.roll === 1)) {
         state.roll = 0
         if (!state.flying) state.working = null
-        doc().endGesture()
+        doc().endGesture('roll')
       }
     }
 
@@ -185,12 +188,12 @@ export default function LookThrough() {
         useUi.getState().setFlySpeed(useUi.getState().flySpeed * (notch < 0 ? 1.25 : 0.8))
         return
       }
-      if (!state.wheelTimer) doc().beginGesture()
+      if (!state.wheelTimer) doc().beginGesture('wheel')
       clearTimeout(state.wheelTimer)
       state.wheelTimer = setTimeout(() => {
         state.wheelTimer = undefined
-        state.working = null
-        doc().endGesture()
+        if (!state.flying && !state.roll) state.working = null
+        doc().endGesture('wheel')
       }, WHEEL_GESTURE_END)
       if (e.ctrlKey) {
         const f = node.focalLength * (notch < 0 ? 1.06 : 1 / 1.06)
@@ -218,7 +221,7 @@ export default function LookThrough() {
       stopFlying()
       if (state.roll) {
         state.roll = 0
-        doc().endGesture()
+        doc().endGesture('roll')
       }
       canvas.removeEventListener('contextmenu', onContextMenu)
       canvas.removeEventListener('pointerdown', onPointerDown)
@@ -258,7 +261,7 @@ export default function LookThrough() {
         const axis = (plus: string, minus: string) => (k.has(plus) ? 1 : 0) - (k.has(minus) ? 1 : 0)
         position.addScaledVector(forward, axis('KeyW', 'KeyS') * speed)
         position.addScaledVector(right, axis('KeyD', 'KeyA') * speed)
-        position.y += axis('Space', 'KeyC') * speed
+        position.y += ((k.has('Space') ? 1 : 0) - (k.has('KeyC') || k.has('ControlLeft') ? 1 : 0)) * speed
       }
       setWorldPose(id, position, pan, tilt, roll)
     }

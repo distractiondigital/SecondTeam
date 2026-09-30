@@ -56,13 +56,17 @@ interface Props {
   /** The figure (or a group containing it) is selected. */
   selected: boolean
   clickable: boolean
+  /** A hidden per-shot copy: no joint highlighting. */
+  passive?: boolean
 }
 
-export default function MannequinView({ node, selected, clickable }: Props) {
+export default function MannequinView({ node, selected, clickable, passive = false }: Props) {
   const { id, pose } = node
   const p = useMemo(() => proportions(node.height, node.build), [node.height, node.build])
   const g = useGeometries(p)
-  const selectedJoint = useUi((s) => (s.selection.length === 1 && s.selection[0] === id ? s.selectedJoint : null))
+  const selectedJoint = useUi((s) =>
+    !passive && s.selection.length === 1 && s.selection[0] === id ? s.selectedJoint : null
+  )
   const bodyColor = node.color
   const ballColor = useMemo(() => '#' + new Color(node.color).multiplyScalar(0.72).getHexString(), [node.color])
 

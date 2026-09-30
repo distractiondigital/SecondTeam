@@ -1,11 +1,12 @@
-import { Eye, Video } from 'lucide-react'
+import { Eye, Layers, Video } from 'lucide-react'
 import { compareShotNumbers } from '../../../shared/camera'
 import type { CameraNode } from '../../../shared/project'
-import { addCamera } from '../state/actions'
+import { activateShot, addCamera, lookThrough } from '../state/actions'
 import { activeScene, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 
-// Every camera setup in the scene, in shot order, with a live thumbnail of its frame.
+// The Master scene, then every camera setup in shot order with a live thumbnail of its frame.
+// Clicking a row picks what you're editing: the Master scene, or one shot's version of the set.
 
 const SIZE_SHORT: Record<string, string> = {
   'Extreme close-up': 'ECU',
@@ -20,20 +21,22 @@ const SIZE_SHORT: Record<string, string> = {
 function ShotRow({ camera }: { camera: CameraNode }) {
   const selected = useUi((s) => s.selection.includes(camera.id))
   const looking = useUi((s) => s.lookThroughId === camera.id)
+  const active = useDocument((s) => s.activeShotId === camera.id)
   const thumbnail = useUi((s) => s.thumbnails[camera.id])
   const info = useUi((s) => s.shotInfo[camera.id])
   const size = camera.sizeOverride ?? info?.size?.label
   const angle = camera.angleOverride ?? info?.angle
+  const changes = Object.keys(camera.overrides).length
 
   return (
     <div
-      className={`shot-row${selected ? ' selected' : ''}${looking ? ' looking' : ''}`}
-      onClick={() => useUi.getState().select([camera.id])}
-      onDoubleClick={() => {
+      className={`shot-row${selected ? ' selected' : ''}${active ? ' active' : ''}${looking ? ' looking' : ''}`}
+      onClick={() => {
         useUi.getState().select([camera.id])
-        useUi.getState().setLookThrough(camera.id)
+        activateShot(camera.id)
       }}
-      title="Click to select · double-click to look through"
+      onDoubleClick={() => lookThrough(camera.id)}
+      title="Click to edit this shot · double-click to look through it"
     >
       <div className="shot-thumb">{thumbnail ? <img src={thumbnail} alt="" /> : <Video size={18} />}</div>
       <div className="shot-text">
@@ -44,13 +47,18 @@ function ShotRow({ camera }: { camera: CameraNode }) {
         <div className="shot-desc">
           {[size ? (SIZE_SHORT[size] ?? size) : null, angle].filter(Boolean).join(' · ') || '—'}
         </div>
+        {changes > 0 && (
+          <div className="shot-changes" title="Objects changed in this shot (everything else follows the Master scene)">
+            {changes} change{changes === 1 ? '' : 's'}
+          </div>
+        )}
       </div>
       <button
         className={`icon-button${looking ? ' on' : ''}`}
         title={looking ? 'Back to the free view' : 'Look through this camera'}
         onClick={(e) => {
           e.stopPropagation()
-          useUi.getState().setLookThrough(looking ? null : camera.id)
+          lookThrough(looking ? null : camera.id)
         }}
       >
         <Eye size={14} />
@@ -61,6 +69,7 @@ function ShotRow({ camera }: { camera: CameraNode }) {
 
 export default function ShotList() {
   const nodes = useDocument((s) => activeScene(s).nodes)
+  const masterActive = useDocument((s) => s.activeShotId === null)
   const cameras = Object.values(nodes)
     .filter((n): n is CameraNode => n.type === 'camera')
     .sort((a, b) => compareShotNumbers(a.shotNumber, b.shotNumber))
@@ -69,6 +78,19 @@ export default function ShotList() {
     <section className="panel shot-list">
       <div className="panel-header">Shot list</div>
       <div className="panel-body">
+        <div
+          className={`shot-row master${masterActive ? ' active' : ''}`}
+          onClick={() => activateShot(null)}
+          title="Edit the Master scene: changes flow to every shot that hasn't changed that object"
+        >
+          <div className="shot-thumb master-thumb">
+            <Layers size={18} />
+          </div>
+          <div className="shot-text">
+            <div className="shot-number">Master scene</div>
+            <div className="shot-desc">The set every shot starts from</div>
+          </div>
+        </div>
         {cameras.length === 0 ? (
           <p className="hint">
             No shots yet. Frame something in the viewport, then click{' '}

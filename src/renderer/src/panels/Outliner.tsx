@@ -1,6 +1,6 @@
 import { useState, type MouseEvent } from 'react'
-import { ChevronDown, ChevronRight, Eye, EyeOff, Folder, Lock, LockOpen, PersonStanding, Video } from 'lucide-react'
-import { activeScene, useDocument } from '../state/documentStore'
+import { ChevronDown, Clapperboard, ChevronRight, Eye, EyeOff, Folder, Lock, LockOpen, PersonStanding, Video } from 'lucide-react'
+import { activeScene, editedNodes, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 
 // The object list: a tree of the scene's objects and groups.
@@ -30,7 +30,11 @@ function RenameInput({ id, name }: { id: string; name: string }) {
 }
 
 function OutlinerRow({ id, depth, inHidden }: { id: string; depth: number; inHidden: boolean }) {
-  const node = useDocument((s) => activeScene(s).nodes[id])
+  const node = useDocument((s) => editedNodes(s)[id])
+  const changedInShot = useDocument((s) => {
+    const shot = s.activeShotId ? activeScene(s).nodes[s.activeShotId] : undefined
+    return shot?.type === 'camera' && id in shot.overrides
+  })
   const selected = useUi((s) => s.selection.includes(id))
   const renaming = useUi((s) => s.renamingId === id)
   const [expanded, setExpanded] = useState(true)
@@ -78,6 +82,11 @@ function OutlinerRow({ id, depth, inHidden }: { id: string; depth: number; inHid
           <span className="color-chip" style={{ background: node.color }} />
         )}
         {renaming ? <RenameInput id={id} name={node.name} /> : <span className="row-name">{node.name}</span>}
+        {changedInShot && (
+          <span className="shot-badge" title="Changed in this shot">
+            <Clapperboard size={12} />
+          </span>
+        )}
         <button
           className="icon-button row-toggle"
           title={node.hidden ? 'Show (H)' : 'Hide (H)'}

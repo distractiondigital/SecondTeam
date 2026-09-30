@@ -10,5 +10,7 @@ export const viewportBridge = {
     rotation: [0, 0, 0]
   }),
   /** True while the gizmo is being dragged (and just after), so releasing it isn't treated as a click. */
-  gizmoBusy: false
+  gizmoBusy: false,
+  /** True while flying a shot camera (right mouse held); other shortcuts stay quiet. */
+  flying: false
 }

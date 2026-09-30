@@ -39,6 +39,7 @@ import {
   type PresetName
 } from '../../../shared/mannequin'
 import { nextShotNumber, SENSOR_PRESETS } from '../../../shared/camera'
+import { applyOverride, effectiveNodes, isOverridable } from '../../../shared/overrides'
 
 // The document store holds the project: everything that is saved to disk and can be undone.
 // Undo works by keeping whole-project snapshots. Immer shares unchanged parts between
@@ -115,6 +116,10 @@ interface DocumentState {
   future: Project[]
   /** Set while a gizmo drag is in progress; the whole drag becomes one undo step. */
   gestureStart: Project | null
+  /** Who has a gesture open (see beginGesture). */
+  gestureOwners: string[]
+  /** Shot being edited (its camera id); null = the Master scene. Not saved, not undone. */
+  activeShotId: string | null
 
   newProject: () => void
   loadProject: (project: Project) => void
@@ -137,6 +142,12 @@ interface DocumentState {
   applyPreset: (id: string, preset: PresetName) => void
   mirrorPose: (id: string) => void
   resetJoint: (id: string, joint: JointName) => void
+  /** Edit the Master scene (null) or one shot's version of it. */
+  setActiveShot: (shotId: string | null) => void
+  /** Drop the active shot's changes to a node (it follows Master again). */
+  revertOverride: (id: string) => void
+  /** Make the active shot's changes to a node the Master version. */
+  pushOverrideToMaster: (id: string) => void
   /** Give a figure a whole pose (from a saved preset). */
   setPose: (id: string, pose: Pose) => void
   /** Save a pose into this project's preset list. Returns its id. */
@@ -147,8 +158,9 @@ interface DocumentState {
   groupNodes: (ids: string[]) => string | null
   ungroup: (ids: string[]) => string[]
 
-  beginGesture: () => void
-  endGesture: () => void
+  /** Start a group of changes that undo as one step. owner says who started it; only that owner ends it. */
+  beginGesture: (owner?: string) => void
+  endGesture: (owner?: string) => void
   undo: () => void
   redo: () => void
 }
@@ -160,7 +172,9 @@ function initialState(project: Project, saved: Project | null) {
     sceneId: project.scenes[0].id,
     past: [] as Project[],
     future: [] as Project[],
-    gestureStart: null
+    gestureStart: null,
+    gestureOwners: [] as string[],
+    activeShotId: null as string | null
   }
 }
 
@@ -178,6 +192,56 @@ export const useDocument = create<DocumentState>()((set, get) => {
     } else {
       set({ project: next, past: [...past, project].slice(-HISTORY_LIMIT), future: [] })
     }
+  }
+
+  interface EditContext {
+    scene: Draft<Scene>
+    /** The active shot's camera, or null when editing the Master scene. */
+    shot: Draft<CameraNode> | null
+    /** A node as the active shot sees it (a plain copy; don't modify it). */
+    view: (id: string) => SceneNode | undefined
+    /**
+     * Change a node's fields. In a shot, per-shot fields become this shot's overrides (a value
+     * equal to Master's clears the override); everything else, and all Master edits, change the node.
+     */
+    write: (id: string, fields: Record<string, unknown>) => void
+  }
+
+  /** If undo/redo removed the active shot's camera, go back to editing Master. */
+  function dropMissingShot(): void {
+    const { activeShotId } = get()
+    if (activeShotId && activeScene(get()).nodes[activeShotId]?.type !== 'camera') set({ activeShotId: null })
+  }
+
+  /** Like `change`, but aware of the active shot (see EditContext). */
+  function edit(recipe: (ctx: EditContext) => void): void {
+    const shotId = get().activeShotId
+    change((scene) => {
+      const s = shotId ? scene.nodes[shotId] : undefined
+      const shot = s?.type === 'camera' ? (s as Draft<CameraNode>) : null
+      const view = (id: string) => {
+        const node = scene.nodes[id]
+        if (!node) return undefined
+        const plain = toPlain(node)
+        return shot ? applyOverride(plain, toPlainValue(shot.overrides[id])) : plain
+      }
+      const write = (id: string, fields: Record<string, unknown>) => {
+        const node = scene.nodes[id] as Draft<SceneNode> | undefined
+        if (!node) return
+        const perShot = shot && node.type !== 'camera' && node.id !== shot.id
+        for (const [field, value] of Object.entries(fields)) {
+          if (perShot && isOverridable(node as SceneNode, field)) {
+            const o = (shot.overrides[id] ??= {}) as Record<string, unknown>
+            if (sameValue((node as Record<string, unknown>)[field], value)) delete o[field]
+            else o[field] = value
+            if (Object.keys(o).length === 0) delete shot.overrides[id]
+          } else if (!sameValue((node as Record<string, unknown>)[field], value)) {
+            ;(node as Record<string, unknown>)[field] = value
+          }
+        }
+      }
+      recipe({ scene, shot, view, write })
+    })
   }
 
   return {
@@ -215,21 +279,21 @@ export const useDocument = create<DocumentState>()((set, get) => {
 
     updateNode: (id, patch) => get().updateNodes([id], patch),
     updateNodes: (ids, patch) => {
-      change((scene) => {
+      edit(({ scene, write }) => {
         for (const id of ids) {
           const node = scene.nodes[id]
           if (!node) continue
+          const fields: Record<string, unknown> = {}
           for (const [key, value] of Object.entries(patch) as [keyof NodePatch, unknown][]) {
             const types = FIELD_TYPES[key]
             if (types && !types.includes(node.type)) continue
             const next = normalizeField(key, value)
-            if (!sameValue((node as Record<string, unknown>)[key], next)) {
-              if (key === 'shotNumber' && node.type === 'camera' && node.name === `Shot ${node.shotNumber}`) {
-                node.name = `Shot ${String(next).trim()}` // keep the default name in step
-              }
-              ;(node as Record<string, unknown>)[key] = next
+            if (key === 'shotNumber' && node.type === 'camera' && node.name === `Shot ${node.shotNumber}`) {
+              node.name = `Shot ${String(next).trim()}` // keep the default name in step
             }
+            fields[key] = next
           }
+          write(id, fields)
           if (node.type === 'camera') repairCamera(node as CameraNode)
         }
       })
@@ -237,7 +301,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
 
     addCamera: (spawn) => {
       const id = newId()
-      change((scene) => {
+      edit(({ scene, shot }) => {
         const shots = Object.values(scene.nodes).flatMap((n) => (n.type === 'camera' ? [n.shotNumber] : []))
         const shotNumber = nextShotNumber(shots)
         const t = spawn.template ?? {}
@@ -262,7 +326,9 @@ export const useDocument = create<DocumentState>()((set, get) => {
           subjectId: null,
           sizeOverride: null,
           angleOverride: null,
-          notes: ''
+          notes: '',
+          // A shot made while another shot is active starts from that shot's version of the set.
+          overrides: shot ? toPlainValue(shot.overrides)! : {}
         }
         repairCamera(node)
         scene.nodes[id] = node
@@ -272,20 +338,18 @@ export const useDocument = create<DocumentState>()((set, get) => {
     },
 
     setAnchor: (id, anchor) => {
-      change((scene) => {
-        const node = scene.nodes[id]
+      edit(({ view, write }) => {
+        const node = view(id)
         if (!node || node.type !== 'primitive' || node.anchor === anchor || !supportsAnchor(node.primitive)) return
         // The origin moves along the object's own (rotated, scaled) height axis; shift the
         // position by the same amount so the object stays exactly where it is.
         const rise = (anchorHeight(node.primitive, anchor) - anchorHeight(node.primitive, node.anchor)) * node.scale[1]
         const euler = new Euler(...(node.rotation.map((d) => MathUtils.degToRad(d)) as Vec3), 'XYZ')
         const shift = new Vector3(0, rise, 0).applyEuler(euler)
-        node.position = [
-          round(node.position[0] + shift.x),
-          round(node.position[1] + shift.y),
-          round(node.position[2] + shift.z)
-        ]
-        node.anchor = anchor
+        write(id, {
+          position: [round(node.position[0] + shift.x), round(node.position[1] + shift.y), round(node.position[2] + shift.z)],
+          anchor
+        })
       })
     },
 
@@ -317,52 +381,70 @@ export const useDocument = create<DocumentState>()((set, get) => {
     },
 
     setJointRotation: (id, joint, rotation) => {
-      change((scene) => {
-        const node = scene.nodes[id]
+      edit(({ view, write }) => {
+        const node = view(id)
         if (node?.type !== 'mannequin') return
         const rounded = rotation.map((r) => round(r)) as Vec3
-        const next = node.limits ? clampJoint(joint, rounded) : rounded
-        if (!sameValue(node.pose.joints[joint], next)) node.pose.joints[joint] = next
+        const pose = node.pose
+        pose.joints[joint] = node.limits ? clampJoint(joint, rounded) : rounded
+        write(id, { pose })
       })
     },
 
     setPelvisOffset: (id, offset) => {
-      change((scene) => {
-        const node = scene.nodes[id]
+      edit(({ view, write }) => {
+        const node = view(id)
         if (node?.type !== 'mannequin') return
-        const next = offset.map((v) => round(v)) as Vec3
-        if (!sameValue(node.pose.pelvisOffset, next)) node.pose.pelvisOffset = next
+        write(id, { pose: { ...node.pose, pelvisOffset: offset.map((v) => round(v)) as Vec3 } })
       })
     },
 
     applyPreset: (id, preset) => {
-      change((scene) => {
-        const node = scene.nodes[id]
-        if (node?.type !== 'mannequin') return
-        node.pose = POSE_PRESETS[preset].make(proportions(node.height, node.build))
+      edit(({ view, write }) => {
+        const node = view(id)
+        if (node?.type === 'mannequin') write(id, { pose: POSE_PRESETS[preset].make(proportions(node.height, node.build)) })
       })
     },
 
     mirrorPose: (id) => {
-      change((scene) => {
-        const node = scene.nodes[id]
-        if (node?.type === 'mannequin') node.pose = mirrorPose(toPlain(node).pose)
+      edit(({ view, write }) => {
+        const node = view(id)
+        if (node?.type === 'mannequin') write(id, { pose: mirrorPose(node.pose) })
       })
     },
 
     resetJoint: (id, joint) => {
-      change((scene) => {
-        const node = scene.nodes[id]
+      edit(({ view, write }) => {
+        const node = view(id)
         if (node?.type !== 'mannequin') return
-        node.pose.joints[joint] = [0, 0, 0]
-        if (joint === 'pelvis') node.pose.pelvisOffset = [0, 0, 0]
+        const pose = node.pose
+        pose.joints[joint] = [0, 0, 0]
+        if (joint === 'pelvis') pose.pelvisOffset = [0, 0, 0]
+        write(id, { pose })
       })
     },
 
     setPose: (id, pose) => {
-      change((scene) => {
+      edit(({ view, write }) => {
+        if (view(id)?.type === 'mannequin') write(id, { pose: structuredClone(pose) })
+      })
+    },
+
+    setActiveShot: (shotId) => set({ activeShotId: shotId }),
+
+    revertOverride: (id) => {
+      edit(({ shot }) => {
+        if (shot?.overrides[id]) delete shot.overrides[id]
+      })
+    },
+
+    pushOverrideToMaster: (id) => {
+      edit(({ scene, shot }) => {
+        const o = shot?.overrides[id]
         const node = scene.nodes[id]
-        if (node?.type === 'mannequin') node.pose = structuredClone(pose)
+        if (!shot || !o || !node) return
+        for (const [field, value] of Object.entries(toPlainValue(o)!)) (node as Record<string, unknown>)[field] = value
+        delete shot.overrides[id]
       })
     },
 
@@ -382,23 +464,41 @@ export const useDocument = create<DocumentState>()((set, get) => {
     },
 
     deleteNodes: (ids) => {
-      change((scene) => {
+      edit(({ scene, shot, write }) => {
         for (const id of topLevelOnly(scene, ids)) {
           const node = scene.nodes[id]
           if (!node) continue
+          // In a shot, deleting a set piece only hides it in that shot. Cameras are really deleted.
+          if (shot && node.type !== 'camera') {
+            write(id, { hidden: true })
+            continue
+          }
           detach(scene, node)
-          for (const d of subtreeIds(scene, id)) delete scene.nodes[d]
+          const removed = subtreeIds(scene, id)
+          for (const d of removed) delete scene.nodes[d]
+          // Forget any shot's changes to what was removed.
+          for (const n of Object.values(scene.nodes)) {
+            if (n.type === 'camera') for (const d of removed) delete n.overrides[d]
+          }
         }
       })
     },
 
     duplicateNodes: (ids) => {
       const created: string[] = []
-      change((scene) => {
+      edit(({ scene, shot }) => {
         for (const id of topLevelOnly(scene, ids)) {
           const original = scene.nodes[id]
           if (!original) continue
-          const copyId = copySubtree(scene, id, original.parentId)
+          const idMap = new Map<string, string>()
+          const copyId = copySubtree(scene, id, original.parentId, idMap)
+          // The copy starts as this shot sees the original.
+          if (shot) {
+            for (const [from, to] of idMap) {
+              const o = shot.overrides[from]
+              if (o) shot.overrides[to] = toPlainValue(o)!
+            }
+          }
           const copy = scene.nodes[copyId]
           copy.position = [round(copy.position[0] + DUPLICATE_OFFSET), copy.position[1], copy.position[2]]
           // Copied cameras become new shots with their own numbers.
@@ -488,16 +588,23 @@ export const useDocument = create<DocumentState>()((set, get) => {
       return released
     },
 
-    beginGesture: () => {
-      if (!get().gestureStart) set({ gestureStart: get().project })
+    beginGesture: (owner = 'default') => {
+      const { gestureStart, gestureOwners, project } = get()
+      if (gestureOwners.includes(owner)) return
+      set({ gestureStart: gestureStart ?? project, gestureOwners: [...gestureOwners, owner] })
     },
-    endGesture: () => {
-      const { gestureStart, project, past } = get()
-      if (!gestureStart) return
-      if (gestureStart === project) {
-        set({ gestureStart: null })
+    endGesture: (owner = 'default') => {
+      const { gestureStart, gestureOwners, project, past } = get()
+      // Only the one who started a gesture can end it, and overlapping gestures (e.g. scrolling
+      // while flying the camera) merge into one undo step that ends when the last one does.
+      if (!gestureStart || !gestureOwners.includes(owner)) return
+      const owners = gestureOwners.filter((o) => o !== owner)
+      if (owners.length > 0) {
+        set({ gestureOwners: owners })
+      } else if (gestureStart === project) {
+        set({ gestureStart: null, gestureOwners: [] })
       } else {
-        set({ gestureStart: null, past: [...past, gestureStart].slice(-HISTORY_LIMIT), future: [] })
+        set({ gestureStart: null, gestureOwners: [], past: [...past, gestureStart].slice(-HISTORY_LIMIT), future: [] })
       }
     },
 
@@ -505,11 +612,13 @@ export const useDocument = create<DocumentState>()((set, get) => {
       const { past, future, project, gestureStart } = get()
       if (gestureStart || past.length === 0) return
       set({ project: past[past.length - 1], past: past.slice(0, -1), future: [project, ...future] })
+      dropMissingShot()
     },
     redo: () => {
       const { past, future, project, gestureStart } = get()
       if (gestureStart || future.length === 0) return
       set({ project: future[0], past: [...past, project], future: future.slice(1) })
+      dropMissingShot()
     }
   }
 })
@@ -518,6 +627,21 @@ export const useDocument = create<DocumentState>()((set, get) => {
 
 export function activeScene(state: Pick<DocumentState, 'project' | 'sceneId'>): Scene {
   return state.project.scenes.find((s) => s.id === state.sceneId) ?? state.project.scenes[0]
+}
+
+/** The active scene's nodes as a shot sees them (Master if shotId is null or not a camera). */
+export function sceneForShot(
+  state: Pick<DocumentState, 'project' | 'sceneId'>,
+  shotId: string | null
+): Record<string, SceneNode> {
+  const scene = activeScene(state)
+  const shot = shotId ? scene.nodes[shotId] : undefined
+  return effectiveNodes(scene.nodes, shot?.type === 'camera' ? shot.overrides : undefined)
+}
+
+/** The active scene's nodes as the shot being edited sees them. */
+export function editedNodes(state: Pick<DocumentState, 'project' | 'sceneId' | 'activeShotId'>): Record<string, SceneNode> {
+  return sceneForShot(state, state.activeShotId)
 }
 
 export function hasUnsavedChanges(state: Pick<DocumentState, 'project' | 'savedProject'>): boolean {
@@ -602,13 +726,15 @@ export function topLevelOnly(scene: Scene, ids: string[]): string[] {
   })
 }
 
-function copySubtree(scene: Draft<Scene>, id: string, parentId: string | null): string {
+/** Copy a node and everything in it; `idMap` records original id -> copy id. */
+function copySubtree(scene: Draft<Scene>, id: string, parentId: string | null, idMap: Map<string, string>): string {
   const source = scene.nodes[id]
   const copyId = newId()
+  idMap.set(id, copyId)
   if (source.type === 'group') {
     const copy: GroupNode = { ...toPlain(source), id: copyId, parentId, childIds: [], name: nextName(scene, baseName(source.name)) }
     scene.nodes[copyId] = copy
-    copy.childIds = source.childIds.map((c) => copySubtree(scene, c, copyId))
+    copy.childIds = source.childIds.map((c) => copySubtree(scene, c, copyId, idMap))
   } else {
     scene.nodes[copyId] = { ...toPlain(source), id: copyId, parentId, name: nextName(scene, baseName(source.name)) }
   }
@@ -617,6 +743,10 @@ function copySubtree(scene: Draft<Scene>, id: string, parentId: string | null): 
 
 function toPlain<T extends SceneNode>(node: Draft<T>): T {
   return JSON.parse(JSON.stringify(node)) as T
+}
+
+function toPlainValue<T>(value: T | undefined): T | undefined {
+  return value === undefined ? undefined : (JSON.parse(JSON.stringify(value)) as T)
 }
 
 // ---------- Transform math (positions in metres, rotations in degrees) ----------

@@ -11,8 +11,8 @@ import {
   type SensorPreset
 } from '../../../shared/camera'
 import type { CameraNode, Vec3 } from '../../../shared/project'
-import { deleteSelected } from '../state/actions'
-import { activeScene, useDocument, type NodePatch } from '../state/documentStore'
+import { deleteSelected, lookThrough } from '../state/actions'
+import { activeScene, editedNodes, useDocument, type NodePatch } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import { formatLengthLabel } from '../units'
 import NumberField from './NumberField'
@@ -68,7 +68,7 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
           />
           <button
             className={`look-button${lookingThrough ? ' active' : ''}`}
-            onClick={() => useUi.getState().setLookThrough(lookingThrough ? null : node.id)}
+            onClick={() => lookThrough(lookingThrough ? null : node.id)}
             title="Look through this camera (Numpad 0)"
           >
             <Eye size={14} /> {lookingThrough ? 'Exit view' : 'Look through'}

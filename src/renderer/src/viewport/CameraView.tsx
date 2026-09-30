@@ -4,6 +4,7 @@ import type { ThreeEvent } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import { deliveryFrame } from '../../../shared/camera'
 import type { CameraNode } from '../../../shared/project'
+import { lookThrough } from '../state/actions'
 import { useUi } from '../state/uiStore'
 import { handleNodeClick, handleNodeDoubleClick, noRaycast, SELECTION_COLOR } from './selection'
 
@@ -59,7 +60,7 @@ export default function CameraView({ node, selected, clickable }: Props) {
     onDoubleClick: clickable
       ? (e: ThreeEvent<MouseEvent>) => {
           handleNodeDoubleClick(e, node.id)
-          useUi.getState().setLookThrough(node.id)
+          lookThrough(node.id)
         }
       : undefined
   }

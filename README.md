@@ -74,13 +74,13 @@ In the Properties panel, type values and press Enter. Lengths accept either unit
 
 ## Cameras & shots
 - **Add → Camera** places a shot camera where your view is now: frame it up in the free view, then click Camera. Shots number themselves (1, 2, 3…); rename one to e.g. `12A` in Properties. The **Shot list** (below the Outliner) sorts shots naturally and shows a live thumbnail of each frame. Click a shot to select it, double-click to look through it.
-- **Numpad 0** (or the eye button in the toolbar) looks through the selected camera and back. In camera view:
+- **Numpad 0** or **`** (the key left of 1), or the eye button in the toolbar, looks through the selected camera. **Esc**, `, Numpad 0 or the **Exit camera view** button take you back. In camera view:
 
 | Control | Action |
 |---|---|
 | Hold right mouse | Look around (pan / tilt) |
 | + W A S D | Move level (dolly / truck) |
-| + Space / C | Up / down |
+| + Space / C or Left Ctrl | Up / down |
 | + Shift | Move faster |
 | + Scroll | Fly speed |
 | Q / E | Roll the horizon (Dutch) |
@@ -89,9 +89,15 @@ In the Properties panel, type values and press Enter. Lengths accept either unit
 | Ctrl+scroll | Zoom (focal length); or type it in the HUD box |
 | ← / → | Previous / next shot |
 
-  Let go of the right mouse button to get the cursor back and click or move things in the set while framed up.
+  Let go of the right mouse button to get the cursor back and click or move things in the set while framed up. Each right-button session (everything you do while holding it) is one undo step.
 - **Camera Properties**: sensor (Super 35, Full Frame, Blackmagic PYXIS 12K, ARRI ALEXA 35, Custom), focal length, focus distance, anamorphic squeeze (1.0–2.0), pan/tilt/roll, **frame guides** (16:9, 1.85, 2:1, 2.35, 2.39, 4:3, 1:1, 9:16, 4:5, custom) and which one is the **delivery frame** (what gets rendered later), rule of thirds, the shot's subject, and notes.
 - The HUD and Shot list show camera height, tilt, distance to the subject, and the **shot size and angle** (e.g. "Medium close-up · Slight high angle"), worked out from the nearest figure in frame. Override them in Properties if you like.
+
+## Master scene and per-shot changes
+- The **Master scene** is the set every shot starts from. The top row of the Shot list edits it; clicking a shot (or looking through its camera) edits *that shot's version* instead. A banner over the viewport always says which (the viewport gets an orange frame while you're in a shot).
+- In a shot, moving, rotating, resizing, posing, recolouring or hiding something changes it **for that shot only**. Everything you haven't changed in a shot keeps following Master. **Delete** in a shot only hides the object there; delete in Master removes it everywhere. New objects always go into Master.
+- A new camera made while a shot is active starts from that shot's version; one made from Master starts clean.
+- Select a changed object to see **Changed in Shot 3: position, pose**, with **Revert to master** (drop this shot's change) and **Push to master** (make it the Master version). Changed objects show a clapperboard badge in the Outliner.
 
 ## Projects
 A project is a folder called `Name.secondteam` containing `project.json` (the set, in plain readable JSON) and folders for reference images, renders and exports. To open one, choose that folder in the Open dialog. The project's name is the folder's name.

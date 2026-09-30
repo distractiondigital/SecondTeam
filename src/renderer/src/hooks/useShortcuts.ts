@@ -13,6 +13,7 @@ import {
 } from '../state/actions'
 import { newProject, openProject, saveProject, saveProjectAs } from '../state/projectIO'
 import { useUi } from '../state/uiStore'
+import { viewportBridge } from '../viewport/viewportBridge'
 
 // Keyboard shortcuts, loosely following Blender and Unreal.
 
@@ -29,6 +30,8 @@ export function useShortcuts(): void {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (isTyping(e.target) || e.altKey) return
+      // While flying a camera, keys belong to the camera (so Ctrl+S etc. can't fire by accident).
+      if (viewportBridge.flying) return
       const key = e.key.toLowerCase()
       const ui = useUi.getState()
 
@@ -52,7 +55,8 @@ export function useShortcuts(): void {
       }
 
       if (key === 'tab' && e.shiftKey) return run(ui.cycleSnapMode)
-      if (e.code === 'Numpad0') return run(toggleCameraView)
+      // Numpad 0 like Blender, or  (the key left of 1) for keyboards without a numpad.
+      if (e.code === 'Numpad0' || e.code === 'Backquote') return run(toggleCameraView)
       if (e.shiftKey) return
 
       // In camera view the letter keys fly the camera (see LookThrough) instead of switching tools.
@@ -79,8 +83,10 @@ export function useShortcuts(): void {
         case 'f2':
           return run(renameSelected)
         case 'escape':
-          // Step out of joint posing first, then clear the selection.
-          return run(() => (ui.selectedJoint ? ui.selectJoint(null) : ui.select([])))
+          // Step out of joint posing first, then out of camera view, then clear the selection.
+          return run(() =>
+            ui.selectedJoint ? ui.selectJoint(null) : ui.lookThroughId ? ui.setLookThrough(null) : ui.select([])
+          )
       }
     }
     window.addEventListener('keydown', onKeyDown)

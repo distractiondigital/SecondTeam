@@ -1,9 +1,10 @@
 import { MIN_SCALE, type Anchor, type SceneNode, type Vec3 } from '../../../shared/project'
 import { PRIMITIVES, supportsAnchor } from '../../../shared/primitives'
 import { deleteSelected, groupSelected, ungroupSelected } from '../state/actions'
-import { activeScene, useDocument } from '../state/documentStore'
+import { activeScene, editedNodes, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import CameraProperties from './CameraProperties'
+import OverrideBar from './OverrideBar'
 import { FigureSection, JointProperties } from './FigureProperties'
 import NumberField, { type NumberKind } from './NumberField'
 
@@ -154,8 +155,8 @@ function NodeProperties({ node }: { node: SceneNode }) {
               value={node.color}
               disabled={disabled}
               // The picker sends many changes while you drag; record them as one undo step.
-              onFocus={() => useDocument.getState().beginGesture()}
-              onBlur={() => useDocument.getState().endGesture()}
+              onFocus={() => useDocument.getState().beginGesture('color')}
+              onBlur={() => useDocument.getState().endGesture('color')}
               onChange={(e) => update(node.id, { color: e.target.value })}
             />
           </label>
@@ -184,7 +185,7 @@ function NodeProperties({ node }: { node: SceneNode }) {
 export default function PropertiesPanel() {
   const selection = useUi((s) => s.selection)
   const selectedJoint = useUi((s) => s.selectedJoint)
-  const nodes = useDocument((s) => activeScene(s).nodes)
+  const nodes = useDocument((s) => editedNodes(s))
   const live = selection.filter((id) => id in nodes)
   const single = live.length === 1 ? nodes[live[0]] : null
 
@@ -204,6 +205,7 @@ export default function PropertiesPanel() {
       <aside className="panel properties">
         <div className="panel-header">Pose joint</div>
         <div className="panel-body">
+          <OverrideBar id={single.id} />
           <JointProperties node={single} joint={selectedJoint} />
         </div>
       </aside>
@@ -215,7 +217,12 @@ export default function PropertiesPanel() {
       <div className="panel-header">Properties</div>
       <div className="panel-body">
         {live.length === 0 && <p className="hint">Nothing selected. Click an object in the viewport or the outliner.</p>}
-        {live.length === 1 && <NodeProperties node={nodes[live[0]]} />}
+        {live.length === 1 && (
+          <>
+            <OverrideBar id={live[0]} />
+            <NodeProperties node={nodes[live[0]]} />
+          </>
+        )}
         {live.length > 1 && (
           <>
             <p className="hint">

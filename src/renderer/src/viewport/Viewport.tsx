@@ -2,7 +2,9 @@ import { useRef } from 'react'
 import { MOUSE } from 'three'
 import { Canvas } from '@react-three/fiber'
 import { GizmoHelper, GizmoViewport, OrbitControls } from '@react-three/drei'
+import EditingBanner from '../panels/EditingBanner'
 import FrameOverlay from '../panels/FrameOverlay'
+import { useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import FrameController from './FrameController'
 import GroundGrid from './GroundGrid'
@@ -10,6 +12,7 @@ import JointGizmo from './JointGizmo'
 import LookThrough from './LookThrough'
 import SceneNodes from './SceneNodes'
 import SelectionGizmo from './SelectionGizmo'
+import ShotScenes, { BACKGROUND, WorkLights } from './ShotScenes'
 import ShotTracker from './ShotTracker'
 import { viewportBridge } from './viewportBridge'
 
@@ -23,9 +26,10 @@ const MOUSE_BUTTONS = { LEFT: NO_ACTION, MIDDLE: MOUSE.ROTATE, RIGHT: NO_ACTION 
 export default function Viewport() {
   const container = useRef<HTMLDivElement>(null)
   const lookingThrough = useUi((s) => s.lookThroughId !== null)
+  const activeShotId = useDocument((s) => s.activeShotId)
 
   return (
-    <div className="viewport-wrap" ref={container}>
+    <div className={`viewport-wrap${activeShotId ? ' in-shot' : ''}`} ref={container}>
       <Canvas
         camera={{ position: [6, 4, 8], fov: 40, near: 0.05, far: 1000 }}
         onPointerMissed={(e) => {
@@ -36,14 +40,13 @@ export default function Viewport() {
           else ui.select([])
         }}
       >
-        <color attach="background" args={['#2a2b2f']} />
-
-        {/* Neutral work lighting for the viewport only. Scene lights arrive in Milestone 4. */}
-        <hemisphereLight args={['#ffffff', '#55575c', 1.6]} />
-        <directionalLight position={[5, 10, 7]} intensity={1.4} />
+        <color attach="background" args={[BACKGROUND]} />
+        <WorkLights />
 
         <GroundGrid />
-        <SceneNodes />
+        {/* The set as the shot being edited sees it (Master if none). */}
+        <SceneNodes shotId={activeShotId} />
+        <ShotScenes />
         <SelectionGizmo />
         <JointGizmo />
 
@@ -59,6 +62,7 @@ export default function Viewport() {
         )}
       </Canvas>
       <FrameOverlay container={container} />
+      <EditingBanner />
     </div>
   )
 }

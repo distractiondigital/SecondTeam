@@ -1,13 +1,26 @@
-import { memo } from 'react'
+import { createContext, memo, useContext, useMemo } from 'react'
 import { DoubleSide, FrontSide } from 'three'
 import { Outlines } from '@react-three/drei'
 import type { SceneNode } from '../../../shared/project'
-import { activeScene, useDocument } from '../state/documentStore'
+import { activeScene, sceneForShot, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
-import { getGeometry } from './geometries'
 import CameraView from './CameraView'
+import { getGeometry } from './geometries'
 import MannequinView from './MannequinView'
 import { handleNodeClick, handleNodeDoubleClick, noRaycast, SELECTION_COLOR, toRadians } from './selection'
+
+// Draws the set as one shot sees it: the Master scene plus that shot's changes.
+// The viewport draws the shot being edited; ShotScenes draws a hidden copy per shot
+// ("passive": no clicking, no selection, no helpers) for thumbnails and readouts.
+
+interface SceneContext {
+  /** Shot whose version of the set to draw; null = Master. */
+  shotId: string | null
+  /** A hidden copy for rendering: no interaction, selection or helpers. */
+  passive: boolean
+}
+
+export const SceneNodesContext = createContext<SceneContext>({ shotId: null, passive: false })
 
 interface NodeViewProps {
   id: string
@@ -18,12 +31,14 @@ interface NodeViewProps {
 }
 
 const NodeView = memo(function NodeView({ id, inSelection, inLocked }: NodeViewProps) {
-  const node = useDocument((s) => activeScene(s).nodes[id]) as SceneNode | undefined
-  const selected = useUi((s) => s.selection.includes(id)) || inSelection
+  const { shotId, passive } = useContext(SceneNodesContext)
+  const node = useDocument((s) => sceneForShot(s, shotId)[id]) as SceneNode | undefined
+  const selectedHere = useUi((s) => !passive && s.selection.includes(id))
+  const selected = selectedHere || inSelection
   if (!node) return null
 
   const locked = inLocked || node.locked
-  const clickable = !locked && !node.hidden
+  const clickable = !passive && !locked && !node.hidden
   const common = {
     name: id,
     position: node.position,
@@ -45,17 +60,13 @@ const NodeView = memo(function NodeView({ id, inSelection, inLocked }: NodeViewP
   if (node.type === 'mannequin') {
     return (
       <group {...common}>
-        <MannequinView node={node} selected={selected} clickable={clickable} />
+        <MannequinView node={node} selected={selected} clickable={clickable} passive={passive} />
       </group>
     )
   }
 
   if (node.type === 'camera') {
-    return (
-      <group {...common}>
-        <CameraView node={node} selected={selected} clickable={clickable} />
-      </group>
-    )
+    return <group {...common}>{!passive && <CameraView node={node} selected={selected} clickable={clickable} />}</group>
   }
 
   return (
@@ -80,13 +91,14 @@ const NodeView = memo(function NodeView({ id, inSelection, inLocked }: NodeViewP
   )
 })
 
-export default function SceneNodes() {
+export default function SceneNodes({ shotId, passive = false }: { shotId: string | null; passive?: boolean }) {
   const rootIds = useDocument((s) => activeScene(s).rootIds)
+  const context = useMemo(() => ({ shotId, passive }), [shotId, passive])
   return (
-    <>
+    <SceneNodesContext.Provider value={context}>
       {rootIds.map((id) => (
         <NodeView key={id} id={id} inSelection={false} inLocked={false} />
       ))}
-    </>
+    </SceneNodesContext.Provider>
   )
 }

@@ -4,7 +4,7 @@ import { useThree } from '@react-three/fiber'
 import { TransformControls } from '@react-three/drei'
 import { clampJoint } from '../../../shared/mannequin'
 import type { Vec3 } from '../../../shared/project'
-import { activeScene, useDocument } from '../state/documentStore'
+import { editedNodes, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import { lockRotationToGrid, r4, ROTATE_SNAP_DEGREES, useGridSnap } from './gizmoShared'
 import { isMovable } from './SelectionGizmo'
@@ -18,8 +18,8 @@ export default function JointGizmo() {
   const joint = useUi((s) => s.selectedJoint)
   const gridSnap = useGridSnap()
   const figureId = selection.length === 1 ? selection[0] : null
-  const node = useDocument((s) => (figureId ? activeScene(s).nodes[figureId] : undefined))
-  const movable = useDocument((s) => (figureId ? isMovable(activeScene(s), figureId) : false))
+  const node = useDocument((s) => (figureId ? editedNodes(s)[figureId] : undefined))
+  const movable = useDocument((s) => (figureId ? isMovable(editedNodes(s), figureId) : false))
   const threeScene = useThree((s) => s.scene)
   const [object, setObject] = useState<Object3D | null>(null)
 
@@ -50,12 +50,12 @@ export default function JointGizmo() {
       rotationSnap={gridSnap ? MathUtils.degToRad(ROTATE_SNAP_DEGREES) : null}
       onMouseDown={() => {
         viewportBridge.gizmoBusy = true
-        useDocument.getState().beginGesture()
+        useDocument.getState().beginGesture('joint')
       }}
       onObjectChange={copyToDocument}
       onMouseUp={() => {
         copyToDocument()
-        useDocument.getState().endGesture()
+        useDocument.getState().endGesture('joint')
         setTimeout(() => (viewportBridge.gizmoBusy = false), 0)
       }}
     />
