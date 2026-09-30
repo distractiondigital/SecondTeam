@@ -4,7 +4,7 @@ import { compareShotNumbers } from '../../../shared/camera'
 import { sceneLabel, type CameraNode } from '../../../shared/project'
 import { activateShot, addShot, lookThrough } from '../state/actions'
 import { activeScene, useDocument } from '../state/documentStore'
-import { loadTakes, useGeneration } from '../state/generation'
+import { closeTake, loadTakes, openTake, useGeneration } from '../state/generation'
 import { useUi } from '../state/uiStore'
 
 // The Master scene, then every camera setup in shot order with a live thumbnail of its frame.
@@ -71,9 +71,19 @@ function ShotRow({ camera, drag }: { camera: CameraNode; drag: DragProps }) {
       onClick={() => {
         useUi.getState().select([camera.id])
         activateShot(camera.id)
+        // Show the shot's circle take (Esc closes it); a shot without one closes any open take.
+        if (camera.circleTake) {
+          if (!takesLoaded) void loadTakes(camera.id)
+          void openTake(camera.id, camera.circleTake)
+        } else {
+          closeTake()
+        }
       }}
-      onDoubleClick={() => lookThrough(camera.id)}
-      title="Click to edit this shot · double-click to look through it · drag to reorder"
+      onDoubleClick={() => {
+        closeTake()
+        lookThrough(camera.id)
+      }}
+      title={`Click to edit this shot${camera.circleTake ? ' and see its circle take (Esc closes it)' : ''} · double-click to look through it · drag to reorder`}
     >
       <div className={`shot-thumb${circle ? ' circled' : ''}`} title={circle ? 'Circle take' : undefined}>
         {thumbnail ? <img src={thumbnail} alt="" /> : <Video size={18} />}

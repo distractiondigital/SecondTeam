@@ -9,13 +9,13 @@
 | 4 | Lights & clay render | ✅ Done (tested by Spencer 2026-09-30) | Sun / point / spot / ambient lights (stops, Kelvin, softness, shadows, spot cone); Work/Clay shading with auto Clay in camera view; soft shadows; per-shot light cheats; clay thumbnails; automatic lighting description per shot. |
 | 5 | Render passes | ✅ Done (tested by Spencer 2026-09-30) | Clay, depth, normals, object ID and OpenPose passes per shot at the SDXL size (about 1 MP, sides in 64s); saved into the project folder with a `passes.json` sidecar; pass viewer. Automatic floor in renders (per-scene toggle). |
 | 6 | First AI frames | ✅ Done (tested by Spencer 2026-09-30) | Managed ComfyUI 0.38 (starts hidden with the app); RealVisXL V5 + SDXL 1.0 + Union ControlNet (depth) from a pinned, licence-checked manifest; depth (softened) + pose guides; prompt from frame description + which way the subject faces + shot size/angle + lens + lighting + style; strictness, takes, seed lock; live previews, cancel; take strip + viewer; takes saved with full sidecars. |
-| 7 | Continuity | 🔶 Built, waiting for Spencer's test | Cast and Props (description, up to 4 reference images, strength) with links from figures/objects/groups and per-object descriptions; ID pass per cast/prop/described object; regional prompts + masked IP-Adapter references per entity; project style reference images; feather / reference end controls; circle takes (strip, viewer, Shot list thumbnail). |
+| 7 | Continuity | ✅ Done (tested by Spencer 2026-09-30; continuity "not 100% but okay for now") | Cast and Props (description, up to 4 reference images, strength) with links from figures/objects/groups and per-object descriptions; ID pass per cast/prop/described object; regional prompts + masked IP-Adapter references per entity; project style reference images; feather / reference end controls; circle takes (strip, viewer, Shot list thumbnail). |
 | 8 | Storyboard | ⬜ Next | |
 | 9 | Plug-and-play | ⬜ | |
 | 10 | Polish | ⬜ | Includes **Posing 2** (Spencer, 2026-09-29): IK hands/feet, head look-at target that flows subtly into the torso, choosing which end of a limb stays put (e.g. plant a foot). |
 
 ## Where we are (2026-09-30)
-Milestones 0–6 are done and tested; Milestone 7 (continuity) is built and waiting for your test. The whole "build the shot" half of the app works:
+Milestones 0–7 are done and tested. The whole "build the shot" half of the app works:
 - Greybox a set with shapes, posed figures and lights.
 - Break a project into scenes (01, 02…) and shots (1A, 1B…). Each shot has its own camera and can cheat anything in the set just for that shot.
 - Look through any shot with real sensor/lens/squeeze maths, frame guides, and readouts for height, tilt, distance, shot size, angle and lighting.
@@ -24,7 +24,7 @@ Milestones 0–6 are done and tested; Milestone 7 (continuity) is built and wait
 - Generate AI frames for a shot on your own PC and keep every take with its seed and settings.
 - Keep characters and props consistent across shots with cast/prop descriptions and reference images, and circle the best take.
 
-The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `node scripts/fetch-backend.mjs`. There are 123 automated checks (`npm test`), and all pass.
+The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `node scripts/fetch-backend.mjs`. There are 127 automated checks (`npm test`), and all pass.
 
 ## Things to know
 - **Project files:** saved projects are format **v9**. Every older format still opens, but a build from before a format change can't open a newer file.
@@ -50,8 +50,6 @@ The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `no
 - **For development** (in `CLAUDE.md`): files use LF line endings, enforced by `.gitattributes`. Changes to `src/main` or `src/preload` need an app restart.
 
 ## What's next
-**Milestone 7:** test continuity (checklist in the chat), then I'll mark it done.
-
 **Milestone 8: Storyboard.** A board of every shot's circle take in shot order (drag to reorder), with shot number, lens/size/angle and editable description and dialogue/action notes per panel; export a PDF (2, 3 or 6 panels per page, landscape) and a PNG sequence.
 
 ## Decisions log
@@ -104,9 +102,11 @@ The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `no
 - 2026-09-30 (M7 feedback): Spencer saw concept bleed (the Detective became "a young woman") and an outfit not following its reference. Cause: the whole-frame prompt counts equally with a character's own description inside its area, and several reference images were averaged. Fix, tested on his shot and a second seed: regional prompts weighted **1.8×** (Advanced → Own; 2.5 over-cooked details) and reference images combined with **concat** (each keeps its detail). The ComfyUI log now survives a restart where the previous engine still holds the file (retry, then `comfyui-2.log`).
 - 2026-09-30 (M7 feedback): Takes stay strictly newest-left / oldest-right (the circle take no longer jumps to the front). Takes can be deleted (bin on hover, or Del in the viewer): the image, thumbnail and sidecar go to the Windows Recycle Bin (`shell.trashItem`), so it's recoverable; deleting the circle take clears it.
 - 2026-09-30 (M7 feedback, shot 1B, 75mm medium, two figures in profile): mannequin shapes back (ball shoulders), figures turned away, and a glowing "ghost" silhouette in place of the Detective. Tested on his shot with 9 variants: the ghost came from the prompting (not depth); any figure shape in the depth pass (even flat cut-outs) pulled figures to face us/away, while the pose skeleton alone got profile right. Fix: **(1)** the AI gets a **set-only depth** (`depthSet` pass: same render with figures hidden, same grey range); **(2)** the frame prompt is **masked to outside all cast/prop/described areas** (MaskComposite union → InvertMask → ConditioningSetMask; fragments `union.json`, `background.json`); **(3)** each area's own prompt = its description + **that figure's facing** + shot size/angle, lens, lighting, style (`regionPrompt`). The 1.8× "Own" weight is gone (no overlap left to outweigh). Earlier note corrected: dev mode does *not* restart the app on main-process changes; they need a manual restart.
+- 2026-09-30 (M7 feedback): **Style presets** (Spencer): named style prompts saved app-wide in `%LOCALAPPDATA%\SecondTeam\styles.json` (like the pose library), each remembering the model it was made with; loading one sets the Style text and switches model if installed. The Style box is now multi-line. **Clicking a shot opens its circle take** in the take viewer (Esc closes; double-click still looks through).
 - 2026-09-30: The repo keeps LF line endings in the working copy (`.gitattributes`); mixed endings had been making some scripted edits silently miss.
 
 ## Ideas / later
+- **Per-scene / per-shot tweaks to cast and prop prompts** (Spencer), like per-shot changes in the Outliner: e.g. Maribel "soaked from the rain" in Scene 03 only, or a prop "on fire" in one shot. Would add scene- and shot-level overrides of description (and maybe references) to Cast/Props.
 - Face-consistent references for cast (a commercially licensed face model, if one appears); pick which reference image is the 'face'.
 - Takes: compare two takes side by side, sharper live previews (TAESD preview models, MIT licence, ~10 MB).
 - Pose pass: leave out joints hidden behind other objects (like a real OpenPose detection); hands (OpenPose hand keypoints) once figures have hands.

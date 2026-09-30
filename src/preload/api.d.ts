@@ -20,6 +20,9 @@ export interface SecondTeamApi {
   /** The app-wide pose library (poses.json in %LOCALAPPDATA%\SecondTeam), or null if none yet. */
   loadPoseLibrary: () => Promise<string | null>
   savePoseLibrary: (json: string) => Promise<{ ok: true } | { error: string }>
+  /** The app-wide style presets (styles.json in %LOCALAPPDATA%\SecondTeam), or null if none yet. */
+  loadStyleLibrary: () => Promise<string | null>
+  saveStyleLibrary: (json: string) => Promise<{ ok: true } | { error: string }>
 
   /**
    * Write a shot's render passes into <project>\scenes\<sceneId>\shots\<shotId>\passes\.

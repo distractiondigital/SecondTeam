@@ -1820,3 +1820,15 @@ input {
 .delete-take:hover {
   color: #e0555a;
 }
+
+.style-text {
+  min-height: 52px;
+}
+
+.style-presets {
+  margin-top: 6px;
+}
+
+.link-select.spaced {
+  margin-top: 6px;
+}

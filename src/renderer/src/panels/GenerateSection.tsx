@@ -6,6 +6,7 @@ import { currentModel, generateBlocker, generateShot, shotPrompt, useGeneration 
 import { useUi } from '../state/uiStore'
 import NumberField from './NumberField'
 import ReferenceImages from './ReferenceImages'
+import StylePresets from './StylePresets'
 
 // In a shot's Properties: what's in the frame, the prompt that will be sent, and Generate.
 // Below the camera body: the project-wide generation settings (model, style, strictness…).
@@ -90,15 +91,17 @@ export function GenerationSettingsSection() {
           </p>
         )}
 
-        <div className="prop-title prop-title-spaced">Style</div>
-        <input
+        <div className="prop-title prop-title-spaced" title="Added to every prompt in the project. Save a style you like as a preset to use it in other projects.">
+          Style
+        </div>
+        <textarea
           key={style}
-          className="name-input plain"
+          className="notes style-text"
           defaultValue={style}
           placeholder="e.g. moody 16mm film still, green tint · or · pencil sketchbook drawing"
-          onBlur={(e) => useDocument.getState().setStyleText(e.target.value.trim())}
-          onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+          onBlur={(e) => e.target.value.trim() !== style && useDocument.getState().setStyleText(e.target.value.trim())}
         />
+        <StylePresets />
 
         <div className="prop-title prop-title-spaced" title="Images that set the look of every shot: a film still, an artbook page, a sketch. Applied gently, together with the Style text.">
           Style reference

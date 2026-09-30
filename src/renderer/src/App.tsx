@@ -9,6 +9,7 @@ import Toolbar from './panels/Toolbar'
 import { activeScene, useDocument } from './state/documentStore'
 import { connectGeneration } from './state/generation'
 import { usePoseLibrary } from './state/poseLibrary'
+import { useStyleLibrary } from './state/styleLibrary'
 import { projectDisplayName, syncWindowState } from './state/projectIO'
 import { useUi } from './state/uiStore'
 import Viewport from './viewport/Viewport'
@@ -48,6 +49,7 @@ export default function App() {
   useEffect(() => {
     window.secondTeam.getVersion().then(setVersion)
     void usePoseLibrary.getState().load()
+    void useStyleLibrary.getState().load()
     const disconnect = connectGeneration()
     const unsync = syncWindowState()
     return () => {
