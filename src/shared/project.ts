@@ -26,8 +26,8 @@ import { clampCone, clampKelvin, clampStops, clampUnit, LIGHT_KINDS, type LightK
 
 // v1: M1 (primitives, groups). v2: M2 adds mannequins. v3: M3 adds cameras.
 // v4: per-shot changes (camera.overrides). v5: numbered scenes, shots 1A/1B…, one camera kit per project.
-// v6: lights.
-export const SCHEMA_VERSION = 6
+// v6: lights. v7: scene.floor (automatic floor in renders).
+export const SCHEMA_VERSION = 7
 
 export type Vec3 = [number, number, number]
 
@@ -139,6 +139,8 @@ export interface Scene {
   /** Optional title, e.g. 'INT. KITCHEN – NIGHT'. */
   name: string
   notes: string
+  /** Render passes and thumbnails include an endless floor at ground level. */
+  floor: boolean
   nodes: Record<string, SceneNode>
   /** Top-level node order (outliner order). */
   rootIds: string[]
@@ -164,13 +166,13 @@ export function newId(): string {
 }
 
 export function createEmptyScene(number = 1, name = ''): Scene {
-  return { id: newId(), number, name, notes: '', nodes: {}, rootIds: [] }
+  return { id: newId(), number, name, notes: '', floor: true, nodes: {}, rootIds: [] }
 }
 
 /** 'Scene 01', or 'Scene 01 · INT. KITCHEN' when it has a title. */
 export function sceneLabel(scene: Pick<Scene, 'number' | 'name'>): string {
   const label = `Scene ${String(scene.number).padStart(2, '0')}`
-  return scene.name.trim() ? ` · ${scene.name.trim()}` : label
+  return scene.name.trim() ? `${label} · ${scene.name.trim()}` : label
 }
 
 export function createEmptyProject(name = 'Untitled'): Project {
@@ -344,6 +346,7 @@ export function parseProject(json: string): Project {
     for (const node of Object.values(scene.nodes)) repairNode(node, scene)
     if (typeof scene.number !== 'number' || !Number.isFinite(scene.number)) scene.number = p.scenes.indexOf(scene) + 1
     if (typeof scene.name !== 'string') scene.name = ''
+    scene.floor = scene.floor !== false
   }
   return {
     schemaVersion: SCHEMA_VERSION,

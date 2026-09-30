@@ -29,7 +29,7 @@ While `npm run dev` is running, most UI edits show up in the window instantly.
 ## Other commands
 | Command | What it does |
 |---|---|
-| `npm test` | Runs the automated checks (undo/redo, grouping, saving, units) |
+| `npm test` | Runs the automated checks (undo/redo, grouping, saving, camera and lighting maths, render-pass maths) |
 | `npm run typecheck` | Checks the code for type errors without running it |
 | `npm run build` | Typecheck, then build the app into `out/` |
 | `npm start` | Run the built app from `out/` (no live reload) |
@@ -101,6 +101,19 @@ In the Properties panel, **drag left/right on any number box** to change it (hol
 - **Work / Clay** (toolbar): Work shows object colours under even light; **Clay** shows every surface in matte grey, lit only by your lights, with shadows. Looking through a camera switches to Clay automatically (and back when you leave, if you were in Work).
 - Each shot gets an automatic **lighting description** (e.g. "Soft key light from camera left, rim light from behind, warm tungsten, high contrast"), shown in the camera HUD and the shot's Properties, where you can overwrite it. It will go into the AI prompt.
 - Lights work with per-shot changes, so you can cheat a light for one setup. Shot list thumbnails show each shot lit.
+
+## Render passes
+The images the AI will work from (Milestone 6), rendered from a shot's camera through its delivery frame:
+- Select a shot and click **Render passes** in its Properties. The **pass viewer** opens over the viewport:
+  - **Clay**: the lit grey set.
+  - **Depth**: near is white, far is black.
+  - **Normals**: which way each surface faces (blue/lilac faces the lens).
+  - **Object ID**: a flat colour per object or figure, with a legend.
+  - **Pose**: an OpenPose skeleton of each figure.
+- Flip between them with **← / →** or **1–5**; **Esc** closes. **Re-render** after changing the shot.
+- The size is set automatically for the AI model (SDXL): about one megapixel in the delivery frame's shape, e.g. 1536 × 640 for 2.39.
+- If the project is saved, the passes are also written into it: `scenes\<scene id>\shots\<shot id>\passes\` (five PNGs plus `passes.json`). **Show in folder** opens it.
+- Renders and Shot list thumbnails include an automatic endless floor at ground level. Turn it off per scene with **Floor in renders** in the scene menu (top of the Outliner), e.g. for a rooftop or when you've built your own ground.
 
 ## A scene's set and per-shot changes
 - Each scene has its own **set**, which every shot in it starts from. The top row of the Shot list (e.g. "Scene 01") edits it; clicking a shot (or looking through its camera) edits *that shot's version* instead. A banner over the viewport always says which (the viewport gets an orange frame while you're in a shot).

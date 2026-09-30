@@ -4,6 +4,7 @@ import { Canvas } from '@react-three/fiber'
 import { GizmoHelper, GizmoViewport, OrbitControls } from '@react-three/drei'
 import EditingBanner from '../panels/EditingBanner'
 import FrameOverlay from '../panels/FrameOverlay'
+import PassViewer from '../panels/PassViewer'
 import { editedNodes, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import FrameController from './FrameController'
@@ -13,6 +14,7 @@ import LookThrough from './LookThrough'
 import SceneNodes, { hasLights } from './SceneNodes'
 import SelectionGizmo from './SelectionGizmo'
 import ShotScenes, { BACKGROUND, WorkLights } from './ShotScenes'
+import RendererHandle from './RendererHandle'
 import ShotTracker from './ShotTracker'
 import { viewportBridge } from './viewportBridge'
 
@@ -59,6 +61,7 @@ export default function Viewport() {
         <FrameController />
         <LookThrough />
         <ShotTracker />
+        <RendererHandle />
 
         {!lookingThrough && (
           <GizmoHelper alignment="bottom-right" margin={[64, 64]}>
@@ -68,6 +71,7 @@ export default function Viewport() {
       </Canvas>
       <FrameOverlay container={container} />
       <EditingBanner />
+      <PassViewer />
       {clay && !lit && <div className="viewport-note">No lights in this scene: add one from the toolbar.</div>}
     </div>
   )

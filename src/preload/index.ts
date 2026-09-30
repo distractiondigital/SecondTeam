@@ -19,6 +19,9 @@ const api: SecondTeamApi = {
   loadPoseLibrary: () => ipcRenderer.invoke('poses:load'),
   savePoseLibrary: (json) => ipcRenderer.invoke('poses:save', json),
 
+  writePasses: (folder, sceneId, shotId, files) => ipcRenderer.invoke('passes:write', folder, sceneId, shotId, files),
+  showPassFolder: (folder, sceneId, shotId) => ipcRenderer.invoke('passes:showFolder', folder, sceneId, shotId),
+
   confirmDiscard: (projectName) => ipcRenderer.invoke('dialog:confirmDiscard', projectName),
   showError: (message) => ipcRenderer.invoke('dialog:error', message)
 }

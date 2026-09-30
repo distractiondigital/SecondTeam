@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Eye, Trash2 } from 'lucide-react'
+import { Eye, Layers, Trash2 } from 'lucide-react'
 import {
   GUIDE_PRESETS,
   guideLabel,
@@ -13,6 +13,7 @@ import {
 } from '../../../shared/camera'
 import type { CameraNode, Vec3 } from '../../../shared/project'
 import { deleteSelected, lookThrough } from '../state/actions'
+import { renderShotPasses, usePasses } from '../state/passes'
 import { activeScene, editedNodes, useDocument, type NodePatch } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import { formatLengthLabel } from '../units'
@@ -32,6 +33,7 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
   const disabled = node.locked
   const info = useUi((s) => s.shotInfo[node.id])
   const lookingThrough = useUi((s) => s.lookThroughId === node.id)
+  const rendering = usePasses((s) => s.rendering)
   const units = useUi((s) => s.units)
   const nodes = useDocument((s) => activeScene(s).nodes)
   const ptr = panTiltRoll(node.rotation)
@@ -52,6 +54,16 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
             title="Look through this camera (Numpad 0)"
           >
             <Eye size={14} /> {lookingThrough ? 'Exit view' : 'Look through'}
+          </button>
+        </div>
+        <div className="prop-actions">
+          <button
+            className="render-passes-button"
+            disabled={rendering}
+            onClick={() => void renderShotPasses(node.id)}
+            title="Render depth, normals, object ID, pose and clay images for this shot (what the AI will work from)"
+          >
+            <Layers size={14} /> {rendering ? 'Rendering…' : 'Render passes'}
           </button>
         </div>
       </div>

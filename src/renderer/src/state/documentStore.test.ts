@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { Vector3 } from 'three'
 import { activeScene, hasUnsavedChanges, sceneForShot, useDocument, worldMatrix } from './documentStore'
-import { parseProject, serializeProject } from '../../../shared/project'
+import { parseProject, sceneLabel, serializeProject } from '../../../shared/project'
 
 const doc = () => useDocument.getState()
 const scene = () => activeScene(doc())
@@ -207,7 +207,7 @@ describe('figures', () => {
     expect(figure(copy).pose).toEqual(figure(a).pose)
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(6)
+    expect(loaded.schemaVersion).toBe(7)
   })
 
   it('saves poses into the project and applies them to other figures', () => {
@@ -346,6 +346,22 @@ describe('scenes', () => {
     expect(c.type === 'camera' && [c.shotNumber, c.name]).toEqual(['5A', 'Shot 5A'])
   })
 
+  it('toggles the render floor with undo, and duplicates keep it', () => {
+    expect(scene().floor).toBe(true)
+    doc().setSceneFloor(false)
+    expect(scene().floor).toBe(false)
+    doc().addScene(true)
+    expect(scene().floor).toBe(false)
+    doc().undo()
+    doc().undo()
+    expect(scene().floor).toBe(true)
+  })
+
+  it('labels scenes with their number and title', () => {
+    expect(sceneLabel({ number: 3, name: '' })).toBe('Scene 03')
+    expect(sceneLabel({ number: 3, name: 'INT. KITCHEN' })).toBe('Scene 03 · INT. KITCHEN')
+  })
+
   it('switching scenes leaves the shot; deleting keeps at least one scene', () => {
     const a = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
     doc().setActiveShot(a)
@@ -429,11 +445,12 @@ describe('older project files', () => {
       ]
     }
     const p = parseProject(JSON.stringify(raw))
-    expect(p.schemaVersion).toBe(6)
+    expect(p.schemaVersion).toBe(7)
     expect(p.camera.sensor.preset).toBe('alexa35')
     expect(p.camera.delivery).toBe('2.39')
     expect(p.scenes[0].number).toBe(1)
     expect(p.scenes[0].name).toBe('')
+    expect(p.scenes[0].floor).toBe(true)
     const shots = Object.values(p.scenes[0].nodes).map((n) => (n.type === 'camera' ? [n.shotNumber, n.name] : null))
     expect(shots).toEqual([
       ['1A', 'Shot 1A'],
@@ -446,7 +463,7 @@ describe('older project files', () => {
     const raw = JSON.parse(serializeProject(doc().project))
     raw.schemaVersion = 1
     delete raw.camera
-    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(6)
+    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(7)
   })
 })
 describe('master scene and per-shot changes', () => {
@@ -554,7 +571,7 @@ describe('master scene and per-shot changes', () => {
     doc().updateNode(box, { hidden: true })
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(6)
+    expect(loaded.schemaVersion).toBe(7)
   })
 
   it('leaves the shot if undo removes its camera', () => {

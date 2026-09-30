@@ -4,7 +4,8 @@ import { sceneLabel } from '../../../shared/project'
 import { deleteCurrentScene, newScene, switchScene } from '../state/actions'
 import { activeScene, useDocument } from '../state/documentStore'
 
-// The Outliner header: which scene you're in, plus New / Duplicate / Rename / Delete scene.
+// The Outliner header: which scene you're in, plus New / Duplicate / Rename / Delete scene and
+// the scene's render floor setting.
 
 function RenameForm({ onDone }: { onDone: () => void }) {
   const scene = useDocument((s) => activeScene(s))
@@ -104,6 +105,14 @@ export default function ScenePicker() {
               </button>
               <button className="scene-menu-item" onClick={() => setRenaming(true)}>
                 <Pencil size={13} /> Rename scene…
+              </button>
+              <button
+                className="scene-menu-item"
+                onClick={() => useDocument.getState().setSceneFloor(!scene.floor)}
+                title="Render passes and Shot list thumbnails include an endless floor at ground level. Turn it off for a rooftop, or when you've built your own ground."
+              >
+                {scene.floor ? <Check size={13} /> : <span className="menu-icon-space" />}
+                Floor in renders
               </button>
               <button
                 className="scene-menu-item danger"

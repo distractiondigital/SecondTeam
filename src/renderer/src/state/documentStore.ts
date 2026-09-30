@@ -162,6 +162,8 @@ interface DocumentState {
   addScene: (copyCurrent: boolean) => string
   /** Change the current scene's number and/or title; its shots are renamed to match. */
   renameScene: (number: number, name: string) => void
+  /** Whether render passes and thumbnails get the automatic floor. */
+  setSceneFloor: (floor: boolean) => void
   /** Delete the current scene (not the last one). */
   deleteScene: () => void
   /** Put the scene's shots in this order; they're renamed to match (1A, 1B, 1C…). */
@@ -393,6 +395,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
         }
         scene.nodes = plain.nodes
         scene.rootIds = plain.rootIds.filter((id) => id in plain.nodes)
+        scene.floor = plain.floor
       }
       change((_scene, project) => {
         const i = project.scenes.findIndex((s) => s.id === current.id)
@@ -415,6 +418,13 @@ export const useDocument = create<DocumentState>()((set, get) => {
           scene.number = n
         }
         if (scene.name !== name.trim()) scene.name = name.trim()
+      })
+    },
+
+    setSceneFloor: (floor) => {
+      if (activeScene(get()).floor === floor) return
+      change((scene) => {
+        scene.floor = floor
       })
     },
 

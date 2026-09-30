@@ -7,24 +7,25 @@
 | 2 | Mannequins | ✅ Done (tested by Spencer 2026-09-29) | 17-joint FK figure; click a body part to pose; realistic limits (toggle per figure); 7 presets + mirror; height (child→adult proportions) and build. Follow-up: user pose presets (project + app library). |
 | 3 | Cameras & shot list | ✅ Done (tested by Spencer 2026-09-29) | Scenes (01, 02…) with shots 1A, 1B…; cameras belong to shots; one camera body per project; camera view with game-style fly controls; frame guides + delivery frame; HUD readouts; shot size/angle; per-shot changes over each scene's set; shot list with live thumbnails, drag to reorder. |
 | 4 | Lights & clay render | ✅ Done (tested by Spencer 2026-09-30) | Sun / point / spot / ambient lights (stops, Kelvin, softness, shadows, spot cone); Work/Clay shading with auto Clay in camera view; soft shadows; per-shot light cheats; clay thumbnails; automatic lighting description per shot. |
-| 5 | Render passes | ⬜ Next | |
-| 6 | First AI frames | ⬜ | |
+| 5 | Render passes | 🔶 Built, waiting for Spencer's test | Clay, depth, normals, object ID and OpenPose passes per shot at the SDXL size (about 1 MP, sides in 64s); saved into the project folder with a `passes.json` sidecar; pass viewer. Automatic floor in renders (per-scene toggle). |
+| 6 | First AI frames | ⬜ Next | |
 | 7 | Continuity | ⬜ | |
 | 8 | Storyboard | ⬜ | |
 | 9 | Plug-and-play | ⬜ | |
 | 10 | Polish | ⬜ | Includes **Posing 2** (Spencer, 2026-09-29): IK hands/feet, head look-at target that flows subtly into the torso, choosing which end of a limb stays put (e.g. plant a foot). |
 
 ## Where we are (2026-09-30)
-Milestones 0–4 are done and tested. The whole "build the shot" half of the app works:
+Milestones 0–4 are done and tested; Milestone 5 (render passes) is built and waiting for your test. The whole "build the shot" half of the app works:
 - Greybox a set with shapes, posed figures and lights.
 - Break a project into scenes (01, 02…) and shots (1A, 1B…). Each shot has its own camera and can cheat anything in the set just for that shot.
 - Look through any shot with real sensor/lens/squeeze maths, frame guides, and readouts for height, tilt, distance, shot size, angle and lighting.
 - Save and reopen projects as `Name.secondteam` folders.
+- Render each shot's control images (clay, depth, normals, object ID, pose) and flip through them.
 
-Nothing talks to an AI yet, and there's no ComfyUI install; that starts in Milestone 6. There are 86 automated checks (`npm test`), and all pass.
+Nothing talks to an AI yet, and there's no ComfyUI install; that starts in Milestone 6. There are 98 automated checks (`npm test`), and all pass.
 
 ## Things to know
-- **Project files:** saved projects are format **v6**. Every older format still opens, but a build from before a format change can't open a newer file.
+- **Project files:** saved projects are format **v7**. Every older format still opens, but a build from before a format change can't open a newer file.
 - **What undo covers:**
   - Undo goes back 200 steps and covers every change to the project, including per-shot changes, lights and deleting a scene.
   - Selection, switching scenes and the saved-pose *library* (the one shared across projects) aren't undoable. Poses saved into a project are.
@@ -36,19 +37,16 @@ Nothing talks to an AI yet, and there's no ComfyUI install; that starts in Miles
 - **Surface snap** uses bounding boxes: exact for sets built square to the grid, approximate for rotated objects.
 - **Shot names** follow the Shot List order automatically (reorder or delete renames them). Custom names can't be typed; that comes with "shoot order" later.
 - **Light gizmos** point exactly where the light shines, but it's hard to see where a light *lands*. An aim line is on the Ideas list.
-- **Thumbnails** show the lit (Clay) look once a scene has at least one light; before that they use the work look.
+- **Thumbnails** show the lit (Clay) look once a scene has at least one light; before that they use the work look. Thumbnails and passes include the automatic floor (the camera view doesn't).
+- **Depth pass contrast** is stretched to each frame's own nearest and farthest surface, so two shots of the same set can look different in brightness. That's normal for depth ControlNets.
+- **Pose pass** draws joints even when another object hides them.
 - **Updating the app:** if the app is open while I change code, it reloads itself, and unsaved work can be lost. Save and close it before a work session, and restart with `start.bat` afterwards.
 - **For development** (in `CLAUDE.md`): files use LF line endings, enforced by `.gitattributes`. Changes to `src/main` or `src/preload` need an app restart.
 
 ## What's next
-**Milestone 5: Render passes.** For any shot, render the images the AI will work from, at the delivery frame and output resolution:
-- **Depth:** near is white, far is black.
-- **Normals:** surface direction.
-- **Object ID:** a flat colour per object or character, used later to aim prompts and reference images.
-- **Pose:** an OpenPose (COCO-18) skeleton from the mannequins' joints.
-- **Clay:** the lit grey render.
+**Milestone 5:** test the render passes (checklist in the chat), then I'll mark it done.
 
-They'll be exported as PNGs into `scenes/<scene>/shots/<shot>/passes/`, with a pass viewer for flipping through them.
+**Milestone 6: First AI frames.** Press Generate on a shot and get images back: SDXL guided by the depth pass (ControlNet) plus a prompt built from the shot size, angle and lighting phrase, shown in a take strip under the viewport.
 
 **Heads-up for Milestone 6 (first AI frames):** we'll set up a development copy of ComfyUI by hand before building the app's own installer in M9. Plan for:
 - about **30 GB** of free disk space for the models
@@ -88,9 +86,15 @@ Every model will have its licence recorded, and only commercially usable ones wi
 - 2026-09-30 (M4): Lights are scene nodes (schema **v6**) with an extra **Ambient** type beyond the spec's sun/point/spot. Brightness in **stops** (Spencer): 0 = standard key (2.5 three.js units at the subject; point/spot reach that at 2 m with inverse-square falloff). Colour temperature via a blackbody fit (`src/shared/lighting.ts`).
 - 2026-09-30 (M4): **Work / Clay** shading (Spencer): Clay = uniform matte grey (#b5b5b5), scene lights only, variance shadow maps (per-light softness = blur radius); camera view switches to Clay automatically and back only if it did the switching. No lights → dim fill plus a note.
 - 2026-09-30 (M4): Lighting description = key light (most light on the subject) described relative to the camera, hard/soft, warm/cool, rim from behind, contrast from key:fill in stops. Overridable per shot.
+- 2026-09-30 (M5): Pass size is automatic (Spencer): the SDXL size for the delivery frame, ≈1 MP with both sides multiples of 64 (16:9 → 1344 × 768, 2.39 → 1536 × 640, full frame 3:2 → 1280 × 832). M6 generates at the same size.
+- 2026-09-30 (M5): **Automatic floor** in renders and thumbnails (Spencer): an endless floor 2 mm below ground, per-scene "Floor in renders" toggle in the scene menu, on by default (schema **v7**, `scene.floor`).
+- 2026-09-30 (M5): Depth pass = inverse depth (disparity) stretched to the frame's nearest/farthest surface (MiDaS / Depth Anything convention the depth ControlNets are trained on); empty = black. Normals = camera space, R right, G up, B toward the lens. ID = one flat colour per visible top-level object/group/figure, black background, legend in `passes.json` (switches to Cast/Prop in M7). Pose = OpenPose COCO-18 drawn like controlnet_aux (limbs at 60% colour, 4 px at 512 px, scaled); face points dropped when the head faces away, far ear/eye dropped in profile, off-frame points dropped.
+- 2026-09-30 (M5): Passes are saved to `scenes/<scene id>/shots/<shot id>/passes/` (internal ids, so renaming shots never orphans files). Main only writes the six known file names, only into an approved project folder, only for plain ids.
 - 2026-09-30: The repo keeps LF line endings in the working copy (`.gitattributes`); mixed endings had been making some scripted edits silently miss.
 
 ## Ideas / later
+- Pose pass: leave out joints hidden behind other objects (like a real OpenPose detection); hands (OpenPose hand keypoints) once figures have hands.
+- Pass viewer: overlay the pose on the clay render; render passes for every shot in a scene at once.
 - Show where a light lands: an aim line from sun/spot to the surface it hits, and the spot's footprint (Spencer: hard to judge aim from the short cone icon).
 - Light gels / colours beyond colour temperature; practical lights (lamps) as props that emit light; area / soft-box lights, flags and bounce.
 - Shoot order: a separate order for the shooting schedule that doesn't rename shots, plus custom shot names (Spencer).

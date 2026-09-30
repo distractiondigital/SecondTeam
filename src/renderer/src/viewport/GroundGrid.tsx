@@ -10,6 +10,8 @@ export default function GroundGrid() {
     <Grid
       // A hair below the floor so floor planes cover it instead of flickering against it.
       position={[0, -0.003, 0]}
+      // Never part of a render pass.
+      userData={{ grid: true }}
       infiniteGrid
       cellSize={cell}
       cellThickness={1}

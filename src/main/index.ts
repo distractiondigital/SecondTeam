@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
+import { registerPassIpc } from './passFiles'
 import { registerPoseLibraryIpc } from './poseLibrary'
 import { askToSave, registerProjectIpc } from './projectFiles'
 
@@ -89,6 +90,7 @@ app.whenReady().then(() => {
   })
   registerProjectIpc(() => mainWindow)
   registerPoseLibraryIpc()
+  registerPassIpc()
   createWindow()
 })
 

@@ -3,21 +3,36 @@ import { Color, Scene } from 'three'
 import { createPortal } from '@react-three/fiber'
 import { activeScene, sceneForShot, useDocument } from '../state/documentStore'
 import GroundGrid from './GroundGrid'
+import { CLAY_COLOR } from './clay'
 import SceneNodes, { hasLights } from './SceneNodes'
 
 // A hidden copy of the set for every shot, each showing that shot's version (Master plus the
 // shot's own changes). They're never drawn on screen; ShotTracker renders thumbnails and
-// measures readouts from them, and Milestone 5 renders passes from them.
+// measures readouts from them, and renderPasses.ts renders the passes from them.
+// Unless the scene turns it off, each copy also has an endless floor at ground level.
 
 export const BACKGROUND = '#2a2b2f'
 
-/** Viewport work lights (scene lights arrive in Milestone 4). */
+const FLOOR_WORK_COLOR = '#3c3e44'
+const FLOOR_RADIUS = 200 // metres
+
+/** The even light of Work shading (tagged so a clay pass can switch it off). */
 export function WorkLights() {
   return (
-    <>
+    <group userData={{ workLight: true }}>
       <hemisphereLight args={['#ffffff', '#55575c', 1.6]} />
       <directionalLight position={[5, 10, 7]} intensity={1.4} />
-    </>
+    </group>
+  )
+}
+
+/** The automatic floor: a hair below 0 so floor planes built in the set cover it. */
+function RenderFloor({ clay }: { clay: boolean }) {
+  return (
+    <mesh rotation-x={-Math.PI / 2} position={[0, -0.002, 0]} receiveShadow={clay} userData={{ floor: true }}>
+      <circleGeometry args={[FLOOR_RADIUS, 96]} />
+      <meshStandardMaterial color={clay ? CLAY_COLOR : FLOOR_WORK_COLOR} roughness={clay ? 0.92 : 0.95} metalness={0} />
+    </mesh>
   )
 }
 
@@ -27,6 +42,7 @@ export const shotScenes = new Map<string, Scene>()
 function ShotScene({ shotId }: { shotId: string }) {
   // Thumbnails show the shot lit (Clay); a scene without lights falls back to the work look.
   const clay = useDocument((s) => hasLights(sceneForShot(s, shotId)))
+  const floor = useDocument((s) => activeScene(s).floor)
   const scene = useMemo(() => {
     const s = new Scene()
     s.background = new Color(BACKGROUND)
@@ -42,7 +58,8 @@ function ShotScene({ shotId }: { shotId: string }) {
   return createPortal(
     <>
       {!clay && <WorkLights />}
-      <GroundGrid />
+      {/* The floor replaces the grid (they'd flicker against each other in the distance). */}
+      {floor ? <RenderFloor clay={clay} /> : <GroundGrid />}
       <SceneNodes shotId={shotId} passive clay={clay} />
     </>,
     scene

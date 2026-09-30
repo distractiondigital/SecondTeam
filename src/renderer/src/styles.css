@@ -1185,3 +1185,131 @@ input {
   text-overflow: ellipsis;
   user-select: none;
 }
+
+/* ---------- Pass viewer ---------- */
+.pass-viewer {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  background: rgba(20, 21, 24, 0.97);
+}
+
+.pass-header,
+.pass-footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.pass-footer {
+  border-bottom: none;
+  border-top: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 12px;
+  gap: 14px;
+}
+
+.pass-title {
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.pass-title span {
+  font-weight: normal;
+  color: var(--text-dim);
+}
+
+.pass-header button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pass-header button:hover:not(:disabled),
+.pass-header .pass-tabs button.active {
+  border-color: var(--accent);
+}
+
+.pass-header .pass-tabs button.active {
+  background: var(--accent-soft);
+}
+
+.pass-header button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.pass-tabs {
+  display: flex;
+  gap: 4px;
+  margin-right: auto;
+}
+
+.pass-header .pass-close {
+  padding: 4px 6px;
+}
+
+.pass-image {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+.pass-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  box-shadow: 0 0 0 1px var(--border);
+  image-rendering: auto;
+}
+
+.pass-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  color: var(--text);
+}
+
+.pass-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pass-legend i {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.pass-meta {
+  color: var(--text);
+}
+
+.pass-save {
+  margin-left: auto;
+}
+
+.render-passes-button {
+  width: 100%;
+  justify-content: center;
+}
+
+.prop-section .prop-actions {
+  padding: 8px 0 0;
+}

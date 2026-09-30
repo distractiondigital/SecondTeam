@@ -23,7 +23,7 @@ function approve(folder: string): string {
   return full
 }
 
-function isApproved(folder: string): boolean {
+export function isApproved(folder: string): boolean {
   return approvedFolders.has(resolve(folder).toLowerCase())
 }
 

@@ -19,6 +19,19 @@ export interface SecondTeamApi {
   loadPoseLibrary: () => Promise<string | null>
   savePoseLibrary: (json: string) => Promise<{ ok: true } | { error: string }>
 
+  /**
+   * Write a shot's render passes into <project>\scenes\<sceneId>\shots\<shotId>\passes\.
+   * `files` maps a pass file name (clay.png… passes.json) to its content: PNGs as data URLs, JSON as text.
+   */
+  writePasses: (
+    folder: string,
+    sceneId: string,
+    shotId: string,
+    files: Record<string, string>
+  ) => Promise<{ ok: true; path: string } | { error: string }>
+  /** Open that passes folder in Explorer. */
+  showPassFolder: (folder: string, sceneId: string, shotId: string) => Promise<{ ok: true } | { error: string }>
+
   confirmDiscard: (projectName: string) => Promise<'save' | 'discard' | 'cancel'>
   showError: (message: string) => Promise<void>
 }
