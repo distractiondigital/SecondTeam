@@ -149,7 +149,7 @@ describe('object ID', () => {
     expect(entityKey('f1', nodes)).toBe('cast:maribel')
     expect(entityKey('w', nodes)).toBe('prop:car')
     expect(entityKey('f3', nodes)).toBe('node:f3')
-    expect(entityKey('f4', nodes)).toBeNull()
+    expect(entityKey('f4', nodes)).toBe('node:f4') // an extra is still its own region
     expect(entityKey('wall', nodes)).toBeNull()
   })
 
@@ -159,9 +159,10 @@ describe('object ID', () => {
     expect(legend.map((e) => [e.key, e.name, e.nodeIds])).toEqual([
       ['cast:maribel', 'Maribel', ['f1', 'f2']],
       ['prop:car', 'Car', ['w', 'b']],
-      ['node:f3', 'Figure 3', ['f3']]
+      ['node:f3', 'Figure 3', ['f3']],
+      ['node:f4', 'Extra', ['f4']]
     ])
-    expect(new Set(legend.map((e) => e.color)).size).toBe(3)
+    expect(new Set(legend.map((e) => e.color)).size).toBe(4)
     expect(legend.every((e) => /^#[0-9a-f]{6}$/.test(e.color) && e.color !== '#000000')).toBe(true)
   })
 

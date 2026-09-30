@@ -1,6 +1,6 @@
 {
   "name": "SDXL + depth, pose, regional prompts and references",
-  "description": "The base graph: an SDXL checkpoint guided by the shot's depth pass (softened) and pose pass through the Union ControlNet. Values written {{like_this}} are filled in by the app; {{in:model}} and {{in:positive}} are links the app wires to the end of the reference chain (IP-Adapter per cast member/prop, from fragments/reference.json and style.json) and the regional-prompt chain (fragments/region.json). With no cast, props or style images they are simply the checkpoint's model and the global prompt. See src/main/backend/workflow.ts (composeWorkflow).",
+  "description": "The base graph: an SDXL checkpoint guided by the shot's depth pass (softened) and pose pass through the Union ControlNet. Values written {{like_this}} are filled in by the app; {{in:model}} and {{in:positive}} are links the app wires to the end of the reference chain (IP-Adapter per cast member/prop, from fragments/reference.json and style.json) and the regional-prompt chain (fragments/region.json). {{in:posed}} is what the pose guide receives: the depth-guided set conditioning plus the figures' own regions, which skip the depth guide. With no cast, props or style images they are simply the checkpoint's model and the global prompt. See src/main/backend/workflow.ts (composeWorkflow).",
   "output": "11",
   "prompt": {
     "1": {
@@ -136,10 +136,7 @@
     "14": {
       "class_type": "ControlNetApplyAdvanced",
       "inputs": {
-        "positive": [
-          "7",
-          0
-        ],
+        "positive": "{{in:posed}}",
         "negative": [
           "7",
           1

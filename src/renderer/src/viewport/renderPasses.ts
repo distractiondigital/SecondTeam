@@ -203,14 +203,6 @@ export function renderPasses(input: PassInput): PassResult | null {
       )
 
       const { canvas: depth, near, far } = renderDepth(gl, scene, camera, w, h, track)
-      // The same depth without the figures: what the AI gets. Figures are shaped by their pose
-      // skeletons and prompts instead, so the mannequins' ball joints and round heads can't show
-      // through (or turn someone around).
-      const { canvas: depthSet } = withHidden(
-        scene,
-        (o) => nodes[o.name]?.type === 'mannequin',
-        () => renderDepth(gl, scene, camera, w, h, track, { near, far })
-      )
 
       const legend = idLegend(rootIds, nodes, cast, props)
       const colors = new Map(legend.map((e) => [e.key, e.color]))
@@ -245,7 +237,6 @@ export function renderPasses(input: PassInput): PassResult | null {
         images: {
           clay: clay.toDataURL('image/png'),
           depth: depth.toDataURL('image/png'),
-          depthSet: depthSet.toDataURL('image/png'),
           normal: normal.toDataURL('image/png'),
           id: id.toDataURL('image/png'),
           pose: pose.toDataURL('image/png')

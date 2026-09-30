@@ -121,6 +121,22 @@ describe('workflow templates', () => {
     expect(p['7'].inputs.positive).toEqual(['e1.region.combine', 0])
   })
 
+  it('lets figures skip the depth guide while the set and props follow it', () => {
+    const { prompt: p } = compose({
+      frameOutsideRegions: true,
+      entities: [
+        { name: 'Maribel', color: 1, text: 'young woman', images: [], weight: 1, figure: true },
+        { name: 'Crate', color: 2, text: 'wooden crate', images: [], weight: 1 }
+      ]
+    })
+    // Frame (outside all areas) + crate go into the depth guide; Maribel joins after it.
+    expect(p['e1.region.combine'].inputs.conditioning_1).toEqual(['frame.masked', 0])
+    expect(p['7'].inputs.positive).toEqual(['e1.region.combine', 0])
+    expect(p['e0.region.combine'].inputs.conditioning_1).toEqual(['7', 0])
+    expect(p['14'].inputs.positive).toEqual(['e0.region.combine', 0])
+    expect(p['14'].inputs.negative).toEqual(['7', 1])
+  })
+
   it('keeps references within the memory limit and names who was left out', () => {
     const entities = ['A', 'B', 'C'].map((name, i) => ({ name, color: i + 1, text: null, images: ['x.png'], weight: 1 }))
     const { prompt: p, skipped } = compose({ entities, maxReferences: 2 })

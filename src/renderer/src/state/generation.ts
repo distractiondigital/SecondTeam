@@ -183,8 +183,8 @@ export async function generateShot(shotId: string): Promise<void> {
     shotName: shot.shotNumber,
     width: passes.result.width,
     height: passes.result.height,
-    // The set without the figures: figures follow their pose and prompts, not the mannequin's shape.
-    depthPng: passes.result.images.depthSet,
+    // The full depth (so objects hidden behind people stay hidden); the figures' own areas skip it.
+    depthPng: passes.result.images.depth,
     posePng: passes.result.images.pose,
     hasPose: passes.result.figures > 0,
     idPng: passes.result.images.id,
@@ -233,23 +233,26 @@ function jobEntities(legend: IdEntry[], shotId: string, facings: Record<string, 
   }
   // Its own full prompt: description, which way its figure faces, and the shot's context.
   const own = (description: string, e: IdEntry): string | null => {
-    if (!description.trim()) return null
     const figure = e.nodeIds.find((id) => nodes[id]?.type === 'mannequin')
-    return regionPrompt(description.trim(), figure ? (facings[figure] ?? null) : null, context)
+    // An extra (a figure with no cast member or description) is still a person.
+    const text = description.trim() || (figure ? 'a person' : '')
+    if (!text) return null
+    return regionPrompt(text, figure ? (facings[figure] ?? null) : null, context)
   }
+  const isFigure = (e: IdEntry) => e.nodeIds.some((id) => nodes[id]?.type === 'mannequin')
   const out: JobEntity[] = []
   for (const e of legend) {
     if (!e.pixels) continue // not in frame
     if (e.kind === 'cast') {
       const c = project.cast.find((x) => x.id === e.refId)
-      if (c) out.push({ name: c.name, kind: 'cast', ownerId: c.id, color: e.color, text: own(c.description, e), images: c.images, strength: c.strength })
+      if (c) out.push({ name: c.name, kind: 'cast', ownerId: c.id, color: e.color, text: own(c.description, e), images: c.images, strength: c.strength, figure: isFigure(e) })
     } else if (e.kind === 'prop') {
       const p = project.props.find((x) => x.id === e.refId)
-      if (p) out.push({ name: p.name, kind: 'props', ownerId: p.id, color: e.color, text: own(p.description, e), images: p.images, strength: p.strength })
+      if (p) out.push({ name: p.name, kind: 'props', ownerId: p.id, color: e.color, text: own(p.description, e), images: p.images, strength: p.strength, figure: isFigure(e) })
     } else {
       const n = nodes[e.refId]
       const text = own(n && 'description' in n ? n.description : '', e)
-      if (text) out.push({ name: e.name, kind: 'object', ownerId: e.refId, color: e.color, text, images: [], strength: 0 })
+      if (text) out.push({ name: e.name, kind: 'object', ownerId: e.refId, color: e.color, text, images: [], strength: 0, figure: isFigure(e) })
     }
   }
   return out

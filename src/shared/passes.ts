@@ -4,13 +4,12 @@
 
 import type { SceneNode } from './project'
 
-export const PASS_KINDS = ['clay', 'depth', 'depthSet', 'normal', 'id', 'pose'] as const
+export const PASS_KINDS = ['clay', 'depth', 'normal', 'id', 'pose'] as const
 export type PassKind = (typeof PASS_KINDS)[number]
 
 export const PASS_LABELS: Record<PassKind, string> = {
   clay: 'Clay',
   depth: 'Depth',
-  depthSet: 'Depth (set)',
   normal: 'Normals',
   id: 'Object ID',
   pose: 'Pose'
@@ -330,7 +329,9 @@ export function entityKey(id: string, nodes: Record<string, SceneNode>): string 
     if ((n.type === 'primitive' || n.type === 'group') && n.propId) return `prop:${n.propId}`
     if ((n.type === 'primitive' || n.type === 'group' || n.type === 'mannequin') && n.description.trim()) return `node:${n.id}`
   }
-  return null
+  // A figure that isn't a cast member is still its own region (an extra), so it's shaped by its
+  // pose and prompt rather than the mannequin in the depth pass.
+  return nodes[id]?.type === 'mannequin' ? `node:${id}` : null
 }
 
 /**

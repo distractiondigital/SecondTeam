@@ -107,6 +107,11 @@ export interface ComposeEntity {
   images: string[]
   /** Reference strength. */
   weight: number
+  /**
+   * A figure: its area follows its pose skeleton and prompt, not the depth pass (so the mannequin's
+   * shape can't show through), while the set around it still follows depth.
+   */
+  figure?: boolean
 }
 
 export interface ComposeInput {
@@ -145,6 +150,7 @@ const POSITIVE: Link = ['2', 0]
 const IPADAPTER: Link = ['20', 0]
 const CLIP_VISION: Link = ['21', 0]
 const ID_IMAGE: Link = ['22', 0]
+const DEPTH_APPLIED: Link = ['7', 0]
 
 /**
  * The full graph for a take: the base, plus a style reference, and per entity a mask from the ID
@@ -212,21 +218,29 @@ export function composeWorkflow(input: ComposeInput): { prompt: Graph; skipped: 
     positive = add(instantiate(f.background, 'frame', { 'in:positive': positive, 'in:mask': union })).positive
   }
 
+  // Set and props first: their prompts join the frame prompt before the depth guide. Figures come
+  // after it (see below), so the depth guide never shapes them.
+  const addRegion = (plan: NonNullable<(typeof plans)[number]>, onto: Link): Link =>
+    add(
+      instantiate(f.region, `e${plan.i}.region`, {
+        'in:clip': CLIP,
+        'in:mask': plan.mask,
+        'in:positive': onto,
+        text: plan.e.text!,
+        strength: input.regionStrength ?? 1
+      })
+    ).positive
+  const figureRegions = regions.filter((r) => r.e.figure)
+  for (const r of regions) if (!r.e.figure) positive = addRegion(r, positive)
+  // The depth guide (node 7) takes `positive`; the pose guide (node 14) takes that plus the figures.
+  let posed: Link = DEPTH_APPLIED
+  for (const r of figureRegions) posed = addRegion(r, posed)
+
+  // References (IP-Adapter) patch the model, each inside its own mask.
   for (const plan of plans) {
     if (!plan) continue
     const { e, i, mask, useImages } = plan
     const prefix = `e${i}`
-    if (e.text) {
-      positive = add(
-        instantiate(f.region, `${prefix}.region`, {
-          'in:clip': CLIP,
-          'in:mask': mask,
-          'in:positive': positive,
-          text: e.text,
-          strength: input.regionStrength ?? 1
-        })
-      ).positive
-    }
     if (useImages) {
       model = add(
         instantiate(f.reference, `${prefix}.ref`, {
@@ -243,7 +257,7 @@ export function composeWorkflow(input: ComposeInput): { prompt: Graph; skipped: 
     }
   }
 
-  const base = fillTemplate(input.base, { ...input.values, 'in:model': model, 'in:positive': positive })
+  const base = fillTemplate(input.base, { ...input.values, 'in:model': model, 'in:positive': positive, 'in:posed': posed })
   Object.assign(graph, base)
   return { prompt: prune(graph, input.base.output), skipped }
 }

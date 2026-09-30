@@ -70,6 +70,8 @@ export interface JobEntity {
   /** Reference image file names in its assets folder. */
   images: string[]
   strength: number
+  /** A figure: shaped by its pose and prompt, not the depth pass. */
+  figure: boolean
 }
 
 export interface TakeInfo {
@@ -104,7 +106,7 @@ export interface TakeMeta {
   }
   /** Cast, props and style references used (M7). */
   continuity?: {
-    entities: { name: string; kind: string; text: string | null; images: string[]; strength: number }[]
+    entities: { name: string; kind: string; text: string | null; images: string[]; strength: number; figure?: boolean }[]
     style: { images: string[]; strength: number } | null
     feather: number
     referenceEnd: number

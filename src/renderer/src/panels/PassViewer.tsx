@@ -9,8 +9,7 @@ import { useUi } from '../state/uiStore'
 
 const HINTS: Record<(typeof PASS_KINDS)[number], string> = {
   clay: 'The lit grey set, as the Clay view shows it.',
-  depth: 'Near is white, far is black: the whole set, figures included.',
-  depthSet: 'The same depth without the figures. This is what guides the AI: the set\'s layout, while figures follow their pose and prompts.',
+  depth: 'Near is white, far is black. Guides the set (figures follow their pose and prompts instead).',
   normal: 'Which way each surface faces (blue/lilac = toward the lens). Guides shape and form.',
   id: 'One flat colour per object or figure. Aims prompts and reference images at each one.',
   pose: 'OpenPose skeleton of each figure. Guides how the people stand and move.'
@@ -108,7 +107,7 @@ export default function PassViewer() {
               ? `Not saved: ${view.saveError}`
               : 'Save the project to keep passes on disk'}
         </span>
-        <span className="pass-keys">← → or 1–6 to flip · Esc to close</span>
+        <span className="pass-keys">← → or 1–5 to flip · Esc to close</span>
       </div>
     </div>
   )

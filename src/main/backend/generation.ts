@@ -123,7 +123,7 @@ export class ComfyBackend implements GenerationBackend {
             images.push(await client.upload(`secondteam-ref-${e.ownerId}-${i}.png`, await readAssetAsPng(job.folder, e.kind, e.ownerId, file)))
           }
         }
-        entities.push({ name: e.name, color: parseInt(e.color.slice(1), 16), text: e.text, images, weight: e.strength })
+        entities.push({ name: e.name, color: parseInt(e.color.slice(1), 16), text: e.text, images, weight: e.strength, figure: e.figure })
       }
       let style: ComposeInput['style'] = null
       if (job.style?.images.length) {
@@ -208,7 +208,7 @@ export class ComfyBackend implements GenerationBackend {
           },
           sampler: { steps: job.steps, cfg: job.cfg, ...SAMPLER },
           continuity: {
-            entities: job.entities.map((e) => ({ name: e.name, kind: e.kind, text: e.text, images: e.images, strength: e.strength })),
+            entities: job.entities.map((e) => ({ name: e.name, kind: e.kind, text: e.text, images: e.images, strength: e.strength, figure: e.figure })),
             style: job.style,
             feather: job.feather,
             referenceEnd: job.referenceEnd,
