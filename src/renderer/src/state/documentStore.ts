@@ -39,7 +39,14 @@ import {
   type Pose,
   type PresetName
 } from '../../../shared/mannequin'
-import { nextShotName, renumberShot, repairKit, type CameraKit } from '../../../shared/camera'
+import {
+  compareShotNumbers,
+  nextShotName,
+  renumberShot,
+  repairKit,
+  shotLetters,
+  type CameraKit
+} from '../../../shared/camera'
 import { applyOverride, effectiveNodes, isOverridable } from '../../../shared/overrides'
 
 // The document store holds the project: everything that is saved to disk and can be undone.
@@ -136,6 +143,8 @@ interface DocumentState {
   renameScene: (number: number, name: string) => void
   /** Delete the current scene (not the last one). */
   deleteScene: () => void
+  /** Put the scene's shots in this order; they're renamed to match (1A, 1B, 1C…). */
+  reorderShots: (cameraIds: string[]) => void
 
   addMannequin: (groundPoint?: [number, number]) => string
   /** Set one joint's rotation (degrees); clamped to realistic limits if the figure has them on. */
@@ -385,6 +394,16 @@ export const useDocument = create<DocumentState>()((set, get) => {
       })
     },
 
+    reorderShots: (cameraIds) => {
+      change((scene) => {
+        const known = new Set(shotsInOrder(scene).map((c) => c.id))
+        const ordered = cameraIds.filter((id) => known.has(id)).map((id) => scene.nodes[id] as Draft<CameraNode>)
+        // Any shot missing from the list keeps its place at the end.
+        for (const c of shotsInOrder(scene)) if (!cameraIds.includes(c.id)) ordered.push(c)
+        renameShotsInOrder(scene, ordered)
+      })
+    },
+
     deleteScene: () => {
       const { project, sceneId } = get()
       if (project.scenes.length < 2) return
@@ -534,7 +553,10 @@ export const useDocument = create<DocumentState>()((set, get) => {
           }
           detach(scene, node)
           const removed = subtreeIds(scene, id)
+          const hadShot = removed.some((d) => scene.nodes[d]?.type === 'camera')
           for (const d of removed) delete scene.nodes[d]
+          // Shots keep consecutive names: deleting 1B turns 1C into 1B.
+          if (hadShot) renameShotsInOrder(scene, shotsInOrder(scene))
           // Forget any shot's changes to what was removed.
           for (const n of Object.values(scene.nodes)) {
             if (n.type === 'camera') for (const d of removed) delete n.overrides[d]
@@ -785,6 +807,23 @@ export function topLevelOnly(scene: Scene, ids: string[]): string[] {
       parent = scene.nodes[parent]?.parentId ?? null
     }
     return id in scene.nodes
+  })
+}
+
+/** The scene's shots (cameras) in list order: by shot name. */
+function shotsInOrder(scene: Draft<Scene>): Draft<CameraNode>[] {
+  return (Object.values(scene.nodes).filter((n) => n.type === 'camera') as Draft<CameraNode>[]).sort((a, b) =>
+    compareShotNumbers(a.shotNumber, b.shotNumber)
+  )
+}
+
+/** Name shots consecutively in the given order: 1A, 1B, 1C… (the default "Shot 1A" labels follow). */
+function renameShotsInOrder(scene: Draft<Scene>, shots: Draft<CameraNode>[]): void {
+  shots.forEach((c, i) => {
+    const name = `${scene.number}${shotLetters(i)}`
+    if (c.shotNumber === name) return
+    if (c.name === `Shot ${c.shotNumber}`) c.name = `Shot ${name}`
+    c.shotNumber = name
   })
 }
 

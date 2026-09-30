@@ -62,7 +62,7 @@ The grid is in real-world units. In metres: faint lines every 1 m, stronger ever
 
 **Anchor** (Properties): Bottom / Middle / Top sets the point an object scales and rotates around, and its position is that point. With Bottom (the default), making something taller keeps it on the floor. Planes are always centred.
 
-In the Properties panel, type values and press Enter. Lengths accept either unit system whatever the display is set to, e.g. `2.5`, `150cm`, `6' 2"` or `6ft 2in`.
+In the Properties panel, **drag left/right on any number box** to change it (hold Shift for fine steps, Ctrl for big ones; one drag is one undo step), or click it to type a value and press Enter. Lengths accept either unit system whatever the display is set to, e.g. `2.5`, `150cm`, `6' 2"` or `6ft 2in`.
 
 ## Figures (posable mannequins)
 - **Add → Figure** puts a mannequin on the floor. Click it once to select the whole figure: move and rotate it with the gizmo, and set **Height** (0.9–2.1 m; short figures get child proportions) and **Build** in Properties.
@@ -74,7 +74,7 @@ In the Properties panel, type values and press Enter. Lengths accept either unit
 
 ## Cameras & shots
 - A project has **scenes** (Scene 01, Scene 02…). Pick, add, duplicate (same set, no shots), rename (number + title, e.g. "INT. KITCHEN – NIGHT") or delete scenes from the scene picker at the top of the Outliner.
-- Each scene has **shots**: frame something up in the viewport, then click **＋ Add shot** at the bottom of the **Shot list**. Shots are named after the scene: 1A, 1B, 1C… (I and O are skipped, like on a slate). Every shot has its own camera; cameras don't appear in the Outliner. The Shot list shows a live thumbnail of each shot. Click a shot to edit it, double-click to look through it.
+- Each scene has **shots**: frame something up in the viewport, then click **＋ Add shot** at the bottom of the **Shot list**. Shots are named after the scene: 1A, 1B, 1C… (I and O are skipped, like on a slate). Every shot has its own camera; cameras don't appear in the Outliner. **Drag shots in the Shot list to reorder them**; shot names always follow the list order, so reordering or deleting renames them (delete 1B and 1C becomes 1B). The Shot list shows a live thumbnail of each shot. Click a shot to edit it, double-click to look through it.
 - **Numpad 0** or **`** (the key left of 1), or the eye button in the toolbar, looks through the selected camera. **Esc**, `, Numpad 0 or the **Exit camera view** button take you back. In camera view:
 
 | Control | Action |

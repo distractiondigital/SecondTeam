@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Eye, Layers, Plus, Video } from 'lucide-react'
 import { compareShotNumbers } from '../../../shared/camera'
 import { sceneLabel, type CameraNode } from '../../../shared/project'
@@ -18,7 +19,16 @@ const SIZE_SHORT: Record<string, string> = {
   'Extreme wide shot': 'EWS'
 }
 
-function ShotRow({ camera }: { camera: CameraNode }) {
+interface DragProps {
+  /** Where a dragged shot would land relative to this row. */
+  dropSide: 'before' | 'after' | null
+  onDragStart: () => void
+  onDragOver: (side: 'before' | 'after') => void
+  onDrop: () => void
+  onDragEnd: () => void
+}
+
+function ShotRow({ camera, drag }: { camera: CameraNode; drag: DragProps }) {
   const selected = useUi((s) => s.selection.includes(camera.id))
   const looking = useUi((s) => s.lookThroughId === camera.id)
   const active = useDocument((s) => s.activeShotId === camera.id)
@@ -30,13 +40,30 @@ function ShotRow({ camera }: { camera: CameraNode }) {
 
   return (
     <div
-      className={`shot-row${selected ? ' selected' : ''}${active ? ' active' : ''}${looking ? ' looking' : ''}`}
+      className={`shot-row${selected ? ' selected' : ''}${active ? ' active' : ''}${looking ? ' looking' : ''}${
+        drag.dropSide ? ` drop-${drag.dropSide}` : ''
+      }`}
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = 'move'
+        drag.onDragStart()
+      }}
+      onDragOver={(e) => {
+        e.preventDefault()
+        const box = e.currentTarget.getBoundingClientRect()
+        drag.onDragOver(e.clientY < box.top + box.height / 2 ? 'before' : 'after')
+      }}
+      onDrop={(e) => {
+        e.preventDefault()
+        drag.onDrop()
+      }}
+      onDragEnd={drag.onDragEnd}
       onClick={() => {
         useUi.getState().select([camera.id])
         activateShot(camera.id)
       }}
       onDoubleClick={() => lookThrough(camera.id)}
-      title="Click to edit this shot · double-click to look through it"
+      title="Click to edit this shot · double-click to look through it · drag to reorder"
     >
       <div className="shot-thumb">{thumbnail ? <img src={thumbnail} alt="" /> : <Video size={18} />}</div>
       <div className="shot-text">
@@ -48,7 +75,7 @@ function ShotRow({ camera }: { camera: CameraNode }) {
           {[size ? (SIZE_SHORT[size] ?? size) : null, angle].filter(Boolean).join(' · ') || '—'}
         </div>
         {changes > 0 && (
-          <div className="shot-changes" title="Objects changed in this shot (everything else follows the Master scene)">
+          <div className="shot-changes" title="Objects changed in this shot (everything else follows the scene's set)">
             {changes} change{changes === 1 ? '' : 's'}
           </div>
         )}
@@ -71,6 +98,8 @@ export default function ShotList() {
   const nodes = useDocument((s) => activeScene(s).nodes)
   const masterActive = useDocument((s) => s.activeShotId === null)
   const label = useDocument((s) => sceneLabel(activeScene(s)))
+  const [dragging, setDragging] = useState<string | null>(null)
+  const [dropTarget, setDropTarget] = useState<{ id: string; side: 'before' | 'after' } | null>(null)
   const cameras = Object.values(nodes)
     .filter((n): n is CameraNode => n.type === 'camera')
     .sort((a, b) => compareShotNumbers(a.shotNumber, b.shotNumber))
@@ -93,7 +122,30 @@ export default function ShotList() {
           </div>
         </div>
         {cameras.map((c) => (
-          <ShotRow key={c.id} camera={c} />
+          <ShotRow
+            key={c.id}
+            camera={c}
+            drag={{
+              dropSide: dragging && dropTarget?.id === c.id && dragging !== c.id ? dropTarget.side : null,
+              onDragStart: () => setDragging(c.id),
+              onDragOver: (side) => setDropTarget({ id: c.id, side }),
+              onDrop: () => {
+                if (dragging && dropTarget) {
+                  // Shots are renamed to match their new order (1A, 1B, 1C…).
+                  const order = cameras.map((x) => x.id).filter((id) => id !== dragging)
+                  const at = order.indexOf(dropTarget.id) + (dropTarget.side === 'after' ? 1 : 0)
+                  order.splice(at, 0, dragging)
+                  useDocument.getState().reorderShots(order)
+                }
+                setDragging(null)
+                setDropTarget(null)
+              },
+              onDragEnd: () => {
+                setDragging(null)
+                setDropTarget(null)
+              }
+            }}
+          />
         ))}
         <button className="add-shot" onClick={addShot} title="New shot with its camera where your view is now">
           <Plus size={14} /> Add shot

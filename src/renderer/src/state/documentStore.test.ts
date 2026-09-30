@@ -283,6 +283,20 @@ describe('shots and cameras', () => {
     expect(doc().project.camera.delivery).toBe('2.39')
   })
 
+  it('keeps shot names consecutive when shots are deleted or reordered', () => {
+    const a = doc().addCamera(view)
+    const b = doc().addCamera(view)
+    const c = doc().addCamera(view)
+    const names = () => [a, b, c].map((id) => (scene().nodes[id]?.type === 'camera' ? cam(id).shotNumber : null))
+    doc().reorderShots([c, a, b])
+    expect(names()).toEqual(['1B', '1C', '1A'])
+    expect(cam(c).name).toBe('Shot 1A')
+    doc().deleteNodes([c])
+    expect(names()).toEqual(['1A', '1B', null])
+    doc().undo()
+    expect(names()).toEqual(['1B', '1C', '1A'])
+  })
+
   it('gives duplicated cameras the next letter', () => {
     const a = doc().addCamera(view)
     const [copy] = doc().duplicateNodes([a])

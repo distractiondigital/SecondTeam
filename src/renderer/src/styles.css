@@ -385,6 +385,11 @@ input {
   text-align: right;
 }
 
+.number-field:not(.editing):not(.disabled),
+.number-field:not(.editing):not(.disabled) input {
+  cursor: ew-resize;
+}
+
 .number-field input:disabled {
   color: var(--text-dim);
 }
@@ -904,6 +909,20 @@ input {
   font-weight: 600;
   cursor: pointer;
   text-decoration: underline;
+}
+
+.shot-row.drop-before {
+  box-shadow: inset 0 2px 0 var(--accent);
+}
+
+.shot-row.drop-after {
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.shot-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
 }
 
 .shot-row.active {

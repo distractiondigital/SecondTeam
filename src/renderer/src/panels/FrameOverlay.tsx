@@ -73,6 +73,9 @@ export default function FrameOverlay({ container }: { container: RefObject<HTMLE
             label="mm"
             value={node.focalLength}
             kind="factor"
+            step={0.5}
+            min={8}
+            max={600}
             onCommit={(focalLength) => useDocument.getState().updateNode(node.id, { focalLength })}
           />
         </label>

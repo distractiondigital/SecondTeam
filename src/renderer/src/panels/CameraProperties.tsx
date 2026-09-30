@@ -25,20 +25,6 @@ import NumberField from './NumberField'
 const SIZE_LABELS = ['Extreme close-up', 'Close-up', 'Medium close-up', 'Medium shot', 'Medium wide shot', 'Wide shot', 'Extreme wide shot']
 const ANGLE_LABELS = ['Eye level', 'Slight high angle', 'High angle', 'Overhead', 'Slight low angle', 'Low angle', "Worm's-eye", 'Eye level, Dutch']
 
-function TextCommit(props: { value: string; placeholder?: string; className?: string; onCommit: (v: string) => void }) {
-  return (
-    <input
-      key={props.value}
-      className={props.className ?? 'name-input plain'}
-      defaultValue={props.value}
-      placeholder={props.placeholder}
-      onBlur={(e) => {
-        if (e.target.value !== props.value) props.onCommit(e.target.value)
-      }}
-      onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-    />
-  )
-}
 
 export default function CameraProperties({ node }: { node: CameraNode }) {
   const doc = useDocument.getState()
@@ -57,11 +43,9 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
       <div className="prop-section">
         <div className="camera-heading">
           <span className="prop-title">Shot</span>
-          <TextCommit
-            className="name-input shot-input"
-            value={node.shotNumber}
-            onCommit={(v) => v.trim() && update({ shotNumber: v.trim() })}
-          />
+          <span className="shot-name" title="Shots are named in list order; drag them in the Shot list to reorder">
+            {node.shotNumber}
+          </span>
           <button
             className={`look-button${lookingThrough ? ' active' : ''}`}
             onClick={() => lookThrough(lookingThrough ? null : node.id)}
@@ -115,6 +99,9 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
             label="Focal mm"
             value={node.focalLength}
             kind="factor"
+            step={0.5}
+            min={8}
+            max={600}
             disabled={disabled}
             onCommit={(focalLength) => update({ focalLength })}
           />
@@ -258,6 +245,8 @@ function CameraBodySection() {
                   label={k === 'width' ? 'W mm' : 'H mm'}
                   value={kit.sensor[k]}
                   kind="factor"
+                  step={0.1}
+                  min={1}
                   onCommit={(value) => updateKit({ sensor: { ...kit.sensor, [k]: value } })}
                 />
               ))}
