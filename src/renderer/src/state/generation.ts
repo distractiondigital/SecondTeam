@@ -277,6 +277,31 @@ export function toggleCircleTake(shotId: string, takeId: string): void {
   useDocument.getState().updateNode(shotId, { circleTake: circleTakeOf(shotId) === takeId ? null : takeId })
 }
 
+/**
+ * Move a take to the Recycle Bin and drop it from the strip. If it was the circle take, the shot has
+ * none afterwards; if it's open in the viewer, the viewer moves on to the next one.
+ */
+export async function deleteTake(shotId: string, takeId: string): Promise<void> {
+  const folder = useUi.getState().projectPath
+  if (!folder) return
+  const list = useGeneration.getState().takes[shotId] ?? []
+  const i = list.findIndex((t) => t.id === takeId)
+  const r = await api().deleteTake(folder, useDocument.getState().sceneId, shotId, takeId)
+  if ('error' in r) {
+    useGeneration.setState({ error: r.error })
+    return
+  }
+  const rest = (useGeneration.getState().takes[shotId] ?? []).filter((t) => t.id !== takeId)
+  useGeneration.setState((s) => ({ takes: { ...s.takes, [shotId]: rest } }))
+  if (circleTakeOf(shotId) === takeId) useDocument.getState().updateNode(shotId, { circleTake: null })
+  const viewer = useGeneration.getState().viewer
+  if (viewer?.takeId === takeId) {
+    const next = rest[Math.min(Math.max(i, 0), rest.length - 1)]
+    if (next) void openTake(shotId, next.id)
+    else closeTake()
+  }
+}
+
 export function closeTake(): void {
   useGeneration.setState({ viewer: null })
 }

@@ -102,11 +102,12 @@ The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `no
 - 2026-09-30 (M7): Circle take = `CameraNode.circleTake` (undoable), star on take cards and in the viewer, circled take first in the strip and as the Shot list thumbnail. Schema **v9**.
 - 2026-09-30 (M7 feedback): Spencer asked to paste reference images. Paste button + Ctrl+V (while a cast member/prop is open in Properties): clipboard image data is saved as `Pasted <date time>.png`, image files copied in Explorer are copied in. Uses Electron 44's async clipboard API (`clipboard.read()`: `image/png`, or `text/uri-list` for copied files).
 - 2026-09-30 (M7 feedback): Spencer saw concept bleed (the Detective became "a young woman") and an outfit not following its reference. Cause: the whole-frame prompt counts equally with a character's own description inside its area, and several reference images were averaged. Fix, tested on his shot and a second seed: regional prompts weighted **1.8×** (Advanced → Own; 2.5 over-cooked details) and reference images combined with **concat** (each keeps its detail). The ComfyUI log now survives a restart where the previous engine still holds the file (retry, then `comfyui-2.log`).
+- 2026-09-30 (M7 feedback): Takes stay strictly newest-left / oldest-right (the circle take no longer jumps to the front). Takes can be deleted (bin on hover, or Del in the viewer): the image, thumbnail and sidecar go to the Windows Recycle Bin (`shell.trashItem`), so it's recoverable; deleting the circle take clears it.
 - 2026-09-30: The repo keeps LF line endings in the working copy (`.gitattributes`); mixed endings had been making some scripted edits silently miss.
 
 ## Ideas / later
 - Face-consistent references for cast (a commercially licensed face model, if one appears); pick which reference image is the 'face'.
-- Takes: delete / hide a take, compare two takes side by side, sharper live previews (TAESD preview models, MIT licence, ~10 MB).
+- Takes: compare two takes side by side, sharper live previews (TAESD preview models, MIT licence, ~10 MB).
 - Pose pass: leave out joints hidden behind other objects (like a real OpenPose detection); hands (OpenPose hand keypoints) once figures have hands.
 - Pass viewer: overlay the pose on the clay render; render passes for every shot in a scene at once.
 - Show where a light lands: an aim line from sun/spot to the surface it hits, and the spot's footprint (Spencer: hard to judge aim from the short cone icon).

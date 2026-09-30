@@ -3,7 +3,7 @@ import { join } from 'path'
 import type { BackendStatus, GenerationEvent, GenerationJob } from '../../shared/takes'
 import { ComfyProcess } from './comfyProcess'
 import { ComfyBackend, type GenerationBackend } from './generation'
-import { listTakes, readTake, takesFolder } from './takeFiles'
+import { deleteTake, listTakes, readTake, takesFolder } from './takeFiles'
 
 // Starts the managed ComfyUI with the app and exposes generation to the UI over IPC.
 // The UI never talks to ComfyUI itself (its Content-Security-Policy blocks all network access).
@@ -52,6 +52,15 @@ export function registerBackendIpc(getWindow: () => BrowserWindow | null): void 
   ipcMain.handle('takes:read', async (_e, folder: string, sceneId: string, shotId: string, takeId: string) => {
     try {
       return await readTake(takesFolder(folder, sceneId, shotId), takeId)
+    } catch (err) {
+      return { error: (err as Error).message }
+    }
+  })
+
+  ipcMain.handle('takes:delete', async (_e, folder: string, sceneId: string, shotId: string, takeId: string) => {
+    try {
+      await deleteTake(takesFolder(folder, sceneId, shotId), takeId)
+      return { ok: true }
     } catch (err) {
       return { error: (err as Error).message }
     }

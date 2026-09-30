@@ -41,6 +41,7 @@ const api: SecondTeamApi = {
   },
   listTakes: (folder, sceneId, shotId) => ipcRenderer.invoke('takes:list', folder, sceneId, shotId),
   readTake: (folder, sceneId, shotId, takeId) => ipcRenderer.invoke('takes:read', folder, sceneId, shotId, takeId),
+  deleteTake: (folder, sceneId, shotId, takeId) => ipcRenderer.invoke('takes:delete', folder, sceneId, shotId, takeId),
 
   addReferenceImages: (folder, kind, ownerId, room) => ipcRenderer.invoke('assets:add', folder, kind, ownerId, room),
   pasteReferenceImages: (folder, kind, ownerId, room) => ipcRenderer.invoke('assets:paste', folder, kind, ownerId, room),

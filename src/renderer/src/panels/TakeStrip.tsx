@@ -1,7 +1,16 @@
 import { useEffect } from 'react'
-import { Sparkles, Star, X } from 'lucide-react'
+import { Sparkles, Star, Trash2, X } from 'lucide-react'
 import { activeScene, useDocument } from '../state/documentStore'
-import { cancelGeneration, generateBlocker, generateShot, loadTakes, openTake, toggleCircleTake, useGeneration } from '../state/generation'
+import {
+  cancelGeneration,
+  deleteTake,
+  generateBlocker,
+  generateShot,
+  loadTakes,
+  openTake,
+  toggleCircleTake,
+  useGeneration
+} from '../state/generation'
 import { useUi } from '../state/uiStore'
 import BackendStatus from './BackendStatus'
 
@@ -48,8 +57,7 @@ export default function TakeStrip() {
     const n = shot ? activeScene(s).nodes[shot.id] : undefined
     return n?.type === 'camera' ? n.circleTake : null
   })
-  // The circle take first, then newest first.
-  const ordered = takes ? [...takes.filter((t) => t.id === circle), ...takes.filter((t) => t.id !== circle)] : undefined
+  // Always newest on the left, oldest on the right (the circle take keeps its place and its star).
   const blocker = generateBlocker()
 
   return (
@@ -87,7 +95,7 @@ export default function TakeStrip() {
           </div>
         )}
         {shot &&
-          ordered?.map((t) => (
+          takes?.map((t) => (
             <div
               key={t.id}
               role="button"
@@ -108,6 +116,16 @@ export default function TakeStrip() {
                 }}
               >
                 <Star size={14} fill={t.id === circle ? 'currentColor' : 'none'} />
+              </button>
+              <button
+                className="delete-take"
+                title="Delete this take (moves it to the Recycle Bin)"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  void deleteTake(shot.id, t.id)
+                }}
+              >
+                <Trash2 size={13} />
               </button>
             </div>
           ))}

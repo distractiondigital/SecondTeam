@@ -1,4 +1,4 @@
-import { nativeImage } from 'electron'
+import { nativeImage, shell } from 'electron'
 import { existsSync } from 'fs'
 import { mkdir, readdir, readFile, rename, writeFile } from 'fs/promises'
 import { join, resolve } from 'path'
@@ -78,6 +78,15 @@ export async function listTakes(dir: string): Promise<TakeInfo[]> {
     }
   }
   return takes
+}
+
+/** Move a take (image, thumbnail, sidecar) to the Recycle Bin, so a mistake can still be undone there. */
+export async function deleteTake(dir: string, id: unknown): Promise<void> {
+  if (!isSafeId(id)) throw new Error('Unexpected take id.')
+  for (const ext of ['.png', '.thumb.jpg', '.json']) {
+    const file = join(dir, `${id}${ext}`)
+    if (existsSync(file)) await shell.trashItem(file)
+  }
 }
 
 /** The full image and sidecar of one take. */

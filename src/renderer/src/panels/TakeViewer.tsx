@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
-import { Lock, Star, X } from 'lucide-react'
+import { Lock, Star, Trash2, X } from 'lucide-react'
 import type { TakeMeta } from '../../../shared/takes'
 import { activeScene, useDocument } from '../state/documentStore'
-import { closeTake, stepTake, toggleCircleTake, useGeneration } from '../state/generation'
+import { closeTake, deleteTake, stepTake, toggleCircleTake, useGeneration } from '../state/generation'
 
 // A take, large, over the viewport: with its seed, model and prompt. ← / → flip through the
 // shot's takes (newer / older); Esc closes. Other shortcuts pause while it's open.
@@ -34,6 +34,7 @@ export default function TakeViewer() {
       if (e.key === 'ArrowRight') stepTake(1)
       else if (e.key === 'ArrowLeft') stepTake(-1)
       else if (e.key === 'Escape') closeTake()
+      else if (e.key === 'Delete') void deleteTake(viewer.shotId, viewer.takeId)
       else return
       e.preventDefault()
     }
@@ -71,6 +72,9 @@ export default function TakeViewer() {
             <Lock size={14} /> Use this seed
           </button>
         )}
+        <button onClick={() => void deleteTake(viewer.shotId, viewer.takeId)} title="Delete this take (Del); it goes to the Recycle Bin">
+          <Trash2 size={14} /> Delete
+        </button>
         <button className="pass-close" onClick={closeTake} title="Close (Esc)">
           <X size={16} />
         </button>
@@ -93,7 +97,7 @@ export default function TakeViewer() {
           <span className="take-prompt" title={meta.positive}>
             {meta.positive}
           </span>
-          <span className="pass-keys">← → newer / older · Esc to close</span>
+          <span className="pass-keys">← → newer / older · Del to delete · Esc to close</span>
         </div>
       )}
     </div>

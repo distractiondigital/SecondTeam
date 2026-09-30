@@ -53,6 +53,8 @@ export interface SecondTeamApi {
     shotId: string,
     takeId: string
   ) => Promise<{ image: string; meta: TakeMeta } | { error: string }>
+  /** Move a take to the Recycle Bin. */
+  deleteTake: (folder: string, sceneId: string, shotId: string, takeId: string) => Promise<{ ok: true } | { error: string }>
 
   /**
    * Pick images and copy them into the project (assets\cast|props\<id>\ or assets\style\).
