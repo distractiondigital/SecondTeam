@@ -7,6 +7,7 @@ import {
   FolderOpen,
   Magnet,
   Move3d,
+  PersonStanding,
   Pill,
   Redo2,
   Rotate3d,
@@ -19,7 +20,7 @@ import {
 } from 'lucide-react'
 import { PRIMITIVE_TYPES, type PrimitiveType } from '../../../shared/project'
 import { PRIMITIVES } from '../../../shared/primitives'
-import { addPrimitive, redo, undo } from '../state/actions'
+import { addMannequin, addPrimitive, redo, undo } from '../state/actions'
 import { useDocument } from '../state/documentStore'
 import { newProject, openProject, saveProject, saveProjectAs } from '../state/projectIO'
 import { useUi, type GizmoMode, type SnapMode } from '../state/uiStore'
@@ -82,7 +83,7 @@ function ToolButton(props: {
 
 function Group({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="tool-group" aria-label={label}>
+    <div className={`tool-group ${label.toLowerCase()}`} aria-label={label}>
       <span className="tool-group-label">{label}</span>
       {children}
     </div>
@@ -123,6 +124,7 @@ export default function Toolbar() {
             onClick={() => addPrimitive(type)}
           />
         ))}
+        <ToolButton icon={PersonStanding} label="Figure" title="Add a posable figure" onClick={addMannequin} />
       </Group>
 
       <Group label="Gizmo">

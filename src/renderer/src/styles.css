@@ -52,6 +52,21 @@ input {
 
 .app-name {
   font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Keep the toolbar on one line: drop group labels, then Add labels, as the window narrows.
+   Every button keeps its tooltip. */
+@media (max-width: 1800px) {
+  .tool-group-label {
+    display: none;
+  }
+}
+
+@media (max-width: 1450px) {
+  .tool-group.add .tool-button span {
+    display: none;
+  }
 }
 
 .project-name {
@@ -407,6 +422,99 @@ input {
 
 .prop-actions button:hover {
   border-color: var(--accent);
+}
+
+.prop-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.prop-actions button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.prop-actions.tight {
+  padding: 8px 0 4px;
+}
+
+.prop-title-spaced {
+  margin-top: 10px;
+}
+
+.prop-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.hint.small {
+  margin: 6px 0 0;
+  font-size: 11.5px;
+}
+
+/* ---------- Figures ---------- */
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slider {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--accent);
+}
+
+.slider-value {
+  width: 86px;
+  display: flex;
+}
+
+.slider-end {
+  color: var(--text-dim);
+  font-size: 11px;
+}
+
+.preset-select {
+  width: 100%;
+  padding: 4px 6px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font: inherit;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 0;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.back-link:hover {
+  color: var(--text);
+}
+
+.joint-name {
+  margin-top: 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.status-readout {
+  color: var(--accent);
+  font-weight: 600;
+  margin-right: 14px;
 }
 
 /* ---------- Status bar ---------- */

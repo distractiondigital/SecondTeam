@@ -144,6 +144,67 @@ describe('anchor and scale', () => {
   })
 })
 
+describe('figures', () => {
+  const figure = (id: string) => {
+    const n = scene().nodes[id]
+    if (n.type !== 'mannequin') throw new Error('not a figure')
+    return n
+  }
+
+  it('adds a standing figure with its own colour', () => {
+    const a = doc().addMannequin()
+    const b = doc().addMannequin()
+    expect(figure(a).name).toBe('Figure 1')
+    expect(figure(a).height).toBe(1.75)
+    expect(figure(a).color).not.toBe(figure(b).color)
+  })
+
+  it('keeps joints inside their limits unless limits are off', () => {
+    const a = doc().addMannequin()
+    doc().setJointRotation(a, 'kneeL', [-40, 0, 0])
+    expect(figure(a).pose.joints.kneeL).toEqual([0, 0, 0])
+    doc().updateNode(a, { limits: false })
+    doc().setJointRotation(a, 'kneeL', [-40, 0, 0])
+    expect(figure(a).pose.joints.kneeL).toEqual([-40, 0, 0])
+  })
+
+  it('makes every pose change one undo step', () => {
+    const a = doc().addMannequin()
+    doc().applyPreset(a, 'pointing')
+    doc().mirrorPose(a)
+    expect(figure(a).pose.joints.shoulderL[0]).toBe(-88)
+    doc().undo()
+    expect(figure(a).pose.joints.shoulderR[0]).toBe(-88)
+    doc().undo()
+    expect(figure(a).pose.joints.shoulderR[0]).toBe(0)
+  })
+
+  it('clamps height and ignores scale', () => {
+    const a = doc().addMannequin()
+    doc().updateNode(a, { height: 5, scale: [2, 2, 2] })
+    expect(figure(a).height).toBe(2.1)
+    expect(figure(a).scale).toEqual([1, 1, 1])
+  })
+
+  it('duplicates the pose and survives save and load', () => {
+    const a = doc().addMannequin()
+    doc().applyPreset(a, 'sitting')
+    const [copy] = doc().duplicateNodes([a])
+    expect(figure(copy).pose).toEqual(figure(a).pose)
+    const loaded = parseProject(serializeProject(doc().project))
+    expect(loaded).toEqual(doc().project)
+    expect(loaded.schemaVersion).toBe(2)
+  })
+
+  it('fills in missing joints when loading', () => {
+    const a = doc().addMannequin()
+    const raw = JSON.parse(serializeProject(doc().project))
+    delete raw.scenes[0].nodes[a].pose.joints.head
+    const loaded = parseProject(JSON.stringify(raw)).scenes[0].nodes[a]
+    expect(loaded.type === 'mannequin' && loaded.pose.joints.head).toEqual([0, 0, 0])
+  })
+})
+
 describe('saving', () => {
   it('round-trips through project.json', () => {
     const a = doc().addPrimitive('capsule', [1, 1])

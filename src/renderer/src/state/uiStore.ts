@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import type { JointName } from '../../../shared/mannequin'
 import type { Units } from '../units'
 
 // UI state: how you're looking at the project. Not saved into project.json and not undoable.
@@ -10,6 +11,8 @@ export const SNAP_MODES: SnapMode[] = ['off', 'grid', 'surface']
 
 interface UiState {
   selection: string[]
+  /** Joint being posed, when the selection is a single figure. Cleared whenever the selection changes. */
+  selectedJoint: JointName | null
   gizmoMode: GizmoMode
   snapMode: SnapMode
   units: Units
@@ -21,6 +24,7 @@ interface UiState {
   frameRequest: number
 
   select: (ids: string[]) => void
+  selectJoint: (joint: JointName | null) => void
   toggleSelected: (id: string) => void
   setGizmoMode: (mode: GizmoMode) => void
   setSnapMode: (mode: SnapMode) => void
@@ -33,6 +37,7 @@ interface UiState {
 
 export const useUi = create<UiState>()((set) => ({
   selection: [],
+  selectedJoint: null,
   gizmoMode: 'translate',
   snapMode: 'off',
   units: 'm',
@@ -40,10 +45,12 @@ export const useUi = create<UiState>()((set) => ({
   renamingId: null,
   frameRequest: 0,
 
-  select: (ids) => set({ selection: ids }),
+  select: (ids) => set({ selection: ids, selectedJoint: null }),
+  selectJoint: (selectedJoint) => set({ selectedJoint }),
   toggleSelected: (id) =>
     set((s) => ({
-      selection: s.selection.includes(id) ? s.selection.filter((x) => x !== id) : [...s.selection, id]
+      selection: s.selection.includes(id) ? s.selection.filter((x) => x !== id) : [...s.selection, id],
+      selectedJoint: null
     })),
   setGizmoMode: (gizmoMode) => set({ gizmoMode }),
   setSnapMode: (snapMode) => set({ snapMode }),

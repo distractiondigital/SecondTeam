@@ -1,7 +1,19 @@
 // The saved project format (project.json). Human-readable and schema-versioned.
 // Units: positions in metres, rotations in degrees (XYZ Euler order), Y is up.
 
-export const SCHEMA_VERSION = 1
+import {
+  clampBuild,
+  clampHeight,
+  DEFAULT_BUILD,
+  DEFAULT_HEIGHT,
+  FIGURE_COLORS,
+  JOINT_NAMES,
+  restPose,
+  type Pose
+} from './mannequin'
+
+// v1: M1 (primitives, groups). v2: M2 adds mannequins.
+export const SCHEMA_VERSION = 2
 
 export type Vec3 = [number, number, number]
 
@@ -48,7 +60,23 @@ export interface GroupNode extends NodeBase {
   childIds: string[]
 }
 
-export type SceneNode = PrimitiveNode | GroupNode
+/** A posable human figure. Its scale stays 1; height and build set its size. */
+export interface MannequinNode extends NodeBase {
+  type: 'mannequin'
+  /** Metres, floor to top of head. */
+  height: number
+  /** 0 = slim … 1 = broad. */
+  build: number
+  /** Viewport colour (Milestone 7: taken from the linked cast member). */
+  color: string
+  /** Link to a Cast entry (Milestone 7). */
+  castId: string | null
+  /** Keep joints inside realistic ranges. */
+  limits: boolean
+  pose: Pose
+}
+
+export type SceneNode = PrimitiveNode | GroupNode | MannequinNode
 
 export interface Scene {
   id: string
@@ -124,6 +152,10 @@ function checkNode(node: unknown, id: string, scene: Scene): void {
     if (!PRIMITIVE_TYPES.includes(n!.primitive as PrimitiveType)) bad('shape type')
   } else if (n!.type === 'group') {
     if (!Array.isArray(n!.childIds) || !n!.childIds.every((c) => c in scene.nodes)) bad('child list')
+  } else if (n!.type === 'mannequin') {
+    const pose = n!.pose as Partial<Pose> | undefined
+    if (!pose || typeof pose !== 'object' || typeof pose.joints !== 'object' || pose.joints === null) bad('pose')
+    for (const r of Object.values(pose!.joints!)) if (!isVec3(r)) bad('joint rotation')
   } else {
     bad('type')
   }
@@ -136,6 +168,17 @@ function repairNode(node: SceneNode): void {
     // Files from before anchors existed: planes were centred, everything else sat on its base.
     if (node.primitive === 'plane') node.anchor = 'center'
     else if (!ANCHORS.includes(node.anchor)) node.anchor = 'bottom'
+  }
+  if (node.type === 'mannequin') {
+    node.scale = [1, 1, 1]
+    node.height = clampHeight(node.height ?? DEFAULT_HEIGHT)
+    node.build = clampBuild(node.build ?? DEFAULT_BUILD)
+    node.limits = node.limits !== false
+    node.castId = typeof node.castId === 'string' ? node.castId : null
+    node.color = typeof node.color === 'string' ? node.color : FIGURE_COLORS[0]
+    const rest = restPose()
+    for (const j of JOINT_NAMES) if (!isVec3(node.pose.joints[j])) node.pose.joints[j] = rest.joints[j]
+    if (!isVec3(node.pose.pelvisOffset)) node.pose.pelvisOffset = rest.pelvisOffset
   }
 }
 

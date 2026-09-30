@@ -19,6 +19,11 @@ export function addPrimitive(type: PrimitiveType): void {
   ui().select([id])
 }
 
+export function addMannequin(): void {
+  const id = doc().addMannequin(viewportBridge.getGroundPoint())
+  ui().select([id])
+}
+
 export function deleteSelected(): void {
   const ids = liveSelection()
   if (ids.length === 0) return

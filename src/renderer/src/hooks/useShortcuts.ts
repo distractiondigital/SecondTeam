@@ -67,7 +67,8 @@ export function useShortcuts(): void {
         case 'f2':
           return run(renameSelected)
         case 'escape':
-          return run(() => ui.select([]))
+          // Step out of joint posing first, then clear the selection.
+          return run(() => (ui.selectedJoint ? ui.selectJoint(null) : ui.select([])))
       }
     }
     window.addEventListener('keydown', onKeyDown)

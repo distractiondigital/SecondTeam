@@ -4,7 +4,7 @@
 |---|---|---|---|
 | 0 | Scaffold | ✅ Done (tested by Spencer 2026-09-29) | Electron window with an R3F viewport, a metre grid, orbit controls and an axis gizmo. `start.bat` launcher. |
 | 1 | Set building | ✅ Done (tested by Spencer 2026-09-29) | Six primitives; gizmo with snapping; outliner (tree, rename, hide, lock); properties with real-size fields; m/ft; group/duplicate/delete; full undo/redo; save/open `.secondteam` folders; unsaved-changes prompts. Snap modes (Off/Grid/Surface, Ctrl to flip), anchors. 23 automated tests. |
-| 2 | Mannequins | ⬜ | |
+| 2 | Mannequins | 🟨 Built, awaiting Spencer's test | 17-joint FK figure; click a body part to pose; realistic limits (toggle per figure); 7 presets + mirror; height (child→adult proportions) and build; 40 automated tests. |
 | 3 | Cameras & shot list | ⬜ | |
 | 4 | Lights & clay render | ⬜ | |
 | 5 | Render passes | ⬜ | |
@@ -29,7 +29,16 @@
 - 2026-09-29 (M1 feedback): Primitives have an anchor (bottom/center/top) that sets their origin; changing it keeps the object in place. Planes stay centre-only (Spencer's choice; build walls from thin boxes). Stored in project.json as `anchor`; older files load with the old behaviour.
 - 2026-09-29 (M1 bug): A plane whose hidden height scale reached 0 couldn't be clicked. Scales are now clamped to at least 0.001 everywhere (gizmo, fields, file load), and planes don't show the vertical scale handle.
 
+- 2026-09-29 (M2): Figures are a new node type; project.json is now **schema v2** (v1 files still open; older builds refuse v2 files instead of misreading them).
+- 2026-09-29 (M2): Posing = click the figure, then click a body part (Spencer's choice). Realistic joint limits on every joint, with a per-figure "Joint limits" checkbox to cheat poses (Spencer's choice + the toggle). The pelvis is free because it's the whole-body orientation.
+- 2026-09-29 (M2): Joint angles are XYZ Euler degrees in a shared frame (figure faces +Z, left = +X). Mirroring = swap sides and negate Y/Z.
+- 2026-09-29 (M2): The hip offset is stored as a fraction of height, so a sitting or lying figure stays correct when its height changes.
+- 2026-09-29 (M2): The head carries invisible nose/eye/ear marker points (`<id>:kp:*`) for the M5 OpenPose render.
+
 ## Ideas / later
+- IK: drag a hand or foot and let the arm or leg follow.
+- Hands and fingers (fist, open, pointing) and costume/prop attachments on figures.
+- More pose presets (running, kneeling, leaning on a wall, crouching), plus saving your own.
 - Scene switcher / multiple scenes in the UI (the data model already supports them).
 - Recent-projects list on startup.
 - Gizmo on a multi-selection without grouping first.

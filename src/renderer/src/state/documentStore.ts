@@ -7,6 +7,7 @@ import {
   newId,
   type Anchor,
   type GroupNode,
+  type MannequinNode,
   type PrimitiveNode,
   type PrimitiveType,
   type Project,
@@ -21,6 +22,19 @@ import {
   PRIMITIVES,
   supportsAnchor
 } from '../../../shared/primitives'
+import {
+  clampBuild,
+  clampHeight,
+  clampJoint,
+  DEFAULT_BUILD,
+  DEFAULT_HEIGHT,
+  FIGURE_COLORS,
+  mirrorPose,
+  POSE_PRESETS,
+  proportions,
+  type JointName,
+  type PresetName
+} from '../../../shared/mannequin'
 
 // The document store holds the project: everything that is saved to disk and can be undone.
 // Undo works by keeping whole-project snapshots. Immer shares unchanged parts between
@@ -30,8 +44,25 @@ const HISTORY_LIMIT = 200
 const DUPLICATE_OFFSET = 0.5 // metres along X, so a duplicate is visible next to the original
 
 export type NodePatch = Partial<
-  Pick<PrimitiveNode, 'name' | 'position' | 'rotation' | 'scale' | 'color' | 'hidden' | 'locked'>
+  Pick<PrimitiveNode, 'name' | 'position' | 'rotation' | 'scale' | 'color' | 'hidden' | 'locked'> &
+    Pick<MannequinNode, 'height' | 'build' | 'limits'>
 >
+
+/** Which node types each patch field applies to (fields not listed apply to every node). */
+const FIELD_TYPES: Partial<Record<keyof NodePatch, SceneNode['type'][]>> = {
+  color: ['primitive', 'mannequin'],
+  height: ['mannequin'],
+  build: ['mannequin'],
+  limits: ['mannequin'],
+  scale: ['primitive', 'group'] // a figure's size comes from its height
+}
+
+function normalizeField(key: keyof NodePatch, value: unknown): unknown {
+  if (key === 'scale') return clampScale(value as Vec3)
+  if (key === 'height') return clampHeight(value as number)
+  if (key === 'build') return clampBuild(value as number)
+  return value
+}
 
 interface DocumentState {
   project: Project
@@ -53,6 +84,15 @@ interface DocumentState {
   updateNodes: (ids: string[], patch: NodePatch) => void
   /** Move a primitive's origin to its bottom, middle or top without moving the object. */
   setAnchor: (id: string, anchor: Anchor) => void
+
+  addMannequin: (groundPoint?: [number, number]) => string
+  /** Set one joint's rotation (degrees); clamped to realistic limits if the figure has them on. */
+  setJointRotation: (id: string, joint: JointName, rotation: Vec3) => void
+  /** Pelvis shift from standing, as a fraction of the figure's height. */
+  setPelvisOffset: (id: string, offset: Vec3) => void
+  applyPreset: (id: string, preset: PresetName) => void
+  mirrorPose: (id: string) => void
+  resetJoint: (id: string, joint: JointName) => void
   deleteNodes: (ids: string[]) => void
   duplicateNodes: (ids: string[]) => string[]
   groupNodes: (ids: string[]) => string | null
@@ -130,9 +170,10 @@ export const useDocument = create<DocumentState>()((set, get) => {
         for (const id of ids) {
           const node = scene.nodes[id]
           if (!node) continue
-          for (const [key, value] of Object.entries(patch)) {
-            if (key === 'color' && node.type !== 'primitive') continue
-            const next = key === 'scale' ? clampScale(value as Vec3) : value
+          for (const [key, value] of Object.entries(patch) as [keyof NodePatch, unknown][]) {
+            const types = FIELD_TYPES[key]
+            if (types && !types.includes(node.type)) continue
+            const next = normalizeField(key, value)
             if (!sameValue((node as Record<string, unknown>)[key], next)) {
               ;(node as Record<string, unknown>)[key] = next
             }
@@ -156,6 +197,76 @@ export const useDocument = create<DocumentState>()((set, get) => {
           round(node.position[2] + shift.z)
         ]
         node.anchor = anchor
+      })
+    },
+
+    addMannequin: (groundPoint = [0, 0]) => {
+      const id = newId()
+      change((scene) => {
+        const figureCount = Object.values(scene.nodes).filter((n) => n.type === 'mannequin').length
+        const node: MannequinNode = {
+          id,
+          type: 'mannequin',
+          name: nextName(scene, 'Figure'),
+          parentId: null,
+          position: [round(groundPoint[0]), 0, round(groundPoint[1])],
+          rotation: [0, 0, 0],
+          scale: [1, 1, 1],
+          hidden: false,
+          locked: false,
+          height: DEFAULT_HEIGHT,
+          build: DEFAULT_BUILD,
+          color: FIGURE_COLORS[figureCount % FIGURE_COLORS.length],
+          castId: null,
+          limits: true,
+          pose: POSE_PRESETS.standing.make(proportions(DEFAULT_HEIGHT, DEFAULT_BUILD))
+        }
+        scene.nodes[id] = node
+        scene.rootIds.push(id)
+      })
+      return id
+    },
+
+    setJointRotation: (id, joint, rotation) => {
+      change((scene) => {
+        const node = scene.nodes[id]
+        if (node?.type !== 'mannequin') return
+        const rounded = rotation.map((r) => round(r)) as Vec3
+        const next = node.limits ? clampJoint(joint, rounded) : rounded
+        if (!sameValue(node.pose.joints[joint], next)) node.pose.joints[joint] = next
+      })
+    },
+
+    setPelvisOffset: (id, offset) => {
+      change((scene) => {
+        const node = scene.nodes[id]
+        if (node?.type !== 'mannequin') return
+        const next = offset.map((v) => round(v)) as Vec3
+        if (!sameValue(node.pose.pelvisOffset, next)) node.pose.pelvisOffset = next
+      })
+    },
+
+    applyPreset: (id, preset) => {
+      change((scene) => {
+        const node = scene.nodes[id]
+        if (node?.type !== 'mannequin') return
+        node.pose = POSE_PRESETS[preset].make(proportions(node.height, node.build))
+      })
+    },
+
+    mirrorPose: (id) => {
+      change((scene) => {
+        const node = scene.nodes[id]
+        if (node?.type === 'mannequin') node.pose = mirrorPose(toPlain(node).pose)
+      })
+    },
+
+    resetJoint: (id, joint) => {
+      change((scene) => {
+        const node = scene.nodes[id]
+        if (node?.type !== 'mannequin') return
+        node.pose.joints[joint] = [0, 0, 0]
+        if (joint === 'pelvis') node.pose.pelvisOffset = [0, 0, 0]
       })
     },
 

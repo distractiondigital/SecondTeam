@@ -1,5 +1,5 @@
 import { useState, type MouseEvent } from 'react'
-import { ChevronDown, ChevronRight, Eye, EyeOff, Folder, Lock, LockOpen } from 'lucide-react'
+import { ChevronDown, ChevronRight, Eye, EyeOff, Folder, Lock, LockOpen, PersonStanding } from 'lucide-react'
 import { activeScene, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 
@@ -68,8 +68,10 @@ function OutlinerRow({ id, depth, inHidden }: { id: string; depth: number; inHid
         ) : (
           <span className="expander" />
         )}
-        {isGroup ? (
+        {node.type === 'group' ? (
           <Folder size={14} className="row-icon" />
+        ) : node.type === 'mannequin' ? (
+          <PersonStanding size={14} className="row-icon" style={{ color: node.color }} />
         ) : (
           <span className="color-chip" style={{ background: node.color }} />
         )}

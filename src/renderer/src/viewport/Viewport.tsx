@@ -4,6 +4,7 @@ import { GizmoHelper, GizmoViewport, OrbitControls } from '@react-three/drei'
 import { useUi } from '../state/uiStore'
 import FrameController from './FrameController'
 import GroundGrid from './GroundGrid'
+import JointGizmo from './JointGizmo'
 import SceneNodes from './SceneNodes'
 import SelectionGizmo from './SelectionGizmo'
 import { viewportBridge } from './viewportBridge'
@@ -19,9 +20,11 @@ export default function Viewport() {
     <Canvas
       camera={{ position: [6, 4, 8], fov: 40, near: 0.05, far: 1000 }}
       onPointerMissed={(e) => {
-        // Clicking empty space clears the selection (unless adding to it).
-        if (viewportBridge.gizmoBusy) return
-        if (e.button === 0 && !e.ctrlKey && !e.shiftKey) useUi.getState().select([])
+        // Clicking empty space steps back out of joint posing, then clears the selection.
+        if (viewportBridge.gizmoBusy || e.button !== 0 || e.ctrlKey || e.shiftKey) return
+        const ui = useUi.getState()
+        if (ui.selectedJoint) ui.selectJoint(null)
+        else ui.select([])
       }}
     >
       <color attach="background" args={['#2a2b2f']} />
@@ -33,6 +36,7 @@ export default function Viewport() {
       <GroundGrid />
       <SceneNodes />
       <SelectionGizmo />
+      <JointGizmo />
 
       <OrbitControls makeDefault mouseButtons={MOUSE_BUTTONS} />
       <FrameController />

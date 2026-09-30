@@ -38,7 +38,8 @@ Electron + React + TypeScript + Vite · three.js via react-three-fiber + drei ·
 - Installer: `npm run dist` (electron-builder NSIS into `release/`; not validated until M9)
 - Layout: `src/main` (Electron main; `projectFiles.ts` = save/open IPC), `src/preload` (IPC bridge, typed in `src/preload/api.d.ts`), `src/shared` (project.json schema, primitives), `src/renderer/src` (`state/` Zustand stores + actions, `viewport/`, `panels/`). Scene units: 1 unit = 1 metre, rotations stored in degrees, Y up.
 - Document store (`state/documentStore.ts`) is the only place that changes the project; every change is an undo step (gizmo drags batched with `beginGesture`/`endGesture`). UI-only state lives in `state/uiStore.ts`.
-- `electron-vite dev` hot-reloads the UI but not `src/main` or `src/preload`: restart the app after changing those.
+- `electron-vite dev` hot-reloads the UI but not `src/main` or `src/preload`: restart the app after changing those. Its file watcher sometimes misses rapid edits (you get a stale module, e.g. "X is not defined" although typecheck passes); restart the dev server when that happens.
+- Figures: skeleton, proportions, limits and presets live in `src/shared/mannequin.ts` (pure, tested). `viewport/MannequinView.tsx` renders them; joint groups are named `<id>:<joint>`; `viewport/JointGizmo.tsx` poses them.
 - To drive the dev app in tests: `npx electron-vite dev --remoteDebuggingPort 9222`, then use the Chrome DevTools Protocol.
 - Editing files from Windows PowerShell 5: always pass `-Encoding UTF8` to `Get-Content`, or non-ASCII characters (·, ’, °) get corrupted.
 - Electron 44 downloads its binary lazily on first run (no postinstall). npm 11's allow-scripts warnings about esbuild and electron-winstaller are harmless.

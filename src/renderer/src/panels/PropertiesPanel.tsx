@@ -3,6 +3,7 @@ import { PRIMITIVES, supportsAnchor } from '../../../shared/primitives'
 import { deleteSelected, groupSelected, ungroupSelected } from '../state/actions'
 import { activeScene, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
+import { FigureSection, JointProperties } from './FigureProperties'
 import NumberField, { type NumberKind } from './NumberField'
 
 const AXES = ['X', 'Y', 'Z'] as const
@@ -72,7 +73,9 @@ function NodeProperties({ node }: { node: SceneNode }) {
           }}
           onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
         />
-        <div className="prop-kind">{isPrimitive ? PRIMITIVES[node.primitive].label : 'Group'}</div>
+        <div className="prop-kind">
+          {node.type === 'primitive' ? PRIMITIVES[node.primitive].label : node.type === 'mannequin' ? 'Figure' : 'Group'}
+        </div>
       </div>
 
       <Vec3Row
@@ -104,6 +107,8 @@ function NodeProperties({ node }: { node: SceneNode }) {
             update(node.id, { scale: size.map((s, i) => (base[i] > 0 ? s / base[i] : node.scale[i])) as Vec3 })
           }
         />
+      ) : node.type === 'mannequin' ? (
+        <FigureSection node={node} />
       ) : (
         <Vec3Row
           title="Scale"
@@ -139,7 +144,7 @@ function NodeProperties({ node }: { node: SceneNode }) {
         </div>
       )}
 
-      {node.type === 'primitive' && (
+      {node.type !== 'group' && (
         <div className="prop-section">
           <label className="prop-inline">
             <span className="prop-title">Viewport colour</span>
@@ -177,8 +182,21 @@ function NodeProperties({ node }: { node: SceneNode }) {
 
 export default function PropertiesPanel() {
   const selection = useUi((s) => s.selection)
+  const selectedJoint = useUi((s) => s.selectedJoint)
   const nodes = useDocument((s) => activeScene(s).nodes)
   const live = selection.filter((id) => id in nodes)
+  const single = live.length === 1 ? nodes[live[0]] : null
+
+  if (single?.type === 'mannequin' && selectedJoint) {
+    return (
+      <aside className="panel properties">
+        <div className="panel-header">Pose joint</div>
+        <div className="panel-body">
+          <JointProperties node={single} joint={selectedJoint} />
+        </div>
+      </aside>
+    )
+  }
 
   return (
     <aside className="panel properties">
