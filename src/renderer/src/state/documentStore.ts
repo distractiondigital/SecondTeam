@@ -83,6 +83,8 @@ export type CameraField =
   | 'description'
   | 'notes'
   | 'circleTake'
+  | 'boardText'
+  | 'dialogue'
 
 export type LightField = 'stops' | 'kelvin' | 'softness' | 'shadows' | 'coneAngle' | 'falloff'
 const LIGHT_FIELDS: LightField[] = ['stops', 'kelvin', 'softness', 'shadows', 'coneAngle', 'falloff']
@@ -105,7 +107,9 @@ const CAMERA_FIELDS: CameraField[] = [
   'lightingOverride',
   'description',
   'notes',
-  'circleTake'
+  'circleTake',
+  'boardText',
+  'dialogue'
 ]
 
 /** Which node types each patch field applies to (fields not listed apply to every node). */
@@ -186,6 +190,10 @@ interface DocumentState {
   updateProp: (id: string, patch: Partial<Omit<Prop, 'id'>>) => void
   /** Delete a prop; objects and groups linked to it (in every scene) become unlinked. */
   deleteProp: (id: string) => void
+  /** The storyboard's order (shot camera ids, across scenes). */
+  setBoardOrder: (order: string[]) => void
+  /** A storyboard panel's captions, for a shot in any scene. */
+  updatePanel: (sceneId: string, shotId: string, patch: { boardText?: string | null; dialogue?: string; notes?: string }) => void
 
   /** Switch to another scene (back to its own set, not a shot). */
   setSceneId: (sceneId: string) => void
@@ -393,6 +401,8 @@ export const useDocument = create<DocumentState>()((set, get) => {
           description: shot?.description ?? '',
           notes: '',
           circleTake: null,
+          boardText: null,
+          dialogue: '',
           // A shot made while another shot is active starts from that shot's version of the set.
           overrides: shot ? toPlainValue(shot.overrides)! : {}
         }
@@ -499,6 +509,28 @@ export const useDocument = create<DocumentState>()((set, get) => {
             if ((n.type === 'primitive' || n.type === 'group') && n.propId === id) n.propId = null
           }
         }
+      })
+    },
+
+    setBoardOrder: (order) => {
+      const next = [...new Set(order)]
+      if (sameValue(toPlainValue(get().project.board.order), next)) return
+      change((_scene, project) => {
+        project.board.order = next
+      })
+    },
+
+    updatePanel: (sceneId, shotId, patch) => {
+      const scene = get().project.scenes.find((s) => s.id === sceneId)
+      const before = scene?.nodes[shotId]
+      if (!before || before.type !== 'camera') return
+      if (Object.entries(patch).every(([k, v]) => (before as unknown as Record<string, unknown>)[k] === v)) return
+      change((_scene, project) => {
+        const shot = project.scenes.find((s) => s.id === sceneId)?.nodes[shotId]
+        if (!shot || shot.type !== 'camera') return
+        if (patch.boardText !== undefined) shot.boardText = patch.boardText
+        if (patch.dialogue !== undefined) shot.dialogue = patch.dialogue
+        if (patch.notes !== undefined) shot.notes = patch.notes
       })
     },
 

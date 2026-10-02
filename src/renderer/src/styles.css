@@ -71,7 +71,7 @@ input {
 
 .project-name {
   color: var(--text-dim);
-  max-width: 200px;
+  max-width: 150px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1831,4 +1831,230 @@ input {
 
 .link-select.spaced {
   margin-top: 6px;
+}
+
+/* ---------- Storyboard ---------- */
+.view-switch {
+  margin: 0 2px;
+  flex: 0 0 auto;
+}
+
+.board {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.board-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.board-title {
+  font-weight: 600;
+}
+
+.board-bar .generate-button {
+  margin-left: auto;
+}
+
+.board-empty {
+  padding: 24px;
+}
+
+.board-grid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+  padding: 14px;
+  align-content: start;
+}
+
+.board-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.board-panel.drop-before,
+.board-end.drop-before {
+  box-shadow: -4px 0 0 var(--accent);
+}
+
+.board-dragging {
+  opacity: 0.4;
+}
+
+.board-image {
+  aspect-ratio: 2.2;
+  background: var(--bg);
+  border-radius: 3px;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.board-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.board-missing {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.board-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.board-grip {
+  cursor: grab;
+  color: var(--text-dim);
+  align-self: center;
+  display: flex;
+}
+
+.board-shot {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.board-scene {
+  font-size: 11px;
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.board-specs {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.board-caption {
+  width: 100%;
+  resize: vertical;
+  padding: 4px 6px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font: inherit;
+  font-size: 12px;
+}
+
+.board-caption.dialogue {
+  font-style: italic;
+}
+
+.board-caption.notes-cap {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.board-end {
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.board-export-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.board-export {
+  width: 460px;
+  padding: 14px 16px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+.board-export-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.board-export .prop-actions {
+  padding: 12px 0 0;
+}
+
+.board-export .prop-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.board-export-done {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+.board-export-done span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.board-export-done button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.segmented.wide {
+  flex-wrap: wrap;
+}
+
+.prop-check.spaced {
+  margin-top: 10px;
 }

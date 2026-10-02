@@ -54,6 +54,9 @@ export function useShortcuts(): void {
         return
       }
 
+      // The storyboard has no 3D tools: only the Ctrl shortcuts above (save, undo…) apply there.
+      if (ui.view === 'board') return
+
       if (key === 'tab' && e.shiftKey) return run(ui.cycleSnapMode)
       // Numpad 0 like Blender, or  (the key left of 1) for keyboards without a numpad.
       if (e.code === 'Numpad0' || e.code === 'Backquote') return run(toggleCameraView)

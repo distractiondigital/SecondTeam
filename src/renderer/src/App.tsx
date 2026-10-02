@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { JOINTS } from '../../shared/mannequin'
 import { useShortcuts } from './hooks/useShortcuts'
+import BoardView from './panels/BoardView'
 import LeftTabs from './panels/CastProps'
 import PropertiesPanel from './panels/PropertiesPanel'
 import ShotList from './panels/ShotList'
@@ -45,6 +46,7 @@ function StatusBar() {
 export default function App() {
   const [version, setVersion] = useState('')
   const projectPath = useUi((s) => s.projectPath)
+  const view = useUi((s) => s.view)
 
   useEffect(() => {
     window.secondTeam.getVersion().then(setVersion)
@@ -64,10 +66,20 @@ export default function App() {
       <header className="topbar">
         <span className="app-name">Second Team</span>
         <span className="project-name">{projectDisplayName(projectPath)}</span>
-        <Toolbar />
+        <div className="segmented view-switch" title="The 3D set, or the storyboard">
+          <button className={view === 'set' ? 'active' : ''} onClick={() => useUi.getState().setView('set')}>
+            Set
+          </button>
+          <button className={view === 'board' ? 'active' : ''} onClick={() => useUi.getState().setView('board')}>
+            Board
+          </button>
+        </div>
+        <Toolbar boardOnly={view === 'board'} />
         <span className="version">{version && `v${version}`}</span>
       </header>
-      <div className="workspace">
+      {view === 'board' && <BoardView />}
+      {/* The set stays mounted (hidden) under the board, so its 3D scene doesn't have to rebuild. */}
+      <div className="workspace" style={view === 'board' ? { display: 'none' } : undefined}>
         <div className="left-column">
           <LeftTabs />
           <ShotList />

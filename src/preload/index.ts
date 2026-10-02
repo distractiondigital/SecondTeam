@@ -49,6 +49,11 @@ const api: SecondTeamApi = {
   pasteReferenceImages: (folder, kind, ownerId, room) => ipcRenderer.invoke('assets:paste', folder, kind, ownerId, room),
   referenceThumbnail: (folder, kind, ownerId, file) => ipcRenderer.invoke('assets:thumb', folder, kind, ownerId, file),
 
+  exportBoardPdf: (folder, spec) => ipcRenderer.invoke('board:exportPdf', folder, spec),
+  exportBoardPngs: (folder, spec) => ipcRenderer.invoke('board:exportPngs', folder, spec),
+  showExport: (folder, path) => ipcRenderer.invoke('board:show', folder, path),
+  openExport: (folder, path) => ipcRenderer.invoke('board:open', folder, path),
+
   confirmDiscard: (projectName) => ipcRenderer.invoke('dialog:confirmDiscard', projectName),
   showError: (message) => ipcRenderer.invoke('dialog:error', message)
 }

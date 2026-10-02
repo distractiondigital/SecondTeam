@@ -10,12 +10,12 @@
 | 5 | Render passes | ✅ Done (tested by Spencer 2026-09-30) | Clay, depth, normals, object ID and OpenPose passes per shot at the SDXL size (about 1 MP, sides in 64s); saved into the project folder with a `passes.json` sidecar; pass viewer. Automatic floor in renders (per-scene toggle). |
 | 6 | First AI frames | ✅ Done (tested by Spencer 2026-09-30) | Managed ComfyUI 0.38 (starts hidden with the app); RealVisXL V5 + SDXL 1.0 + Union ControlNet (depth) from a pinned, licence-checked manifest; depth (softened) + pose guides; prompt from frame description + which way the subject faces + shot size/angle + lens + lighting + style; strictness, takes, seed lock; live previews, cancel; take strip + viewer; takes saved with full sidecars. |
 | 7 | Continuity | ✅ Done (tested by Spencer 2026-09-30; continuity "not 100% but okay for now") | Cast and Props (description, up to 4 reference images, strength) with links from figures/objects/groups and per-object descriptions; ID pass per cast/prop/described object; regional prompts + masked IP-Adapter references per entity; project style reference images; feather / reference end controls; circle takes (strip, viewer, Shot list thumbnail). |
-| 8 | Storyboard | ⬜ Next | |
+| 8 | Storyboard | 🟡 Built, waiting for Spencer's test | Set/Board switch; a panel per shot (circle take, shot + scene, lens/size/angle, Description/Dialogue/Notes); own drag order across scenes; double-click to go to the shot; export PDF (Grid 2/3/6 landscape or Rows 2/3/4 portrait, Letter/A4, title, footer) and a PNG sequence. |
 | 9 | Plug-and-play | ⬜ | |
 | 10 | Polish | ⬜ | Includes **Posing 2** (Spencer, 2026-09-29): IK hands/feet, head look-at target that flows subtly into the torso, choosing which end of a limb stays put (e.g. plant a foot). |
 
-## Where we are (2026-09-30)
-Milestones 0–7 are done and tested. The whole "build the shot" half of the app works:
+## Where we are (2026-10-02)
+Milestones 0–7 are done and tested; Milestone 8 (Storyboard) is built and waiting for Spencer's test. The whole "build the shot" half of the app works:
 - Greybox a set with shapes, posed figures and lights.
 - Break a project into scenes (01, 02…) and shots (1A, 1B…). Each shot has its own camera and can cheat anything in the set just for that shot.
 - Look through any shot with real sensor/lens/squeeze maths, frame guides, and readouts for height, tilt, distance, shot size, angle and lighting.
@@ -23,11 +23,12 @@ Milestones 0–7 are done and tested. The whole "build the shot" half of the app
 - Render each shot's control images (clay, depth, normals, object ID, pose) and flip through them.
 - Generate AI frames for a shot on your own PC and keep every take with its seed and settings.
 - Keep characters and props consistent across shots with cast/prop descriptions and reference images, and circle the best take.
+- Lay the circle takes out on a storyboard with captions, and export it as a PDF or a PNG sequence.
 
-The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `node scripts/fetch-backend.mjs`. There are 127 automated checks (`npm test`), and all pass.
+The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `node scripts/fetch-backend.mjs`. There are 144 automated checks (`npm test`), and all pass.
 
 ## Things to know
-- **Project files:** saved projects are format **v9**. Every older format still opens, but a build from before a format change can't open a newer file.
+- **Project files:** saved projects are format **v10**. Every older format still opens, but a build from before a format change can't open a newer file.
 - **What undo covers:**
   - Undo goes back 200 steps and covers every change to the project, including per-shot changes, lights and deleting a scene.
   - Selection, switching scenes and the saved-pose *library* (the one shared across projects) aren't undoable. Poses saved into a project are.
@@ -50,7 +51,7 @@ The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `no
 - **For development** (in `CLAUDE.md`): files use LF line endings, enforced by `.gitattributes`. Changes to `src/main` or `src/preload` need an app restart.
 
 ## What's next
-**Milestone 8: Storyboard.** A board of every shot's circle take in shot order (drag to reorder), with shot number, lens/size/angle and editable description and dialogue/action notes per panel; export a PDF (2, 3 or 6 panels per page, landscape) and a PNG sequence.
+**Milestone 9: Plug-and-play** (once M8 is confirmed). A Windows installer that sets up the AI engine and chosen models on first run (with a progress screen), so the app works on a PC without Node or a dev setup.
 
 ## Decisions log
 - 2026-09-29: Name "Second Team" (working title). Stack: Electron + React + three.js (R3F) + managed ComfyUI. SDXL first for ControlNet/IP-Adapter maturity and commercial licence.
@@ -87,7 +88,7 @@ The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `no
 - 2026-09-30 (M5): **Automatic floor** in renders and thumbnails (Spencer): an endless floor 2 mm below ground, per-scene "Floor in renders" toggle in the scene menu, on by default (schema **v7**, `scene.floor`).
 - 2026-09-30 (M5): Depth pass = inverse depth (disparity) stretched to the frame's nearest/farthest surface (MiDaS / Depth Anything convention the depth ControlNets are trained on); empty = black. Normals = camera space, R right, G up, B toward the lens. ID = one flat colour per visible top-level object/group/figure, black background, legend in `passes.json` (switches to Cast/Prop in M7). Pose = OpenPose COCO-18 drawn like controlnet_aux (limbs at 60% colour, 4 px at 512 px, scaled); face points dropped when the head faces away, far ear/eye dropped in profile, off-frame points dropped.
 - 2026-09-30 (M5): Passes are saved to `scenes/<scene id>/shots/<shot id>/passes/` (internal ids, so renaming shots never orphans files). Main only writes the six known file names, only into an approved project folder, only for plain ids.
-- 2026-09-30 (before M6): **ComfyUI lives inside the project folder** (Spencer): `C:\Dev\SecondTeam\ComfyUI\` holds the whole backend (portable Python, ComfyUI, custom nodes, models, outputs). The entire folder is git-ignored, not just the models: it's many GB of downloaded binaries that the pinned manifest can recreate, and GitHub rejects files over 100 MB. `backend/` (manifest + workflow templates) stays in git. Vitest only looks in `src/` so it never runs ComfyUI's own tests. (The M9 installer's default location for end users is still open; the spec says `%LOCALAPPDATA%\SecondTeamackend`, and we'll revisit it then.)
+- 2026-09-30 (before M6): **ComfyUI lives inside the project folder** (Spencer): `C:\Dev\SecondTeam\ComfyUI\` holds the whole backend (portable Python, ComfyUI, custom nodes, models, outputs). The entire folder is git-ignored, not just the models: it's many GB of downloaded binaries that the pinned manifest can recreate, and GitHub rejects files over 100 MB. `backend/` (manifest + workflow templates) stays in git. Vitest only looks in `src/` so it never runs ComfyUI's own tests. (The M9 installer's default location for end users is still open; the spec says `%LOCALAPPDATA%\SecondTeam\backend`, and we'll revisit it then.)
 - 2026-09-30 (M6): ComfyUI **portable 0.38.0 (NVIDIA, PyTorch 2.14 + CUDA 13)** in `ComfyUI\`, started by the app (Spencer's choice) hidden on a free localhost port with `--preview-method auto`; killed with its children on quit; a pid file cleans up a leftover after dev reloads.
 - 2026-09-30 (M6): Models (Spencer picked RealVisXL + stock SDXL): **RealVisXL V5.0 fp16** (OpenRAIL++-M) and **SDXL 1.0 base** (OpenRAIL++-M) as checkpoints; **xinsir ControlNet Union SDXL ProMax** (Apache-2.0) for depth now and pose/normal/segment in M7. All URLs, sizes and SHA256 pinned in `backend/manifest.json`; a test fails if any model lacks a licence or isn't `commercial: true`. The **M9 wizard will let the user tick which models to download** (Spencer).
 - 2026-09-30 (M6): Workflow `backend/workflows/sdxl-depth.json`: core nodes only (no custom nodes): checkpoint → CLIP text → Union ControlNet (type depth, ControlNetApplyAdvanced) → KSampler dpmpp_2m/karras → PreviewImage (temp; the app copies the result into the project). One queued prompt per take, seeds seed, seed+1…
@@ -108,6 +109,7 @@ The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `no
 - 2026-09-30 (M7 feedback): the shot prompt no longer says which way "the subject" faces (Spencer: characters can face different ways). Facing lives only in each figure's own prompt, worked out per figure.
 - 2026-09-30 (M7 feedback): with figures skipping depth entirely, a prop could drift in front of a figure it's behind (the crate in front of the Detective). Figures' regions now get a **weak, heavily softened depth** guide (depth image shrunk to 5% and grown back: distance only, no joints; strength 0.35 for the first 40% of steps; fragment `figure-region.json`). Replayed on his take: crate back behind the Detective's legs; direction unaffected on 2 seeds.
 - 2026-09-30 (M7 check): Spencer suspected broken passes. Verified: the depth/pose/ID images ComfyUI received were byte-identical to the project's pass files, and replaying his take reproduced it exactly; that take had run on the version before his restart. On the current version, 5 fresh seeds of shot 1B gave 4 good takes (crate placed right, both facing as posed) and 1 bad (dark cut-out head). Some seeds are simply bad rolls. Also fixed: saving into a Nextcloud-synced folder could fail mid-swap (a `passes.json.tmp` was left behind); every temp-file swap now retries while another program holds the file (`src/main/safeRename.ts`).
+- 2026-10-02 (M8): **Storyboard.** Spencer's choices: the board has its **own order** across all scenes (`project.board.order`; dragging never renames shots; new shots join the end in scene/shot order); **both PDF layouts, chosen at export** (Grid 2/3/6 landscape, captions under; Rows 2/3/4 portrait, captions beside, after his `build_board.py`); captions = **Description** (`CameraNode.boardText`, null = the Frame description, so the AI prompt and the board text can differ) + **Dialogue** + **Notes**. Schema **v10**. The PDF is our own HTML printed by Electron's built-in `printToPDF` (no new libraries); takes are embedded as 1600 px JPEGs to keep it small. Export names carry date, time and layout, and never overwrite (" (2)").
 - 2026-09-30: The repo keeps LF line endings in the working copy (`.gitattributes`); mixed endings had been making some scripted edits silently miss.
 
 ## Ideas / later

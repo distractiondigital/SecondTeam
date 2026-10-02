@@ -94,9 +94,9 @@ function onEvent(e: GenerationEvent): void {
 }
 
 /** Load a shot's takes from the project folder. */
-export async function loadTakes(shotId: string): Promise<void> {
+/** Load a shot's takes from the project folder (a shot in another scene needs its scene id). */
+export async function loadTakes(shotId: string, sceneId = useDocument.getState().sceneId): Promise<void> {
   const folder = useUi.getState().projectPath
-  const sceneId = useDocument.getState().sceneId
   const takes = folder ? await api().listTakes(folder, sceneId, shotId) : []
   useGeneration.setState((s) => ({ takes: { ...s.takes, [shotId]: takes } }))
 }

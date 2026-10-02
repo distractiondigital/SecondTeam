@@ -29,7 +29,8 @@ import { DEFAULT_GENERATION, repairGeneration, type GenerationSettings } from '.
 // v4: per-shot changes (camera.overrides). v5: numbered scenes, shots 1A/1B…, one camera kit per project.
 // v6: lights. v7: scene.floor (automatic floor in renders). v8: shot descriptions, project.generation.
 // v9: cast and props (with reference images), links from figures/groups, style images, circle takes.
-export const SCHEMA_VERSION = 9
+// v10: the storyboard (board order, per-shot board description and dialogue).
+export const SCHEMA_VERSION = 10
 
 export type Vec3 = [number, number, number]
 
@@ -121,6 +122,10 @@ export interface CameraNode extends NodeBase {
   notes: string
   /** The chosen take (its id in the shot's takes folder); the storyboard uses it. */
   circleTake: string | null
+  /** The storyboard's description of the shot; null = use the Frame description. */
+  boardText: string | null
+  /** Dialogue for the storyboard panel. */
+  dialogue: string
   /** This shot's changes to other objects; everything else follows the Master scene. */
   overrides: ShotOverrides
 }
@@ -171,6 +176,8 @@ export interface Project {
   props: Prop[]
   /** Style reference images (file names in assets/style/). */
   styleImages: string[]
+  /** The storyboard: its own order of shots across the whole project (camera ids). */
+  board: { order: string[] }
   /** Poses saved into this project (the app-wide library is stored separately). */
   poses: SavedPose[]
   /** AI generation settings (model, strictness, takes, seed…). */
@@ -207,6 +214,10 @@ export const DEFAULT_REFERENCE_STRENGTH = 0.8
 /** Reference image file names: plain names only, never paths. */
 export function isSafeFileName(name: unknown): name is string {
   return typeof name === 'string' && /^[\w][\w .()-]{0,120}\.(png|jpe?g)$/i.test(name) && !name.includes('..')
+}
+
+function sanitizeOrder(raw: unknown): string[] {
+  return Array.isArray(raw) ? [...new Set(raw.filter((id): id is string => typeof id === 'string' && id.length > 0))] : []
 }
 
 function sanitizeImages(raw: unknown): string[] {
@@ -259,6 +270,7 @@ export function createEmptyProject(name = 'Untitled'): Project {
     cast: [],
     props: [],
     styleImages: [],
+    board: { order: [] },
     poses: [],
     generation: structuredClone(DEFAULT_GENERATION)
   }
@@ -361,6 +373,8 @@ export function repairCamera(c: CameraNode): void {
   c.description = typeof c.description === 'string' ? c.description : ''
   c.notes = typeof c.notes === 'string' ? c.notes : ''
   c.circleTake = typeof c.circleTake === 'string' && c.circleTake ? c.circleTake : null
+  c.boardText = typeof c.boardText === 'string' ? c.boardText : null
+  c.dialogue = typeof c.dialogue === 'string' ? c.dialogue : ''
 }
 
 /** Fill in fields added after a file was saved, and fix values that would break the viewport. */
@@ -440,6 +454,7 @@ export function parseProject(json: string): Project {
     cast: sanitizeEntries(p.cast, true) as CastMember[],
     props: sanitizeEntries(p.props, false) as Prop[],
     styleImages: sanitizeImages(p.styleImages),
+    board: { order: sanitizeOrder((p as Loose).board?.order) },
     poses: sanitizeSavedPoses(p.poses),
     generation: repairGeneration(p.generation)
   }

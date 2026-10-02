@@ -54,7 +54,9 @@ function infoOf(meta: TakeMeta, thumb: Buffer): TakeInfo {
     createdAt: meta.createdAt,
     seed: meta.seed,
     checkpoint: meta.model.name,
-    thumbnail: dataUrl('image/jpeg', thumb)
+    thumbnail: dataUrl('image/jpeg', thumb),
+    shotSize: typeof meta.extra?.shotSize === 'string' ? meta.extra.shotSize : null,
+    angle: typeof meta.extra?.angle === 'string' ? meta.extra.angle : null
   }
 }
 

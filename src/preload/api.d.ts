@@ -1,3 +1,4 @@
+import type { BoardExportSpec } from '../shared/boardHtml'
 import type { BackendStatus, GenerationEvent, GenerationJob, InstalledModel, TakeInfo, TakeMeta } from '../shared/takes'
 
 // Shape of the bridge exposed to the UI as `window.secondTeam`.
@@ -78,6 +79,13 @@ export interface SecondTeamApi {
   ) => Promise<{ files: string[] } | { error: string }>
   /** A small JPEG data URL of a reference image, or null if it can't be read. */
   referenceThumbnail: (folder: string, kind: 'cast' | 'props' | 'style', ownerId: string | null, file: string) => Promise<string | null>
+
+  /** Storyboard exports into the project's exports folder; returns the file or folder written. */
+  exportBoardPdf: (folder: string, spec: BoardExportSpec) => Promise<{ ok: true; path: string } | { error: string }>
+  exportBoardPngs: (folder: string, spec: BoardExportSpec) => Promise<{ ok: true; path: string } | { error: string }>
+  /** Show an export in Explorer / open it (only inside the project's exports folder). */
+  showExport: (folder: string, path: string) => Promise<void>
+  openExport: (folder: string, path: string) => Promise<void>
 
   confirmDiscard: (projectName: string) => Promise<'save' | 'discard' | 'cancel'>
   showError: (message: string) => Promise<void>

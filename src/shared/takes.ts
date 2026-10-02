@@ -82,6 +82,9 @@ export interface TakeInfo {
   checkpoint: string
   /** Small JPEG data URL for the take strip. */
   thumbnail: string
+  /** The shot size and angle when it was made (from its sidecar), for the storyboard. */
+  shotSize: string | null
+  angle: string | null
 }
 
 /** Everything saved next to a take's PNG (<id>.json). */

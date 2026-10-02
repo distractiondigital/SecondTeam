@@ -12,6 +12,8 @@ export const SNAP_MODES: SnapMode[] = ['off', 'grid', 'surface']
 /** work: object colours under even work light. clay: uniform grey lit only by the scene's lights. */
 export type Shading = 'work' | 'clay'
 export type LeftTab = 'outliner' | 'cast' | 'props'
+/** The set (3D workspace) or the storyboard. */
+export type MainView = 'set' | 'board'
 /** A cast member or prop shown in Properties. */
 export type EntityRef = { kind: 'cast' | 'prop'; id: string }
 
@@ -40,6 +42,7 @@ interface UiState {
   /** Live readouts per camera (height, tilt, subject distance, shot size, angle). */
   shotInfo: Record<string, ShotInfo>
   leftTab: LeftTab
+  view: MainView
   /** The cast member or prop being edited in Properties (clears when something in the set is selected). */
   entity: EntityRef | null
 
@@ -59,6 +62,7 @@ interface UiState {
   setThumbnails: (thumbnails: Record<string, string>) => void
   setShotInfo: (shotInfo: Record<string, ShotInfo>) => void
   setLeftTab: (tab: LeftTab) => void
+  setView: (view: MainView) => void
   /** Show a cast member or prop in Properties (null = none). */
   selectEntity: (entity: EntityRef | null) => void
 }
@@ -79,6 +83,7 @@ export const useUi = create<UiState>()((set) => ({
   thumbnails: {},
   shotInfo: {},
   leftTab: 'outliner',
+  view: 'set',
   entity: null,
 
   select: (ids) => set((s) => ({ selection: ids, selectedJoint: null, entity: ids.length ? null : s.entity })),
@@ -112,5 +117,6 @@ export const useUi = create<UiState>()((set) => ({
   setThumbnails: (thumbnails) => set({ thumbnails }),
   setShotInfo: (shotInfo) => set({ shotInfo }),
   setLeftTab: (leftTab) => set({ leftTab }),
+  setView: (view) => set({ view }),
   selectEntity: (entity) => set(entity ? { entity, selection: [], selectedJoint: null } : { entity: null })
 }))

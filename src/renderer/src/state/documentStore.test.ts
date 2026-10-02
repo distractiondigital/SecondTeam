@@ -207,7 +207,7 @@ describe('figures', () => {
     expect(figure(copy).pose).toEqual(figure(a).pose)
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(9)
+    expect(loaded.schemaVersion).toBe(10)
   })
 
   it('saves poses into the project and applies them to other figures', () => {
@@ -499,6 +499,34 @@ describe('cast, props and circle takes', () => {
   })
 })
 
+describe('storyboard', () => {
+  it('keeps its own order and panel captions, with undo, and saves them', () => {
+    const a = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
+    const b = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
+    doc().setBoardOrder([b, a, b])
+    expect(doc().project.board.order).toEqual([b, a])
+    doc().updateNode(a, { boardText: 'She turns.', dialogue: "Who's there?" })
+    const loaded = parseProject(serializeProject(doc().project))
+    expect(loaded.board.order).toEqual([b, a])
+    const la = loaded.scenes[0].nodes[a]
+    expect(la.type === 'camera' && [la.boardText, la.dialogue]).toEqual(['She turns.', "Who's there?"])
+    // Reordering on the board never renames shots.
+    const sa = scene().nodes[a]
+    expect(sa.type === 'camera' && sa.shotNumber).toBe('1A')
+    doc().undo()
+    doc().undo()
+    expect(doc().project.board.order).toEqual([])
+  })
+
+  it('loads older projects with an empty board', () => {
+    const raw = JSON.parse(serializeProject(doc().project))
+    raw.schemaVersion = 9
+    delete raw.board
+    const p = parseProject(JSON.stringify(raw))
+    expect(p.board.order).toEqual([])
+  })
+})
+
 describe('older project files', () => {
   it('turns v4 per-camera settings into the project camera and renames numbered shots', () => {
     const raw = {
@@ -528,7 +556,7 @@ describe('older project files', () => {
       ]
     }
     const p = parseProject(JSON.stringify(raw))
-    expect(p.schemaVersion).toBe(9)
+    expect(p.schemaVersion).toBe(10)
     expect(p.camera.sensor.preset).toBe('alexa35')
     expect(p.camera.delivery).toBe('2.39')
     expect(p.scenes[0].number).toBe(1)
@@ -549,7 +577,7 @@ describe('older project files', () => {
     const raw = JSON.parse(serializeProject(doc().project))
     raw.schemaVersion = 1
     delete raw.camera
-    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(9)
+    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(10)
   })
 })
 describe('master scene and per-shot changes', () => {
@@ -657,7 +685,7 @@ describe('master scene and per-shot changes', () => {
     doc().updateNode(box, { hidden: true })
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(9)
+    expect(loaded.schemaVersion).toBe(10)
   })
 
   it('leaves the shot if undo removes its camera', () => {

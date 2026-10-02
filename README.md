@@ -144,8 +144,21 @@ Keep characters and story objects looking the same from shot to shot.
 - **Figures and depth:** the depth pass guides the **set and props** (so what's behind whom stays right), while each **figure's own area gets only a weak, heavily softened version of it** (how far away they are, so props stay in front of or behind them): figures are shaped by their pose skeleton, their own prompt and references, never by the mannequin's ball joints. A figure that isn't a cast member gets its own area too, as *a person*.
 - **Advanced → Cast & props:** **Feather** (how soft each one's edge is) and **End** (when references stop guiding). If a look leaks across an edge, raise Feather or lower End.
 - **Good references:** at least a few hundred pixels tall, showing what should carry over (a full-length outfit shot, a face close-up; several are combined, keeping each one's detail). Make the description agree with them: if the photo shows a cloak and vest, don't write "sweater".
-- **Circle takes:** click the ☆ on a take (or *Circle this take* in the take viewer). One per shot; it keeps its place in the strip (marked with a filled star and an orange border) and becomes the shot's thumbnail in the Shot list. The storyboard will use it. Ctrl+Z undoes it.
+- **Circle takes:** click the ☆ on a take (or *Circle this take* in the take viewer). One per shot; it keeps its place in the strip (marked with a filled star and an orange border) and becomes the shot's thumbnail in the Shot list. The Storyboard uses it. Ctrl+Z undoes it.
 - Takes with cast and props take longer (about 30 s instead of 7), because each one's part of the frame is worked out separately. At most 6 cast members/props with reference images are used per take; the strip says who was left out.
+
+## Storyboard
+Turn the circle takes into a board you can send to a client or crew.
+
+- Click **Board** in the **Set | Board** switch at the top. Every shot in the project appears as a panel: its circle take, the shot (1A) with its scene, and lens · shot size · angle. Shots without a circle take show a grey "No circle take yet" panel, so the board doubles as a shot plan. **Set** takes you back where you were.
+- Each panel has three boxes: **Description** (starts as the shot's Frame description; change it here and the AI prompt stays as it was), **Dialogue** (printed in quotes) and **Notes** (the shot's notes). They save when you click away; Ctrl+Z undoes them.
+- **Drag** a panel by its grip (⋮⋮) to reorder. The board has its own order across all scenes (intercut freely), and shot names never change. New shots join the end.
+- **Double-click** a panel's picture to jump to that shot in the Set view, with its circle take open.
+- **Export…**:
+  - **Layout:** Grid 2 / 3 / 6 (landscape pages, captions under each frame) or Rows 2 / 3 / 4 (portrait pages, picture left, captions right).
+  - **Page size** (Letter or A4), **Title** (the project name), an optional **Footer** (e.g. *Distraction Digital · v1 · not for distribution*), and whether to include shots without a circle take.
+  - **Export PDF** makes `exports\Storyboard <date time> Grid 3.pdf` in the project folder; **Export PNGs** copies the full-size circle takes into `exports\Storyboard <date time> PNGs\001 - 1A.png …` in board order. **Open** / **Show in folder** afterwards. Exporting twice never overwrites: the second gets "(2)".
+  - Very long captions are trimmed with "…" in the PDF so they never run into the next panel.
 
 ## Render passes
 The images the AI will work from (Milestone 6), rendered from a shot's camera through its delivery frame:
