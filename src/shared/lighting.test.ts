@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  aimAt,
   describeLighting,
   illuminanceAt,
   kelvinToRgb,
@@ -90,5 +91,19 @@ describe('lighting description', () => {
   it('handles ambient only and no lights', () => {
     expect(describeLighting([light({ kind: 'ambient' })], subject, camera)).toMatch(/ambient/)
     expect(describeLighting([], subject, camera)).toBe('')
+  })
+})
+
+describe('aiming at a point', () => {
+  it('turns pan and tilt toward the target', () => {
+    // Straight ahead along -Z: no pan or tilt.
+    expect(aimAt([0, 0, 0], [0, 0, -5])).toEqual({ pan: 0, tilt: 0 })
+    // Straight down.
+    expect(aimAt([0, 3, 0], [0, 0, 0])!.tilt).toBeCloseTo(-90, 3)
+    // To the right (+X) and down 45°: pan -90.
+    const a = aimAt([0, 2, 0], [2, 0, 0])!
+    expect(a.pan).toBeCloseTo(-90, 3)
+    expect(a.tilt).toBeCloseTo(-45, 3)
+    expect(aimAt([1, 1, 1], [1, 1, 1])).toBeNull()
   })
 })

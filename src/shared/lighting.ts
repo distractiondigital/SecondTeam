@@ -203,3 +203,15 @@ export function contrastStops(lights: LightSample[], subject: Vec3): number {
   const fill = es.reduce((s, e) => s + e, 0) - key
   return fill > 0 ? Math.log2((key + fill) / fill) : Infinity
 }
+
+/**
+ * Pan and tilt (degrees, as in Properties) that point a light at `to` from `from` (world
+ * metres). A light shines along its -Z; pan turns it about the vertical, tilt raises it.
+ */
+export function aimAt(from: Vec3, to: Vec3): { pan: number; tilt: number } | null {
+  const d = [to[0] - from[0], to[1] - from[1], to[2] - from[2]]
+  const length = Math.hypot(d[0], d[1], d[2])
+  if (length < 1e-6) return null
+  const deg = (r: number) => Math.round((r * 180) / Math.PI * 10000) / 10000 || 0
+  return { pan: deg(Math.atan2(-d[0], -d[2])), tilt: deg(Math.asin(Math.max(-1, Math.min(1, d[1] / length)))) }
+}

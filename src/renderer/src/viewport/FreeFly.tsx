@@ -76,7 +76,7 @@ export default function FreeFly() {
       e.preventDefault()
       e.stopImmediatePropagation()
       const ui = useUi.getState()
-      ui.setFlySpeed(ui.flySpeed * (e.deltaY < 0 ? 1.25 : 0.8))
+      ui.setFreeFlySpeed(ui.freeFlySpeed * (e.deltaY < 0 ? 1.25 : 0.8))
     }
 
     canvas.addEventListener('contextmenu', onContextMenu)
@@ -108,7 +108,7 @@ export default function FreeFly() {
     state.tilt = MathUtils.clamp(state.tilt - state.look.y * LOOK_SENSITIVITY, -89, 89)
     state.look.x = 0
     state.look.y = 0
-    if (isMoving(state.keys)) flyStep(camera.position, state.pan, state.keys, useUi.getState().flySpeed, delta)
+    if (isMoving(state.keys)) flyStep(camera.position, state.pan, state.keys, useUi.getState().freeFlySpeed, delta)
     camera.quaternion.setFromEuler(new Euler(MathUtils.degToRad(state.tilt), MathUtils.degToRad(state.pan), 0, 'YXZ'))
   })
 

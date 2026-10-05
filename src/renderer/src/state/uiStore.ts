@@ -41,6 +41,8 @@ interface UiState {
   shadingAuto: boolean
   /** Fly speed in camera view, metres per second. */
   flySpeed: number
+  /** Fly speed in the free view (m/s): faster than a shot camera's, for getting around a set. */
+  freeFlySpeed: number
   /** Shot list thumbnails (data URLs), by camera id. */
   thumbnails: Record<string, string>
   /** Live readouts per camera (height, tilt, subject distance, shot size, angle). */
@@ -67,6 +69,7 @@ interface UiState {
   setLookThrough: (id: string | null) => void
   setShading: (shading: Shading) => void
   setFlySpeed: (speed: number) => void
+  setFreeFlySpeed: (speed: number) => void
   setThumbnails: (thumbnails: Record<string, string>) => void
   setShotInfo: (shotInfo: Record<string, ShotInfo>) => void
   setLeftTab: (tab: LeftTab) => void
@@ -91,6 +94,7 @@ export const useUi = create<UiState>()((set) => ({
   shading: 'work',
   shadingAuto: false,
   flySpeed: 1.5,
+  freeFlySpeed: 5,
   thumbnails: {},
   shotInfo: {},
   leftTab: 'outliner',
@@ -128,6 +132,7 @@ export const useUi = create<UiState>()((set) => ({
     }),
   setShading: (shading) => set({ shading, shadingAuto: false }),
   setFlySpeed: (flySpeed) => set({ flySpeed: Math.min(20, Math.max(0.1, flySpeed)) }),
+  setFreeFlySpeed: (freeFlySpeed) => set({ freeFlySpeed: Math.min(60, Math.max(0.2, freeFlySpeed)) }),
   setThumbnails: (thumbnails) => set({ thumbnails }),
   setShotInfo: (shotInfo) => set({ shotInfo }),
   setLeftTab: (leftTab) => set({ leftTab }),

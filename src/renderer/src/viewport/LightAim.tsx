@@ -1,7 +1,8 @@
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import {
   BufferAttribute,
   BufferGeometry,
+  Euler,
   Group,
   Line,
   LineBasicMaterial,
@@ -10,7 +11,7 @@ import {
   LineSegments,
   MathUtils,
   Mesh,
-  type Object3D,
+  Object3D,
   Plane,
   Quaternion,
   Raycaster,
@@ -18,13 +19,17 @@ import {
   Vector3
 } from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
+import { TransformControls } from '@react-three/drei'
+import { aimAt } from '../../../shared/lighting'
+import { viewportBridge } from './viewportBridge'
 import { editedNodes, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import { SELECTION_COLOR } from './selection'
 
 // Where a selected sun or spot lands: a dashed aim line from the light to the first surface it
 // hits (or the ground), a small cross there, and for a spot the outline of its pool of light
-// (48 rays around the edge of the cone). A viewport helper: never in renders, thumbnails or
+// (48 rays around the edge of the cone). The cross has its own move gizmo: drag it and the light
+// turns to point at it (the light stays where it is; one undo step per drag). A viewport helper: never in renders, thumbnails or
 // passes, and hidden while looking through a camera, like the light icons.
 
 const FOOTPRINT_RAYS = 48
@@ -83,11 +88,40 @@ export default function LightAim() {
     return { group, aim, cross, footprint }
   }, [])
   const since = useRef(Infinity)
+  // The aim point's handle: sits on the cross, except while it's being dragged.
+  const handle = useMemo(() => {
+    const o = new Object3D()
+    o.userData.helper = true
+    return o
+  }, [])
+  const dragging = useRef(false)
+  const [handleShown, setHandleShown] = useState(false)
+
+  /** Turn the light to point at the handle. */
+  const aimAtHandle = () => {
+    const object = light ? scene.getObjectByName(light.id) : null
+    if (!light || !object) return
+    object.updateWorldMatrix(true, false)
+    handle.updateWorldMatrix(true, false)
+    const from = new Vector3().setFromMatrixPosition(object.matrixWorld)
+    const to = new Vector3().setFromMatrixPosition(handle.matrixWorld)
+    const aim = aimAt(from.toArray(), to.toArray())
+    if (!aim) return
+    // World pan/tilt, then into the light's own group (if it's in one).
+    const world = new Quaternion().setFromEuler(new Euler(MathUtils.degToRad(aim.tilt), MathUtils.degToRad(aim.pan), 0, 'YXZ'))
+    const parent = object.parent ? object.parent.getWorldQuaternion(new Quaternion()) : new Quaternion()
+    const e = new Euler().setFromQuaternion(parent.invert().multiply(world), 'XYZ')
+    const deg = (r: number) => Math.round(MathUtils.radToDeg(r) * 10000) / 10000 || 0
+    useDocument.getState().updateNode(light.id, { rotation: [deg(e.x), deg(e.y), deg(e.z)] })
+    since.current = Infinity // re-aim the line straight away
+  }
 
   useFrame((_, delta) => {
     since.current += delta
     const { group, aim, cross, footprint } = parts
     group.visible = Boolean(light) && !inCameraView
+    const wantHandle = Boolean(light) && !inCameraView && !light?.locked
+    if (wantHandle !== handleShown) setHandleShown(wantHandle)
     if (!light || inCameraView) return
     const object = scene.getObjectByName(light.id)
     if (!object) return
@@ -120,6 +154,7 @@ export default function LightAim() {
     // Aim line and the cross where it lands.
     const hit = land(forward)
     const end = hit ?? origin.clone().addScaledVector(forward, MISS_LENGTH)
+    if (!dragging.current) handle.position.copy(end)
     const a = aim.geometry.getAttribute('position') as BufferAttribute
     a.setXYZ(0, origin.x, origin.y, origin.z)
     a.setXYZ(1, end.x, end.y, end.z)
@@ -158,5 +193,29 @@ export default function LightAim() {
     footprint.visible = landed > FOOTPRINT_RAYS / 2
   })
 
-  return <primitive object={parts.group} />
+  return (
+    <>
+      <primitive object={parts.group} />
+      <primitive object={handle} />
+      {handleShown && (
+        <TransformControls
+          object={handle}
+          mode="translate"
+          size={0.6}
+          onMouseDown={() => {
+            viewportBridge.gizmoBusy = true
+            dragging.current = true
+            useDocument.getState().beginGesture('aim')
+          }}
+          onObjectChange={() => dragging.current && aimAtHandle()}
+          onMouseUp={() => {
+            aimAtHandle()
+            dragging.current = false
+            useDocument.getState().endGesture('aim')
+            setTimeout(() => (viewportBridge.gizmoBusy = false), 0)
+          }}
+        />
+      )}
+    </>
+  )
 }
