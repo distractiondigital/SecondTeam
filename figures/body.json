@@ -3242,46 +3242,6 @@
    "offset": 6826180,
    "length": 1755,
    "type": "Int16Array"
-  },
-  "t:breast-nipple-point-decr:i": {
-   "offset": 6829692,
-   "length": 32,
-   "type": "Uint16Array"
-  },
-  "t:breast-nipple-point-decr:d": {
-   "offset": 6829756,
-   "length": 96,
-   "type": "Int16Array"
-  },
-  "t:breast-nipple-point-incr:i": {
-   "offset": 6829948,
-   "length": 32,
-   "type": "Uint16Array"
-  },
-  "t:breast-nipple-point-incr:d": {
-   "offset": 6830012,
-   "length": 96,
-   "type": "Int16Array"
-  },
-  "t:breast-nipple-size-decr:i": {
-   "offset": 6830204,
-   "length": 162,
-   "type": "Uint16Array"
-  },
-  "t:breast-nipple-size-decr:d": {
-   "offset": 6830528,
-   "length": 486,
-   "type": "Int16Array"
-  },
-  "t:breast-nipple-size-incr:i": {
-   "offset": 6831500,
-   "length": 32,
-   "type": "Uint16Array"
-  },
-  "t:breast-nipple-size-incr:d": {
-   "offset": 6831564,
-   "length": 96,
-   "type": "Int16Array"
   }
  },
  "targets": [
@@ -4894,26 +4854,6 @@
    "name": "breast-female-young-minmuscle-minweight-mincup-minfirmness",
    "count": 585,
    "scale": 0.000005523850215155492
-  },
-  {
-   "name": "breast-nipple-point-decr",
-   "count": 32,
-   "scale": 0.000001129184850611896
-  },
-  {
-   "name": "breast-nipple-point-incr",
-   "count": 32,
-   "scale": 0.0000019837031159398175
-  },
-  {
-   "name": "breast-nipple-size-decr",
-   "count": 162,
-   "scale": 0.0000021362956633198035
-  },
-  {
-   "name": "breast-nipple-size-incr",
-   "count": 32,
-   "scale": 0.000002014221625415815
   }
  ],
  "cubes": {

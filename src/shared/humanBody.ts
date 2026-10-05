@@ -98,10 +98,6 @@ export interface BodySliders {
   breastSize: number
   /** MakeHuman's breast firmness: 0 soft … 0.5 average … 1 firm. */
   breastFirmness: number
-  /** Nipple size: 0 smaller … 0.5 as modelled … 1 bigger. */
-  nippleSize: number
-  /** How much the nipples stand out: 0 flatter … 0.5 as modelled … 1 more. */
-  nipplePoint: number
 }
 
 export const AVERAGE_BODY: BodySliders = {
@@ -110,9 +106,7 @@ export const AVERAGE_BODY: BodySliders = {
   muscle: 0.5,
   weight: 0.5,
   breastSize: 0.5,
-  breastFirmness: 0.5,
-  nippleSize: 0.5,
-  nipplePoint: 0.5
+  breastFirmness: 0.5
 }
 
 const clamp01 = (v: number) => (Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 0.5)
@@ -193,15 +187,6 @@ export function targetWeights(s: BodySliders): Map<string, number> {
         }
       }
     }
-  }
-  // Nipples: MakeHuman's size and point adjustments, either way from as modelled (0.5).
-  for (const [key, target] of [
-    ['nippleSize', 'nipple-size'],
-    ['nipplePoint', 'nipple-point']
-  ] as const) {
-    const v = clamp01(s[key] ?? 0.5) - 0.5
-    if (v > 0) out.set(`breast-${target}-incr`, v * 2)
-    else if (v < 0) out.set(`breast-${target}-decr`, -v * 2)
   }
   for (const [g, gw] of Object.entries(gender)) {
     for (const [a, aw] of Object.entries(age)) {
@@ -355,9 +340,7 @@ export function sanitizeBody(raw: unknown, fallback: Partial<BodySliders> = {}):
     muscle: pick('muscle'),
     weight: pick('weight'),
     breastSize: pick('breastSize'),
-    breastFirmness: pick('breastFirmness'),
-    nippleSize: pick('nippleSize'),
-    nipplePoint: pick('nipplePoint')
+    breastFirmness: pick('breastFirmness')
   }
 }
 
