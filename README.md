@@ -6,7 +6,7 @@ A local Windows desktop app for film previs. You greybox a set, place real camer
 - Progress: [docs/PROGRESS.md](docs/PROGRESS.md)
 
 ## Install it (no developer setup)
-1. Run `Second Team Setup 0.9.0.exe` (made with `npm run dist`, in `release\`). It isn't code-signed yet, so Windows shows **"Windows protected your PC"**: click **More info → Run anyway**. Windows asks for administrator permission once; it installs into `C:Program FilesSecond Team` (changeable) with Start-menu and desktop shortcuts. Each Windows user who opens it sets up their own engine and settings (in their own AppData), or points at an existing copy.
+1. Run `Second Team Setup 0.10.0.exe` (made with `npm run dist`, in `release\`). It isn't code-signed yet, so Windows shows **"Windows protected your PC"**: click **More info → Run anyway**. Windows asks for administrator permission once; it installs into `C:Program FilesSecond Team` (changeable) with Start-menu and desktop shortcuts. Each Windows user who opens it sets up their own engine and settings (in their own AppData), or points at an existing copy.
 2. On the first start, the **AI engine setup** opens:
    1. **This PC**: checks the graphics card (an NVIDIA card with driver 580 or newer; 8 GB+ video memory recommended) and that Windows can unpack the engine (Windows 11 can by itself; Windows 10 needs [7-Zip](https://www.7-zip.org)).
    2. **Location**: where the engine and models go, by default `%LOCALAPPDATA%\SecondTeam\backend`. **Change…** for another drive. Or **Use files I already have…** to point at an existing copy (e.g. this repo's `ComfyUI` folder): nothing is copied.
@@ -77,8 +77,15 @@ The grid is in real-world units. In metres: faint lines every 1 m, stronger ever
 
 In the Properties panel, **drag left/right on any number box** to change it (hold Shift for fine steps, Ctrl for big ones; one drag is one undo step), or click it to type a value and press Enter. Lengths accept either unit system whatever the display is set to, e.g. `2.5`, `150cm`, `6' 2"` or `6ft 2in`.
 
-## Figures (posable mannequins)
-- **Add → Figure** puts a mannequin on the floor. Click it once to select the whole figure: move and rotate it with the gizmo, and set **Height** (0.9–2.1 m; short figures get child proportions; hold Ctrl while dragging the slider for whole inches in feet mode, or whole centimetres) and **Build** in Properties.
+## Figures (people and mannequins)
+- **Add → Figure** puts a person on the floor (new figures alternate man / woman). Click it once to select the whole figure: move and rotate it with the gizmo. In Properties:
+  - **Style: Human | Mannequin.** Human is a realistic, sculpted person; Mannequin is the art mannequin. Both use the same pose. Projects from before this version open with mannequins.
+  - **Body** (Human): a **Body preset** (Man, Woman, Child, Teenager, Elderly, Athletic, Heavy, Slim) and sliders for **Gender**, **Age** (shown in years), **Muscle** and **Weight**. **Height** in metres or feet (hold Ctrl while dragging for whole centimetres / inches). The Mannequin has **Build** instead.
+  - **Face & hands**: **Expression** (Neutral, Smile, Laugh, Sad, Angry, Surprised, Scared, Talking, Disgusted) and each hand's shape (Relaxed, Fist, Open, Point, Grip). The expression also goes into that person's AI prompt.
+  - **Look**: **Hair**, an **Outfit** (a whole outfit or dress) or a separate **Top** and **Bottom**, **Outerwear**, **Shoes** and a **Hat**, each with its own colour. Until you pick a colour, each part is a shade of the figure's **Material** colour (so a figure stays one colour family); **×** goes back to that.
+  - Body, expression, hands and look can all change **per shot**, like everything else.
+  - **Cast members share a look**: link figures to the same cast member and changing one's body or clothes (in the scene's set) changes them all, in every scene. Inside a shot it's just a cheat for that shot.
+- The people are built live from MakeHuman's free (CC0) body data, so every slider is smooth and the clothes re-fit any body.
 - With the figure selected, **click a body part** to pose the joint that moves it (forearm → elbow, thigh → hip, head → head…). Drag the rings, or type angles in Properties. Hold **Ctrl** for 15° steps. **Esc** or clicking empty space goes back to the whole figure.
 - **Presets**: Standing, Walking, Sitting, Pointing, Arms crossed, Looking over shoulder, Lying down. **Mirror L↔R** swaps sides. **Reset pose** returns to standing.
 - **Saved poses**: name the current pose and **Save to project** (travels with the project folder) or **Save to library** (on this PC, available in every project). Saved poses appear in the preset menu and in the Saved poses list, where you can apply them to any figure, copy between project and library, or delete them. Poses scale to each figure's height.
@@ -195,6 +202,17 @@ The images the AI will work from (Milestone 6), rendered from a shot's camera th
 
 ## Projects
 A project is a folder called `Name.secondteam` containing `project.json` (the set, in plain readable JSON) and folders for reference images, renders and exports. To open one, choose that folder in the Open dialog. The project's name is the folder's name.
+
+## Credits
+Human bodies, faces, eyes, hair and most clothes: MakeHuman (CC0), via the MakeHuman community and its MPFB add-on. These items are CC-BY (credit the authors):
+- Shirt (untucked): by Elvaerwyn (CC-BY), from the MakeHuman community asset packs
+- Shirt and tie: by Elvaerwyn (CC-BY), from the MakeHuman community asset packs
+- Striped shirt: by EWS (CC-BY), from the MakeHuman community asset packs
+- Knitted sweater: by Mindfront (CC-BY), from the MakeHuman community asset packs
+- Blouse: by punkduck (CC-BY), from the MakeHuman community asset packs
+- Sweater (older): by janexx (CC-BY), from the MakeHuman community asset packs
+- Hooded jacket: by Elvaerwyn (CC-BY), from the MakeHuman community asset packs
+- Long cardigan: by Mindfront (CC-BY), from the MakeHuman community asset packs
 
 ## Project layout
 ```

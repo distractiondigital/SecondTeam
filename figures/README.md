@@ -12,3 +12,11 @@ all **CC0** (public domain dedication, free for any use including commercial; no
 
 The app's own code that blends targets, fits the skeleton and poses the body is original
 (`src/shared/humanBody.ts`, `src/renderer/src/viewport/HumanView.tsx`).
+
+## Eyes, eyebrows, hair and clothes
+
+`proxies.json` + `proxies/<id>.bin|png` are made by `scripts/figures/build-proxies.mjs` from the
+MakeHuman community asset packs (makehuman_system_assets, shirts01, pants01, dress01, suits01: CC0;
+shirts02: CC-BY). Every item records its licence, source and (for CC-BY) author in `proxies.json`;
+the README's Credits section lists the CC-BY authors. Hair/eyebrow textures are reduced to
+black-and-white transparency masks.

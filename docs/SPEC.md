@@ -143,8 +143,9 @@ Build **one milestone at a time**. Each ends with the app running and a short "h
 | 7 | **Continuity** | Create Cast/Props with references, link them to mannequins/objects, and get regional prompts + masked IP-Adapter + pose control + project style ref. Circle takes and seeds work. |
 | 8 | **Storyboard** | Arrange circle takes on a board, add notes, export a PDF. |
 | 9 | **Plug-and-play** | On a clean Windows machine: run the installer → setup wizard downloads everything → generate, never touching ComfyUI. Packaged `.exe` installer. |
-| 10 | **Polish** | Fix pain points found by using it on a real project. |
-| 11 | **Mac version** | A collaborator on an Apple Silicon Mac installs a `.dmg` and can build sets, shots and storyboards (AI engine on Mac comes later). Added 2026-10-04. |
+| 10 | **Figures 2** | Realistic, slider-driven human figures (body, face, hands, hair, clothes) posed by the same skeleton, as a per-figure style next to the mannequin; shared cast looks; AI passes and prompts use them. Added 2026-10-04. |
+| 11 | **Polish** | Fix pain points found by using it on a real project. |
+| 12 | **Mac version** | A collaborator on an Apple Silicon Mac installs a `.dmg` and can build sets, shots and storyboards (AI engine on Mac comes later). Added 2026-10-04. |
 
 ## 7. Known risks (think about these early)
 - **Reference bleed.** Masked IP-Adapters can leak one character's look onto another. Plan for per-reference weight and mask feathering controls.

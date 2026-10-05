@@ -12,11 +12,12 @@
 | 7 | Continuity | ✅ Done (tested by Spencer 2026-09-30; continuity "not 100% but okay for now") | Cast and Props (description, up to 4 reference images, strength) with links from figures/objects/groups and per-object descriptions; ID pass per cast/prop/described object; regional prompts + masked IP-Adapter references per entity; project style reference images; feather / reference end controls; circle takes (strip, viewer, Shot list thumbnail). |
 | 8 | Storyboard | ✅ Done (tested by Spencer 2026-10-04) | Set/Board switch; a panel per shot (circle take or clay render, shot + scene, lens/size/angle, Description/Dialogue/Notes); own drag order across scenes; double-click to go to the shot; export PDF (Grid 2/3/6 landscape or Rows 2/3/4 portrait, Letter/A4, title, footer, page sketch) and a PNG sequence, from AI or Clay. Follow-ups: Material colours in Clay; Environment (time-of-day sky, atmosphere fog, ground colour; per scene or per shot). |
 | 9 | Plug-and-play | 🟡 Built, waiting for Spencer's test on another PC | Windows installer (`npm run dist`, 112 MB, into Program Files, unsigned); first-run setup wizard (PC check, location or existing files, models with licences, resumable checksum-verified download, unpack with Windows' own tar); Engine settings (installed pieces, Add, Repair / Full check, log, restart, external ComfyUI). Engine + models live outside the app folder (default `%LOCALAPPDATA%\SecondTeam\backend`). |
-| 10 | Polish | ⬜ | Includes **Posing 2** (Spencer, 2026-09-29): IK hands/feet, head look-at target that flows subtly into the torso, choosing which end of a limb stays put (e.g. plant a foot). |
-| 11 | Mac version | ⬜ | Added by Spencer 2026-10-04, after M10, so a collaborator on a Mac can use it. See "Mac version (M11) notes" below. |
+| 10 | Figures 2 | 🟡 Built, waiting for Spencer's test | Realistic humans built live from MakeHuman CC0 data: Style Human/Mannequin, body sliders + presets (gender, age in years, muscle, weight, height), skeleton fitted to each body; 62 wardrobe items (hair, outfits, dresses, suits, tops, bottoms, outerwear, shoes, hat) re-fitted to any body with per-part colours; expressions and hand shapes; looks shared through cast members; passes (depth/normals/ID/pose) and per-figure prompts verified. |
+| 11 | Polish | ⬜ | Spencer's list (2026-10-04): box select, move a multi-selection, Outliner drag & drop, recent projects, light aim line, fly in free view, per-shot cast/prop tweaks, compare takes, Material palette, passes for all shots; plus **Posing 2** (IK hands/feet, head look-at, planted limbs) and figure polish (see Ideas). |
+| 12 | Mac version | ⬜ | Added by Spencer 2026-10-04, after Polish, so a collaborator on a Mac can use it. See "Mac version notes" below. |
 
 ## Where we are (2026-10-02)
-Milestones 0–8 are done and tested; Milestone 9 (Plug-and-play) is built and waiting for Spencer's test on another PC. The whole "build the shot" half of the app works:
+Milestones 0–8 are done and tested; Milestone 9 (Plug-and-play) is built and waiting for Spencer's test on another PC; Milestone 10 (Figures 2) is built and waiting for his test. The whole "build the shot" half of the app works:
 - Greybox a set with shapes, posed figures and lights.
 - Break a project into scenes (01, 02…) and shots (1A, 1B…). Each shot has its own camera and can cheat anything in the set just for that shot.
 - Look through any shot with real sensor/lens/squeeze maths, frame guides, and readouts for height, tilt, distance, shot size, angle and lighting.
@@ -26,10 +27,10 @@ Milestones 0–8 are done and tested; Milestone 9 (Plug-and-play) is built and w
 - Keep characters and props consistent across shots with cast/prop descriptions and reference images, and circle the best take.
 - Lay the circle takes out on a storyboard with captions, and export it as a PDF or a PNG sequence.
 
-The AI engine (ComfyUI) lives in the `ComfyUI` folder and is set up by the in-app wizard (or `node scripts/fetch-backend.mjs` in development). There are 164 automated checks (`npm test`), and all pass.
+The AI engine (ComfyUI) lives in the `ComfyUI` folder and is set up by the in-app wizard (or `node scripts/fetch-backend.mjs` in development). There are 179 automated checks (`npm test`), and all pass.
 
 ## Things to know
-- **Project files:** saved projects are format **v11**. Every older format still opens, but a build from before a format change can't open a newer file.
+- **Project files:** saved projects are format **v12**. Every older format still opens, but a build from before a format change can't open a newer file.
 - **What undo covers:**
   - Undo goes back 200 steps and covers every change to the project, including per-shot changes, lights and deleting a scene.
   - Selection, switching scenes and the saved-pose *library* (the one shared across projects) aren't undoable. Poses saved into a project are.
@@ -52,7 +53,7 @@ The AI engine (ComfyUI) lives in the `ComfyUI` folder and is set up by the in-ap
 - **For development** (in `CLAUDE.md`): files use LF line endings, enforced by `.gitattributes`. Changes to `src/main` or `src/preload` need an app restart.
 
 ## What's next
-**Milestone 10: Polish** (once M9 is confirmed): fix the pain points found by using Second Team on a real project. Candidates from the Ideas list below.
+**Milestone 11: Polish** (once Spencer has tried M10): his ticked list plus Posing 2 and the figure polish items (sitting/thigh shapes, smoother close-up surfaces, more coats). M9's other-PC test is still open.
 
 ## Decisions log
 - 2026-09-29: Name "Second Team" (working title). Stack: Electron + React + three.js (R3F) + managed ComfyUI. SDXL first for ControlNet/IP-Adapter maturity and commercial licence.
@@ -114,9 +115,10 @@ The AI engine (ComfyUI) lives in the `ComfyUI` folder and is set up by the in-ap
 - 2026-10-04 (M8 feedback): Clay renders (viewport Clay, thumbnails, board, Clay exports and the Clay pass) now show each object's colour instead of one grey; the setting is called **Material** (was "Viewport colour"). Still stored as `color` (no format change), still not sent to the AI. A Material palette is on the Ideas list.
 - 2026-10-04 (M8 feedback): **Environment** (Spencer): time of day + ground colour, a Unity-style simple sky. His choices: sky + soft fill only (no automatic sun; his lights stay the key), scene default with "This shot only" per shot, and the time of day goes into the prompt (at the start of the lighting description). Schema **v11** (`Scene.environment`, `CameraNode.environment`); older files get midday and a neutral grey ground. Clay with lights now shows the floor (ground colour) instead of the grid.
 - 2026-10-04 (M9): **Plug-and-play.** Spencer's choices: engine + models default to `%LOCALAPPDATA%\SecondTeam\backend` with Change… (outside the install folder, so updates/uninstalls keep the 23 GB); test on another PC; placeholder icon (`build/make-icon.ps1`); unsigned for now (SmartScreen "More info → Run anyway"). Found: Windows 11's built-in `tar.exe` (libarchive 3.8 with liblzma) unpacks the engine's .7z, so nothing extra is bundled (Windows 10 falls back to 7-Zip). The portable engine is PyTorch 2.14 + CUDA 13.0 → NVIDIA driver 580+. Checked on this PC: real engine download + unpack (91 s), engine starts from a fresh folder, pause/resume of a real model download (112 MB/s), Repair and Full check (20 GB in ~10 s), installed `.exe` → wizard on first run → existing files → engine Ready with both models → clean uninstall. Renderer libraries moved to devDependencies (installer 112 MB). Version 0.9.0. Later the same day (Spencer): the installer no longer asks "Anyone who uses this computer / Only for me"; it always installs for all users into `C:\Program Files\Second Team` (`perMachine: true`: one admin prompt at install and at each update). The engine, models and settings stay per-user in `%LOCALAPPDATA%\SecondTeam`.
+- 2026-10-04/05 (M10): **Figures 2.** Spencer's choices: Figures 2 before Polish; sculpted look in one colour family with per-part colours; Human/Mannequin per figure; wardrobe in all four groups; "as procedural as possible". Approach changed (approved): instead of exporting fixed models from Blender, the app builds MakeHuman bodies live from its CC0 data (base mesh + targets blended by MakeHuman's macro weights, joints from the mesh's marker shapes, game-engine rig + weights, clothes/hair "proxies" fitted by their reference vertices). `scripts/figures/build-figure-data.mjs` / `build-proxies.mjs` convert the data (body 5.8 MB, wardrobe 15 MB in `figures/`). No MakeHuman/MPFB code is used. Found and fixed: pass shaders had no skinning (posed people rendered in rest pose in depth/normals/ID). Clothes default to darker shades of the figure colour (one-colour clothes read as nude). Benchmarked on a copy of ContinuityTest 1B: 4 takes with humans, crate placement and facing right in 3 of 4, one bad roll as before; expressions reach the figure's own prompt (weighted 1.3; "smiling" verified). Schema **v12**.
 - 2026-09-30: The repo keeps LF line endings in the working copy (`.gitattributes`); mixed endings had been making some scripted edits silently miss.
 
-## Mac version (M11) notes
+## Mac version notes (now M12)
 Agreed 2026-10-04: build it after M10. Plan sketched with Spencer:
 - **Build:** Apple only builds Mac apps on a Mac, so use GitHub Actions' Mac runners (the repo is `distractiondigital/SecondTeam`; push first) to make `Second Team.dmg` for Apple Silicon. Nobody here has a Mac: the collaborator tests each round with a checklist.
 - **Gatekeeper:** start unsigned ("System Settings → Privacy & Security → Open Anyway" once per version) unless Spencer gets an Apple Developer account ($99/year) for signing + notarization. *Decide at M11.*
@@ -126,6 +128,7 @@ Agreed 2026-10-04: build it after M10. Plan sketched with Spencer:
 - **Questions for M11:** the collaborator's Mac (chip and memory, from  → About This Mac); signing route.
 
 ## Ideas / later
+- **Figure polish** (M11): sitting/bent-hip shapes (linear skinning flattens the seat; corrective shapes or better weights), smoother surfaces in close-ups (subdivision for the viewport), more coats/outerwear (a CC0/CC-BY trench coat), an expression strength slider, lumpy fist knuckles.
 - **Code signing** (removes the "Windows protected your PC" warning): a code-signing certificate, roughly $200–400/year; electron-builder can sign with it once bought.
 - **Auto-update** of the app (electron-updater) once it's shared beyond Spencer; models would stay put.
 - **Material palette** (Spencer, 2026-10-04): Material is just a colour for now; later a small palette of basic materials (matte, glossy, metal, glass, emissive) to pick from.
