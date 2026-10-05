@@ -1,4 +1,4 @@
-import { createContext, memo, useContext, useMemo } from 'react'
+import { memo, useContext, useMemo } from 'react'
 import { DoubleSide, FrontSide } from 'three'
 import { Outlines } from '@react-three/drei'
 import type { SceneNode } from '../../../shared/project'
@@ -9,6 +9,7 @@ import { getGeometry } from './geometries'
 import LightView from './LightView'
 import HumanFigure from './HumanFigure'
 import MannequinView from './MannequinView'
+import { SceneNodesContext } from './sceneContext'
 import { handleNodeClick, handleNodeDoubleClick, noRaycast, SELECTION_COLOR, toRadians } from './selection'
 
 // Draws the set as one shot sees it: the Master scene plus that shot's changes.
@@ -18,16 +19,6 @@ import { handleNodeClick, handleNodeDoubleClick, noRaycast, SELECTION_COLOR, toR
 // In Clay shading every surface is the same matte grey, the scene's lights shine and cast
 // shadows; in Work shading objects show their colours and the scene's lights are off.
 
-interface SceneContext {
-  /** Shot whose version of the set to draw; null = Master. */
-  shotId: string | null
-  /** A hidden copy for rendering: no interaction, selection or helpers. */
-  passive: boolean
-  /** Clay shading: Material colours, scene lights and sky on, shadows. */
-  clay: boolean
-}
-
-export const SceneNodesContext = createContext<SceneContext>({ shotId: null, passive: false, clay: false })
 
 interface NodeViewProps {
   id: string

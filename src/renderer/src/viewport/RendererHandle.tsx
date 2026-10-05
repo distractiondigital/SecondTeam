@@ -13,11 +13,23 @@ export function getRenderer(): WebGLRenderer | null {
 
 export default function RendererHandle() {
   const gl = useThree((s) => s.gl)
+  const camera = useThree((s) => s.camera)
+  const scene = useThree((s) => s.scene)
+  const controls = useThree((s) => s.controls)
   useEffect(() => {
     current = gl
     return () => {
       if (current === gl) current = null
     }
   }, [gl])
+  // Development only: automated tests over the debugger find things on screen through this.
+  useEffect(() => {
+    if (!import.meta.env.DEV) return
+    const w = window as unknown as { __viewport?: unknown }
+    w.__viewport = { camera, scene, gl, controls }
+    return () => {
+      delete w.__viewport
+    }
+  }, [camera, scene, gl, controls])
   return null
 }

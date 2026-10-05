@@ -20,6 +20,11 @@ export function loadBodyData(): Promise<BodyData> {
   return bodyLoading
 }
 
+/** The body data if it has loaded already (no waiting), else null. */
+export function bodyDataNow(): BodyData | null {
+  return bodyLoaded
+}
+
 /** The body data, or null until it has loaded. */
 export function useBodyData(): BodyData | null {
   const [data, setData] = useState<BodyData | null>(bodyLoaded)

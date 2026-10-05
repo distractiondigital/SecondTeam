@@ -13,6 +13,8 @@ export const viewportBridge = {
   gizmoBusy: false,
   /** True while (and just after) a box-select drag, so its release isn't treated as a click. */
   boxSelecting: false,
+  /** True while a grab ball is held (hands, feet, hips, look-at point); other shortcuts stay quiet. */
+  grabbing: false,
   /** True while flying a shot camera (right mouse held); other shortcuts stay quiet. */
   flying: false
 }

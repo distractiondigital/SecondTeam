@@ -2,10 +2,12 @@ import { useEffect, useMemo, type ReactNode } from 'react'
 import { CapsuleGeometry, Color, SphereGeometry, type BufferGeometry } from 'three'
 import type { ThreeEvent } from '@react-three/fiber'
 import { Outlines } from '@react-three/drei'
-import { proportions, type JointName, type Proportions } from '../../../shared/mannequin'
+import { proportions, type JointName, type Pose, type Proportions } from '../../../shared/mannequin'
 import type { MannequinNode, Vec3 } from '../../../shared/project'
 import { useUi } from '../state/uiStore'
 import { useDocument } from '../state/documentStore'
+import { useEffectivePose } from './figurePose'
+import { jointOffsets } from '../../../shared/posing'
 import { CLICK_DRAG_TOLERANCE, handleNodeClick, handleNodeDoubleClick, noRaycast, SELECTION_COLOR, toRadians } from './selection'
 
 // A smooth artist's mannequin: nested joint groups (forward kinematics) with simple
@@ -67,12 +69,18 @@ interface Props {
   ghost?: boolean
   /** Joint placement from a human body (instead of the mannequin's own proportions). */
   fitted?: Proportions
+  /** The pose to draw, already worked out by a human figure (else plants and look-at are applied here). */
+  posed?: Pose
 }
 
-export default function MannequinView({ node, selected, clickable, passive = false, clay = false, ghost = false, fitted }: Props) {
-  const { id, pose } = node
+export default function MannequinView({ node, selected, clickable, passive = false, clay = false, ghost = false, fitted, posed }: Props) {
+  const { id } = node
   const own = useMemo(() => proportions(node.height, node.build), [node.height, node.build])
   const p = fitted ?? own
+  const solved = useEffectivePose(posed ? null : node, p)
+  const pose = posed ?? solved ?? node.pose
+  // Joint placement shared with the posing maths (shared/posing.ts), so they always agree.
+  const at = jointOffsets(p, pose.pelvisOffset)
   const g = useGeometries(p)
   const selectedJoint = useUi((s) =>
     !passive && s.selection.length === 1 && s.selection[0] === id ? s.selectedJoint : null
@@ -162,25 +170,24 @@ export default function MannequinView({ node, selected, clickable, passive = fal
   )
 
   const arm = (side: 'L' | 'R') => {
-    const s = side === 'L' ? 1 : -1
     const shoulder = `shoulder${side}` as JointName
     const elbow = `elbow${side}` as JointName
     const wrist = `wrist${side}` as JointName
     return joint(
       shoulder,
-      [s * p.shoulderHalf, p.shoulderY - p.chestY, 0],
+      at[shoulder],
       <>
         {ball(shoulder, 'ball', p.upperArmRadius * 1.25)}
         {part(shoulder, 'upper', g.upperArm, [0, -p.upperArm / 2, 0])}
         {joint(
           elbow,
-          [0, -p.upperArm, 0],
+          at[elbow],
           <>
             {ball(elbow, 'ball', p.forearmRadius * 1.15)}
             {part(elbow, 'fore', g.forearm, [0, -p.forearm / 2, 0])}
             {joint(
               wrist,
-              [0, -p.forearm, 0],
+              at[wrist],
               <>
                 {ball(wrist, 'ball', p.forearmRadius * 0.85)}
                 {ellipsoid(wrist, 'hand', [0, -p.hand * 0.5, 0.004 * p.height], [
@@ -197,7 +204,6 @@ export default function MannequinView({ node, selected, clickable, passive = fal
   }
 
   const leg = (side: 'L' | 'R') => {
-    const s = side === 'L' ? 1 : -1
     const hip = `hip${side}` as JointName
     const knee = `knee${side}` as JointName
     const ankle = `ankle${side}` as JointName
@@ -205,18 +211,18 @@ export default function MannequinView({ node, selected, clickable, passive = fal
     const shin = p.kneeY - p.ankleY
     return joint(
       hip,
-      [s * p.hipHalf, p.hipY - p.pelvisY, 0],
+      at[hip],
       <>
         {part(hip, 'thigh', g.thigh, [0, -thigh / 2, 0])}
         {joint(
           knee,
-          [0, -thigh, 0],
+          at[knee],
           <>
             {ball(knee, 'ball', p.shinRadius * 1.2)}
             {part(knee, 'shin', g.shin, [0, -shin / 2, 0])}
             {joint(
               ankle,
-              [0, -shin, 0],
+              at[ankle],
               ellipsoid(ankle, 'foot', [0, -p.ankleY * 0.45, p.footLength * 0.28], [
                 p.shinRadius * 0.95,
                 p.ankleY * 0.6,
@@ -230,17 +236,16 @@ export default function MannequinView({ node, selected, clickable, passive = fal
   }
 
   const hs = p.headSize
-  const [ox, oy, oz] = pose.pelvisOffset
   return joint(
     'pelvis',
-    [ox * p.height, p.pelvisY + oy * p.height, oz * p.height],
+    at.pelvis,
     <>
       {ellipsoid('pelvis', 'hips', [0, -0.015 * p.height, 0], [p.pelvisWidth / 2, 0.075 * p.height, p.torsoDepth * 0.48])}
       {leg('L')}
       {leg('R')}
       {joint(
         'spine',
-        [0, p.spineY - p.pelvisY, 0],
+        at.spine,
         <>
           {ellipsoid('spine', 'waist', [0, (p.chestY - p.spineY) / 2, 0], [
             p.waistWidth / 2,
@@ -249,7 +254,7 @@ export default function MannequinView({ node, selected, clickable, passive = fal
           ])}
           {joint(
             'chest',
-            [0, p.chestY - p.spineY, 0],
+            at.chest,
             <>
               {ellipsoid('chest', 'ribs', [0, (p.neckY - p.chestY) * 0.42, 0.004 * p.height], [
                 p.chestWidth / 2,
@@ -260,12 +265,12 @@ export default function MannequinView({ node, selected, clickable, passive = fal
               {arm('R')}
               {joint(
                 'neck',
-                [0, p.neckY - p.chestY, 0],
+                at.neck,
                 <>
                   {part('neck', 'neck', g.neck, [0, (p.headY - p.neckY) / 2, 0])}
                   {joint(
                     'head',
-                    [0, p.headY - p.neckY, 0],
+                    at.head,
                     <>
                       {ellipsoid('head', 'skull', [0, hs * 0.5, 0], [hs * 0.4, hs * 0.5, hs * 0.45])}
                       {ellipsoid('head', 'nose', [0, hs * 0.4, hs * 0.44], [hs * 0.06, hs * 0.09, hs * 0.07])}

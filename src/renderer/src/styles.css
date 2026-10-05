@@ -2704,3 +2704,12 @@ input {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
   z-index: 50;
 }
+
+/* Figure properties: a planted hand or foot with its Release button. */
+.planted-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 0;
+}

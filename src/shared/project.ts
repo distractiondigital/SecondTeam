@@ -26,6 +26,7 @@ import { clampCone, clampKelvin, clampStops, clampUnit, LIGHT_KINDS, type LightK
 import { DEFAULT_GENERATION, repairGeneration, type GenerationSettings } from './prompt'
 import { DEFAULT_ENVIRONMENT, repairEnvironment, type Environment } from './environment'
 import { sanitizeAppearance, sanitizeBody, sanitizeExpression, sanitizeHands, type BodySliders, type FigureAppearance, type Hands } from './humanBody'
+import { sanitizeLookAt, sanitizePlants, type LookAt, type Plants } from './posing'
 
 // v1: M1 (primitives, groups). v2: M2 adds mannequins. v3: M3 adds cameras.
 // v4: per-shot changes (camera.overrides). v5: numbered scenes, shots 1A/1B…, one camera kit per project.
@@ -34,7 +35,8 @@ import { sanitizeAppearance, sanitizeBody, sanitizeExpression, sanitizeHands, ty
 // v10: the storyboard (board order, per-shot board description and dialogue).
 // v11: environment (time of day + ground colour) per scene, optionally changed per shot.
 // v12: human figures (figure style + MakeHuman body sliders).
-export const SCHEMA_VERSION = 12
+// v13: Posing 2 (planted hands/feet, head look-at).
+export const SCHEMA_VERSION = 13
 
 export type Vec3 = [number, number, number]
 
@@ -112,7 +114,12 @@ export interface MannequinNode extends NodeBase {
   expression: string
   /** Human hand shapes. */
   hands: Hands
+  /** The posed base; plants and look-at are applied on top when drawing (shared/posing.ts). */
   pose: Pose
+  /** Hands/feet planted on something: they stay put while the rest of the body moves. */
+  plants: Plants
+  /** What the head looks at (live), or null. */
+  lookAt: LookAt | null
 }
 
 /**
@@ -458,6 +465,9 @@ function repairNode(node: SceneNode, scene: Scene): void {
     node.appearance = sanitizeAppearance(node.appearance, node.body.gender)
     node.expression = sanitizeExpression(node.expression)
     node.hands = sanitizeHands(node.hands)
+    // Before v13 there was no planting or look-at.
+    node.plants = sanitizePlants(node.plants)
+    node.lookAt = sanitizeLookAt(node.lookAt)
     node.castId = typeof node.castId === 'string' ? node.castId : null
     node.description = typeof node.description === 'string' ? node.description : ''
     node.color = typeof node.color === 'string' ? node.color : FIGURE_COLORS[0]

@@ -1,6 +1,7 @@
 import type { Anchor, SceneNode, Vec3 } from './project'
 import { sanitizeAppearance, sanitizeBody, sanitizeExpression, sanitizeHands, type BodySliders, type FigureAppearance, type Hands } from './humanBody'
 import { sanitizePose, type Pose } from './mannequin'
+import { sanitizeLookAt, sanitizePlants, type LookAt, type Plants } from './posing'
 
 // Master scene + per-shot changes.
 //
@@ -23,6 +24,8 @@ export const OVERRIDABLE_FIELDS = [
   'appearance',
   'expression',
   'hands',
+  'plants',
+  'lookAt',
   'stops',
   'kelvin',
   'softness',
@@ -47,6 +50,8 @@ export interface NodeOverride {
   appearance?: FigureAppearance
   expression?: string
   hands?: Hands
+  plants?: Plants
+  lookAt?: LookAt | null
   stops?: number
   kelvin?: number
   softness?: number
@@ -65,7 +70,7 @@ export function overridableFor(node: SceneNode): OverridableField[] {
     case 'group':
       return ['position', 'rotation', 'scale', 'hidden']
     case 'mannequin':
-      return ['position', 'rotation', 'hidden', 'color', 'pose', 'height', 'build', 'limits', 'body', 'appearance', 'expression', 'hands']
+      return ['position', 'rotation', 'hidden', 'color', 'pose', 'height', 'build', 'limits', 'body', 'appearance', 'expression', 'hands', 'plants', 'lookAt']
     case 'light':
       return ['position', 'rotation', 'hidden', 'stops', 'kelvin', 'softness', 'shadows', 'coneAngle', 'falloff']
     case 'camera':
@@ -155,6 +160,8 @@ export function sanitizeOverrides(raw: unknown, nodes: Record<string, SceneNode>
       else if (f === 'appearance' && x && typeof x === 'object') o.appearance = sanitizeAppearance(x, 0.5)
       else if (f === 'expression' && typeof x === 'string') o.expression = sanitizeExpression(x)
       else if (f === 'hands' && x && typeof x === 'object') o.hands = sanitizeHands(x)
+      else if (f === 'plants' && x && typeof x === 'object') o.plants = sanitizePlants(x)
+      else if (f === 'lookAt') o.lookAt = sanitizeLookAt(x)
       else if (f === 'pose') {
         const pose = sanitizePose(x)
         if (pose) o.pose = pose

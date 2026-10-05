@@ -26,7 +26,11 @@ import {
   type ProxyKind
 } from '../../../shared/humanBody'
 import type { MannequinNode, Vec3 } from '../../../shared/project'
-import { useDocument } from '../state/documentStore'
+import { editedNodes, useDocument } from '../state/documentStore'
+import { chainOf, drivenJoints, effectivePose, LIMB_ENDS, type LimbEnd } from '../../../shared/posing'
+import { worldMatrix } from '../../../shared/transforms'
+import { figureProportions } from '../viewport/figurePose'
+import { Vector3 } from 'three'
 import { usePoseLibrary } from '../state/poseLibrary'
 import { useUi } from '../state/uiStore'
 import { METRES_PER_FOOT, type Units } from '../units'
@@ -362,8 +366,12 @@ export function FigureSection({ node }: { node: MannequinNode }) {
           />
           Joint limits
         </label>
-        <p className="hint small">Click a body part to pose that joint.</p>
+        <p className="hint small">
+          Click a body part to pose that joint. Click a hand, foot or the hips and press W to drag them (W / S while holding: away / closer).
+        </p>
       </div>
+
+      <PosingSection node={node} disabled={disabled} />
 
       <SavedPoses node={node} />
     </>
@@ -371,6 +379,90 @@ export function FigureSection({ node }: { node: MannequinNode }) {
 }
 
 /** Apply a choice from the preset menu: "builtin:<name>", "project:<id>" or "library:<id>". */
+const END_LABELS: Record<LimbEnd, string> = { wristL: 'Left hand', wristR: 'Right hand', ankleL: 'Left foot', ankleR: 'Right foot' }
+
+/** Let a planted hand or foot go: the limb stays where it is, as an ordinary pose. */
+function releasePlant(node: MannequinNode, end: LimbEnd): void {
+  const p = figureProportions(node)
+  const plants = { ...node.plants }
+  delete plants[end]
+  if (!p) {
+    useDocument.getState().updatePose(node.id, { plants })
+    return
+  }
+  const drawn = effectivePose(node, p, null)
+  const joints = Object.fromEntries(chainOf(end).map((j) => [j, drawn.joints[j]]))
+  useDocument.getState().updatePose(node.id, { joints, plants })
+}
+
+/** Look at, and the planted hands and feet. */
+function PosingSection({ node, disabled }: { node: MannequinNode; disabled: boolean }) {
+  const doc = useDocument.getState()
+  const targets = useDocument((s) => {
+    const nodes = editedNodes(s)
+    const list = Object.values(nodes)
+      .filter((n) => n.id !== node.id && n.type !== 'camera' && n.type !== 'light')
+      .map((n) => [n.id, n.name])
+    return JSON.stringify(list)
+  })
+  const targetList = JSON.parse(targets) as [string, string][]
+  const value = !node.lookAt ? '' : node.lookAt.kind === 'node' ? `node:${node.lookAt.id}` : node.lookAt.kind
+  const choose = (v: string) => {
+    if (v === '') doc.updateNode(node.id, { lookAt: null })
+    else if (v === 'camera') doc.updateNode(node.id, { lookAt: { kind: 'camera' } })
+    else if (v.startsWith('node:')) doc.updateNode(node.id, { lookAt: { kind: 'node', id: v.slice(5) } })
+    else {
+      // A point 2 m in front of the face, to drag from there.
+      const nodes = editedNodes(useDocument.getState())
+      const p = figureProportions(node)
+      const ahead = new Vector3(0, p ? p.headY + p.headSize * 0.45 : 1.6, 2).applyMatrix4(worldMatrix(nodes, node.id))
+      doc.updateNode(node.id, { lookAt: { kind: 'point', position: ahead.toArray().map((x) => Math.round(x * 1000) / 1000) as Vec3 } })
+    }
+  }
+  const planted = LIMB_ENDS.filter((end) => node.plants[end])
+  return (
+    <div className="prop-section">
+      <div className="prop-title" title="The head turns to the target, the neck shares the turn and a little goes into the chest">
+        Look at
+      </div>
+      <select className="preset-select" value={value} disabled={disabled} onChange={(e) => choose(e.target.value)}>
+        <option value="">Off</option>
+        <option value="camera">This shot's camera</option>
+        <option value="point">A point (drag its ball)</option>
+        {targetList.length > 0 && (
+          <optgroup label="In the set">
+            {targetList.map(([id, name]) => {
+              return (
+                <option key={id} value={`node:${id}`}>
+                  {name}
+                </option>
+              )
+            })}
+          </optgroup>
+        )}
+      </select>
+      {node.lookAt?.kind === 'camera' && <p className="hint small">Each shot's figure looks into that shot's lens (the scene view has no camera to look at).</p>}
+      {node.lookAt?.kind === 'point' && <p className="hint small">Drag the orange ball in the viewport to where they should look.</p>}
+
+      <div className="prop-title prop-title-spaced" title="A hand or foot dropped onto a surface stays there while you pose the rest of the body">
+        Planted
+      </div>
+      {planted.length === 0 ? (
+        <p className="hint small">Nothing planted. Drag a hand or foot onto the floor or an object and it stays there.</p>
+      ) : (
+        planted.map((end) => (
+          <div key={end} className="planted-row">
+            <span>{END_LABELS[end]}</span>
+            <button disabled={disabled} onClick={() => releasePlant(node, end)} title="Let go: the limb stays where it is and follows the body again">
+              Release
+            </button>
+          </div>
+        ))
+      )}
+    </div>
+  )
+}
+
 function applyChoice(figureId: string, value: string): void {
   const [source, key] = value.split(':')
   const doc = useDocument.getState()
@@ -477,6 +569,12 @@ export function JointProperties({ node, joint }: { node: MannequinNode; joint: J
           <ArrowLeft size={14} /> {node.name}
         </button>
         <div className="joint-name">{JOINTS[joint].label}</div>
+        {drivenJoints(node.plants, false).has(joint) && (
+          <p className="hint small">Part of a planted limb: drag the hand or foot (W), or Release it in the figure's properties.</p>
+        )}
+        {node.lookAt && (joint === 'head' || joint === 'neck') && (
+          <p className="hint small">Following Look at: turn Look at off in the figure's properties to pose it by hand.</p>
+        )}
       </div>
 
       <div className="prop-section">

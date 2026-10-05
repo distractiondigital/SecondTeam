@@ -10,18 +10,17 @@ import {
   LineLoop,
   LineSegments,
   MathUtils,
-  Mesh,
   Object3D,
   Plane,
   Quaternion,
   Raycaster,
-  SkinnedMesh,
   Vector3
 } from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
 import { TransformControls } from '@react-three/drei'
 import { aimAt } from '../../../shared/lighting'
 import { viewportBridge } from './viewportBridge'
+import { setSurfaces } from './surfaces'
 import { editedNodes, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import { SELECTION_COLOR } from './selection'
@@ -44,24 +43,6 @@ function lineGeometry(points: number): BufferGeometry {
   const g = new BufferGeometry()
   g.setAttribute('position', new BufferAttribute(new Float32Array(points * 3), 3))
   return g
-}
-
-/** The set's surfaces a light can land on: everything drawn, plus figures' posing shapes. */
-function surfaces(scene: Object3D, ids: string[]): Mesh[] {
-  const out: Mesh[] = []
-  for (const id of ids) {
-    scene.getObjectByName(id)?.traverse((o) => {
-      if (!(o instanceof Mesh) || o instanceof SkinnedMesh) return
-      // A human figure's (invisible) skeleton stands in for its body: much cheaper to hit.
-      if (o.userData.joint) {
-        out.push(o)
-        return
-      }
-      for (let at: Object3D | null = o; at; at = at.parent) if (at.userData.helper || !at.visible) return
-      out.push(o)
-    })
-  }
-  return out
 }
 
 export default function LightAim() {
@@ -134,12 +115,7 @@ export default function LightAim() {
     const turn = new Quaternion().setFromRotationMatrix(object.matrixWorld)
     const forward = new Vector3(0, 0, -1).applyQuaternion(turn)
     const nodes = editedNodes(useDocument.getState())
-    const targets = surfaces(
-      scene,
-      Object.values(nodes)
-        .filter((n) => n.type !== 'camera' && n.type !== 'light' && !n.parentId)
-        .map((n) => n.id)
-    )
+    const targets = setSurfaces(scene, nodes)
     const ray = new Raycaster()
     ray.far = MAX_DISTANCE
     /** Where a ray from the light lands (null if it lands nowhere). */

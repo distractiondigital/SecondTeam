@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { produce, type Draft } from 'immer'
 import { Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import { sanitizeLookAt, sanitizePlants, type Plants } from '../../../shared/posing'
 import { localMatrix, parentWorldMatrix, placementFromMatrix, placementUnder, worldMatrix as worldMatrixOf } from '../../../shared/transforms'
 import {
   clampScale,
@@ -103,7 +104,7 @@ const LIGHT_FIELDS: LightField[] = ['stops', 'kelvin', 'softness', 'shadows', 'c
 
 export type NodePatch = Partial<
   Pick<PrimitiveNode, 'name' | 'position' | 'rotation' | 'scale' | 'color' | 'hidden' | 'locked'> &
-    Pick<MannequinNode, 'height' | 'build' | 'limits' | 'castId' | 'style' | 'body' | 'appearance' | 'expression' | 'hands'> &
+    Pick<MannequinNode, 'height' | 'build' | 'limits' | 'castId' | 'style' | 'body' | 'appearance' | 'expression' | 'hands' | 'plants' | 'lookAt'> &
     Pick<PrimitiveNode, 'propId'> &
     Pick<CameraNode, CameraField> &
     Pick<LightNode, LightField>
@@ -136,6 +137,8 @@ const FIELD_TYPES: Partial<Record<keyof NodePatch, SceneNode['type'][]>> = {
   appearance: ['mannequin'],
   expression: ['mannequin'],
   hands: ['mannequin'],
+  plants: ['mannequin'],
+  lookAt: ['mannequin'],
   propId: ['primitive', 'group'],
   scale: ['primitive', 'group'], // a figure's size comes from its height; cameras don't scale
   ...Object.fromEntries(CAMERA_FIELDS.map((f) => [f, ['camera']])),
@@ -160,6 +163,8 @@ function normalizeField(key: keyof NodePatch, value: unknown): unknown {
   if (key === 'appearance') return sanitizeAppearance(value, 0.5)
   if (key === 'expression') return sanitizeExpression(value)
   if (key === 'hands') return sanitizeHands(value)
+  if (key === 'plants') return sanitizePlants(value)
+  if (key === 'lookAt') return sanitizeLookAt(value)
   if (key === 'style') return value === 'mannequin' ? 'mannequin' : 'human'
   if (key === 'stops') return clampStops(value as number)
   if (key === 'kelvin') return clampKelvin(value as number)
@@ -241,6 +246,11 @@ interface DocumentState {
   setJointRotation: (id: string, joint: JointName, rotation: Vec3) => void
   /** Pelvis shift from standing, as a fraction of the figure's height. */
   setPelvisOffset: (id: string, offset: Vec3) => void
+  /**
+   * Posing 2: several joints, the hip offset and/or the planted hands/feet at once, as one change
+   * (joints are clamped to their ranges if the figure has limits on). `plants` replaces the set.
+   */
+  updatePose: (id: string, change: { joints?: Partial<Record<JointName, Vec3>>; pelvisOffset?: Vec3; plants?: Plants }) => void
   applyPreset: (id: string, preset: PresetName) => void
   mirrorPose: (id: string) => void
   resetJoint: (id: string, joint: JointName) => void
@@ -748,6 +758,8 @@ export const useDocument = create<DocumentState>()((set, get) => {
           appearance: defaultAppearance(male ? 1 : 0),
           expression: 'neutral',
           hands: { ...DEFAULT_HANDS },
+          plants: {},
+          lookAt: null,
           color: FIGURE_COLORS[figureCount % FIGURE_COLORS.length],
           castId: null,
           description: '',
@@ -779,17 +791,32 @@ export const useDocument = create<DocumentState>()((set, get) => {
       })
     },
 
+    updatePose: (id, change) => {
+      edit(({ view, write }) => {
+        const node = view(id)
+        if (node?.type !== 'mannequin') return
+        const pose = node.pose
+        for (const [joint, rotation] of Object.entries(change.joints ?? {}) as [JointName, Vec3][]) {
+          const rounded = rotation.map((r) => round(r)) as Vec3
+          pose.joints[joint] = node.limits ? clampJoint(joint, rounded) : rounded
+        }
+        if (change.pelvisOffset) pose.pelvisOffset = change.pelvisOffset.map((v) => round(v)) as Vec3
+        write(id, change.plants ? { pose, plants: sanitizePlants(change.plants) } : { pose })
+      })
+    },
+
+    // A new whole pose releases planted hands and feet (they'd pull it back out of shape).
     applyPreset: (id, preset) => {
       edit(({ view, write }) => {
         const node = view(id)
-        if (node?.type === 'mannequin') write(id, { pose: POSE_PRESETS[preset].make(proportions(node.height, node.build)) })
+        if (node?.type === 'mannequin') write(id, { pose: POSE_PRESETS[preset].make(proportions(node.height, node.build)), plants: {} })
       })
     },
 
     mirrorPose: (id) => {
       edit(({ view, write }) => {
         const node = view(id)
-        if (node?.type === 'mannequin') write(id, { pose: mirrorPose(node.pose) })
+        if (node?.type === 'mannequin') write(id, { pose: mirrorPose(node.pose), plants: {} })
       })
     },
 
@@ -806,7 +833,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
 
     setPose: (id, pose) => {
       edit(({ view, write }) => {
-        if (view(id)?.type === 'mannequin') write(id, { pose: structuredClone(pose) })
+        if (view(id)?.type === 'mannequin') write(id, { pose: structuredClone(pose), plants: {} })
       })
     },
 

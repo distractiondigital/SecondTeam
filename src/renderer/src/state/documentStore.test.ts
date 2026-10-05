@@ -293,7 +293,48 @@ describe('figures', () => {
     expect(figure(copy).pose).toEqual(figure(a).pose)
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(12)
+    expect(loaded.schemaVersion).toBe(13)
+  })
+
+  it('posing 2: plants, look-at and several joints in one step, per shot, and older files', () => {
+    const a = doc().addMannequin()
+    expect(figure(a).plants).toEqual({})
+    expect(figure(a).lookAt).toBeNull()
+    const steps = doc().past.length
+    const plant = { position: [0.1, 0.08, 0.05] as [number, number, number], rotation: [0, 0, 0] as [number, number, number] }
+    doc().updatePose(a, { joints: { hipL: [-20, 0, 0], kneeL: [40, 0, 0] }, pelvisOffset: [0, -0.05, 0], plants: { ankleL: plant } })
+    expect(doc().past.length).toBe(steps + 1)
+    expect(figure(a).pose.joints.kneeL).toEqual([40, 0, 0])
+    expect(figure(a).plants.ankleL).toEqual(plant)
+
+    // A shot can plant somewhere else and look at its camera; Master keeps its own.
+    const shot = doc().addCamera({ position: [0, 1.6, 4], rotation: [0, 0, 0] })
+    doc().setActiveShot(shot)
+    doc().updatePose(a, { plants: {} })
+    doc().updateNode(a, { lookAt: { kind: 'camera' } })
+    const inShot = sceneForShot(doc(), shot)[a] as MannequinNode
+    expect(inShot.plants).toEqual({})
+    expect(inShot.lookAt).toEqual({ kind: 'camera' })
+    expect(figure(a).plants.ankleL).toEqual(plant)
+    expect(figure(a).lookAt).toBeNull()
+    doc().setActiveShot(null)
+
+    // Survives save and load; a new whole pose releases plants.
+    expect(parseProject(serializeProject(doc().project))).toEqual(doc().project)
+    doc().applyPreset(a, 'walking')
+    expect(figure(a).plants).toEqual({})
+
+    // Figures from before v13 open with nothing planted and no look-at.
+    const raw = JSON.parse(serializeProject(doc().project))
+    raw.schemaVersion = 12
+    for (const s of raw.scenes) for (const n of Object.values(s.nodes) as Record<string, unknown>[]) if (n.type === 'mannequin') {
+      delete n.plants
+      delete n.lookAt
+    }
+    const old = parseProject(JSON.stringify(raw))
+    const f = old.scenes[0].nodes[a] as MannequinNode
+    expect(f.plants).toEqual({})
+    expect(f.lookAt).toBeNull()
   })
 
   it('saves poses into the project and applies them to other figures', () => {
@@ -741,7 +782,7 @@ describe('older project files', () => {
       ]
     }
     const p = parseProject(JSON.stringify(raw))
-    expect(p.schemaVersion).toBe(12)
+    expect(p.schemaVersion).toBe(13)
     expect(p.camera.sensor.preset).toBe('alexa35')
     expect(p.camera.delivery).toBe('2.39')
     expect(p.scenes[0].number).toBe(1)
@@ -762,7 +803,7 @@ describe('older project files', () => {
     const raw = JSON.parse(serializeProject(doc().project))
     raw.schemaVersion = 1
     delete raw.camera
-    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(12)
+    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(13)
   })
 })
 describe('master scene and per-shot changes', () => {
@@ -870,7 +911,7 @@ describe('master scene and per-shot changes', () => {
     doc().updateNode(box, { hidden: true })
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(12)
+    expect(loaded.schemaVersion).toBe(13)
   })
 
   it('leaves the shot if undo removes its camera', () => {

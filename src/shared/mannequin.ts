@@ -194,7 +194,7 @@ const LEFT_LIMITS: Partial<Record<JointName, JointLimit>> = {
   wristL: { x: [-80, 70], y: [0, 0], z: [-25, 25] },
   hipL: { x: [-120, 30], y: [-45, 45], z: [-30, 45] },
   kneeL: { x: [0, 150], y: [0, 0], z: [0, 0] },
-  ankleL: { x: [-20, 50], y: [-15, 15], z: [-25, 25] }
+  ankleL: { x: [-35, 50], y: [-15, 15], z: [-25, 25] }
 }
 
 const flip = ([lo, hi]: Range): Range => [-hi, -lo]

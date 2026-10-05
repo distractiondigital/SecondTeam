@@ -19,6 +19,7 @@ import EnvironmentView from './EnvironmentView'
 import BoxSelect from './BoxSelect'
 import FreeFly from './FreeFly'
 import LightAim from './LightAim'
+import ReachHandles from './ReachHandles'
 import ShotScenes, { BACKGROUND, RenderFloor, WorkLights } from './ShotScenes'
 import RendererHandle from './RendererHandle'
 import ShotTracker from './ShotTracker'
@@ -69,6 +70,7 @@ export default function Viewport() {
         <JointGizmo />
         <BoxSelect />
         <LightAim />
+        <ReachHandles />
 
         <OrbitControls makeDefault mouseButtons={MOUSE_BUTTONS} />
         <FrameController />

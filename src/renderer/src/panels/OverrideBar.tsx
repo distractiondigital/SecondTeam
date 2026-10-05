@@ -20,6 +20,8 @@ const FIELD_LABELS: Record<OverridableField, string> = {
   appearance: 'clothes and hair',
   expression: 'expression',
   hands: 'hands',
+  plants: 'planted hands/feet',
+  lookAt: 'look at',
   stops: 'brightness',
   kelvin: 'colour temperature',
   softness: 'softness',

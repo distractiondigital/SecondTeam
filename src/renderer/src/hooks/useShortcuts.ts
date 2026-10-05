@@ -31,7 +31,7 @@ export function useShortcuts(): void {
     const onKeyDown = (e: KeyboardEvent) => {
       if (isTyping(e.target) || e.altKey) return
       // While flying a camera, keys belong to the camera (so Ctrl+S etc. can't fire by accident).
-      if (viewportBridge.flying) return
+      if (viewportBridge.flying || viewportBridge.grabbing) return
       const key = e.key.toLowerCase()
       const ui = useUi.getState()
 

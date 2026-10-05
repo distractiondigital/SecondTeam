@@ -22,6 +22,7 @@ import Viewport from './viewport/Viewport'
 function StatusBar() {
   const selection = useUi((s) => s.selection)
   const joint = useUi((s) => s.selectedJoint)
+  const mode = useUi((s) => s.gizmoMode)
   const node = useDocument((s) => (selection.length === 1 ? activeScene(s).nodes[selection[0]] : undefined))
 
   let readout = ''
@@ -32,9 +33,13 @@ function StatusBar() {
   if (node?.type === 'mannequin') {
     if (joint) {
       readout += ` › ${JOINTS[joint].label}`
-      hints = 'Drag the rings to rotate this joint · Hold Ctrl: 15° steps · Click another body part to pose it · Esc: back to the figure'
+      const grabbable = /^(wrist|ankle|pelvis)/.test(joint)
+      hints =
+        grabbable && mode === 'translate'
+          ? 'Hold the ball and move the mouse · while holding: W/S away/closer, Shift faster, Space snapping on/off · E: rotate instead · Esc: back to the figure'
+          : `Drag the rings to rotate this joint · Hold Ctrl: 15° steps${grabbable ? ' · W: drag it to a spot instead' : ''} · Click another body part to pose it · Esc: back to the figure`
     } else {
-      hints = 'Click a body part to pose its joint · W/E: move/rotate the figure · Height and presets in Properties'
+      hints = 'Click a body part to pose its joint (a hand, foot or the hips + W: drag it to a spot) · W/E: move/rotate the figure · Look at, presets and planted hands/feet in Properties'
     }
   }
 
