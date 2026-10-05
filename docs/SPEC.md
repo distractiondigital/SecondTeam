@@ -144,6 +144,7 @@ Build **one milestone at a time**. Each ends with the app running and a short "h
 | 8 | **Storyboard** | Arrange circle takes on a board, add notes, export a PDF. |
 | 9 | **Plug-and-play** | On a clean Windows machine: run the installer → setup wizard downloads everything → generate, never touching ComfyUI. Packaged `.exe` installer. |
 | 10 | **Polish** | Fix pain points found by using it on a real project. |
+| 11 | **Mac version** | A collaborator on an Apple Silicon Mac installs a `.dmg` and can build sets, shots and storyboards (AI engine on Mac comes later). Added 2026-10-04. |
 
 ## 7. Known risks (think about these early)
 - **Reference bleed.** Masked IP-Adapters can leak one character's look onto another. Plan for per-reference weight and mask feathering controls.
