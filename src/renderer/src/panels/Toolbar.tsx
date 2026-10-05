@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 import {
+  Mouse,
+  Touchpad,
   Box,
   Cone,
   Cylinder,
@@ -109,6 +111,7 @@ export default function Toolbar({ boardOnly = false }: { boardOnly?: boolean }) 
   const lookingThrough = useUi((s) => s.lookThroughId !== null)
   const shading = useUi((s) => s.shading)
   const units = useUi((s) => s.units)
+  const navMode = useUi((s) => s.navMode)
   const canUndo = useDocument((s) => s.past.length > 0)
   const canRedo = useDocument((s) => s.future.length > 0)
   const ui = useUi.getState
@@ -209,6 +212,17 @@ export default function Toolbar({ boardOnly = false }: { boardOnly?: boolean }) 
                   {o.label}
                 </button>
               ))}
+            </div>
+          </Group>
+
+          <Group label="Input">
+            <div className="segmented" title="Mouse: middle-drag orbits, scroll zooms. Trackpad: two-finger swipe orbits, Shift + swipe pans, pinch zooms. Alt + drag orbits (Alt + Shift pans) with either.">
+              <button className={navMode === 'mouse' ? 'active' : ''} onClick={() => ui().setNavMode('mouse')} title="Mouse: middle-drag orbits, scroll zooms">
+                <Mouse size={14} strokeWidth={1.75} />
+              </button>
+              <button className={navMode === 'trackpad' ? 'active' : ''} onClick={() => ui().setNavMode('trackpad')} title="Trackpad: two-finger swipe orbits, Shift + swipe pans, pinch zooms">
+                <Touchpad size={14} strokeWidth={1.75} />
+              </button>
             </div>
           </Group>
 

@@ -49,6 +49,8 @@ While `npm run dev` is running, most UI edits show up in the window instantly.
 | `npm run dist` | Build a Windows installer into `release/` (set up properly in Milestone 9) |
 
 ## Viewport controls (Blender-style)
+- **Mouse or trackpad** (toolbar, the Input switch; remembered on each PC). **Trackpad:** two-finger swipe orbits, **Shift** + swipe pans, **pinch** zooms; in camera view a swipe dollies and a pinch zooms the lens. (Windows keeps three-finger swipes for itself, so they can't be used.) **Mouse:** as below.
+- **Alt + left-drag** orbits and **Alt + Shift + left-drag** pans in either mode (no middle button needed); in camera view Alt + left-drag looks around (W A S D fly while it's held), like the right button.
 - **Middle-drag:** orbit
 - **Shift + middle-drag:** pan
 - **Scroll:** zoom

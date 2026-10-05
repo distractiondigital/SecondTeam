@@ -18,6 +18,7 @@ import SelectionGizmo from './SelectionGizmo'
 import EnvironmentView from './EnvironmentView'
 import BoxSelect from './BoxSelect'
 import FreeFly from './FreeFly'
+import ViewNav from './ViewNav'
 import LightAim from './LightAim'
 import ReachHandles from './ReachHandles'
 import ShotScenes, { BACKGROUND, RenderFloor, WorkLights } from './ShotScenes'
@@ -49,7 +50,7 @@ export default function Viewport() {
         camera={{ position: [6, 4, 8], fov: 40, near: 0.05, far: 1000 }}
         onPointerMissed={(e) => {
           // Clicking empty space steps back out of joint posing, then clears the selection.
-          if (viewportBridge.gizmoBusy || viewportBridge.boxSelecting || e.button !== 0 || e.ctrlKey || e.shiftKey) return
+          if (viewportBridge.gizmoBusy || viewportBridge.boxSelecting || viewportBridge.suppressClick || e.button !== 0 || e.ctrlKey || e.shiftKey) return
           const ui = useUi.getState()
           if (ui.selectedJoint) ui.selectJoint(null)
           else ui.select([])
@@ -76,6 +77,7 @@ export default function Viewport() {
         <FrameController />
         <LookThrough />
         <FreeFly />
+        <ViewNav />
         <ShotTracker />
         <RendererHandle />
 

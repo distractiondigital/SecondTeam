@@ -19,6 +19,18 @@ export type BoardImage = 'ai' | 'clay'
 /** A cast member or prop shown in Properties. */
 export type EntityRef = { kind: 'cast' | 'prop'; id: string }
 
+/** How the viewport reads scrolling: a mouse wheel zooms; a trackpad's two-finger swipe orbits (pinch zooms). */
+export type NavMode = 'mouse' | 'trackpad'
+const NAV_MODE_KEY = 'secondteam.navMode'
+
+function loadNavMode(): NavMode {
+  try {
+    return localStorage.getItem(NAV_MODE_KEY) === 'trackpad' ? 'trackpad' : 'mouse'
+  } catch {
+    return 'mouse'
+  }
+}
+
 /** The folds that keep AI features out of the way: a shot's AI generation, cast/props' AI references, the takes strip. */
 export type AiFold = 'shot' | 'refs' | 'strip'
 const AI_FOLDS_KEY = 'secondteam.aiFolds'
@@ -95,9 +107,21 @@ interface UiState {
   selectEntity: (entity: EntityRef | null) => void
   aiFolds: Record<AiFold, boolean>
   setAiFold: (fold: AiFold, open: boolean) => void
+  /** Mouse or trackpad navigation, remembered on this PC. */
+  navMode: NavMode
+  setNavMode: (mode: NavMode) => void
 }
 
 export const useUi = create<UiState>()((set) => ({
+  navMode: loadNavMode(),
+  setNavMode: (navMode) => {
+    try {
+      localStorage.setItem(NAV_MODE_KEY, navMode)
+    } catch {
+      // Not remembered this time; still works.
+    }
+    set({ navMode })
+  },
   aiFolds: loadAiFolds(),
   setAiFold: (fold, open) =>
     set((s) => {

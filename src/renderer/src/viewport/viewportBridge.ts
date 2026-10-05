@@ -15,6 +15,8 @@ export const viewportBridge = {
   boxSelecting: false,
   /** True while a grab ball is held (hands, feet, hips, look-at point); other shortcuts stay quiet. */
   grabbing: false,
+  /** True just after an Alt-drag (orbit, pan or look), so its release isn't a click. */
+  suppressClick: false,
   /** True while flying a shot camera (right mouse held); other shortcuts stay quiet. */
   flying: false
 }

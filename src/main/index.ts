@@ -32,7 +32,8 @@ function createWindow(): void {
     minHeight: 600,
     title: 'Second Team',
     backgroundColor: '#1b1c1f',
-    autoHideMenuBar: true,
+    // No visible menu bar, and Alt never shows it (Alt+drag orbits the view). Its shortcuts still work.
+    autoHideMenuBar: false,
     show: false,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -42,6 +43,7 @@ function createWindow(): void {
     }
   })
 
+  mainWindow.setMenuBarVisibility(false)
   mainWindow.once('ready-to-show', () => mainWindow?.show())
 
   // Local-only app: never open new windows or navigate away to outside pages.

@@ -32,6 +32,7 @@ export default function FrameOverlay({ container }: { container: RefObject<HTMLE
   const info = useUi((s) => (lookId ? s.shotInfo[lookId] : undefined))
   const units = useUi((s) => s.units)
   const flySpeed = useUi((s) => s.flySpeed)
+  const trackpad = useUi((s) => s.navMode === 'trackpad')
   const kit = useDocument((s) => s.project.camera)
   const { width, height } = useSize(container)
   if (!lookId || node?.type !== 'camera' || width === 0) return null
@@ -106,8 +107,9 @@ export default function FrameOverlay({ container }: { container: RefObject<HTMLE
       </div>
 
       <div className="hud hud-help">
-        Hold right mouse: look · +WASD move · Space up · C/Ctrl down · Q/E roll (Ctrl: level) · Scroll: dolly · Ctrl+scroll:
-        zoom · ←/→ shots · Esc or `: exit · speed {flySpeed.toFixed(1)} m/s
+        Hold right mouse (or Alt + left): look · +WASD move · Space up · C/Ctrl down · Q/E roll (Ctrl: level) ·{' '}
+        {trackpad ? 'Two-finger swipe: dolly · Pinch: zoom' : 'Scroll: dolly · Ctrl+scroll: zoom'} · ←/→ shots · Esc or `: exit · speed{' '}
+        {flySpeed.toFixed(1)} m/s
       </div>
     </div>
   )

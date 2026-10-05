@@ -34,7 +34,7 @@ export default function BoxSelect() {
       return { x: e.clientX - b.left, y: e.clientY - b.top }
     }
     const onDown = (e: PointerEvent) => {
-      if (e.button !== 0 || viewportBridge.flying) return
+      if (e.button !== 0 || e.altKey || viewportBridge.flying) return
       start = local(e)
       active = false
     }

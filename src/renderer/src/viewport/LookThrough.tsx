@@ -49,6 +49,8 @@ export default function LookThrough() {
 
   const input = useRef({
     flying: false,
+    /** Looking with Alt + left button (instead of the right button). */
+    altLook: false,
     keys: new Set<string>(),
     look: { x: 0, y: 0 },
     roll: 0, // -1, 0, +1 while Q / E is held
@@ -120,7 +122,13 @@ export default function LookThrough() {
 
     const onContextMenu = (e: Event) => e.preventDefault()
     const onPointerDown = (e: PointerEvent) => {
-      if (e.button !== 2) return
+      // Right button, or Alt + left (laptops): look around while held.
+      const altLook = e.button === 0 && e.altKey
+      if (e.button !== 2 && !altLook) return
+      if (altLook) {
+        state.altLook = true
+        viewportBridge.suppressClick = true
+      }
       state.flying = true
       viewportBridge.flying = true
       doc().beginGesture('fly')
@@ -132,14 +140,21 @@ export default function LookThrough() {
       state.look.y += e.movementY
     }
     const onPointerUp = (e: PointerEvent) => {
-      if (e.button === 2) stopFlying()
+      if (e.button === 2 || (e.button === 0 && state.altLook)) {
+        stopFlying()
+        if (state.altLook) {
+          state.altLook = false
+          // The click that follows the release isn't a selection.
+          setTimeout(() => (viewportBridge.suppressClick = false), 0)
+        }
+      }
     }
     const onLockChange = () => {
       if (document.pointerLockElement !== canvas) stopFlying()
     }
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (isTyping(e.target) || e.altKey) return
+      if (isTyping(e.target) || (e.altKey && !state.altLook)) return
       if (e.code === 'KeyQ' || e.code === 'KeyE') {
         e.preventDefault()
         if (e.repeat) return
@@ -178,6 +193,9 @@ export default function LookThrough() {
       const object = id ? scene.getObjectByName(id) : null
       if (!id || node?.type !== 'camera' || !object) return
       const notch = Math.sign(e.deltaY)
+      // A trackpad sends many small scrolls (and a pinch as Ctrl + scroll): go by how far, not by notches.
+      const trackpad = useUi.getState().navMode === 'trackpad'
+      const steps = trackpad ? -e.deltaY / (e.ctrlKey ? 15 : 60) : -notch
       if (state.flying) {
         useUi.getState().setFlySpeed(useUi.getState().flySpeed * (notch < 0 ? 1.25 : 0.8))
         return
@@ -190,7 +208,7 @@ export default function LookThrough() {
         doc().endGesture('wheel')
       }, WHEEL_GESTURE_END)
       if (e.ctrlKey) {
-        const f = node.focalLength * (notch < 0 ? 1.06 : 1 / 1.06)
+        const f = node.focalLength * Math.pow(1.06, steps)
         doc().updateNode(id, { focalLength: Math.round(clampFocal(f) * 10) / 10 })
       } else {
         const w = (state.working ??= startPose(object))
@@ -198,7 +216,7 @@ export default function LookThrough() {
           new Euler(MathUtils.degToRad(w.tilt), MathUtils.degToRad(w.pan), MathUtils.degToRad(-w.roll), 'YXZ')
         )
         const forward = new Vector3(0, 0, -1).applyQuaternion(q)
-        w.position.addScaledVector(forward, DOLLY_STEP * (useUi.getState().flySpeed / 1.5) * -notch)
+        w.position.addScaledVector(forward, DOLLY_STEP * (useUi.getState().flySpeed / 1.5) * steps)
         setWorldPose(id, w.position, w.pan, w.tilt, w.roll)
       }
     }

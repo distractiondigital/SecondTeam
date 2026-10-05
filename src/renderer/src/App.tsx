@@ -23,11 +23,15 @@ function StatusBar() {
   const selection = useUi((s) => s.selection)
   const joint = useUi((s) => s.selectedJoint)
   const mode = useUi((s) => s.gizmoMode)
+  const navMode = useUi((s) => s.navMode)
   const node = useDocument((s) => (selection.length === 1 ? activeScene(s).nodes[selection[0]] : undefined))
 
   let readout = ''
-  let hints =
-    'Middle-drag: orbit · Shift+middle-drag: pan · Scroll: zoom · Right-drag + WASD: fly · Click: select (double-click: inside a group) · Drag: box select (Shift add, Ctrl remove) · W/E/R: move/rotate/scale · F: frame · Ctrl+D: duplicate · Del: delete · Ctrl+G: group'
+  const navigation =
+    navMode === 'trackpad'
+      ? 'Two-finger swipe: orbit · Shift+swipe: pan · Pinch: zoom · Alt+drag: orbit (Shift: pan)'
+      : 'Middle-drag: orbit · Shift+middle-drag: pan · Scroll: zoom · Alt+drag: orbit (Shift: pan)'
+  let hints = `${navigation} · Right-drag + WASD: fly · Click: select (double-click: inside a group) · Drag: box select (Shift add, Ctrl remove) · W/E/R: move/rotate/scale · F: frame · Ctrl+D: duplicate · Del: delete · Ctrl+G: group`
   if (node) readout = node.name
   else if (selection.length > 1) readout = `${selection.length} objects`
   if (node?.type === 'mannequin') {
