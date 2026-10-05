@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { FileDown, FolderOpen, Images, X } from 'lucide-react'
 import { LAYOUT_COUNTS, panelDescription, sceneTag, type BoardLayout, type BoardShot } from '../../../shared/board'
-import type { BoardExportSpec, PageSize } from '../../../shared/boardHtml'
+import { pageInches, type BoardExportSpec, type PageSize } from '../../../shared/boardHtml'
 import { deliveryFrame, opticsFor } from '../../../shared/camera'
 import { useDocument } from '../state/documentStore'
 import { useGeneration } from '../state/generation'
@@ -17,6 +17,57 @@ interface Options {
   pageSize: PageSize
   footer: string
   includeMissing: boolean
+}
+
+/** A tiny sketch of one page in the chosen layout: grey boxes for frames, bars for captions. */
+function PagePreview({ layout, perPage, pageSize, ratio, footer }: Options & { ratio: number }) {
+  const page = pageInches(pageSize, layout)
+  const scale = 150 / Math.max(page.w, page.h) // px per inch
+  const lines = (
+    <div className="pp-lines">
+      <i className="pp-label" />
+      <i />
+      <i className="pp-short" />
+    </div>
+  )
+  // Same geometry as the PDF (boardHtml.ts), in px: header ~10, footer ~5, gaps 4.
+  const pad = 0.45 * scale
+  const contentW = page.w * scale - pad * 2
+  const contentH = page.h * scale - pad * 2 - 10 - 5
+  const gap = 4
+  let frame: { width: number; height: number }
+  if (layout === 'grid') {
+    const cols = perPage === 2 ? 2 : 3
+    const rows = Math.ceil(perPage / cols)
+    const cellW = (contentW - gap * (cols - 1)) / cols
+    const h = Math.min(cellW / ratio, ((contentH - gap * (rows - 1)) / rows) * 0.66)
+    frame = { width: h * ratio, height: h }
+  } else {
+    const w = Math.min(contentW * 0.64, ((contentH - gap * (perPage - 1)) / perPage) * ratio)
+    frame = { width: w, height: w / ratio }
+  }
+  const panels = Array.from({ length: perPage }, (_, i) => (
+    <div key={i} className={layout === 'grid' ? 'pp-cell' : 'pp-row'}>
+      <div className="pp-frame" style={frame} />
+      {lines}
+    </div>
+  ))
+  return (
+    <div className="page-preview" style={{ width: page.w * scale, height: page.h * scale, padding: pad }} title="One page of the PDF">
+      <div className="pp-header">
+        <i className="pp-title" />
+        <i className="pp-pageno" />
+      </div>
+      {layout === 'grid' ? (
+        <div className="pp-grid" style={{ gridTemplateColumns: `repeat(${perPage === 2 ? 2 : 3}, 1fr)` }}>
+          {panels}
+        </div>
+      ) : (
+        <div className="pp-rows">{panels}</div>
+      )}
+      {footer.trim() && <i className="pp-footer" />}
+    </div>
+  )
 }
 
 // Remembered for this session.
@@ -38,10 +89,11 @@ export default function BoardExport({ shots, onClose }: { shots: BoardShot[]; on
     setOpts(next)
   }
 
+  const ratio = deliveryFrame(opticsFor(kit, 50)).ratio
   const spec = (): BoardExportSpec => ({
     ...opts,
     title: title.trim() || 'Storyboard',
-    ratio: deliveryFrame(opticsFor(kit, 50)).ratio,
+    ratio,
     panels: shots.map(({ scene, shot }) => {
       const take = shot.circleTake ? takes[shot.id]?.find((t) => t.id === shot.circleTake) : undefined
       return {
@@ -93,6 +145,9 @@ export default function BoardExport({ shots, onClose }: { shots: BoardShot[]; on
               </button>
             ))
           )}
+        </div>
+        <div className="page-preview-slot">
+          <PagePreview {...opts} ratio={ratio} />
         </div>
 
         <div className="prop-title prop-title-spaced">Page size</div>

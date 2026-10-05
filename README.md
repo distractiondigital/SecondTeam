@@ -155,7 +155,7 @@ Turn the circle takes into a board you can send to a client or crew.
 - **Drag** a panel by its grip (⋮⋮) to reorder. The board has its own order across all scenes (intercut freely), and shot names never change. New shots join the end.
 - **Double-click** a panel's picture to jump to that shot in the Set view, with its circle take open.
 - **Export…**:
-  - **Layout:** Grid 2 / 3 / 6 (landscape pages, captions under each frame) or Rows 2 / 3 / 4 (portrait pages, picture left, captions right).
+  - **Layout:** Grid 2 / 3 / 6 (landscape pages, captions under each frame) or Rows 2 / 3 / 4 (portrait pages, picture left, captions right). A small sketch of one page under the buttons shows how the chosen layout will look.
   - **Page size** (Letter or A4), **Title** (the project name), an optional **Footer** (e.g. *Distraction Digital · v1 · not for distribution*), and whether to include shots without a circle take.
   - **Export PDF** makes `exports\Storyboard <date time> Grid 3.pdf` in the project folder; **Export PNGs** copies the full-size circle takes into `exports\Storyboard <date time> PNGs\001 - 1A.png …` in board order. **Open** / **Show in folder** afterwards. Exporting twice never overwrites: the second gets "(2)".
   - Very long captions are trimmed with "…" in the PDF so they never run into the next panel.
