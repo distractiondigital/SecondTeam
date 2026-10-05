@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu } from 'electron'
 import { join } from 'path'
 import { registerAssetIpc } from './assetFiles'
 import { registerBoardIpc } from './boardExport'
@@ -85,6 +85,17 @@ app.on('second-instance', () => {
 })
 
 app.whenReady().then(() => {
+  // No built-in menu shortcuts: Electron's default menu would close the window on Ctrl+W and reload
+  // it on Ctrl+R (losing unsaved work). The app's own shortcuts live in the UI; typing shortcuts
+  // (copy, paste, select all) still work in text boxes. Development keeps reload and DevTools.
+  // (The Mac version will need an Edit menu for copy/paste.)
+  Menu.setApplicationMenu(
+    app.isPackaged
+      ? null
+      : Menu.buildFromTemplate([
+          { label: 'Develop', submenu: [{ role: 'reload' }, { role: 'forceReload' }, { role: 'toggleDevTools' }] }
+        ])
+  )
   ipcMain.handle('app:getVersion', () => app.getVersion())
   ipcMain.on('app:setUnsaved', (_e, unsaved: boolean, name: string) => {
     hasUnsavedChanges = unsaved
