@@ -23,9 +23,10 @@ interface Props {
 
 export default function HumanFigure({ node, selected, clickable, passive = false, clay = false }: Props) {
   const data = useBodyData()
-  const { gender, age, muscle, weight } = node.body
+  // Rebuilt when any body slider (all of them, chest included), the height or the expression changes.
+  const bodyKey = JSON.stringify(node.body)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fit = useMemo(() => (data ? fitFor(data, node) : null), [data, gender, age, muscle, weight, node.height, node.expression])
+  const fit = useMemo(() => (data ? fitFor(data, node) : null), [data, bodyKey, node.height, node.expression])
   // Planted hands/feet and look-at, worked out on the body's own proportions.
   const pose = useEffectivePose(fit ? node : null, fit?.proportions ?? FALLBACK)
   // A figure linked to a cast member wears that cast member's colour.
