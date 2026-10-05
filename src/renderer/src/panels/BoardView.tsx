@@ -34,6 +34,8 @@ function Panel({ b, onDragStart, onDrop, dropHere }: { b: BoardShot; onDragStart
     if (projectPath && takes === undefined) void loadTakes(shot.id, scene.id)
   }, [projectPath, takes, shot.id, scene.id])
   const take = shot.circleTake ? takes?.find((t) => t.id === shot.circleTake) : undefined
+  const showClay = useUi((s) => s.boardImage === 'clay')
+  const clay = useUi((s) => s.boardClay[shot.id])
   const update = useDocument.getState().updatePanel
   const description = panelDescription(shot)
   const specs = [`${Math.round(shot.focalLength)}mm`, shot.sizeOverride ?? take?.shotSize, shot.angleOverride ?? take?.angle]
@@ -59,7 +61,13 @@ function Panel({ b, onDragStart, onDrop, dropHere }: { b: BoardShot; onDragStart
       }}
     >
       <div className="board-image" onDoubleClick={goToShot} title="Double-click to go to this shot">
-        {take ? (
+        {showClay ? (
+          clay ? (
+            <img src={clay} alt={shot.shotNumber} draggable={false} />
+          ) : (
+            <div className="board-missing">Rendering…</div>
+          )
+        ) : take ? (
           <img src={take.thumbnail} alt={shot.shotNumber} draggable={false} />
         ) : (
           <div className="board-missing">
@@ -102,6 +110,7 @@ export default function BoardView() {
   const [overId, setOverId] = useState<string | null>(null)
   const [exporting, setExporting] = useState(false)
   const circled = shots.filter((b) => b.shot.circleTake).length
+  const boardImage = useUi((s) => s.boardImage)
 
   const drop = (beforeId: string | null) => {
     if (dragId && dragId !== beforeId) {
@@ -119,6 +128,14 @@ export default function BoardView() {
         <span className="dim">
           {shots.length} shot{shots.length === 1 ? '' : 's'} · {circled} with a circle take
         </span>
+        <div className="segmented board-image-switch" title="Show each shot's circle take or its clay render">
+          <button className={boardImage === 'ai' ? 'active' : ''} onClick={() => useUi.getState().setBoardImage('ai')}>
+            AI
+          </button>
+          <button className={boardImage === 'clay' ? 'active' : ''} onClick={() => useUi.getState().setBoardImage('clay')}>
+            Clay
+          </button>
+        </div>
         <button className="generate-button small" onClick={() => setExporting(true)} disabled={!shots.length}>
           <FileDown size={14} /> Export…
         </button>

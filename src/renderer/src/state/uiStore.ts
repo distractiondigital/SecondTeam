@@ -14,6 +14,8 @@ export type Shading = 'work' | 'clay'
 export type LeftTab = 'outliner' | 'cast' | 'props'
 /** The set (3D workspace) or the storyboard. */
 export type MainView = 'set' | 'board'
+/** What the board's panels show: the circle take, or the shot's clay render. */
+export type BoardImage = 'ai' | 'clay'
 /** A cast member or prop shown in Properties. */
 export type EntityRef = { kind: 'cast' | 'prop'; id: string }
 
@@ -43,6 +45,9 @@ interface UiState {
   shotInfo: Record<string, ShotInfo>
   leftTab: LeftTab
   view: MainView
+  boardImage: BoardImage
+  /** Clay renders for the board (larger than the Shot list's), by camera id, across all scenes. */
+  boardClay: Record<string, string>
   /** The cast member or prop being edited in Properties (clears when something in the set is selected). */
   entity: EntityRef | null
 
@@ -63,6 +68,8 @@ interface UiState {
   setShotInfo: (shotInfo: Record<string, ShotInfo>) => void
   setLeftTab: (tab: LeftTab) => void
   setView: (view: MainView) => void
+  setBoardImage: (image: BoardImage) => void
+  setBoardClay: (images: Record<string, string>) => void
   /** Show a cast member or prop in Properties (null = none). */
   selectEntity: (entity: EntityRef | null) => void
 }
@@ -84,6 +91,8 @@ export const useUi = create<UiState>()((set) => ({
   shotInfo: {},
   leftTab: 'outliner',
   view: 'set',
+  boardImage: 'ai',
+  boardClay: {},
   entity: null,
 
   select: (ids) => set((s) => ({ selection: ids, selectedJoint: null, entity: ids.length ? null : s.entity })),
@@ -118,5 +127,7 @@ export const useUi = create<UiState>()((set) => ({
   setShotInfo: (shotInfo) => set({ shotInfo }),
   setLeftTab: (leftTab) => set({ leftTab }),
   setView: (view) => set({ view }),
+  setBoardImage: (boardImage) => set({ boardImage }),
+  setBoardClay: (boardClay) => set({ boardClay }),
   selectEntity: (entity) => set(entity ? { entity, selection: [], selectedJoint: null } : { entity: null })
 }))

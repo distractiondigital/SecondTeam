@@ -1,7 +1,8 @@
 import { useEffect, useMemo } from 'react'
 import { Color, Scene } from 'three'
 import { createPortal } from '@react-three/fiber'
-import { activeScene, sceneForShot, useDocument } from '../state/documentStore'
+import { activeScene, sceneForShot, sceneOfShot, useDocument } from '../state/documentStore'
+import { useUi } from '../state/uiStore'
 import GroundGrid from './GroundGrid'
 import { CLAY_COLOR } from './clay'
 import SceneNodes, { hasLights } from './SceneNodes'
@@ -42,7 +43,7 @@ export const shotScenes = new Map<string, Scene>()
 function ShotScene({ shotId }: { shotId: string }) {
   // Thumbnails show the shot lit (Clay); a scene without lights falls back to the work look.
   const clay = useDocument((s) => hasLights(sceneForShot(s, shotId)))
-  const floor = useDocument((s) => activeScene(s).floor)
+  const floor = useDocument((s) => sceneOfShot(s, shotId).floor)
   const scene = useMemo(() => {
     const s = new Scene()
     s.background = new Color(BACKGROUND)
@@ -67,8 +68,11 @@ function ShotScene({ shotId }: { shotId: string }) {
 }
 
 export default function ShotScenes() {
+  // The active scene's shots; on the board in Clay mode, every scene's (for its clay pictures).
+  const allScenes = useUi((s) => s.view === 'board' && s.boardImage === 'clay')
   const cameraIds = useDocument((s) =>
-    Object.values(activeScene(s).nodes)
+    (allScenes ? s.project.scenes : [activeScene(s)])
+      .flatMap((scene) => Object.values(scene.nodes))
       .filter((n) => n.type === 'camera')
       .map((n) => n.id)
       .join(',')

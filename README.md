@@ -152,6 +152,7 @@ Turn the circle takes into a board you can send to a client or crew.
 
 - Click **Board** in the **Set | Board** switch at the top. Every shot in the project appears as a panel: its circle take, the shot (1A) with its scene, and lens · shot size · angle. Shots without a circle take show a grey "No circle take yet" panel, so the board doubles as a shot plan. **Set** takes you back where you were.
 - Each panel has three boxes: **Description** (starts as the shot's Frame description; change it here and the AI prompt stays as it was), **Dialogue** (printed in quotes) and **Notes** (the shot's notes). They save when you click away; Ctrl+Z undoes them.
+- **AI | Clay** (top right of the board) switches every panel between its circle take and the shot's live clay render (the same lit grey view as the Shot list thumbnail, from every scene). Exports always use the circle takes.
 - **Drag** a panel by its grip (⋮⋮) to reorder. The board has its own order across all scenes (intercut freely), and shot names never change. New shots join the end.
 - **Double-click** a panel's picture to jump to that shot in the Set view, with its circle take open.
 - **Export…**:

@@ -2,7 +2,7 @@ import { createContext, memo, useContext, useMemo } from 'react'
 import { DoubleSide, FrontSide } from 'three'
 import { Outlines } from '@react-three/drei'
 import type { SceneNode } from '../../../shared/project'
-import { activeScene, sceneForShot, useDocument } from '../state/documentStore'
+import { sceneForShot, sceneOfShot, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import CameraView from './CameraView'
 import { CLAY_COLOR } from './clay'
@@ -117,7 +117,7 @@ export default function SceneNodes({
   passive?: boolean
   clay: boolean
 }) {
-  const rootIds = useDocument((s) => activeScene(s).rootIds)
+  const rootIds = useDocument((s) => sceneOfShot(s, shotId).rootIds)
   const context = useMemo(() => ({ shotId, passive, clay }), [shotId, passive, clay])
   return (
     <SceneNodesContext.Provider value={context}>

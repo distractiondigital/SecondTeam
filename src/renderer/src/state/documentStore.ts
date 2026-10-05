@@ -937,12 +937,19 @@ export function activeScene(state: Pick<DocumentState, 'project' | 'sceneId'>): 
   return state.project.scenes.find((s) => s.id === state.sceneId) ?? state.project.scenes[0]
 }
 
-/** The active scene's nodes as a shot sees them (Master if shotId is null or not a camera). */
+/** The scene a shot belongs to (any scene, e.g. for the storyboard), else the active scene. */
+export function sceneOfShot(state: Pick<DocumentState, 'project' | 'sceneId'>, shotId: string | null): Scene {
+  const active = activeScene(state)
+  if (!shotId || active.nodes[shotId]) return active
+  return state.project.scenes.find((s) => s.nodes[shotId]?.type === 'camera') ?? active
+}
+
+/** A shot's nodes as it sees them, in its own scene (the active scene's Master if shotId is null or not a camera). */
 export function sceneForShot(
   state: Pick<DocumentState, 'project' | 'sceneId'>,
   shotId: string | null
 ): Record<string, SceneNode> {
-  const scene = activeScene(state)
+  const scene = sceneOfShot(state, shotId)
   const shot = shotId ? scene.nodes[shotId] : undefined
   return effectiveNodes(scene.nodes, shot?.type === 'camera' ? shot.overrides : undefined)
 }
