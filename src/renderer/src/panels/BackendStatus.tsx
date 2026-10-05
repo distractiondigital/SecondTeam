@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { FileText, RotateCw } from 'lucide-react'
+import { FileText, RotateCw, Settings, Wrench } from 'lucide-react'
 import { useGeneration } from '../state/generation'
+import { openEngineSettings, openWizard } from '../state/setup'
 
 // The AI engine's status light in the top bar. Click it for details, the log, or a restart.
 
@@ -40,6 +41,28 @@ export default function BackendStatus() {
               Models: {models.length ? models.map((m) => m.name).join(', ') : 'none installed'}
             </p>
           )}
+          <div className="prop-actions tight">
+            {state === 'not-installed' ? (
+              <button
+                className="generate-button"
+                onClick={() => {
+                  setOpen(false)
+                  openWizard('pc')
+                }}
+              >
+                <Wrench size={13} /> Set up the AI engine…
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  setOpen(false)
+                  openEngineSettings()
+                }}
+              >
+                <Settings size={13} /> Engine settings…
+              </button>
+            )}
+          </div>
           <div className="prop-actions tight">
             <button onClick={() => void window.secondTeam.openBackendLog()}>
               <FileText size={13} /> Open log

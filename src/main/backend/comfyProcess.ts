@@ -6,9 +6,10 @@ import type { BackendStatus } from '../../shared/takes'
 
 export type { BackendStatus }
 
-// Runs the ComfyUI in the project's ComfyUI folder as a hidden background process on a free
+// Runs the ComfyUI in the backend folder (see settings.ts) as a hidden background process on a free
 // localhost port: starts it, checks it's answering, restarts it if it crashes (a few times), and
 // stops it (with everything it started) when the app quits. Its output goes to a log file.
+// Advanced: with an external URL it uses a ComfyUI that's already running and only checks on it.
 
 const START_TIMEOUT = 240_000 // the first start can take a while (it compiles and caches)
 const MAX_RESTARTS = 3
@@ -34,8 +35,10 @@ export class ComfyProcess {
   private restarts = 0
   private status: BackendStatus
 
+  private externalUrl: string | null = null
+
   constructor(
-    private readonly comfyDir: string,
+    private comfyDir: string,
     logDir: string,
     private readonly onStatus: (status: BackendStatus) => void
   ) {
@@ -60,6 +63,24 @@ export class ComfyProcess {
     rmSync(this.pidFile, { force: true })
   }
 
+  get dir(): string {
+    return this.comfyDir
+  }
+
+  get external(): string | null {
+    return this.externalUrl
+  }
+
+  /** Point at another folder (or an external ComfyUI) and start again. */
+  async configure(dir: string, externalUrl: string | null): Promise<void> {
+    this.stop()
+    this.comfyDir = dir
+    this.externalUrl = externalUrl
+    this.restarts = 0
+    await new Promise((r) => setTimeout(r, 300))
+    await this.start()
+  }
+
   get current(): BackendStatus {
     return this.status
   }
@@ -79,10 +100,11 @@ export class ComfyProcess {
 
   async start(): Promise<void> {
     if (this.child) return
+    if (this.externalUrl) return this.useExternal(this.externalUrl)
     if (!this.installed) {
       this.set({
         state: 'not-installed',
-        message: `ComfyUI isn't installed in ${this.comfyDir}. Run: node scripts/fetch-backend.mjs`,
+        message: "The AI engine isn't set up yet. Click Set up the AI engine below.",
         url: null
       })
       return
@@ -152,6 +174,20 @@ export class ComfyProcess {
     }
   }
 
+  /** A ComfyUI someone else runs: check it answers, nothing to start or stop. */
+  private async useExternal(url: string): Promise<void> {
+    this.stopping = false
+    this.set({ state: 'starting', message: `Connecting to ${url}…`, url: null })
+    try {
+      const res = await fetch(`${url}/system_stats`)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const stats = (await res.json()) as { system?: { comfyui_version?: string } }
+      if (this.externalUrl === url) this.set({ state: 'ready', message: `Using the ComfyUI at ${url}`, url, comfyVersion: stats.system?.comfyui_version ?? null })
+    } catch (err) {
+      if (this.externalUrl === url) this.set({ state: 'error', message: `No ComfyUI answered at ${url} (${(err as Error).message}).`, url: null })
+    }
+  }
+
   /**
    * The log file, emptied. Right after a restart the previous engine can still hold it open for a
    * moment, so retry briefly, then fall back to a second file rather than logging nothing.
@@ -179,6 +215,7 @@ export class ComfyProcess {
   stop(): void {
     this.stopping = true
     this.kill()
+    if (this.externalUrl) this.set({ state: 'stopped', message: 'Stopped', url: null })
   }
 
   async restart(): Promise<void> {

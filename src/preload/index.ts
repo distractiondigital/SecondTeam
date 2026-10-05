@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
+import type { SetupInfo, SetupProgress } from '../shared/setup'
 import type { BackendStatus, GenerationEvent } from '../shared/takes'
 import type { SecondTeamApi } from './api'
 
@@ -33,6 +34,27 @@ const api: SecondTeamApi = {
   },
   restartBackend: () => ipcRenderer.invoke('backend:restart'),
   openBackendLog: () => ipcRenderer.invoke('backend:openLog'),
+
+  setupInfo: () => ipcRenderer.invoke('setup:info'),
+  onSetupInfo: (callback) => {
+    const listener = (_e: unknown, info: SetupInfo) => callback(info)
+    ipcRenderer.on('setup:info', listener)
+    return () => ipcRenderer.removeListener('setup:info', listener)
+  },
+  checkSystem: () => ipcRenderer.invoke('setup:check'),
+  chooseBackendFolder: (kind) => ipcRenderer.invoke('setup:chooseFolder', kind),
+  useDefaultBackendFolder: () => ipcRenderer.invoke('setup:useDefaultFolder'),
+  startSetup: (ticked) => ipcRenderer.invoke('setup:start', ticked),
+  pauseSetup: () => ipcRenderer.invoke('setup:pause'),
+  onSetupProgress: (callback) => {
+    const listener = (_e: unknown, p: SetupProgress) => callback(p)
+    ipcRenderer.on('setup:progress', listener)
+    return () => ipcRenderer.removeListener('setup:progress', listener)
+  },
+  skipSetup: (skipped) => ipcRenderer.invoke('setup:skip', skipped),
+  repairBackend: (full) => ipcRenderer.invoke('backend:repair', full),
+  setExternalComfy: (url) => ipcRenderer.invoke('backend:setExternal', url),
+  openBackendFolder: () => ipcRenderer.invoke('backend:openFolder'),
   installedModels: () => ipcRenderer.invoke('backend:models'),
   generate: (job) => ipcRenderer.invoke('generate:start', job),
   cancelGeneration: () => ipcRenderer.invoke('generate:cancel'),

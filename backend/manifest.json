@@ -10,7 +10,8 @@
     "license": "GPL-3.0",
     "licenseUrl": "https://github.com/Comfy-Org/ComfyUI/blob/master/LICENSE",
     "notes": "Runs as a separate program the app talks to over localhost; none of its code is part of Second Team.",
-    "archiveFolder": "ComfyUI_windows_portable"
+    "archiveFolder": "ComfyUI_windows_portable",
+    "installedSize": 4400000000
   },
   "models": [
     {

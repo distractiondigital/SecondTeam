@@ -1,4 +1,5 @@
 import type { BoardExportSpec } from '../shared/boardHtml'
+import type { SetupInfo, SetupProgress, SystemCheck } from '../shared/setup'
 import type { BackendStatus, GenerationEvent, GenerationJob, InstalledModel, TakeInfo, TakeMeta } from '../shared/takes'
 
 // Shape of the bridge exposed to the UI as `window.secondTeam`.
@@ -43,6 +44,22 @@ export interface SecondTeamApi {
   onBackendStatus: (callback: (status: BackendStatus) => void) => () => void
   restartBackend: () => Promise<void>
   openBackendLog: () => Promise<{ ok: true } | { error: string }>
+
+  /** Setup wizard / engine settings. */
+  setupInfo: () => Promise<SetupInfo>
+  onSetupInfo: (callback: (info: SetupInfo) => void) => () => void
+  checkSystem: () => Promise<SystemCheck>
+  /** 'install': where to put it; 'existing': a folder that already has the files. */
+  chooseBackendFolder: (kind: 'install' | 'existing') => Promise<{ cancelled: true } | { ok: true; info: SetupInfo } | { error: string }>
+  useDefaultBackendFolder: () => Promise<SetupInfo>
+  /** Install the required pieces plus these ticked ids; progress arrives through onSetupProgress. */
+  startSetup: (ticked: string[]) => Promise<{ ok: true } | { error: string }>
+  pauseSetup: () => Promise<{ ok: true }>
+  onSetupProgress: (callback: (p: SetupProgress) => void) => () => void
+  skipSetup: (skipped: boolean) => Promise<SetupInfo>
+  repairBackend: (full: boolean) => Promise<{ ok: true; repaired: string[] } | { error: string }>
+  setExternalComfy: (url: string | null) => Promise<SetupInfo | { error: string }>
+  openBackendFolder: () => Promise<void>
   /** Checkpoints from the manifest that are installed. */
   installedModels: () => Promise<InstalledModel[]>
   /** Start generating; progress arrives through onGenerationEvent. */

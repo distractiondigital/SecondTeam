@@ -11,11 +11,11 @@
 | 6 | First AI frames | ✅ Done (tested by Spencer 2026-09-30) | Managed ComfyUI 0.38 (starts hidden with the app); RealVisXL V5 + SDXL 1.0 + Union ControlNet (depth) from a pinned, licence-checked manifest; depth (softened) + pose guides; prompt from frame description + which way the subject faces + shot size/angle + lens + lighting + style; strictness, takes, seed lock; live previews, cancel; take strip + viewer; takes saved with full sidecars. |
 | 7 | Continuity | ✅ Done (tested by Spencer 2026-09-30; continuity "not 100% but okay for now") | Cast and Props (description, up to 4 reference images, strength) with links from figures/objects/groups and per-object descriptions; ID pass per cast/prop/described object; regional prompts + masked IP-Adapter references per entity; project style reference images; feather / reference end controls; circle takes (strip, viewer, Shot list thumbnail). |
 | 8 | Storyboard | ✅ Done (tested by Spencer 2026-10-04) | Set/Board switch; a panel per shot (circle take or clay render, shot + scene, lens/size/angle, Description/Dialogue/Notes); own drag order across scenes; double-click to go to the shot; export PDF (Grid 2/3/6 landscape or Rows 2/3/4 portrait, Letter/A4, title, footer, page sketch) and a PNG sequence, from AI or Clay. Follow-ups: Material colours in Clay; Environment (time-of-day sky, atmosphere fog, ground colour; per scene or per shot). |
-| 9 | Plug-and-play | ⬜ | |
+| 9 | Plug-and-play | 🟡 Built, waiting for Spencer's test on another PC | Windows installer (`npm run dist`, 112 MB, per-user, unsigned); first-run setup wizard (PC check, location or existing files, models with licences, resumable checksum-verified download, unpack with Windows' own tar); Engine settings (installed pieces, Add, Repair / Full check, log, restart, external ComfyUI). Engine + models live outside the app folder (default `%LOCALAPPDATA%\SecondTeam\backend`). |
 | 10 | Polish | ⬜ | Includes **Posing 2** (Spencer, 2026-09-29): IK hands/feet, head look-at target that flows subtly into the torso, choosing which end of a limb stays put (e.g. plant a foot). |
 
 ## Where we are (2026-10-02)
-Milestones 0–8 are done and tested. The whole "build the shot" half of the app works:
+Milestones 0–8 are done and tested; Milestone 9 (Plug-and-play) is built and waiting for Spencer's test on another PC. The whole "build the shot" half of the app works:
 - Greybox a set with shapes, posed figures and lights.
 - Break a project into scenes (01, 02…) and shots (1A, 1B…). Each shot has its own camera and can cheat anything in the set just for that shot.
 - Look through any shot with real sensor/lens/squeeze maths, frame guides, and readouts for height, tilt, distance, shot size, angle and lighting.
@@ -25,7 +25,7 @@ Milestones 0–8 are done and tested. The whole "build the shot" half of the app
 - Keep characters and props consistent across shots with cast/prop descriptions and reference images, and circle the best take.
 - Lay the circle takes out on a storyboard with captions, and export it as a PDF or a PNG sequence.
 
-The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `node scripts/fetch-backend.mjs`. There are 150 automated checks (`npm test`), and all pass.
+The AI engine (ComfyUI) lives in the `ComfyUI` folder and is set up by the in-app wizard (or `node scripts/fetch-backend.mjs` in development). There are 164 automated checks (`npm test`), and all pass.
 
 ## Things to know
 - **Project files:** saved projects are format **v11**. Every older format still opens, but a build from before a format change can't open a newer file.
@@ -51,7 +51,7 @@ The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `no
 - **For development** (in `CLAUDE.md`): files use LF line endings, enforced by `.gitattributes`. Changes to `src/main` or `src/preload` need an app restart.
 
 ## What's next
-**Milestone 9: Plug-and-play.** A Windows installer that sets up the AI engine and chosen models on first run (with a progress screen), so the app works on a PC without Node or a dev setup.
+**Milestone 10: Polish** (once M9 is confirmed): fix the pain points found by using Second Team on a real project. Candidates from the Ideas list below.
 
 ## Decisions log
 - 2026-09-29: Name "Second Team" (working title). Stack: Electron + React + three.js (R3F) + managed ComfyUI. SDXL first for ControlNet/IP-Adapter maturity and commercial licence.
@@ -112,9 +112,12 @@ The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `no
 - 2026-10-02 (M8): **Storyboard.** Spencer's choices: the board has its **own order** across all scenes (`project.board.order`; dragging never renames shots; new shots join the end in scene/shot order); **both PDF layouts, chosen at export** (Grid 2/3/6 landscape, captions under; Rows 2/3/4 portrait, captions beside, after his `build_board.py`); captions = **Description** (`CameraNode.boardText`, null = the Frame description, so the AI prompt and the board text can differ) + **Dialogue** + **Notes**. Schema **v10**. The PDF is our own HTML printed by Electron's built-in `printToPDF` (no new libraries); takes are embedded as 1600 px JPEGs to keep it small. Export names carry date, time and layout, and never overwrite (" (2)").
 - 2026-10-04 (M8 feedback): Clay renders (viewport Clay, thumbnails, board, Clay exports and the Clay pass) now show each object's colour instead of one grey; the setting is called **Material** (was "Viewport colour"). Still stored as `color` (no format change), still not sent to the AI. A Material palette is on the Ideas list.
 - 2026-10-04 (M8 feedback): **Environment** (Spencer): time of day + ground colour, a Unity-style simple sky. His choices: sky + soft fill only (no automatic sun; his lights stay the key), scene default with "This shot only" per shot, and the time of day goes into the prompt (at the start of the lighting description). Schema **v11** (`Scene.environment`, `CameraNode.environment`); older files get midday and a neutral grey ground. Clay with lights now shows the floor (ground colour) instead of the grid.
+- 2026-10-04 (M9): **Plug-and-play.** Spencer's choices: engine + models default to `%LOCALAPPDATA%\SecondTeam\backend` with Change… (outside the install folder, so updates/uninstalls keep the 23 GB); test on another PC; placeholder icon (`build/make-icon.ps1`); unsigned for now (SmartScreen "More info → Run anyway"). Found: Windows 11's built-in `tar.exe` (libarchive 3.8 with liblzma) unpacks the engine's .7z, so nothing extra is bundled (Windows 10 falls back to 7-Zip). The portable engine is PyTorch 2.14 + CUDA 13.0 → NVIDIA driver 580+. Checked on this PC: real engine download + unpack (91 s), engine starts from a fresh folder, pause/resume of a real model download (112 MB/s), Repair and Full check (20 GB in ~10 s), installed `.exe` → wizard on first run → existing files → engine Ready with both models → clean uninstall. Renderer libraries moved to devDependencies (installer 112 MB). Version 0.9.0.
 - 2026-09-30: The repo keeps LF line endings in the working copy (`.gitattributes`); mixed endings had been making some scripted edits silently miss.
 
 ## Ideas / later
+- **Code signing** (removes the "Windows protected your PC" warning): a code-signing certificate, roughly $200–400/year; electron-builder can sign with it once bought.
+- **Auto-update** of the app (electron-updater) once it's shared beyond Spencer; models would stay put.
 - **Material palette** (Spencer, 2026-10-04): Material is just a colour for now; later a small palette of basic materials (matte, glossy, metal, glass, emissive) to pick from.
 - **Per-scene / per-shot tweaks to cast and prop prompts** (Spencer), like per-shot changes in the Outliner: e.g. Maribel "soaked from the rain" in Scene 03 only, or a prop "on fire" in one shot. Would add scene- and shot-level overrides of description (and maybe references) to Cast/Props.
 - Face-consistent references for cast (a commercially licensed face model, if one appears); pick which reference image is the 'face'.

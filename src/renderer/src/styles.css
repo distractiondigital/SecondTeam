@@ -2144,3 +2144,375 @@ input {
   font-size: 10px;
   color: var(--text-dim);
 }
+
+/* ---------- Setup wizard ---------- */
+.setup-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(10, 10, 12, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.setup {
+  width: min(640px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 16px 60px rgba(0, 0, 0, 0.6);
+}
+
+.setup-head {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.setup-head b {
+  font-size: 16px;
+}
+
+.small {
+  font-size: 12px;
+}
+
+.setup-steps {
+  display: flex;
+  gap: 14px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.setup-steps .active {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.setup-steps .past {
+  color: var(--text);
+}
+
+.setup-body {
+  padding: 16px 20px;
+  overflow-y: auto;
+  min-height: 220px;
+}
+
+.setup-foot {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+}
+
+.setup-foot .link-button {
+  margin: 0;
+  font-size: 12px;
+}
+
+.setup-foot-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.setup-foot-actions button,
+.engine-settings .prop-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.setup-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: var(--panel-2);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.setup-row > svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.setup-row.ok > svg {
+  color: #5fbf6a;
+}
+
+.setup-row.warn > svg {
+  color: var(--accent);
+}
+
+.setup-row.bad > svg {
+  color: #e0555a;
+}
+
+.setup-note {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.setup-path {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  margin: 6px 0;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-size: 12px;
+  font-family: Consolas, monospace;
+}
+
+.setup-path span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.setup-divider {
+  height: 1px;
+  margin: 16px 0 12px;
+  background: var(--border);
+}
+
+.setup-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.setup-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 8px 10px;
+  background: var(--panel-2);
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.setup-item.required {
+  cursor: default;
+}
+
+.setup-item input {
+  margin-top: 3px;
+}
+
+.setup-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.setup-licence {
+  font-size: 11px;
+  color: var(--text-dim);
+  opacity: 0.8;
+}
+
+.setup-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 0 6px;
+  border-radius: 8px;
+  font-size: 10.5px;
+  background: var(--border);
+  color: var(--text-dim);
+}
+
+.setup-tag.ok {
+  background: rgba(95, 191, 106, 0.18);
+  color: #7fd08a;
+}
+
+.setup-tag.bad {
+  background: rgba(224, 85, 90, 0.18);
+  color: #ee8a8d;
+}
+
+.setup-bar {
+  height: 6px;
+  margin: 6px 0 10px;
+  background: var(--panel-2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.setup-bar i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.25s;
+}
+
+.setup-progress-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.setup-current {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.setup-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  font-size: 12px;
+}
+
+.setup-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  color: var(--text-dim);
+}
+
+.setup-list li.done {
+  color: var(--text);
+}
+
+.setup-list li.done svg {
+  color: #5fbf6a;
+}
+
+.setup-list li.now {
+  color: var(--accent);
+}
+
+.setup-dot {
+  width: 13px;
+  height: 13px;
+  border: 1px solid var(--text-dim);
+  border-radius: 50%;
+}
+
+/* ---------- Engine settings ---------- */
+.engine-settings {
+  width: 520px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
+.engine-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 4px;
+  font-size: 13px;
+}
+
+.engine-status i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  flex: 0 0 auto;
+}
+
+.engine-status.ready i {
+  background: #5fbf6a;
+}
+
+.engine-status.starting i {
+  background: var(--accent);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.engine-status.error i,
+.engine-status.not-installed i {
+  background: #e0555a;
+}
+
+.engine-status .dim {
+  margin-left: auto;
+  font-size: 11px;
+}
+
+.engine-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.engine-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.engine-item .setup-tag {
+  margin: 0;
+  min-width: 78px;
+  text-align: center;
+}
+
+.engine-item-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.engine-item button.small {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 8px;
+  font-size: 11px;
+}
+
+.engine-advanced {
+  margin-top: 14px;
+}
+
+.engine-advanced summary {
+  cursor: pointer;
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.engine-url {
+  display: flex;
+  gap: 6px;
+}
+
+.setup-foot-actions button:not(.generate-button),
+.engine-url button,
+.engine-advanced > button {
+  padding: 4px 12px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.setup-foot-actions button:not(.generate-button):hover,
+.engine-url button:hover,
+.engine-advanced > button:hover {
+  border-color: var(--accent);
+}
+
+.engine-url button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

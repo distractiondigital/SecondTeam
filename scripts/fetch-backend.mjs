@@ -4,7 +4,8 @@
 //   node scripts/fetch-backend.mjs            everything marked "default"
 //   node scripts/fetch-backend.mjs <id> ...   only these manifest ids (e.g. sdxl-base-1.0)
 //
-// This is the development setup (Milestone 6). The in-app setup wizard (Milestone 9) does the same job.
+// A development tool (Milestone 6). The app itself uses the setup wizard (src/main/backend/installer.ts,
+// Milestone 9), which does the same job with progress and without needing 7-Zip on Windows 11.
 // The only network calls are the URLs in the manifest.
 
 import { createHash } from 'crypto'

@@ -9,6 +9,9 @@ import TakeStrip from './panels/TakeStrip'
 import Toolbar from './panels/Toolbar'
 import { activeScene, useDocument } from './state/documentStore'
 import { connectGeneration } from './state/generation'
+import { connectSetup } from './state/setup'
+import EngineSettings from './panels/EngineSettings'
+import SetupWizard from './panels/SetupWizard'
 import { usePoseLibrary } from './state/poseLibrary'
 import { useStyleLibrary } from './state/styleLibrary'
 import { projectDisplayName, syncWindowState } from './state/projectIO'
@@ -53,9 +56,11 @@ export default function App() {
     void usePoseLibrary.getState().load()
     void useStyleLibrary.getState().load()
     const disconnect = connectGeneration()
+    const disconnectSetup = connectSetup()
     const unsync = syncWindowState()
     return () => {
       disconnect()
+      disconnectSetup()
       unsync()
     }
   }, [])
@@ -91,6 +96,8 @@ export default function App() {
         <PropertiesPanel />
       </div>
       <StatusBar />
+      <EngineSettings />
+      <SetupWizard />
     </div>
   )
 }

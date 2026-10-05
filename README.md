@@ -5,7 +5,19 @@ A local Windows desktop app for film previs. You greybox a set, place real camer
 - Full spec: [docs/SPEC.md](docs/SPEC.md)
 - Progress: [docs/PROGRESS.md](docs/PROGRESS.md)
 
-## Requirements
+## Install it (no developer setup)
+1. Run `Second Team Setup 0.9.0.exe` (made with `npm run dist`, in `release\`). It isn't code-signed yet, so Windows shows **"Windows protected your PC"**: click **More info → Run anyway**. Choose where to install; you get Start-menu and desktop shortcuts.
+2. On the first start, the **AI engine setup** opens:
+   1. **This PC**: checks the graphics card (an NVIDIA card with driver 580 or newer; 8 GB+ video memory recommended) and that Windows can unpack the engine (Windows 11 can by itself; Windows 10 needs [7-Zip](https://www.7-zip.org)).
+   2. **Location**: where the engine and models go, by default `%LOCALAPPDATA%\SecondTeam\backend`. **Change…** for another drive. Or **Use files I already have…** to point at an existing copy (e.g. this repo's `ComfyUI` folder): nothing is copied.
+   3. **Models**: the required pieces are always included; tick RealVisXL and/or SDXL 1.0 (sizes and licences listed; all allow commercial use).
+   4. **Download** (about 20 GB): progress, speed and time left. **Pause** any time, even close the app: it carries on where it stopped. Every file's checksum is verified, then the engine starts.
+   **Set up later** skips it: everything except AI frames works without the engine.
+3. **Engine settings** (click the AI light in the Takes strip → **Engine settings…**): status, location, what's installed (**Add** a model you skipped), **Repair** (re-downloads anything missing or damaged; **Full check** also re-reads every model's checksum), **Open log**, **Restart**, and under **Advanced** a ComfyUI that's already running on this PC.
+4. Uninstalling (Windows Settings → Apps) removes the app but keeps the engine, the models and your projects, so reinstalling doesn't download again. To free the space, delete the backend folder yourself.
+
+## Develop it
+### Requirements
 - Windows 11
 - [Node.js](https://nodejs.org) LTS (v22 or newer)
 - Git (for version history)
@@ -105,13 +117,13 @@ In the Properties panel, **drag left/right on any number box** to change it (hol
 - **Environment** (a shot's Properties, under Lighting): a **Time of day** slider (Night → Dawn → Sunrise → Morning → Midday → Afternoon → Sunset → Dusk → Night) that sets the sky behind the set and a soft fill light in the sky's colour, an **Atmosphere** slider (Clear → Haze → Thick fog: distant things fade into the sky's horizon colour; the depth, normals and ID passes stay clear), and a **Ground** colour for the automatic floor. Your own lights stay the key light; the sky and ground show in Clay (once the scene has a light), camera view, thumbnails and clay renders. It belongs to the scene: **Scene 01** changes it for every shot that follows the scene, **This shot only** gives one shot its own (switch back to drop it). The time of day (and any atmosphere) also starts the lighting description, so it goes into the AI prompt (unless you've typed your own lighting).
 
 ## AI frames (Generate)
-**One-time setup** (downloads about 21 GB into the `ComfyUI` folder here; Git ignores it):
+**One-time setup**: in development the app uses the `ComfyUI` folder here (Git ignores it). If it's missing, the setup wizard opens and installs into it; or run the older script (needs 7-Zip):
 
 ```
 node scripts/fetch-backend.mjs
 ```
 
-It downloads ComfyUI (the local AI engine) and the models listed in `backend/manifest.json`, checks every file's checksum, and can be re-run to resume. Every model's licence is recorded there; all of them allow commercial use:
+Either way it downloads ComfyUI (the local AI engine) and the models listed in `backend/manifest.json`, checks every file's checksum, and can be re-run to resume. Every model's licence is recorded there; all of them allow commercial use:
 
 | Model | Look | Licence |
 |---|---|---|
