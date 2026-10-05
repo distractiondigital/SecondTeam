@@ -503,19 +503,19 @@ describe('environment', () => {
   it('belongs to the scene, and a shot can have its own (undoable, saved)', () => {
     const a = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
     const b = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
-    expect(environmentFor(doc(), a)).toEqual({ time: 12, ground: '#9a9a96' })
+    expect(environmentFor(doc(), a)).toEqual({ time: 12, ground: '#9a9a96', fog: 0 })
     doc().setEnvironment(a, { time: 18.5 }) // a follows the scene: changes the scene
     expect(scene().environment.time).toBe(18.5)
     expect(environmentFor(doc(), b).time).toBe(18.5)
     doc().setShotOwnEnvironment(a, true)
     doc().setEnvironment(a, { time: 2, ground: '#224422' })
-    expect(environmentFor(doc(), a)).toEqual({ time: 2, ground: '#224422' })
+    expect(environmentFor(doc(), a)).toEqual({ time: 2, ground: '#224422', fog: 0 })
     expect(environmentFor(doc(), b).time).toBe(18.5)
     doc().setEnvironment(null, { time: 40 }) // clamped
     expect(scene().environment.time).toBe(24)
     const loaded = parseProject(serializeProject(doc().project))
     const la = loaded.scenes[0].nodes[a]
-    expect(la.type === 'camera' && la.environment).toEqual({ time: 2, ground: '#224422' })
+    expect(la.type === 'camera' && la.environment).toEqual({ time: 2, ground: '#224422', fog: 0 })
     expect(loaded.scenes[0].environment.time).toBe(24)
     doc().undo()
     doc().setShotOwnEnvironment(a, false)
@@ -528,7 +528,7 @@ describe('environment', () => {
     const raw = JSON.parse(serializeProject(doc().project))
     raw.schemaVersion = 10
     delete raw.scenes[0].environment
-    expect(parseProject(JSON.stringify(raw)).scenes[0].environment).toEqual({ time: 12, ground: '#9a9a96' })
+    expect(parseProject(JSON.stringify(raw)).scenes[0].environment).toEqual({ time: 12, ground: '#9a9a96', fog: 0 })
   })
 })
 

@@ -155,14 +155,17 @@ const excluded = (o: Object3D) => isHelper(o) || Boolean(o.userData.grid)
 /** Clear to transparent black instead of the viewport background while `run` renders. */
 function onBlack<T>(gl: WebGLRenderer, scene: ThreeScene, run: () => T): T {
   const background = scene.background
+  const fog = scene.fog // the atmosphere is a look, never part of depth/normals/ID
   const clearColor = gl.getClearColor(new Color())
   const clearAlpha = gl.getClearAlpha()
   scene.background = null
+  scene.fog = null
   gl.setClearColor(0x000000, 0)
   try {
     return run()
   } finally {
     scene.background = background
+    scene.fog = fog
     gl.setClearColor(clearColor, clearAlpha)
   }
 }

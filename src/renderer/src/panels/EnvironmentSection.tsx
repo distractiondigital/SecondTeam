@@ -62,6 +62,29 @@ export default function EnvironmentSection({ node }: { node: CameraNode }) {
         <span>Night</span>
       </div>
 
+      <div className="prop-title prop-title-spaced">
+        Atmosphere <span className="dim">{env.fog > 0 ? `${Math.round(env.fog * 100)}%` : 'Clear'}</span>
+      </div>
+      <div className="slider-row">
+        <input
+          type="range"
+          className="slider"
+          min={0}
+          max={1}
+          step={0.01}
+          value={env.fog ?? 0}
+          title="Distance fog: far things fade into the sky"
+          onPointerDown={() => doc.beginGesture('envFog')}
+          onPointerUp={() => doc.endGesture('envFog')}
+          onChange={(e) => set({ fog: Number(e.target.value) })}
+        />
+      </div>
+      <div className="env-ticks">
+        <span>Clear</span>
+        <span>Haze</span>
+        <span>Thick fog</span>
+      </div>
+
       <label className="prop-inline prop-title-spaced">
         <span className="prop-title">Ground</span>
         <input
@@ -72,7 +95,7 @@ export default function EnvironmentSection({ node }: { node: CameraNode }) {
           onChange={(e) => set({ ground: e.target.value })}
         />
       </label>
-      <p className="hint small">Seen in Clay shading, camera view and clay renders; the time of day also goes into the prompt.</p>
+      <p className="hint small">Seen in Clay shading, camera view and clay renders; the time of day and atmosphere also go into the prompt.</p>
     </div>
   )
 }

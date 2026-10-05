@@ -7,9 +7,11 @@ export interface Environment {
   time: number
   /** Ground (automatic floor) colour, '#rrggbb'. */
   ground: string
+  /** Distance fog, 0 (clear) to 1 (thick fog). */
+  fog: number
 }
 
-export const DEFAULT_ENVIRONMENT: Environment = { time: 12, ground: '#9a9a96' }
+export const DEFAULT_ENVIRONMENT: Environment = { time: 12, ground: '#9a9a96', fog: 0 }
 
 interface Key {
   time: number
@@ -48,7 +50,8 @@ export function repairEnvironment(raw: unknown): Environment {
   const e = (raw && typeof raw === 'object' ? raw : {}) as Partial<Environment>
   return {
     time: clampTime(e.time),
-    ground: typeof e.ground === 'string' && HEX.test(e.ground) ? e.ground.toLowerCase() : DEFAULT_ENVIRONMENT.ground
+    ground: typeof e.ground === 'string' && HEX.test(e.ground) ? e.ground.toLowerCase() : DEFAULT_ENVIRONMENT.ground,
+    fog: typeof e.fog === 'number' && Number.isFinite(e.fog) ? Math.min(1, Math.max(0, e.fog)) : 0
   }
 }
 
@@ -97,6 +100,22 @@ export function timeLabel(time: number): string {
 export function timePhrase(time: number): string {
   const { a, b, t } = around(time)
   return t < 0.5 ? a.phrase : b.phrase
+}
+
+/**
+ * Fog density for three.js FogExp2 (per metre). Eased so the low end is a subtle haze:
+ * 0.25 is a faint haze far off (~10% at 100 m), 0.5 hides 60% at 40 m, 1 limits you to ~10 m.
+ */
+export function fogDensity(fog: number): number {
+  return fog <= 0 ? 0 : 0.2 * Math.pow(Math.min(1, fog), 3)
+}
+
+/** For the prompt: '', 'light haze', 'hazy atmosphere', 'thick fog'. */
+export function fogPhrase(fog: number): string {
+  if (fog < 0.15) return ''
+  if (fog < 0.45) return 'light atmospheric haze'
+  if (fog < 0.75) return 'hazy atmosphere, distant objects fading into haze'
+  return 'thick fog, low visibility'
 }
 
 /** '18:30' */

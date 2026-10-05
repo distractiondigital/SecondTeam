@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { CanvasTexture, EquirectangularReflectionMapping, SRGBColorSpace } from 'three'
-import { skyAt, type Environment } from '../../../shared/environment'
+import { fogDensity, skyAt, type Environment } from '../../../shared/environment'
 
 // The Clay look's surroundings: a sky gradient for the time of day (scene background, so it never
 // gets in the way of clicks, shadows or the depth/ID passes) and a soft fill light in the sky's
@@ -45,6 +45,8 @@ export default function EnvironmentView({ env }: { env: Environment }) {
   return (
     <>
       <primitive attach="background" object={texture} />
+      {/* Distance fog in the horizon's colour, so far things melt into the sky. */}
+      {env.fog > 0 && <fogExp2 attach="fog" args={[sky.horizon, fogDensity(env.fog)]} />}
       <hemisphereLight args={[sky.fill, env.ground, sky.fillIntensity]} userData={{ envLight: true }} />
     </>
   )

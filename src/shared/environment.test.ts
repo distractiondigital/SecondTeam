@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { clockText, DEFAULT_ENVIRONMENT, repairEnvironment, skyAt, timeLabel, timePhrase } from './environment'
+import { clockText, DEFAULT_ENVIRONMENT, fogDensity, fogPhrase, repairEnvironment, skyAt, timeLabel, timePhrase } from './environment'
 
 describe('environment', () => {
   it('names the time of day round the clock', () => {
@@ -23,10 +23,21 @@ describe('environment', () => {
     expect(mid).not.toBe(skyAt(9).zenith)
   })
 
+  it('turns the atmosphere slider into fog density and words', () => {
+    expect(fogDensity(0)).toBe(0)
+    expect(fogDensity(0.5)).toBeLessThan(fogDensity(1))
+    // Fog fraction at a distance: 1 - exp(-(density * d)^2)
+    const at = (fog: number, d: number) => 1 - Math.exp(-((fogDensity(fog) * d) ** 2))
+    expect(at(0.25, 50)).toBeLessThan(0.15)
+    expect(at(1, 15)).toBeGreaterThan(0.9)
+    expect(fogPhrase(0.05)).toBe('')
+    expect(fogPhrase(0.9)).toContain('fog')
+  })
+
   it('repairs bad values and formats the clock', () => {
     expect(repairEnvironment(undefined)).toEqual(DEFAULT_ENVIRONMENT)
-    expect(repairEnvironment({ time: 30, ground: 'red' })).toEqual({ time: 24, ground: DEFAULT_ENVIRONMENT.ground })
-    expect(repairEnvironment({ time: 6, ground: '#AABBCC' })).toEqual({ time: 6, ground: '#aabbcc' })
+    expect(repairEnvironment({ time: 30, ground: 'red', fog: 3 })).toEqual({ time: 24, ground: DEFAULT_ENVIRONMENT.ground, fog: 1 })
+    expect(repairEnvironment({ time: 6, ground: '#AABBCC' })).toEqual({ time: 6, ground: '#aabbcc', fog: 0 })
     expect(clockText(18.5)).toBe('18:30')
     expect(clockText(24)).toBe('00:00')
   })
