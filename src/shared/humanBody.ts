@@ -4,6 +4,8 @@
 // per-vertex offsets) blended with weights from the sliders; joints sit at the centre of small
 // marker shapes in the mesh, so the skeleton always fits the body. Pure; tested.
 
+import { clampHeight, proportions as mannequinProportions, type Proportions } from './mannequin'
+
 export interface TargetInfo {
   name: string
   count: number
@@ -34,6 +36,7 @@ export interface BodyJson {
   sections: Record<string, Section>
   targets: TargetInfo[]
   cubes: Record<string, number[]>
+  modestyRegion?: number[]
   bones: BoneDef[]
 }
 
@@ -52,6 +55,8 @@ export interface BodyData {
   skinWeight: Uint8Array
   targets: Map<string, Target>
   cubes: Record<string, number[]>
+  /** Vertices smoothed flat for modesty. */
+  modestyRegion: number[]
   /** Parents before children. */
   bones: BoneDef[]
 }
@@ -76,6 +81,7 @@ export function parseBody(json: BodyJson, bin: ArrayBuffer): BodyData {
     skinWeight: section('skinWeight', 'Uint8Array'),
     targets,
     cubes: json.cubes,
+    modestyRegion: json.modestyRegion ?? [],
     bones: json.bones
   }
 }
@@ -204,4 +210,200 @@ export function bonePoint(body: BodyData, positions: Float32Array, p: BonePoint)
 /** Head and tail of every bone for this body (decimetres, same space as the mesh). */
 export function boneRest(body: BodyData, positions: Float32Array): Map<string, { head: [number, number, number]; tail: [number, number, number] }> {
   return new Map(body.bones.map((b) => [b.name, { head: bonePoint(body, positions, b.head), tail: bonePoint(body, positions, b.tail) }]))
+}
+
+// ---------- Modesty ----------
+
+const neighbours = new WeakMap<BodyData, Map<number, number[]>>()
+
+/** Which vertices share an edge with each vertex of the visible body (worked out once). */
+function adjacency(body: BodyData): Map<number, number[]> {
+  let map = neighbours.get(body)
+  if (!map) {
+    const sets = new Map<number, Set<number>>()
+    const link = (a: number, b: number) => {
+      let s = sets.get(a)
+      if (!s) sets.set(a, (s = new Set()))
+      s.add(b)
+    }
+    const idx = body.bodyIndices
+    for (let t = 0; t < idx.length; t += 3) {
+      for (const [a, b] of [
+        [idx[t], idx[t + 1]],
+        [idx[t + 1], idx[t + 2]],
+        [idx[t + 2], idx[t]]
+      ]) {
+        link(a, b)
+        link(b, a)
+      }
+    }
+    map = new Map([...sets].map(([v, s]) => [v, [...s]]))
+    neighbours.set(body, map)
+  }
+  return map
+}
+
+/**
+ * Smooth an area by moving each vertex toward the average of its neighbours, a few times.
+ * `strength` (0-1 per vertex, default 1) fades the effect toward the edge so no crease forms.
+ */
+export function smoothRegion(body: BodyData, positions: Float32Array, region: number[], iterations = 6, strength?: Map<number, number>): void {
+  const adj = adjacency(body)
+  for (let it = 0; it < iterations; it++) {
+    const next: [number, number, number, number][] = []
+    for (const v of region) {
+      const n = adj.get(v)
+      if (!n?.length) continue
+      let x = 0
+      let y = 0
+      let z = 0
+      for (const u of n) {
+        x += positions[u * 3]
+        y += positions[u * 3 + 1]
+        z += positions[u * 3 + 2]
+      }
+      const k = strength?.get(v) ?? 1
+      next.push([
+        v,
+        positions[v * 3] + (x / n.length - positions[v * 3]) * k,
+        positions[v * 3 + 1] + (y / n.length - positions[v * 3 + 1]) * k,
+        positions[v * 3 + 2] + (z / n.length - positions[v * 3 + 2]) * k
+      ])
+    }
+    for (const [v, x, y, z] of next) {
+      positions[v * 3] = x
+      positions[v * 3 + 1] = y
+      positions[v * 3 + 2] = z
+    }
+  }
+}
+
+const modestyAreas = new WeakMap<BodyData, Map<number, number>>()
+
+/**
+ * The nipple area plus four rings of neighbours, each vertex with how strongly it's smoothed:
+ * fully in the middle, fading out over the rings so the breast stays round with no edge.
+ */
+function modestyArea(body: BodyData): Map<number, number> {
+  let area = modestyAreas.get(body)
+  if (!area) {
+    const adj = adjacency(body)
+    const FADE = [1, 0.85, 0.6, 0.35, 0.15]
+    area = new Map(body.modestyRegion.map((v) => [v, FADE[0]]))
+    let ring = [...area.keys()]
+    for (let r = 1; r < FADE.length; r++) {
+      const next: number[] = []
+      for (const v of ring) {
+        for (const u of adj.get(v) ?? []) {
+          if (!area.has(u)) {
+            area.set(u, FADE[r])
+            next.push(u)
+          }
+        }
+      }
+      ring = next
+    }
+    modestyAreas.set(body, area)
+  }
+  return area
+}
+
+/** The body for these sliders, with modesty applied (no nipples): decimetres. */
+export function bodyPositions(body: BodyData, sliders: BodySliders): Float32Array {
+  const weights = targetWeights(sliders)
+  weights.set('modesty-nipple-size-decr', 1)
+  weights.set('modesty-nipple-point-decr', 1)
+  weights.set('modesty-breast-point-decr', 0.6)
+  const positions = morph(body, weights)
+  if (body.modestyRegion.length) {
+    const area = modestyArea(body)
+    smoothRegion(body, positions, [...area.keys()], 30, area)
+  }
+  return positions
+}
+
+// ---------- Fitting the posing skeleton ----------
+
+/** Soles and crown of the visible body (decimetres). */
+export function bodyExtent(body: BodyData, positions: Float32Array): { soles: number; crown: number } {
+  let soles = Infinity
+  let crown = -Infinity
+  const idx = body.bodyIndices
+  for (let i = 0; i < idx.length; i++) {
+    const y = positions[idx[i] * 3 + 1]
+    if (y < soles) soles = y
+    if (y > crown) crown = y
+  }
+  return { soles, crown }
+}
+
+export interface HumanFit {
+  /** Decimetres, as in the data. */
+  positions: Float32Array
+  rest: ReturnType<typeof boneRest>
+  /** Decimetres → metres at the requested height. */
+  scale: number
+  /** Sole height in the data (decimetres). */
+  ground: number
+  /**
+   * Where our 17 posing joints go for this body (metres, standing, limbs straight), in the same
+   * shape as the mannequin's proportions so the mannequin skeleton can be built from it.
+   */
+  proportions: Proportions
+}
+
+const dist = (a: number[], b: number[]) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2])
+
+export function fitHuman(body: BodyData, sliders: BodySliders, height: number): HumanFit {
+  const positions = bodyPositions(body, sliders)
+  const rest = boneRest(body, positions)
+  const { soles, crown } = bodyExtent(body, positions)
+  const scale = clampHeight(height) / (crown - soles)
+  const head = (name: string) => rest.get(name)!.head
+  const tail = (name: string) => rest.get(name)!.tail
+  const m = (dm: number) => dm * scale
+  const y = (name: string) => m(head(name)[1] - soles)
+
+  // Our skeleton stands straight (as the human does once posed): chain the bone lengths upward
+  // from the pelvis and down the legs, so each joint sits where the posed human's joint is.
+  const pelvisY = y('pelvis')
+  const spineY = pelvisY + m(dist(head('pelvis'), head('spine_01')))
+  const chestY = spineY + m(dist(head('spine_01'), head('spine_02')) + dist(head('spine_02'), head('spine_03')))
+  const neckY = chestY + m(dist(head('spine_03'), head('neck_01')))
+  const headY = neckY + m(dist(head('neck_01'), head('head')))
+  const hipY = pelvisY + (y('thigh_l') - y('pelvis'))
+  const thigh = m(dist(head('thigh_l'), head('calf_l')))
+  const shin = m(dist(head('calf_l'), head('foot_l')))
+  const ankleY = Math.max(0.02, hipY - thigh - shin)
+  const base = mannequinProportions(height, 0.5 + (sliders.weight - 0.5) * 0.8)
+  const proportions: Proportions = {
+    ...base,
+    pelvisY,
+    spineY,
+    chestY,
+    neckY,
+    headY,
+    shoulderY: chestY + (y('upperarm_l') - y('spine_03')),
+    hipY,
+    kneeY: hipY - thigh,
+    ankleY,
+    shoulderHalf: m(head('upperarm_l')[0]),
+    hipHalf: m(head('thigh_l')[0]),
+    upperArm: m(dist(head('upperarm_l'), head('lowerarm_l'))),
+    forearm: m(dist(head('lowerarm_l'), head('hand_l'))),
+    hand: m(dist(head('hand_l'), tail('middle_03_l'))),
+    footLength: m(Math.abs(tail('ball_l')[2] - head('foot_l')[2])) * 1.4,
+    headSize: Math.max(0.05, clampHeight(height) - headY)
+  }
+  return { positions, rest, scale, ground: soles, proportions }
+}
+
+/** Body sliders from a file (missing or bad values become average). */
+export function sanitizeBody(raw: unknown, fallback: Partial<BodySliders> = {}): BodySliders {
+  const r = (raw && typeof raw === 'object' ? raw : {}) as Partial<Record<keyof BodySliders, unknown>>
+  const pick = (k: keyof BodySliders) => {
+    const v = r[k] ?? fallback[k]
+    return typeof v === 'number' && Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : AVERAGE_BODY[k]
+  }
+  return { gender: pick('gender'), age: pick('age'), muscle: pick('muscle'), weight: pick('weight') }
 }

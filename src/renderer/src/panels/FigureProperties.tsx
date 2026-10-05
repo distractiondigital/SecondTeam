@@ -12,6 +12,7 @@ import {
   type PresetName,
   type SavedPose
 } from '../../../shared/mannequin'
+import { ageSlider, ageYears, type BodySliders } from '../../../shared/humanBody'
 import type { MannequinNode, Vec3 } from '../../../shared/project'
 import { useDocument } from '../state/documentStore'
 import { usePoseLibrary } from '../state/poseLibrary'
@@ -58,6 +59,59 @@ function snapHeight(metres: number, units: Units): number {
   return Math.round(metres / unit) * unit
 }
 
+/** Quick bodies: they only set the sliders (and height), so everything stays adjustable. */
+const BODY_PRESETS: { label: string; body: Partial<BodySliders>; height?: number }[] = [
+  { label: 'Man', body: { gender: 1, age: 0.5, muscle: 0.5, weight: 0.5 }, height: 1.78 },
+  { label: 'Woman', body: { gender: 0, age: 0.5, muscle: 0.5, weight: 0.5 }, height: 1.65 },
+  { label: 'Child (8)', body: { age: ageSlider(8), muscle: 0.5, weight: 0.5 }, height: 1.28 },
+  { label: 'Teenager (15)', body: { age: ageSlider(15), muscle: 0.5, weight: 0.45 }, height: 1.65 },
+  { label: 'Elderly (75)', body: { age: ageSlider(75), muscle: 0.35, weight: 0.55 }, height: 1.68 },
+  { label: 'Athletic', body: { age: ageSlider(28), muscle: 0.85, weight: 0.45 } },
+  { label: 'Heavy', body: { muscle: 0.4, weight: 0.95 } },
+  { label: 'Slim', body: { muscle: 0.4, weight: 0.15 } }
+]
+
+/** The human body sliders (MakeHuman's macro sliders). */
+function BodySection({ node, disabled }: { node: MannequinNode; disabled: boolean }) {
+  const doc = useDocument.getState()
+  const set = (patch: Partial<BodySliders>) => doc.updateNode(node.id, { body: { ...node.body, ...patch } })
+  const slider = (key: keyof BodySliders, label: string, low: string, high: string, readout?: string) => (
+    <>
+      <div className="prop-title prop-title-spaced">
+        {label} {readout && <span className="dim">{readout}</span>}
+      </div>
+      <div className="slider-row">
+        <span className="slider-end">{low}</span>
+        <GestureSlider value={node.body[key]} min={0} max={1} step={0.005} disabled={disabled} onChange={(v) => set({ [key]: v })} />
+        <span className="slider-end">{high}</span>
+      </div>
+    </>
+  )
+  return (
+    <>
+      <select
+        className="name-input plain prop-title-spaced"
+        value=""
+        disabled={disabled}
+        onChange={(e) => {
+          const preset = BODY_PRESETS.find((p) => p.label === e.target.value)
+          if (!preset) return
+          doc.updateNode(node.id, { body: { ...node.body, ...preset.body }, ...(preset.height ? { height: preset.height } : {}) })
+        }}
+      >
+        <option value="">Body preset…</option>
+        {BODY_PRESETS.map((p) => (
+          <option key={p.label}>{p.label}</option>
+        ))}
+      </select>
+      {slider('gender', 'Gender', 'Female', 'Male')}
+      {slider('age', 'Age', 'Baby', 'Old', `${Math.round(ageYears(node.body.age))} years`)}
+      {slider('muscle', 'Muscle', 'Soft', 'Muscular')}
+      {slider('weight', 'Weight', 'Thin', 'Heavy')}
+    </>
+  )
+}
+
 export function FigureSection({ node }: { node: MannequinNode }) {
   const doc = useDocument.getState()
   const projectPoses = useDocument((s) => s.project.poses)
@@ -68,7 +122,22 @@ export function FigureSection({ node }: { node: MannequinNode }) {
   return (
     <>
       <div className="prop-section">
-        <div className="prop-title" title="Hold Ctrl while dragging the slider for whole inches (ft) or centimetres (m)">
+        <div className="prop-title">Style</div>
+        <div className="segmented">
+          {(['human', 'mannequin'] as const).map((style) => (
+            <button
+              key={style}
+              className={node.style === style ? 'active' : ''}
+              disabled={disabled}
+              onClick={() => doc.updateNode(node.id, { style })}
+              title={style === 'human' ? 'A realistic person (body sliders below)' : 'The art mannequin'}
+            >
+              {style === 'human' ? 'Human' : 'Mannequin'}
+            </button>
+          ))}
+        </div>
+        {node.style === 'human' && <BodySection node={node} disabled={disabled} />}
+        <div className="prop-title prop-title-spaced" title="Hold Ctrl while dragging the slider for whole inches (ft) or centimetres (m)">
           Height
         </div>
         <div className="slider-row">
@@ -90,19 +159,23 @@ export function FigureSection({ node }: { node: MannequinNode }) {
             />
           </div>
         </div>
-        <div className="prop-title prop-title-spaced">Build</div>
-        <div className="slider-row">
-          <span className="slider-end">Slim</span>
-          <GestureSlider
-            value={node.build}
-            min={0}
-            max={1}
-            step={0.01}
-            disabled={disabled}
-            onChange={(build) => doc.updateNode(node.id, { build })}
-          />
-          <span className="slider-end">Broad</span>
-        </div>
+        {node.style === 'mannequin' && (
+          <>
+            <div className="prop-title prop-title-spaced">Build</div>
+            <div className="slider-row">
+              <span className="slider-end">Slim</span>
+              <GestureSlider
+                value={node.build}
+                min={0}
+                max={1}
+                step={0.01}
+                disabled={disabled}
+                onChange={(build) => doc.updateNode(node.id, { build })}
+              />
+              <span className="slider-end">Broad</span>
+            </div>
+          </>
+        )}
       </div>
 
       <div className="prop-section">

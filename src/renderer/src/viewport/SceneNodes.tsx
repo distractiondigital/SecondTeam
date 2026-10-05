@@ -7,8 +7,7 @@ import { useUi } from '../state/uiStore'
 import CameraView from './CameraView'
 import { getGeometry } from './geometries'
 import LightView from './LightView'
-import type { BodySliders } from '../../../shared/humanBody'
-import HumanView from './HumanView'
+import HumanFigure from './HumanFigure'
 import MannequinView from './MannequinView'
 import { handleNodeClick, handleNodeDoubleClick, noRaycast, SELECTION_COLOR, toRadians } from './selection'
 
@@ -24,7 +23,7 @@ interface SceneContext {
   shotId: string | null
   /** A hidden copy for rendering: no interaction, selection or helpers. */
   passive: boolean
-  /** Clay shading: grey surfaces, scene lights on, shadows. */
+  /** Clay shading: Material colours, scene lights and sky on, shadows. */
   clay: boolean
 }
 
@@ -68,15 +67,10 @@ const NodeView = memo(function NodeView({ id, inSelection, inLocked }: NodeViewP
   if (node.type === 'mannequin') {
     return (
       <group {...common}>
-        <MannequinView node={node} selected={selected} clickable={clickable} passive={passive} clay={clay} ghost={node.style === 'human'} />
-        {node.style === 'human' && (
-          <HumanView
-            sliders={(node as { body?: BodySliders }).body ?? { gender: 1, age: 0.5, muscle: 0.5, weight: node.build }}
-            height={node.height}
-            pose={node.pose}
-            color={node.color}
-            selected={selected}
-          />
+        {node.style === 'human' ? (
+          <HumanFigure node={node} selected={selected} clickable={clickable} passive={passive} clay={clay} />
+        ) : (
+          <MannequinView node={node} selected={selected} clickable={clickable} passive={passive} clay={clay} />
         )}
       </group>
     )

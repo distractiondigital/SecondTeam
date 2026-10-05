@@ -10,7 +10,7 @@ import {
   SkinnedMesh,
   Vector3
 } from 'three'
-import { boneRest, morph, targetWeights, type BodyData, type BodySliders } from '../../../shared/humanBody'
+import type { BodyData, HumanFit } from '../../../shared/humanBody'
 import { JOINTS, JOINT_NAMES, type JointName, type Pose } from '../../../shared/mannequin'
 import { SELECTION_COLOR } from './selection'
 import { useBodyData } from './humanData'
@@ -73,9 +73,8 @@ interface Built {
 }
 
 /** Mesh + skeleton for one body shape (decimetre units, as in the data). */
-function build(body: BodyData, sliders: BodySliders, height: number): Built {
-  const positions = morph(body, targetWeights(sliders))
-  const rest = boneRest(body, positions)
+function build(body: BodyData, fit: HumanFit): Built {
+  const { positions, rest } = fit
 
   const geometry = new BufferGeometry()
   geometry.setAttribute('position', new BufferAttribute(positions, 3))
@@ -108,15 +107,7 @@ function build(body: BodyData, sliders: BodySliders, height: number): Built {
   mesh.castShadow = true
   mesh.receiveShadow = true
 
-  // Ground and natural height from the body itself (soles to crown).
-  let lo = Infinity
-  let hi = -Infinity
-  for (let i = 0; i < body.bodyIndices.length; i++) {
-    const y = positions[body.bodyIndices[i] * 3 + 1]
-    if (y < lo) lo = y
-    if (y > hi) hi = y
-  }
-  return { mesh, bones, corrections, scale: height / (hi - lo), ground: lo }
+  return { mesh, bones, corrections, scale: fit.scale, ground: fit.ground }
 }
 
 /** Put the rig into our pose. */
@@ -149,19 +140,17 @@ function applyPose(b: Built, body: BodyData, pose: Pose, height: number): void {
 }
 
 interface Props {
-  sliders: BodySliders
-  height: number
+  fit: HumanFit
   pose: Pose
   color: string
   selected: boolean
 }
 
-export default function HumanView({ sliders, height, pose, color, selected }: Props) {
+export default function HumanView({ fit, pose, color, selected }: Props) {
   const body = useBodyData()
-  const key = `${sliders.gender}|${sliders.age}|${sliders.muscle}|${sliders.weight}|${height}`
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const built = useMemo(() => (body ? build(body, sliders, height) : null), [body, key])
+  const built = useMemo(() => (body ? build(body, fit) : null), [body, fit])
   useEffect(() => () => built?.mesh.geometry.dispose(), [built])
+  const height = fit.proportions.height
   useEffect(() => {
     if (built && body) applyPose(built, body, pose, height)
   }, [built, body, pose, height])

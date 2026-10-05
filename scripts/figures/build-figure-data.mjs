@@ -35,7 +35,7 @@ if (!existsSync(join(source, 'mpfb-2.0.17.zip'))) {
   throw new Error('Put mpfb-2.0.17.zip (from extensions.blender.org/add-ons/mpfb) in tools/makehuman first.')
 }
 const mpfb = join(extract, 'mpfb')
-unzip('mpfb-2.0.17.zip', mpfb, ['data/3dobjs/*', 'data/targets/macrodetails/*', 'data/targets/expression/*', 'data/rigs/standard/*game_engine.json'])
+unzip('mpfb-2.0.17.zip', mpfb, ['data/3dobjs/*', 'data/targets/macrodetails/*', 'data/targets/expression/*', 'data/targets/breast/nipple-*', 'data/targets/breast/breast-point-decr.target.gz', 'data/rigs/standard/*game_engine.json'])
 const data = join(mpfb, 'data')
 
 // ---------- Base mesh ----------
@@ -117,6 +117,17 @@ for (const unit of readdirSync(join(unitsDir, 'caucasian')).map((f) => f.replace
   const races = ['african', 'asian', 'caucasian'].map((r) => readTarget(join(unitsDir, r, `${unit}.target.gz`)))
   targets.push({ name: `expression-${unit}`, deltas: average(races) })
 }
+
+// Modesty: the nipple targets (applied at full strength) and the area they touch, which the app
+// also smooths flat, so figures on client boards have none.
+const modestyRegion = new Set()
+for (const name of ['nipple-size-decr', 'nipple-point-decr']) {
+  const deltas = readTarget(join(data, 'targets', 'breast', `${name}.target.gz`))
+  for (const i of deltas.keys()) modestyRegion.add(i)
+  targets.push({ name: `modesty-${name}`, deltas })
+}
+// Rounds off the breast tip around the nipple (only the target, not part of the smoothed area).
+targets.push({ name: 'modesty-breast-point-decr', deltas: readTarget(join(data, 'targets', 'breast', 'breast-point-decr.target.gz')) })
 
 // ---------- Rig + skin weights ----------
 
@@ -205,6 +216,7 @@ writeFileSync(
       sections,
       targets: targetIndex,
       cubes,
+      modestyRegion: [...modestyRegion].sort((a, b) => a - b),
       bones: ordered
     },
     null,

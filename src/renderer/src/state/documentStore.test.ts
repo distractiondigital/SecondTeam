@@ -169,7 +169,7 @@ describe('figures', () => {
     const a = doc().addMannequin()
     const b = doc().addMannequin()
     expect(figure(a).name).toBe('Figure 1')
-    expect(figure(a).height).toBe(1.75)
+    expect(figure(a).height).toBe(1.78) // the first new figure is a man
     expect(figure(a).color).not.toBe(figure(b).color)
   })
 
@@ -207,7 +207,7 @@ describe('figures', () => {
     expect(figure(copy).pose).toEqual(figure(a).pose)
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(11)
+    expect(loaded.schemaVersion).toBe(12)
   })
 
   it('saves poses into the project and applies them to other figures', () => {
@@ -499,6 +499,45 @@ describe('cast, props and circle takes', () => {
   })
 })
 
+describe('human figures', () => {
+  it('makes new figures human, alternating man and woman, and saves the body', () => {
+    const a = doc().addMannequin()
+    const b = doc().addMannequin()
+    const fa = scene().nodes[a]
+    const fb = scene().nodes[b]
+    expect(fa.type === 'mannequin' && [fa.style, fa.body.gender]).toEqual(['human', 1])
+    expect(fb.type === 'mannequin' && [fb.style, fb.body.gender]).toEqual(['human', 0])
+    doc().updateNode(a, { body: { gender: 1, age: 0.8, muscle: 0.2, weight: 2 } })
+    const loaded = parseProject(serializeProject(doc().project)).scenes[0].nodes[a]
+    expect(loaded.type === 'mannequin' && loaded.body).toEqual({ gender: 1, age: 0.8, muscle: 0.2, weight: 1 })
+    doc().undo()
+    const back = scene().nodes[a]
+    expect(back.type === 'mannequin' && back.body.age).toBe(0.5)
+  })
+
+  it('opens older figures as mannequins', () => {
+    const a = doc().addMannequin()
+    const raw = JSON.parse(serializeProject(doc().project))
+    raw.schemaVersion = 11
+    delete raw.scenes[0].nodes[a].style
+    delete raw.scenes[0].nodes[a].body
+    raw.scenes[0].nodes[a].build = 0.8
+    const old = parseProject(JSON.stringify(raw)).scenes[0].nodes[a]
+    expect(old.type === 'mannequin' && [old.style, old.body.weight]).toEqual(['mannequin', 0.8])
+  })
+
+  it('lets a shot change the body', () => {
+    const fig = doc().addMannequin()
+    const cam = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
+    doc().setActiveShot(cam)
+    doc().updateNode(fig, { body: { gender: 0, age: 0.9, muscle: 0.5, weight: 0.5 } })
+    const inShot = sceneForShot(doc(), cam)[fig]
+    const master = scene().nodes[fig]
+    expect(inShot.type === 'mannequin' && inShot.body.age).toBe(0.9)
+    expect(master.type === 'mannequin' && master.body.age).toBe(0.5)
+  })
+})
+
 describe('environment', () => {
   it('belongs to the scene, and a shot can have its own (undoable, saved)', () => {
     const a = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
@@ -589,7 +628,7 @@ describe('older project files', () => {
       ]
     }
     const p = parseProject(JSON.stringify(raw))
-    expect(p.schemaVersion).toBe(11)
+    expect(p.schemaVersion).toBe(12)
     expect(p.camera.sensor.preset).toBe('alexa35')
     expect(p.camera.delivery).toBe('2.39')
     expect(p.scenes[0].number).toBe(1)
@@ -610,7 +649,7 @@ describe('older project files', () => {
     const raw = JSON.parse(serializeProject(doc().project))
     raw.schemaVersion = 1
     delete raw.camera
-    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(11)
+    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(12)
   })
 })
 describe('master scene and per-shot changes', () => {
@@ -703,7 +742,7 @@ describe('master scene and per-shot changes', () => {
     const f = seen(s1, fig)
     expect(f.type === 'mannequin' && [f.height, f.color, f.pose.joints.elbowL[0]]).toEqual([1.2, '#00ff00', -90])
     const master = seen(null, fig)
-    expect(master.type === 'mannequin' && master.height).toBe(1.75)
+    expect(master.type === 'mannequin' && master.height).toBe(1.78)
     doc().undo()
     doc().undo()
     expect(cam(s1).overrides).toEqual({})
@@ -718,7 +757,7 @@ describe('master scene and per-shot changes', () => {
     doc().updateNode(box, { hidden: true })
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(11)
+    expect(loaded.schemaVersion).toBe(12)
   })
 
   it('leaves the shot if undo removes its camera', () => {

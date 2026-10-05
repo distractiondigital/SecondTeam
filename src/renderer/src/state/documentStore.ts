@@ -64,6 +64,7 @@ import {
   type LightKind
 } from '../../../shared/lighting'
 import { clampTime, DEFAULT_ENVIRONMENT, type Environment } from '../../../shared/environment'
+import { AVERAGE_BODY, sanitizeBody } from '../../../shared/humanBody'
 import { repairGeneration, type GenerationSettings } from '../../../shared/prompt'
 
 // The document store holds the project: everything that is saved to disk and can be undone.
@@ -92,7 +93,7 @@ const LIGHT_FIELDS: LightField[] = ['stops', 'kelvin', 'softness', 'shadows', 'c
 
 export type NodePatch = Partial<
   Pick<PrimitiveNode, 'name' | 'position' | 'rotation' | 'scale' | 'color' | 'hidden' | 'locked'> &
-    Pick<MannequinNode, 'height' | 'build' | 'limits' | 'castId'> &
+    Pick<MannequinNode, 'height' | 'build' | 'limits' | 'castId' | 'style' | 'body'> &
     Pick<PrimitiveNode, 'propId'> &
     Pick<CameraNode, CameraField> &
     Pick<LightNode, LightField>
@@ -120,6 +121,8 @@ const FIELD_TYPES: Partial<Record<keyof NodePatch, SceneNode['type'][]>> = {
   build: ['mannequin'],
   limits: ['mannequin'],
   castId: ['mannequin'],
+  style: ['mannequin'],
+  body: ['mannequin'],
   propId: ['primitive', 'group'],
   scale: ['primitive', 'group'], // a figure's size comes from its height; cameras don't scale
   ...Object.fromEntries(CAMERA_FIELDS.map((f) => [f, ['camera']])),
@@ -140,6 +143,8 @@ function normalizeField(key: keyof NodePatch, value: unknown): unknown {
   if (key === 'scale') return clampScale(value as Vec3)
   if (key === 'height') return clampHeight(value as number)
   if (key === 'build') return clampBuild(value as number)
+  if (key === 'body') return sanitizeBody(value)
+  if (key === 'style') return value === 'mannequin' ? 'mannequin' : 'human'
   if (key === 'stops') return clampStops(value as number)
   if (key === 'kelvin') return clampKelvin(value as number)
   if (key === 'softness' || key === 'falloff') return clampUnit(value as number)
@@ -680,6 +685,9 @@ export const useDocument = create<DocumentState>()((set, get) => {
       const id = newId()
       change((scene) => {
         const figureCount = Object.values(scene.nodes).filter((n) => n.type === 'mannequin').length
+        // New figures are people, alternating man / woman (change it in Properties).
+        const male = figureCount % 2 === 0
+        const height = male ? 1.78 : 1.65
         const node: MannequinNode = {
           id,
           type: 'mannequin',
@@ -690,13 +698,15 @@ export const useDocument = create<DocumentState>()((set, get) => {
           scale: [1, 1, 1],
           hidden: false,
           locked: false,
-          height: DEFAULT_HEIGHT,
+          height,
           build: DEFAULT_BUILD,
+          style: 'human',
+          body: { ...AVERAGE_BODY, gender: male ? 1 : 0 },
           color: FIGURE_COLORS[figureCount % FIGURE_COLORS.length],
           castId: null,
           description: '',
           limits: true,
-          pose: POSE_PRESETS.standing.make(proportions(DEFAULT_HEIGHT, DEFAULT_BUILD))
+          pose: POSE_PRESETS.standing.make(proportions(height, DEFAULT_BUILD))
         }
         scene.nodes[id] = node
         scene.rootIds.push(id)

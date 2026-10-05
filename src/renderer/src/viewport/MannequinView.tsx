@@ -63,11 +63,14 @@ interface Props {
   clay?: boolean
   /** Invisible: only for clicking body parts and placing joints (a human body is drawn instead). */
   ghost?: boolean
+  /** Joint placement from a human body (instead of the mannequin's own proportions). */
+  fitted?: Proportions
 }
 
-export default function MannequinView({ node, selected, clickable, passive = false, clay = false, ghost = false }: Props) {
+export default function MannequinView({ node, selected, clickable, passive = false, clay = false, ghost = false, fitted }: Props) {
   const { id, pose } = node
-  const p = useMemo(() => proportions(node.height, node.build), [node.height, node.build])
+  const own = useMemo(() => proportions(node.height, node.build), [node.height, node.build])
+  const p = fitted ?? own
   const g = useGeometries(p)
   const selectedJoint = useUi((s) =>
     !passive && s.selection.length === 1 && s.selection[0] === id ? s.selectedJoint : null

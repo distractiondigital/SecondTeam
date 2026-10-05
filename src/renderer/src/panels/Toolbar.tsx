@@ -164,7 +164,7 @@ export default function Toolbar({ boardOnly = false }: { boardOnly?: boolean }) 
               </button>
               <button
                 className={shading === 'clay' ? 'active' : ''}
-                title="Clay shading: grey surfaces lit only by the scene's lights, with shadows (automatic in camera view)"
+                title="Clay shading: surfaces in their Material colours, lit by the scene's lights and sky, with shadows (automatic in camera view)"
                 onClick={() => ui().setShading('clay')}
               >
                 Clay

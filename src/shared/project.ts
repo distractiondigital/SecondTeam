@@ -25,6 +25,7 @@ import { sanitizeOverrides, type ShotOverrides } from './overrides'
 import { clampCone, clampKelvin, clampStops, clampUnit, LIGHT_KINDS, type LightKind } from './lighting'
 import { DEFAULT_GENERATION, repairGeneration, type GenerationSettings } from './prompt'
 import { DEFAULT_ENVIRONMENT, repairEnvironment, type Environment } from './environment'
+import { sanitizeBody, type BodySliders } from './humanBody'
 
 // v1: M1 (primitives, groups). v2: M2 adds mannequins. v3: M3 adds cameras.
 // v4: per-shot changes (camera.overrides). v5: numbered scenes, shots 1A/1B…, one camera kit per project.
@@ -32,7 +33,8 @@ import { DEFAULT_ENVIRONMENT, repairEnvironment, type Environment } from './envi
 // v9: cast and props (with reference images), links from figures/groups, style images, circle takes.
 // v10: the storyboard (board order, per-shot board description and dialogue).
 // v11: environment (time of day + ground colour) per scene, optionally changed per shot.
-export const SCHEMA_VERSION = 11
+// v12: human figures (figure style + MakeHuman body sliders).
+export const SCHEMA_VERSION = 12
 
 export type Vec3 = [number, number, number]
 
@@ -84,6 +86,8 @@ export interface GroupNode extends NodeBase {
 }
 
 /** A posable human figure. Its scale stays 1; height and build set its size. */
+export type FigureStyle = 'mannequin' | 'human'
+
 export interface MannequinNode extends NodeBase {
   type: 'mannequin'
   /** Metres, floor to top of head. */
@@ -98,8 +102,10 @@ export interface MannequinNode extends NodeBase {
   description: string
   /** Keep joints inside realistic ranges. */
   limits: boolean
-  /** Look: realistic human (MakeHuman body) or the art mannequin. (M10, in progress) */
-  style?: 'mannequin' | 'human'
+  /** Look: a realistic human (MakeHuman body) or the art mannequin. Both use the same pose. */
+  style: FigureStyle
+  /** Human body sliders (0-1 each); the mannequin uses `build` instead. */
+  body: BodySliders
   pose: Pose
 }
 
@@ -416,6 +422,9 @@ function repairNode(node: SceneNode, scene: Scene): void {
     node.height = clampHeight(node.height ?? DEFAULT_HEIGHT)
     node.build = clampBuild(node.build ?? DEFAULT_BUILD)
     node.limits = node.limits !== false
+    // Figures saved before v12 were mannequins.
+    node.style = node.style === 'human' ? 'human' : 'mannequin'
+    node.body = sanitizeBody(node.body, { weight: node.build })
     node.castId = typeof node.castId === 'string' ? node.castId : null
     node.description = typeof node.description === 'string' ? node.description : ''
     node.color = typeof node.color === 'string' ? node.color : FIGURE_COLORS[0]
