@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { Vector3 } from 'three'
 import { activeScene, environmentFor, hasUnsavedChanges, sceneForShot, useDocument, worldMatrix } from './documentStore'
 import { descriptionFor, parseProject, SCHEMA_VERSION, sceneLabel, serializeProject, type MannequinNode } from '../../../shared/project'
+import { AVERAGE_BODY } from '../../../shared/humanBody'
 
 const doc = () => useDocument.getState()
 const scene = () => activeScene(doc())
@@ -671,9 +672,9 @@ describe('human figures', () => {
     const fb = scene().nodes[b]
     expect(fa.type === 'mannequin' && [fa.style, fa.body.gender]).toEqual(['human', 1])
     expect(fb.type === 'mannequin' && [fb.style, fb.body.gender]).toEqual(['human', 0])
-    doc().updateNode(a, { body: { gender: 1, age: 0.8, muscle: 0.2, weight: 2 } })
+    doc().updateNode(a, { body: { ...AVERAGE_BODY, gender: 1, age: 0.8, muscle: 0.2, weight: 2 } })
     const loaded = parseProject(serializeProject(doc().project)).scenes[0].nodes[a]
-    expect(loaded.type === 'mannequin' && loaded.body).toEqual({ gender: 1, age: 0.8, muscle: 0.2, weight: 1 })
+    expect(loaded.type === 'mannequin' && loaded.body).toEqual({ ...AVERAGE_BODY, gender: 1, age: 0.8, muscle: 0.2, weight: 1 })
     doc().undo()
     const back = scene().nodes[a]
     expect(back.type === 'mannequin' && back.body.age).toBe(0.5)
@@ -694,7 +695,7 @@ describe('human figures', () => {
     const fig = doc().addMannequin()
     const cam = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
     doc().setActiveShot(cam)
-    doc().updateNode(fig, { body: { gender: 0, age: 0.9, muscle: 0.5, weight: 0.5 } })
+    doc().updateNode(fig, { body: { ...AVERAGE_BODY, gender: 0, age: 0.9, muscle: 0.5, weight: 0.5 } })
     const inShot = sceneForShot(doc(), cam)[fig]
     const master = scene().nodes[fig]
     expect(inShot.type === 'mannequin' && inShot.body.age).toBe(0.9)
@@ -707,7 +708,7 @@ describe('cast looks', () => {
     const a = doc().addMannequin()
     const b = doc().addMannequin()
     const maribel = doc().addCast({ name: 'Maribel' })
-    doc().updateNode(a, { body: { gender: 0, age: 0.6, muscle: 0.4, weight: 0.3 } })
+    doc().updateNode(a, { body: { ...AVERAGE_BODY, gender: 0, age: 0.6, muscle: 0.4, weight: 0.3 } })
     doc().updateNode(a, { castId: maribel }) // first link: the cast member takes a's look
     expect(doc().project.cast[0].look?.body.age).toBe(0.6)
     doc().updateNode(b, { castId: maribel }) // b takes the cast member's look
@@ -722,7 +723,7 @@ describe('cast looks', () => {
     // A change inside a shot stays that shot's cheat.
     const cam = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
     doc().setActiveShot(cam)
-    doc().updateNode(a, { body: { gender: 0, age: 0.9, muscle: 0.4, weight: 0.3 } })
+    doc().updateNode(a, { body: { ...AVERAGE_BODY, gender: 0, age: 0.9, muscle: 0.4, weight: 0.3 } })
     expect(fig(b).body.age).toBe(0.6)
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded.cast[0].look?.body.age).toBe(0.6)

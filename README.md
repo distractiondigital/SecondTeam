@@ -49,7 +49,7 @@ While `npm run dev` is running, most UI edits show up in the window instantly.
 | `npm run dist` | Build a Windows installer into `release/` (set up properly in Milestone 9) |
 
 ## Viewport controls (Blender-style)
-- **Mouse or trackpad** (toolbar, the Input switch; remembered on each PC). **Trackpad:** two-finger swipe orbits, **Shift** + swipe pans, **pinch** zooms; in camera view a swipe dollies and a pinch zooms the lens. (Windows keeps three-finger swipes for itself, so they can't be used.) **Mouse:** as below.
+- **Mouse or trackpad** (the mouse / trackpad button at the right of the toolbar; click to switch, remembered on each PC). **Trackpad:** two-finger swipe orbits, **Shift** + swipe pans, **pinch** zooms; in camera view a swipe dollies and a pinch zooms the lens. (Windows keeps three-finger swipes for itself, so they can't be used.) **Mouse:** as below.
 - **Alt + left-drag** orbits and **Alt + Shift + left-drag** pans in either mode (no middle button needed); in camera view Alt + left-drag looks around (W A S D fly while it's held), like the right button.
 - **Middle-drag:** orbit
 - **Shift + middle-drag:** pan
@@ -91,7 +91,7 @@ In the Properties panel, **drag left/right on any number box** to change it (hol
   - **Look**: **Hair**, an **Outfit** (a whole outfit or dress) or a separate **Top** and **Bottom**, **Outerwear**, **Shoes** and a **Hat**, each with its own colour. Until you pick a colour, each part is a shade of the figure's **Material** colour (so a figure stays one colour family); **×** goes back to that.
   - Body, expression, hands and look can all change **per shot**, like everything else.
   - **Cast members share a look**: link figures to the same cast member and changing one's body or clothes (in the scene's set) changes them all, in every scene. Inside a shot it's just a cheat for that shot.
-- The people are built live from MakeHuman's free (CC0) body data, so every slider is smooth and the clothes re-fit any body.
+- The people are built live from MakeHuman's free (CC0) body data, so every slider is smooth and the clothes re-fit any body. Under Body, **Chest** has MakeHuman's own **Breast size** and **Breast firmness** sliders; the middle of each is the body as modelled.
 - With the figure selected, **click a body part** to pose the joint that moves it (forearm → elbow, thigh → hip, head → head…). Drag the rings, or type angles in Properties. Hold **Ctrl** for 15° steps. **Esc** or clicking empty space goes back to the whole figure.
 - **Presets**: Standing, Walking, Sitting, Pointing, Arms crossed, Looking over shoulder, Lying down. **Mirror L↔R** swaps sides. **Reset pose** returns to standing.
 - **Saved poses**: name the current pose and **Save to project** (travels with the project folder) or **Save to library** (on this PC, available in every project). Saved poses appear in the preset menu and in the Saved poses list, where you can apply them to any figure, copy between project and library, or delete them. Poses scale to each figure's height.

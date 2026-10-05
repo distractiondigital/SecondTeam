@@ -1083,34 +1083,2204 @@
    "length": 540,
    "type": "Int16Array"
   },
-  "t:modesty-nipple-size-decr:i": {
+  "t:breast-female-child-averagemuscle-averageweight-averagecup-maxfirmness:i": {
    "offset": 5757320,
-   "length": 162,
+   "length": 270,
    "type": "Uint16Array"
   },
-  "t:modesty-nipple-size-decr:d": {
-   "offset": 5757644,
-   "length": 486,
+  "t:breast-female-child-averagemuscle-averageweight-averagecup-maxfirmness:d": {
+   "offset": 5757860,
+   "length": 810,
    "type": "Int16Array"
   },
-  "t:modesty-nipple-point-decr:i": {
-   "offset": 5758616,
+  "t:breast-female-child-averagemuscle-averageweight-averagecup-minfirmness:i": {
+   "offset": 5759480,
+   "length": 218,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-averageweight-averagecup-minfirmness:d": {
+   "offset": 5759916,
+   "length": 654,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-averageweight-maxcup-averagefirmness:i": {
+   "offset": 5761224,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-averageweight-maxcup-averagefirmness:d": {
+   "offset": 5762628,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-averageweight-maxcup-maxfirmness:i": {
+   "offset": 5766840,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-averageweight-maxcup-maxfirmness:d": {
+   "offset": 5768244,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-averageweight-maxcup-minfirmness:i": {
+   "offset": 5772456,
+   "length": 871,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-averageweight-maxcup-minfirmness:d": {
+   "offset": 5774200,
+   "length": 2613,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-averageweight-mincup-averagefirmness:i": {
+   "offset": 5779428,
+   "length": 286,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-averageweight-mincup-averagefirmness:d": {
+   "offset": 5780000,
+   "length": 858,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-averageweight-mincup-maxfirmness:i": {
+   "offset": 5781716,
+   "length": 286,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-averageweight-mincup-maxfirmness:d": {
+   "offset": 5782288,
+   "length": 858,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-averageweight-mincup-minfirmness:i": {
+   "offset": 5784004,
+   "length": 286,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-averageweight-mincup-minfirmness:d": {
+   "offset": 5784576,
+   "length": 858,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-maxweight-averagecup-maxfirmness:i": {
+   "offset": 5786292,
+   "length": 268,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-maxweight-averagecup-maxfirmness:d": {
+   "offset": 5786828,
+   "length": 804,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-maxweight-averagecup-minfirmness:i": {
+   "offset": 5788436,
+   "length": 214,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-maxweight-averagecup-minfirmness:d": {
+   "offset": 5788864,
+   "length": 642,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-maxweight-maxcup-averagefirmness:i": {
+   "offset": 5790148,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-maxweight-maxcup-averagefirmness:d": {
+   "offset": 5791552,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-maxweight-maxcup-maxfirmness:i": {
+   "offset": 5795764,
+   "length": 752,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-maxweight-maxcup-maxfirmness:d": {
+   "offset": 5797268,
+   "length": 2256,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-maxweight-maxcup-minfirmness:i": {
+   "offset": 5801780,
+   "length": 924,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-maxweight-maxcup-minfirmness:d": {
+   "offset": 5803628,
+   "length": 2772,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-maxweight-mincup-averagefirmness:i": {
+   "offset": 5809172,
+   "length": 286,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-maxweight-mincup-averagefirmness:d": {
+   "offset": 5809744,
+   "length": 858,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-maxweight-mincup-maxfirmness:i": {
+   "offset": 5811460,
+   "length": 286,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-maxweight-mincup-maxfirmness:d": {
+   "offset": 5812032,
+   "length": 858,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-maxweight-mincup-minfirmness:i": {
+   "offset": 5813748,
+   "length": 286,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-maxweight-mincup-minfirmness:d": {
+   "offset": 5814320,
+   "length": 858,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-minweight-averagecup-maxfirmness:i": {
+   "offset": 5816036,
+   "length": 300,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-minweight-averagecup-maxfirmness:d": {
+   "offset": 5816636,
+   "length": 900,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-minweight-averagecup-minfirmness:i": {
+   "offset": 5818436,
+   "length": 214,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-minweight-averagecup-minfirmness:d": {
+   "offset": 5818864,
+   "length": 642,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-minweight-maxcup-averagefirmness:i": {
+   "offset": 5820148,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-minweight-maxcup-averagefirmness:d": {
+   "offset": 5821552,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-minweight-maxcup-maxfirmness:i": {
+   "offset": 5825764,
+   "length": 700,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-minweight-maxcup-maxfirmness:d": {
+   "offset": 5827164,
+   "length": 2100,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-minweight-maxcup-minfirmness:i": {
+   "offset": 5831364,
+   "length": 875,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-minweight-maxcup-minfirmness:d": {
+   "offset": 5833116,
+   "length": 2625,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-minweight-mincup-averagefirmness:i": {
+   "offset": 5838368,
+   "length": 236,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-minweight-mincup-averagefirmness:d": {
+   "offset": 5838840,
+   "length": 708,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-minweight-mincup-maxfirmness:i": {
+   "offset": 5840256,
+   "length": 236,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-minweight-mincup-maxfirmness:d": {
+   "offset": 5840728,
+   "length": 708,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-averagemuscle-minweight-mincup-minfirmness:i": {
+   "offset": 5842144,
+   "length": 236,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-averagemuscle-minweight-mincup-minfirmness:d": {
+   "offset": 5842616,
+   "length": 708,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-averageweight-averagecup-maxfirmness:i": {
+   "offset": 5844032,
+   "length": 276,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-averageweight-averagecup-maxfirmness:d": {
+   "offset": 5844584,
+   "length": 828,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-averageweight-averagecup-minfirmness:i": {
+   "offset": 5846240,
+   "length": 214,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-averageweight-averagecup-minfirmness:d": {
+   "offset": 5846668,
+   "length": 642,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-averageweight-maxcup-averagefirmness:i": {
+   "offset": 5847952,
+   "length": 704,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-averageweight-maxcup-averagefirmness:d": {
+   "offset": 5849360,
+   "length": 2112,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-averageweight-maxcup-maxfirmness:i": {
+   "offset": 5853584,
+   "length": 700,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-averageweight-maxcup-maxfirmness:d": {
+   "offset": 5854984,
+   "length": 2100,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-averageweight-maxcup-minfirmness:i": {
+   "offset": 5859184,
+   "length": 873,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-averageweight-maxcup-minfirmness:d": {
+   "offset": 5860932,
+   "length": 2619,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-averageweight-mincup-averagefirmness:i": {
+   "offset": 5866172,
+   "length": 293,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-averageweight-mincup-averagefirmness:d": {
+   "offset": 5866760,
+   "length": 879,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-averageweight-mincup-maxfirmness:i": {
+   "offset": 5868520,
+   "length": 293,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-averageweight-mincup-maxfirmness:d": {
+   "offset": 5869108,
+   "length": 879,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-averageweight-mincup-minfirmness:i": {
+   "offset": 5870868,
+   "length": 293,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-averageweight-mincup-minfirmness:d": {
+   "offset": 5871456,
+   "length": 879,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-maxweight-averagecup-maxfirmness:i": {
+   "offset": 5873216,
+   "length": 276,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-maxweight-averagecup-maxfirmness:d": {
+   "offset": 5873768,
+   "length": 828,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-maxweight-averagecup-minfirmness:i": {
+   "offset": 5875424,
+   "length": 214,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-maxweight-averagecup-minfirmness:d": {
+   "offset": 5875852,
+   "length": 642,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-maxweight-maxcup-averagefirmness:i": {
+   "offset": 5877136,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-maxweight-maxcup-averagefirmness:d": {
+   "offset": 5878540,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-maxweight-maxcup-maxfirmness:i": {
+   "offset": 5882752,
+   "length": 700,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-maxweight-maxcup-maxfirmness:d": {
+   "offset": 5884152,
+   "length": 2100,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-maxweight-maxcup-minfirmness:i": {
+   "offset": 5888352,
+   "length": 873,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-maxweight-maxcup-minfirmness:d": {
+   "offset": 5890100,
+   "length": 2619,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-maxweight-mincup-averagefirmness:i": {
+   "offset": 5895340,
+   "length": 299,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-maxweight-mincup-averagefirmness:d": {
+   "offset": 5895940,
+   "length": 897,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-maxweight-mincup-maxfirmness:i": {
+   "offset": 5897736,
+   "length": 299,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-maxweight-mincup-maxfirmness:d": {
+   "offset": 5898336,
+   "length": 897,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-maxweight-mincup-minfirmness:i": {
+   "offset": 5900132,
+   "length": 299,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-maxweight-mincup-minfirmness:d": {
+   "offset": 5900732,
+   "length": 897,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-minweight-averagecup-maxfirmness:i": {
+   "offset": 5902528,
+   "length": 264,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-minweight-averagecup-maxfirmness:d": {
+   "offset": 5903056,
+   "length": 792,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-minweight-averagecup-minfirmness:i": {
+   "offset": 5904640,
+   "length": 214,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-minweight-averagecup-minfirmness:d": {
+   "offset": 5905068,
+   "length": 642,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-minweight-maxcup-averagefirmness:i": {
+   "offset": 5906352,
+   "length": 704,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-minweight-maxcup-averagefirmness:d": {
+   "offset": 5907760,
+   "length": 2112,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-minweight-maxcup-maxfirmness:i": {
+   "offset": 5911984,
+   "length": 700,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-minweight-maxcup-maxfirmness:d": {
+   "offset": 5913384,
+   "length": 2100,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-minweight-maxcup-minfirmness:i": {
+   "offset": 5917584,
+   "length": 871,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-minweight-maxcup-minfirmness:d": {
+   "offset": 5919328,
+   "length": 2613,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-minweight-mincup-averagefirmness:i": {
+   "offset": 5924556,
+   "length": 282,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-minweight-mincup-averagefirmness:d": {
+   "offset": 5925120,
+   "length": 846,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-minweight-mincup-maxfirmness:i": {
+   "offset": 5926812,
+   "length": 282,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-minweight-mincup-maxfirmness:d": {
+   "offset": 5927376,
+   "length": 846,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-maxmuscle-minweight-mincup-minfirmness:i": {
+   "offset": 5929068,
+   "length": 282,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-maxmuscle-minweight-mincup-minfirmness:d": {
+   "offset": 5929632,
+   "length": 846,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-averageweight-averagecup-maxfirmness:i": {
+   "offset": 5931324,
+   "length": 268,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-averageweight-averagecup-maxfirmness:d": {
+   "offset": 5931860,
+   "length": 804,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-averageweight-averagecup-minfirmness:i": {
+   "offset": 5933468,
+   "length": 244,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-averageweight-averagecup-minfirmness:d": {
+   "offset": 5933956,
+   "length": 732,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-averageweight-maxcup-averagefirmness:i": {
+   "offset": 5935420,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-averageweight-maxcup-averagefirmness:d": {
+   "offset": 5936824,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-averageweight-maxcup-maxfirmness:i": {
+   "offset": 5941036,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-averageweight-maxcup-maxfirmness:d": {
+   "offset": 5942440,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-averageweight-maxcup-minfirmness:i": {
+   "offset": 5946652,
+   "length": 884,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-averageweight-maxcup-minfirmness:d": {
+   "offset": 5948420,
+   "length": 2652,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-averageweight-mincup-averagefirmness:i": {
+   "offset": 5953724,
+   "length": 286,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-averageweight-mincup-averagefirmness:d": {
+   "offset": 5954296,
+   "length": 858,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-averageweight-mincup-maxfirmness:i": {
+   "offset": 5956012,
+   "length": 286,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-averageweight-mincup-maxfirmness:d": {
+   "offset": 5956584,
+   "length": 858,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-averageweight-mincup-minfirmness:i": {
+   "offset": 5958300,
+   "length": 286,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-averageweight-mincup-minfirmness:d": {
+   "offset": 5958872,
+   "length": 858,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-maxweight-averagecup-maxfirmness:i": {
+   "offset": 5960588,
+   "length": 266,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-maxweight-averagecup-maxfirmness:d": {
+   "offset": 5961120,
+   "length": 798,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-maxweight-averagecup-minfirmness:i": {
+   "offset": 5962716,
+   "length": 254,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-maxweight-averagecup-minfirmness:d": {
+   "offset": 5963224,
+   "length": 762,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-maxweight-maxcup-averagefirmness:i": {
+   "offset": 5964748,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-maxweight-maxcup-averagefirmness:d": {
+   "offset": 5966152,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-maxweight-maxcup-maxfirmness:i": {
+   "offset": 5970364,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-maxweight-maxcup-maxfirmness:d": {
+   "offset": 5971768,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-maxweight-maxcup-minfirmness:i": {
+   "offset": 5975980,
+   "length": 875,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-maxweight-maxcup-minfirmness:d": {
+   "offset": 5977732,
+   "length": 2625,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-maxweight-mincup-averagefirmness:i": {
+   "offset": 5982984,
+   "length": 286,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-maxweight-mincup-averagefirmness:d": {
+   "offset": 5983556,
+   "length": 858,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-maxweight-mincup-maxfirmness:i": {
+   "offset": 5985272,
+   "length": 286,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-maxweight-mincup-maxfirmness:d": {
+   "offset": 5985844,
+   "length": 858,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-maxweight-mincup-minfirmness:i": {
+   "offset": 5987560,
+   "length": 286,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-maxweight-mincup-minfirmness:d": {
+   "offset": 5988132,
+   "length": 858,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-minweight-averagecup-maxfirmness:i": {
+   "offset": 5989848,
+   "length": 254,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-minweight-averagecup-maxfirmness:d": {
+   "offset": 5990356,
+   "length": 762,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-minweight-averagecup-minfirmness:i": {
+   "offset": 5991880,
+   "length": 214,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-minweight-averagecup-minfirmness:d": {
+   "offset": 5992308,
+   "length": 642,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-minweight-maxcup-averagefirmness:i": {
+   "offset": 5993592,
+   "length": 665,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-minweight-maxcup-averagefirmness:d": {
+   "offset": 5994924,
+   "length": 1995,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-minweight-maxcup-maxfirmness:i": {
+   "offset": 5998916,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-minweight-maxcup-maxfirmness:d": {
+   "offset": 6000320,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-minweight-maxcup-minfirmness:i": {
+   "offset": 6004532,
+   "length": 873,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-minweight-maxcup-minfirmness:d": {
+   "offset": 6006280,
+   "length": 2619,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-minweight-mincup-averagefirmness:i": {
+   "offset": 6011520,
+   "length": 300,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-minweight-mincup-averagefirmness:d": {
+   "offset": 6012120,
+   "length": 900,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-minweight-mincup-maxfirmness:i": {
+   "offset": 6013920,
+   "length": 300,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-minweight-mincup-maxfirmness:d": {
+   "offset": 6014520,
+   "length": 900,
+   "type": "Int16Array"
+  },
+  "t:breast-female-child-minmuscle-minweight-mincup-minfirmness:i": {
+   "offset": 6016320,
+   "length": 300,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-child-minmuscle-minweight-mincup-minfirmness:d": {
+   "offset": 6016920,
+   "length": 900,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-averageweight-averagecup-maxfirmness:i": {
+   "offset": 6018720,
+   "length": 278,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-averageweight-averagecup-maxfirmness:d": {
+   "offset": 6019276,
+   "length": 834,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-averageweight-averagecup-minfirmness:i": {
+   "offset": 6020944,
+   "length": 290,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-averageweight-averagecup-minfirmness:d": {
+   "offset": 6021524,
+   "length": 870,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-averageweight-maxcup-averagefirmness:i": {
+   "offset": 6023264,
+   "length": 769,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-averageweight-maxcup-averagefirmness:d": {
+   "offset": 6024804,
+   "length": 2307,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-averageweight-maxcup-maxfirmness:i": {
+   "offset": 6029420,
+   "length": 765,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-averageweight-maxcup-maxfirmness:d": {
+   "offset": 6030952,
+   "length": 2295,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-averageweight-maxcup-minfirmness:i": {
+   "offset": 6035544,
+   "length": 864,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-averageweight-maxcup-minfirmness:d": {
+   "offset": 6037272,
+   "length": 2592,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-averageweight-mincup-averagefirmness:i": {
+   "offset": 6042456,
+   "length": 693,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-averageweight-mincup-averagefirmness:d": {
+   "offset": 6043844,
+   "length": 2079,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-averageweight-mincup-maxfirmness:i": {
+   "offset": 6048004,
+   "length": 693,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-averageweight-mincup-maxfirmness:d": {
+   "offset": 6049392,
+   "length": 2079,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-averageweight-mincup-minfirmness:i": {
+   "offset": 6053552,
+   "length": 693,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-averageweight-mincup-minfirmness:d": {
+   "offset": 6054940,
+   "length": 2079,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-maxweight-averagecup-maxfirmness:i": {
+   "offset": 6059100,
+   "length": 286,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-maxweight-averagecup-maxfirmness:d": {
+   "offset": 6059672,
+   "length": 858,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-maxweight-averagecup-minfirmness:i": {
+   "offset": 6061388,
+   "length": 286,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-maxweight-averagecup-minfirmness:d": {
+   "offset": 6061960,
+   "length": 858,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-maxweight-maxcup-averagefirmness:i": {
+   "offset": 6063676,
+   "length": 773,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-maxweight-maxcup-averagefirmness:d": {
+   "offset": 6065224,
+   "length": 2319,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-maxweight-maxcup-maxfirmness:i": {
+   "offset": 6069864,
+   "length": 769,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-maxweight-maxcup-maxfirmness:d": {
+   "offset": 6071404,
+   "length": 2307,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-maxweight-maxcup-minfirmness:i": {
+   "offset": 6076020,
+   "length": 864,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-maxweight-maxcup-minfirmness:d": {
+   "offset": 6077748,
+   "length": 2592,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-maxweight-mincup-averagefirmness:i": {
+   "offset": 6082932,
+   "length": 693,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-maxweight-mincup-averagefirmness:d": {
+   "offset": 6084320,
+   "length": 2079,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-maxweight-mincup-maxfirmness:i": {
+   "offset": 6088480,
+   "length": 693,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-maxweight-mincup-maxfirmness:d": {
+   "offset": 6089868,
+   "length": 2079,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-maxweight-mincup-minfirmness:i": {
+   "offset": 6094028,
+   "length": 693,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-maxweight-mincup-minfirmness:d": {
+   "offset": 6095416,
+   "length": 2079,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-minweight-averagecup-maxfirmness:i": {
+   "offset": 6099576,
+   "length": 288,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-minweight-averagecup-maxfirmness:d": {
+   "offset": 6100152,
+   "length": 864,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-minweight-averagecup-minfirmness:i": {
+   "offset": 6101880,
+   "length": 288,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-minweight-averagecup-minfirmness:d": {
+   "offset": 6102456,
+   "length": 864,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-minweight-maxcup-averagefirmness:i": {
+   "offset": 6104184,
+   "length": 775,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-minweight-maxcup-averagefirmness:d": {
+   "offset": 6105736,
+   "length": 2325,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-minweight-maxcup-maxfirmness:i": {
+   "offset": 6110388,
+   "length": 825,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-minweight-maxcup-maxfirmness:d": {
+   "offset": 6112040,
+   "length": 2475,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-minweight-maxcup-minfirmness:i": {
+   "offset": 6116992,
+   "length": 882,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-minweight-maxcup-minfirmness:d": {
+   "offset": 6118756,
+   "length": 2646,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-minweight-mincup-averagefirmness:i": {
+   "offset": 6124048,
+   "length": 346,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-minweight-mincup-averagefirmness:d": {
+   "offset": 6124740,
+   "length": 1038,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-minweight-mincup-maxfirmness:i": {
+   "offset": 6126816,
+   "length": 346,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-minweight-mincup-maxfirmness:d": {
+   "offset": 6127508,
+   "length": 1038,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-averagemuscle-minweight-mincup-minfirmness:i": {
+   "offset": 6129584,
+   "length": 346,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-averagemuscle-minweight-mincup-minfirmness:d": {
+   "offset": 6130276,
+   "length": 1038,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-averageweight-averagecup-maxfirmness:i": {
+   "offset": 6132352,
+   "length": 276,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-averageweight-averagecup-maxfirmness:d": {
+   "offset": 6132904,
+   "length": 828,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-averageweight-averagecup-minfirmness:i": {
+   "offset": 6134560,
+   "length": 356,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-averageweight-averagecup-minfirmness:d": {
+   "offset": 6135272,
+   "length": 1068,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-averageweight-maxcup-averagefirmness:i": {
+   "offset": 6137408,
+   "length": 769,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-averageweight-maxcup-averagefirmness:d": {
+   "offset": 6138948,
+   "length": 2307,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-averageweight-maxcup-maxfirmness:i": {
+   "offset": 6143564,
+   "length": 780,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-averageweight-maxcup-maxfirmness:d": {
+   "offset": 6145124,
+   "length": 2340,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-averageweight-maxcup-minfirmness:i": {
+   "offset": 6149804,
+   "length": 864,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-averageweight-maxcup-minfirmness:d": {
+   "offset": 6151532,
+   "length": 2592,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-averageweight-mincup-averagefirmness:i": {
+   "offset": 6156716,
+   "length": 296,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-averageweight-mincup-averagefirmness:d": {
+   "offset": 6157308,
+   "length": 888,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-averageweight-mincup-maxfirmness:i": {
+   "offset": 6159084,
+   "length": 296,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-averageweight-mincup-maxfirmness:d": {
+   "offset": 6159676,
+   "length": 888,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-averageweight-mincup-minfirmness:i": {
+   "offset": 6161452,
+   "length": 296,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-averageweight-mincup-minfirmness:d": {
+   "offset": 6162044,
+   "length": 888,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-maxweight-averagecup-maxfirmness:i": {
+   "offset": 6163820,
+   "length": 780,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-maxweight-averagecup-maxfirmness:d": {
+   "offset": 6165380,
+   "length": 2340,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-maxweight-averagecup-minfirmness:i": {
+   "offset": 6170060,
+   "length": 362,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-maxweight-averagecup-minfirmness:d": {
+   "offset": 6170784,
+   "length": 1086,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-maxweight-maxcup-averagefirmness:i": {
+   "offset": 6172956,
+   "length": 780,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-maxweight-maxcup-averagefirmness:d": {
+   "offset": 6174516,
+   "length": 2340,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-maxweight-maxcup-maxfirmness:i": {
+   "offset": 6179196,
+   "length": 780,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-maxweight-maxcup-maxfirmness:d": {
+   "offset": 6180756,
+   "length": 2340,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-maxweight-maxcup-minfirmness:i": {
+   "offset": 6185436,
+   "length": 874,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-maxweight-maxcup-minfirmness:d": {
+   "offset": 6187184,
+   "length": 2622,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-maxweight-mincup-averagefirmness:i": {
+   "offset": 6192428,
+   "length": 693,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-maxweight-mincup-averagefirmness:d": {
+   "offset": 6193816,
+   "length": 2079,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-maxweight-mincup-maxfirmness:i": {
+   "offset": 6197976,
+   "length": 693,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-maxweight-mincup-maxfirmness:d": {
+   "offset": 6199364,
+   "length": 2079,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-maxweight-mincup-minfirmness:i": {
+   "offset": 6203524,
+   "length": 693,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-maxweight-mincup-minfirmness:d": {
+   "offset": 6204912,
+   "length": 2079,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-minweight-averagecup-maxfirmness:i": {
+   "offset": 6209072,
+   "length": 264,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-minweight-averagecup-maxfirmness:d": {
+   "offset": 6209600,
+   "length": 792,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-minweight-averagecup-minfirmness:i": {
+   "offset": 6211184,
+   "length": 352,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-minweight-averagecup-minfirmness:d": {
+   "offset": 6211888,
+   "length": 1056,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-minweight-maxcup-averagefirmness:i": {
+   "offset": 6214000,
+   "length": 769,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-minweight-maxcup-averagefirmness:d": {
+   "offset": 6215540,
+   "length": 2307,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-minweight-maxcup-maxfirmness:i": {
+   "offset": 6220156,
+   "length": 765,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-minweight-maxcup-maxfirmness:d": {
+   "offset": 6221688,
+   "length": 2295,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-minweight-maxcup-minfirmness:i": {
+   "offset": 6226280,
+   "length": 904,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-minweight-maxcup-minfirmness:d": {
+   "offset": 6228088,
+   "length": 2712,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-minweight-mincup-averagefirmness:i": {
+   "offset": 6233512,
+   "length": 244,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-minweight-mincup-averagefirmness:d": {
+   "offset": 6234000,
+   "length": 732,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-minweight-mincup-maxfirmness:i": {
+   "offset": 6235464,
+   "length": 244,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-minweight-mincup-maxfirmness:d": {
+   "offset": 6235952,
+   "length": 732,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-maxmuscle-minweight-mincup-minfirmness:i": {
+   "offset": 6237416,
+   "length": 244,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-maxmuscle-minweight-mincup-minfirmness:d": {
+   "offset": 6237904,
+   "length": 732,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-averageweight-averagecup-maxfirmness:i": {
+   "offset": 6239368,
+   "length": 276,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-averageweight-averagecup-maxfirmness:d": {
+   "offset": 6239920,
+   "length": 828,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-averageweight-averagecup-minfirmness:i": {
+   "offset": 6241576,
+   "length": 298,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-averageweight-averagecup-minfirmness:d": {
+   "offset": 6242172,
+   "length": 894,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-averageweight-maxcup-averagefirmness:i": {
+   "offset": 6243960,
+   "length": 769,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-averageweight-maxcup-averagefirmness:d": {
+   "offset": 6245500,
+   "length": 2307,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-averageweight-maxcup-maxfirmness:i": {
+   "offset": 6250116,
+   "length": 765,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-averageweight-maxcup-maxfirmness:d": {
+   "offset": 6251648,
+   "length": 2295,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-averageweight-maxcup-minfirmness:i": {
+   "offset": 6256240,
+   "length": 669,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-averageweight-maxcup-minfirmness:d": {
+   "offset": 6257580,
+   "length": 2007,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-averageweight-mincup-averagefirmness:i": {
+   "offset": 6261596,
+   "length": 693,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-averageweight-mincup-averagefirmness:d": {
+   "offset": 6262984,
+   "length": 2079,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-averageweight-mincup-maxfirmness:i": {
+   "offset": 6267144,
+   "length": 693,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-averageweight-mincup-maxfirmness:d": {
+   "offset": 6268532,
+   "length": 2079,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-averageweight-mincup-minfirmness:i": {
+   "offset": 6272692,
+   "length": 693,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-averageweight-mincup-minfirmness:d": {
+   "offset": 6274080,
+   "length": 2079,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-maxweight-averagecup-maxfirmness:i": {
+   "offset": 6278240,
+   "length": 511,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-maxweight-averagecup-maxfirmness:d": {
+   "offset": 6279264,
+   "length": 1533,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-maxweight-averagecup-minfirmness:i": {
+   "offset": 6282332,
+   "length": 526,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-maxweight-averagecup-minfirmness:d": {
+   "offset": 6283384,
+   "length": 1578,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-maxweight-maxcup-averagefirmness:i": {
+   "offset": 6286540,
+   "length": 830,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-maxweight-maxcup-averagefirmness:d": {
+   "offset": 6288200,
+   "length": 2490,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-maxweight-maxcup-maxfirmness:i": {
+   "offset": 6293180,
+   "length": 731,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-maxweight-maxcup-maxfirmness:d": {
+   "offset": 6294644,
+   "length": 2193,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-maxweight-maxcup-minfirmness:i": {
+   "offset": 6299032,
+   "length": 734,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-maxweight-maxcup-minfirmness:d": {
+   "offset": 6300500,
+   "length": 2202,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-maxweight-mincup-averagefirmness:i": {
+   "offset": 6304904,
+   "length": 602,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-maxweight-mincup-averagefirmness:d": {
+   "offset": 6306108,
+   "length": 1806,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-maxweight-mincup-maxfirmness:i": {
+   "offset": 6309720,
+   "length": 602,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-maxweight-mincup-maxfirmness:d": {
+   "offset": 6310924,
+   "length": 1806,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-maxweight-mincup-minfirmness:i": {
+   "offset": 6314536,
+   "length": 602,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-maxweight-mincup-minfirmness:d": {
+   "offset": 6315740,
+   "length": 1806,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-minweight-averagecup-maxfirmness:i": {
+   "offset": 6319352,
+   "length": 284,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-minweight-averagecup-maxfirmness:d": {
+   "offset": 6319920,
+   "length": 852,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-minweight-averagecup-minfirmness:i": {
+   "offset": 6321624,
+   "length": 196,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-minweight-averagecup-minfirmness:d": {
+   "offset": 6322016,
+   "length": 588,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-minweight-maxcup-averagefirmness:i": {
+   "offset": 6323192,
+   "length": 19156,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-minweight-maxcup-averagefirmness:d": {
+   "offset": 6361504,
+   "length": 57468,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-minweight-maxcup-maxfirmness:i": {
+   "offset": 6476440,
+   "length": 644,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-minweight-maxcup-maxfirmness:d": {
+   "offset": 6477728,
+   "length": 1932,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-minweight-maxcup-minfirmness:i": {
+   "offset": 6481592,
+   "length": 704,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-minweight-maxcup-minfirmness:d": {
+   "offset": 6483000,
+   "length": 2112,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-minweight-mincup-averagefirmness:i": {
+   "offset": 6487224,
+   "length": 422,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-minweight-mincup-averagefirmness:d": {
+   "offset": 6488068,
+   "length": 1266,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-minweight-mincup-maxfirmness:i": {
+   "offset": 6490600,
+   "length": 422,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-minweight-mincup-maxfirmness:d": {
+   "offset": 6491444,
+   "length": 1266,
+   "type": "Int16Array"
+  },
+  "t:breast-female-old-minmuscle-minweight-mincup-minfirmness:i": {
+   "offset": 6493976,
+   "length": 422,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-old-minmuscle-minweight-mincup-minfirmness:d": {
+   "offset": 6494820,
+   "length": 1266,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-averageweight-averagecup-maxfirmness:i": {
+   "offset": 6497352,
+   "length": 280,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-averageweight-averagecup-maxfirmness:d": {
+   "offset": 6497912,
+   "length": 840,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-averageweight-averagecup-minfirmness:i": {
+   "offset": 6499592,
+   "length": 334,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-averageweight-averagecup-minfirmness:d": {
+   "offset": 6500260,
+   "length": 1002,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-averageweight-maxcup-averagefirmness:i": {
+   "offset": 6502264,
+   "length": 700,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-averageweight-maxcup-averagefirmness:d": {
+   "offset": 6503664,
+   "length": 2100,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-averageweight-maxcup-maxfirmness:i": {
+   "offset": 6507864,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-averageweight-maxcup-maxfirmness:d": {
+   "offset": 6509268,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-averageweight-maxcup-minfirmness:i": {
+   "offset": 6513480,
+   "length": 864,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-averageweight-maxcup-minfirmness:d": {
+   "offset": 6515208,
+   "length": 2592,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-averageweight-mincup-averagefirmness:i": {
+   "offset": 6520392,
+   "length": 534,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-averageweight-mincup-averagefirmness:d": {
+   "offset": 6521460,
+   "length": 1602,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-averageweight-mincup-maxfirmness:i": {
+   "offset": 6524664,
+   "length": 534,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-averageweight-mincup-maxfirmness:d": {
+   "offset": 6525732,
+   "length": 1602,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-averageweight-mincup-minfirmness:i": {
+   "offset": 6528936,
+   "length": 534,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-averageweight-mincup-minfirmness:d": {
+   "offset": 6530004,
+   "length": 1602,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-maxweight-averagecup-maxfirmness:i": {
+   "offset": 6533208,
+   "length": 280,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-maxweight-averagecup-maxfirmness:d": {
+   "offset": 6533768,
+   "length": 840,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-maxweight-averagecup-minfirmness:i": {
+   "offset": 6535448,
+   "length": 336,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-maxweight-averagecup-minfirmness:d": {
+   "offset": 6536120,
+   "length": 1008,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-maxweight-maxcup-averagefirmness:i": {
+   "offset": 6538136,
+   "length": 700,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-maxweight-maxcup-averagefirmness:d": {
+   "offset": 6539536,
+   "length": 2100,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-maxweight-maxcup-maxfirmness:i": {
+   "offset": 6543736,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-maxweight-maxcup-maxfirmness:d": {
+   "offset": 6545140,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-maxweight-maxcup-minfirmness:i": {
+   "offset": 6549352,
+   "length": 818,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-maxweight-maxcup-minfirmness:d": {
+   "offset": 6550988,
+   "length": 2454,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-maxweight-mincup-averagefirmness:i": {
+   "offset": 6555896,
+   "length": 532,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-maxweight-mincup-averagefirmness:d": {
+   "offset": 6556960,
+   "length": 1596,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-maxweight-mincup-maxfirmness:i": {
+   "offset": 6560152,
+   "length": 532,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-maxweight-mincup-maxfirmness:d": {
+   "offset": 6561216,
+   "length": 1596,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-maxweight-mincup-minfirmness:i": {
+   "offset": 6564408,
+   "length": 532,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-maxweight-mincup-minfirmness:d": {
+   "offset": 6565472,
+   "length": 1596,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-minweight-averagecup-maxfirmness:i": {
+   "offset": 6568664,
+   "length": 210,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-minweight-averagecup-maxfirmness:d": {
+   "offset": 6569084,
+   "length": 630,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-minweight-averagecup-minfirmness:i": {
+   "offset": 6570344,
+   "length": 380,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-minweight-averagecup-minfirmness:d": {
+   "offset": 6571104,
+   "length": 1140,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-minweight-maxcup-averagefirmness:i": {
+   "offset": 6573384,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-minweight-maxcup-averagefirmness:d": {
+   "offset": 6574788,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-minweight-maxcup-maxfirmness:i": {
+   "offset": 6579000,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-minweight-maxcup-maxfirmness:d": {
+   "offset": 6580404,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-minweight-maxcup-minfirmness:i": {
+   "offset": 6584616,
+   "length": 816,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-minweight-maxcup-minfirmness:d": {
+   "offset": 6586248,
+   "length": 2448,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-minweight-mincup-averagefirmness:i": {
+   "offset": 6591144,
+   "length": 577,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-minweight-mincup-averagefirmness:d": {
+   "offset": 6592300,
+   "length": 1731,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-minweight-mincup-maxfirmness:i": {
+   "offset": 6595764,
+   "length": 577,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-minweight-mincup-maxfirmness:d": {
+   "offset": 6596920,
+   "length": 1731,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-averagemuscle-minweight-mincup-minfirmness:i": {
+   "offset": 6600384,
+   "length": 577,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-averagemuscle-minweight-mincup-minfirmness:d": {
+   "offset": 6601540,
+   "length": 1731,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-averageweight-averagecup-maxfirmness:i": {
+   "offset": 6605004,
+   "length": 282,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-averageweight-averagecup-maxfirmness:d": {
+   "offset": 6605568,
+   "length": 846,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-averageweight-averagecup-minfirmness:i": {
+   "offset": 6607260,
+   "length": 330,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-averageweight-averagecup-minfirmness:d": {
+   "offset": 6607920,
+   "length": 990,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-averageweight-maxcup-averagefirmness:i": {
+   "offset": 6609900,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-averageweight-maxcup-averagefirmness:d": {
+   "offset": 6611304,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-averageweight-maxcup-maxfirmness:i": {
+   "offset": 6615516,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-averageweight-maxcup-maxfirmness:d": {
+   "offset": 6616920,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-averageweight-maxcup-minfirmness:i": {
+   "offset": 6621132,
+   "length": 816,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-averageweight-maxcup-minfirmness:d": {
+   "offset": 6622764,
+   "length": 2448,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-averageweight-mincup-averagefirmness:i": {
+   "offset": 6627660,
+   "length": 568,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-averageweight-mincup-averagefirmness:d": {
+   "offset": 6628796,
+   "length": 1704,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-averageweight-mincup-maxfirmness:i": {
+   "offset": 6632204,
+   "length": 568,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-averageweight-mincup-maxfirmness:d": {
+   "offset": 6633340,
+   "length": 1704,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-averageweight-mincup-minfirmness:i": {
+   "offset": 6636748,
+   "length": 566,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-averageweight-mincup-minfirmness:d": {
+   "offset": 6637880,
+   "length": 1698,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-maxweight-averagecup-maxfirmness:i": {
+   "offset": 6641276,
+   "length": 282,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-maxweight-averagecup-maxfirmness:d": {
+   "offset": 6641840,
+   "length": 846,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-maxweight-averagecup-minfirmness:i": {
+   "offset": 6643532,
+   "length": 330,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-maxweight-averagecup-minfirmness:d": {
+   "offset": 6644192,
+   "length": 990,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-maxweight-maxcup-averagefirmness:i": {
+   "offset": 6646172,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-maxweight-maxcup-averagefirmness:d": {
+   "offset": 6647576,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-maxweight-maxcup-maxfirmness:i": {
+   "offset": 6651788,
+   "length": 662,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-maxweight-maxcup-maxfirmness:d": {
+   "offset": 6653112,
+   "length": 1986,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-maxweight-maxcup-minfirmness:i": {
+   "offset": 6657084,
+   "length": 864,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-maxweight-maxcup-minfirmness:d": {
+   "offset": 6658812,
+   "length": 2592,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-maxweight-mincup-averagefirmness:i": {
+   "offset": 6663996,
+   "length": 594,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-maxweight-mincup-averagefirmness:d": {
+   "offset": 6665184,
+   "length": 1782,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-maxweight-mincup-maxfirmness:i": {
+   "offset": 6668748,
+   "length": 587,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-maxweight-mincup-maxfirmness:d": {
+   "offset": 6669924,
+   "length": 1761,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-maxweight-mincup-minfirmness:i": {
+   "offset": 6673448,
+   "length": 594,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-maxweight-mincup-minfirmness:d": {
+   "offset": 6674636,
+   "length": 1782,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-minweight-averagecup-maxfirmness:i": {
+   "offset": 6678200,
+   "length": 210,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-minweight-averagecup-maxfirmness:d": {
+   "offset": 6678620,
+   "length": 630,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-minweight-averagecup-minfirmness:i": {
+   "offset": 6679880,
+   "length": 378,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-minweight-averagecup-minfirmness:d": {
+   "offset": 6680636,
+   "length": 1134,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-minweight-maxcup-averagefirmness:i": {
+   "offset": 6682904,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-minweight-maxcup-averagefirmness:d": {
+   "offset": 6684308,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-minweight-maxcup-maxfirmness:i": {
+   "offset": 6688520,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-minweight-maxcup-maxfirmness:d": {
+   "offset": 6689924,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-minweight-maxcup-minfirmness:i": {
+   "offset": 6694136,
+   "length": 868,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-minweight-maxcup-minfirmness:d": {
+   "offset": 6695872,
+   "length": 2604,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-minweight-mincup-averagefirmness:i": {
+   "offset": 6701080,
+   "length": 589,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-minweight-mincup-averagefirmness:d": {
+   "offset": 6702260,
+   "length": 1767,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-minweight-mincup-maxfirmness:i": {
+   "offset": 6705796,
+   "length": 583,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-minweight-mincup-maxfirmness:d": {
+   "offset": 6706964,
+   "length": 1749,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-maxmuscle-minweight-mincup-minfirmness:i": {
+   "offset": 6710464,
+   "length": 586,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-maxmuscle-minweight-mincup-minfirmness:d": {
+   "offset": 6711636,
+   "length": 1758,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-averageweight-averagecup-maxfirmness:i": {
+   "offset": 6715152,
+   "length": 284,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-averageweight-averagecup-maxfirmness:d": {
+   "offset": 6715720,
+   "length": 852,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-averageweight-averagecup-minfirmness:i": {
+   "offset": 6717424,
+   "length": 330,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-averageweight-averagecup-minfirmness:d": {
+   "offset": 6718084,
+   "length": 990,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-averageweight-maxcup-averagefirmness:i": {
+   "offset": 6720064,
+   "length": 700,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-averageweight-maxcup-averagefirmness:d": {
+   "offset": 6721464,
+   "length": 2100,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-averageweight-maxcup-maxfirmness:i": {
+   "offset": 6725664,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-averageweight-maxcup-maxfirmness:d": {
+   "offset": 6727068,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-averageweight-maxcup-minfirmness:i": {
+   "offset": 6731280,
+   "length": 864,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-averageweight-maxcup-minfirmness:d": {
+   "offset": 6733008,
+   "length": 2592,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-averageweight-mincup-averagefirmness:i": {
+   "offset": 6738192,
+   "length": 538,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-averageweight-mincup-averagefirmness:d": {
+   "offset": 6739268,
+   "length": 1614,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-averageweight-mincup-maxfirmness:i": {
+   "offset": 6742496,
+   "length": 538,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-averageweight-mincup-maxfirmness:d": {
+   "offset": 6743572,
+   "length": 1614,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-averageweight-mincup-minfirmness:i": {
+   "offset": 6746800,
+   "length": 538,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-averageweight-mincup-minfirmness:d": {
+   "offset": 6747876,
+   "length": 1614,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-maxweight-averagecup-maxfirmness:i": {
+   "offset": 6751104,
+   "length": 475,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-maxweight-averagecup-maxfirmness:d": {
+   "offset": 6752056,
+   "length": 1425,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-maxweight-averagecup-minfirmness:i": {
+   "offset": 6754908,
+   "length": 522,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-maxweight-averagecup-minfirmness:d": {
+   "offset": 6755952,
+   "length": 1566,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-maxweight-maxcup-averagefirmness:i": {
+   "offset": 6759084,
+   "length": 829,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-maxweight-maxcup-averagefirmness:d": {
+   "offset": 6760744,
+   "length": 2487,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-maxweight-maxcup-maxfirmness:i": {
+   "offset": 6765720,
+   "length": 704,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-maxweight-maxcup-maxfirmness:d": {
+   "offset": 6767128,
+   "length": 2112,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-maxweight-maxcup-minfirmness:i": {
+   "offset": 6771352,
+   "length": 1012,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-maxweight-maxcup-minfirmness:d": {
+   "offset": 6773376,
+   "length": 3036,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-maxweight-mincup-averagefirmness:i": {
+   "offset": 6779448,
+   "length": 556,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-maxweight-mincup-averagefirmness:d": {
+   "offset": 6780560,
+   "length": 1668,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-maxweight-mincup-maxfirmness:i": {
+   "offset": 6783896,
+   "length": 556,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-maxweight-mincup-maxfirmness:d": {
+   "offset": 6785008,
+   "length": 1668,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-maxweight-mincup-minfirmness:i": {
+   "offset": 6788344,
+   "length": 556,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-maxweight-mincup-minfirmness:d": {
+   "offset": 6789456,
+   "length": 1668,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-minweight-averagecup-maxfirmness:i": {
+   "offset": 6792792,
+   "length": 210,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-minweight-averagecup-maxfirmness:d": {
+   "offset": 6793212,
+   "length": 630,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-minweight-averagecup-minfirmness:i": {
+   "offset": 6794472,
+   "length": 380,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-minweight-averagecup-minfirmness:d": {
+   "offset": 6795232,
+   "length": 1140,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-minweight-maxcup-averagefirmness:i": {
+   "offset": 6797512,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-minweight-maxcup-averagefirmness:d": {
+   "offset": 6798916,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-minweight-maxcup-maxfirmness:i": {
+   "offset": 6803128,
+   "length": 702,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-minweight-maxcup-maxfirmness:d": {
+   "offset": 6804532,
+   "length": 2106,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-minweight-maxcup-minfirmness:i": {
+   "offset": 6808744,
+   "length": 864,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-minweight-maxcup-minfirmness:d": {
+   "offset": 6810472,
+   "length": 2592,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-minweight-mincup-averagefirmness:i": {
+   "offset": 6815656,
+   "length": 585,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-minweight-mincup-averagefirmness:d": {
+   "offset": 6816828,
+   "length": 1755,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-minweight-mincup-maxfirmness:i": {
+   "offset": 6820340,
+   "length": 583,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-minweight-mincup-maxfirmness:d": {
+   "offset": 6821508,
+   "length": 1749,
+   "type": "Int16Array"
+  },
+  "t:breast-female-young-minmuscle-minweight-mincup-minfirmness:i": {
+   "offset": 6825008,
+   "length": 585,
+   "type": "Uint16Array"
+  },
+  "t:breast-female-young-minmuscle-minweight-mincup-minfirmness:d": {
+   "offset": 6826180,
+   "length": 1755,
+   "type": "Int16Array"
+  },
+  "t:breast-nipple-point-decr:i": {
+   "offset": 6829692,
    "length": 32,
    "type": "Uint16Array"
   },
-  "t:modesty-nipple-point-decr:d": {
-   "offset": 5758680,
+  "t:breast-nipple-point-decr:d": {
+   "offset": 6829756,
    "length": 96,
    "type": "Int16Array"
   },
-  "t:modesty-breast-point-decr:i": {
-   "offset": 5758872,
-   "length": 393,
+  "t:breast-nipple-point-incr:i": {
+   "offset": 6829948,
+   "length": 32,
    "type": "Uint16Array"
   },
-  "t:modesty-breast-point-decr:d": {
-   "offset": 5759660,
-   "length": 1179,
+  "t:breast-nipple-point-incr:d": {
+   "offset": 6830012,
+   "length": 96,
+   "type": "Int16Array"
+  },
+  "t:breast-nipple-size-decr:i": {
+   "offset": 6830204,
+   "length": 162,
+   "type": "Uint16Array"
+  },
+  "t:breast-nipple-size-decr:d": {
+   "offset": 6830528,
+   "length": 486,
+   "type": "Int16Array"
+  },
+  "t:breast-nipple-size-incr:i": {
+   "offset": 6831500,
+   "length": 32,
+   "type": "Uint16Array"
+  },
+  "t:breast-nipple-size-incr:d": {
+   "offset": 6831564,
+   "length": 96,
    "type": "Int16Array"
   }
  },
@@ -1646,19 +3816,1104 @@
    "scale": 0.0000014954069643238626
   },
   {
-   "name": "modesty-nipple-size-decr",
-   "count": 162,
+   "name": "breast-female-child-averagemuscle-averageweight-averagecup-maxfirmness",
+   "count": 270,
+   "scale": 0.0000017700735496078373
+  },
+  {
+   "name": "breast-female-child-averagemuscle-averageweight-averagecup-minfirmness",
+   "count": 218,
+   "scale": 0.0000018005920590838343
+  },
+  {
+   "name": "breast-female-child-averagemuscle-averageweight-maxcup-averagefirmness",
+   "count": 702,
+   "scale": 0.000024414807580797754
+  },
+  {
+   "name": "breast-female-child-averagemuscle-averageweight-maxcup-maxfirmness",
+   "count": 702,
+   "scale": 0.000021423993652150027
+  },
+  {
+   "name": "breast-female-child-averagemuscle-averageweight-maxcup-minfirmness",
+   "count": 871,
+   "scale": 0.000039918210394604326
+  },
+  {
+   "name": "breast-female-child-averagemuscle-averageweight-mincup-averagefirmness",
+   "count": 286,
+   "scale": 0.0000019837031159398175
+  },
+  {
+   "name": "breast-female-child-averagemuscle-averageweight-mincup-maxfirmness",
+   "count": 286,
+   "scale": 0.0000019837031159398175
+  },
+  {
+   "name": "breast-female-child-averagemuscle-averageweight-mincup-minfirmness",
+   "count": 286,
+   "scale": 0.0000019837031159398175
+  },
+  {
+   "name": "breast-female-child-averagemuscle-maxweight-averagecup-maxfirmness",
+   "count": 268,
+   "scale": 0.0000017700735496078373
+  },
+  {
+   "name": "breast-female-child-averagemuscle-maxweight-averagecup-minfirmness",
+   "count": 214,
+   "scale": 0.0000018005920590838343
+  },
+  {
+   "name": "breast-female-child-averagemuscle-maxweight-maxcup-averagefirmness",
+   "count": 702,
+   "scale": 0.000024414807580797754
+  },
+  {
+   "name": "breast-female-child-averagemuscle-maxweight-maxcup-maxfirmness",
+   "count": 752,
+   "scale": 0.000020905178991058077
+  },
+  {
+   "name": "breast-female-child-averagemuscle-maxweight-maxcup-minfirmness",
+   "count": 924,
+   "scale": 0.000039918210394604326
+  },
+  {
+   "name": "breast-female-child-averagemuscle-maxweight-mincup-averagefirmness",
+   "count": 286,
+   "scale": 0.0000019837031159398175
+  },
+  {
+   "name": "breast-female-child-averagemuscle-maxweight-mincup-maxfirmness",
+   "count": 286,
+   "scale": 0.0000019837031159398175
+  },
+  {
+   "name": "breast-female-child-averagemuscle-maxweight-mincup-minfirmness",
+   "count": 286,
+   "scale": 0.0000019837031159398175
+  },
+  {
+   "name": "breast-female-child-averagemuscle-minweight-averagecup-maxfirmness",
+   "count": 300,
+   "scale": 0.0000017700735496078373
+  },
+  {
+   "name": "breast-female-child-averagemuscle-minweight-averagecup-minfirmness",
+   "count": 214,
+   "scale": 0.0000018005920590838343
+  },
+  {
+   "name": "breast-female-child-averagemuscle-minweight-maxcup-averagefirmness",
+   "count": 702,
+   "scale": 0.000024414807580797754
+  },
+  {
+   "name": "breast-female-child-averagemuscle-minweight-maxcup-maxfirmness",
+   "count": 700,
+   "scale": 0.000020722067934202096
+  },
+  {
+   "name": "breast-female-child-averagemuscle-minweight-maxcup-minfirmness",
+   "count": 875,
+   "scale": 0.000039918210394604326
+  },
+  {
+   "name": "breast-female-child-averagemuscle-minweight-mincup-averagefirmness",
+   "count": 236,
+   "scale": 0.0000013733329264198737
+  },
+  {
+   "name": "breast-female-child-averagemuscle-minweight-mincup-maxfirmness",
+   "count": 236,
+   "scale": 0.0000013733329264198737
+  },
+  {
+   "name": "breast-female-child-averagemuscle-minweight-mincup-minfirmness",
+   "count": 236,
+   "scale": 0.0000013733329264198737
+  },
+  {
+   "name": "breast-female-child-maxmuscle-averageweight-averagecup-maxfirmness",
+   "count": 276,
+   "scale": 0.0000017700735496078373
+  },
+  {
+   "name": "breast-female-child-maxmuscle-averageweight-averagecup-minfirmness",
+   "count": 214,
+   "scale": 0.0000018005920590838343
+  },
+  {
+   "name": "breast-female-child-maxmuscle-averageweight-maxcup-averagefirmness",
+   "count": 704,
+   "scale": 0.000025238807336649676
+  },
+  {
+   "name": "breast-female-child-maxmuscle-averageweight-maxcup-maxfirmness",
+   "count": 700,
+   "scale": 0.000021423993652150027
+  },
+  {
+   "name": "breast-female-child-maxmuscle-averageweight-maxcup-minfirmness",
+   "count": 873,
+   "scale": 0.000039918210394604326
+  },
+  {
+   "name": "breast-female-child-maxmuscle-averageweight-mincup-averagefirmness",
+   "count": 293,
+   "scale": 0.000002380443739127781
+  },
+  {
+   "name": "breast-female-child-maxmuscle-averageweight-mincup-maxfirmness",
+   "count": 293,
+   "scale": 0.000002380443739127781
+  },
+  {
+   "name": "breast-female-child-maxmuscle-averageweight-mincup-minfirmness",
+   "count": 293,
+   "scale": 0.000002380443739127781
+  },
+  {
+   "name": "breast-female-child-maxmuscle-maxweight-averagecup-maxfirmness",
+   "count": 276,
+   "scale": 0.0000017700735496078373
+  },
+  {
+   "name": "breast-female-child-maxmuscle-maxweight-averagecup-minfirmness",
+   "count": 214,
+   "scale": 0.0000018005920590838343
+  },
+  {
+   "name": "breast-female-child-maxmuscle-maxweight-maxcup-averagefirmness",
+   "count": 702,
+   "scale": 0.000025238807336649676
+  },
+  {
+   "name": "breast-female-child-maxmuscle-maxweight-maxcup-maxfirmness",
+   "count": 700,
+   "scale": 0.000021423993652150027
+  },
+  {
+   "name": "breast-female-child-maxmuscle-maxweight-maxcup-minfirmness",
+   "count": 873,
+   "scale": 0.000039918210394604326
+  },
+  {
+   "name": "breast-female-child-maxmuscle-maxweight-mincup-averagefirmness",
+   "count": 299,
+   "scale": 0.000002380443739127781
+  },
+  {
+   "name": "breast-female-child-maxmuscle-maxweight-mincup-maxfirmness",
+   "count": 299,
+   "scale": 0.000002380443739127781
+  },
+  {
+   "name": "breast-female-child-maxmuscle-maxweight-mincup-minfirmness",
+   "count": 299,
+   "scale": 0.000002380443739127781
+  },
+  {
+   "name": "breast-female-child-maxmuscle-minweight-averagecup-maxfirmness",
+   "count": 264,
+   "scale": 0.0000014343699453718681
+  },
+  {
+   "name": "breast-female-child-maxmuscle-minweight-averagecup-minfirmness",
+   "count": 214,
+   "scale": 0.0000018005920590838343
+  },
+  {
+   "name": "breast-female-child-maxmuscle-minweight-maxcup-averagefirmness",
+   "count": 704,
+   "scale": 0.000024414807580797754
+  },
+  {
+   "name": "breast-female-child-maxmuscle-minweight-maxcup-maxfirmness",
+   "count": 700,
+   "scale": 0.000020722067934202096
+  },
+  {
+   "name": "breast-female-child-maxmuscle-minweight-maxcup-minfirmness",
+   "count": 871,
+   "scale": 0.000039918210394604326
+  },
+  {
+   "name": "breast-female-child-maxmuscle-minweight-mincup-averagefirmness",
+   "count": 282,
+   "scale": 0.0000011902218695638905
+  },
+  {
+   "name": "breast-female-child-maxmuscle-minweight-mincup-maxfirmness",
+   "count": 282,
+   "scale": 0.0000011902218695638905
+  },
+  {
+   "name": "breast-female-child-maxmuscle-minweight-mincup-minfirmness",
+   "count": 282,
+   "scale": 0.0000011902218695638905
+  },
+  {
+   "name": "breast-female-child-minmuscle-averageweight-averagecup-maxfirmness",
+   "count": 268,
+   "scale": 0.0000017700735496078373
+  },
+  {
+   "name": "breast-female-child-minmuscle-averageweight-averagecup-minfirmness",
+   "count": 244,
+   "scale": 0.0000018005920590838343
+  },
+  {
+   "name": "breast-female-child-minmuscle-averageweight-maxcup-averagefirmness",
+   "count": 702,
+   "scale": 0.000024414807580797754
+  },
+  {
+   "name": "breast-female-child-minmuscle-averageweight-maxcup-maxfirmness",
+   "count": 702,
+   "scale": 0.000021423993652150027
+  },
+  {
+   "name": "breast-female-child-minmuscle-averageweight-maxcup-minfirmness",
+   "count": 884,
+   "scale": 0.000039918210394604326
+  },
+  {
+   "name": "breast-female-child-minmuscle-averageweight-mincup-averagefirmness",
+   "count": 286,
+   "scale": 0.0000019837031159398175
+  },
+  {
+   "name": "breast-female-child-minmuscle-averageweight-mincup-maxfirmness",
+   "count": 286,
+   "scale": 0.0000019837031159398175
+  },
+  {
+   "name": "breast-female-child-minmuscle-averageweight-mincup-minfirmness",
+   "count": 286,
+   "scale": 0.0000019837031159398175
+  },
+  {
+   "name": "breast-female-child-minmuscle-maxweight-averagecup-maxfirmness",
+   "count": 266,
+   "scale": 0.0000024109622486037784
+  },
+  {
+   "name": "breast-female-child-minmuscle-maxweight-averagecup-minfirmness",
+   "count": 254,
+   "scale": 0.000003509628589739677
+  },
+  {
+   "name": "breast-female-child-minmuscle-maxweight-maxcup-averagefirmness",
+   "count": 702,
+   "scale": 0.000024414807580797754
+  },
+  {
+   "name": "breast-female-child-minmuscle-maxweight-maxcup-maxfirmness",
+   "count": 702,
+   "scale": 0.000021423993652150027
+  },
+  {
+   "name": "breast-female-child-minmuscle-maxweight-maxcup-minfirmness",
+   "count": 875,
+   "scale": 0.00003759880367442854
+  },
+  {
+   "name": "breast-female-child-minmuscle-maxweight-mincup-averagefirmness",
+   "count": 286,
+   "scale": 0.000002227851191747795
+  },
+  {
+   "name": "breast-female-child-minmuscle-maxweight-mincup-maxfirmness",
+   "count": 286,
+   "scale": 0.000002227851191747795
+  },
+  {
+   "name": "breast-female-child-minmuscle-maxweight-mincup-minfirmness",
+   "count": 286,
+   "scale": 0.000002227851191747795
+  },
+  {
+   "name": "breast-female-child-minmuscle-minweight-averagecup-maxfirmness",
+   "count": 254,
+   "scale": 7.629627368999298e-7
+  },
+  {
+   "name": "breast-female-child-minmuscle-minweight-averagecup-minfirmness",
+   "count": 214,
+   "scale": 0.0000019531846064638205
+  },
+  {
+   "name": "breast-female-child-minmuscle-minweight-maxcup-averagefirmness",
+   "count": 665,
+   "scale": 0.000020477919858394117
+  },
+  {
+   "name": "breast-female-child-minmuscle-minweight-maxcup-maxfirmness",
+   "count": 702,
+   "scale": 0.000021423993652150027
+  },
+  {
+   "name": "breast-female-child-minmuscle-minweight-maxcup-minfirmness",
+   "count": 873,
+   "scale": 0.000039918210394604326
+  },
+  {
+   "name": "breast-female-child-minmuscle-minweight-mincup-averagefirmness",
+   "count": 300,
+   "scale": 0.00000173955504013184
+  },
+  {
+   "name": "breast-female-child-minmuscle-minweight-mincup-maxfirmness",
+   "count": 300,
+   "scale": 0.00000173955504013184
+  },
+  {
+   "name": "breast-female-child-minmuscle-minweight-mincup-minfirmness",
+   "count": 300,
+   "scale": 0.00000173955504013184
+  },
+  {
+   "name": "breast-female-old-averagemuscle-averageweight-averagecup-maxfirmness",
+   "count": 278,
+   "scale": 0.0000035706656086916716
+  },
+  {
+   "name": "breast-female-old-averagemuscle-averageweight-averagecup-minfirmness",
+   "count": 290,
+   "scale": 0.0000063173314615314185
+  },
+  {
+   "name": "breast-female-old-averagemuscle-averageweight-maxcup-averagefirmness",
+   "count": 769,
+   "scale": 0.000025574510940885646
+  },
+  {
+   "name": "breast-female-old-averagemuscle-averageweight-maxcup-maxfirmness",
+   "count": 765,
+   "scale": 0.000020722067934202096
+  },
+  {
+   "name": "breast-female-old-averagemuscle-averageweight-maxcup-minfirmness",
+   "count": 864,
+   "scale": 0.000040375988036744284
+  },
+  {
+   "name": "breast-female-old-averagemuscle-averageweight-mincup-averagefirmness",
+   "count": 693,
+   "scale": 0.000007507553331095309
+  },
+  {
+   "name": "breast-female-old-averagemuscle-averageweight-mincup-maxfirmness",
+   "count": 693,
+   "scale": 0.000007507553331095309
+  },
+  {
+   "name": "breast-female-old-averagemuscle-averageweight-mincup-minfirmness",
+   "count": 693,
+   "scale": 0.000007507553331095309
+  },
+  {
+   "name": "breast-female-old-averagemuscle-maxweight-averagecup-maxfirmness",
+   "count": 286,
+   "scale": 0.000003875850703451643
+  },
+  {
+   "name": "breast-female-old-averagemuscle-maxweight-averagecup-minfirmness",
+   "count": 286,
+   "scale": 0.0000063173314615314185
+  },
+  {
+   "name": "breast-female-old-averagemuscle-maxweight-maxcup-averagefirmness",
+   "count": 773,
+   "scale": 0.000022339548936429943
+  },
+  {
+   "name": "breast-female-old-averagemuscle-maxweight-maxcup-maxfirmness",
+   "count": 769,
+   "scale": 0.000020722067934202096
+  },
+  {
+   "name": "breast-female-old-averagemuscle-maxweight-maxcup-minfirmness",
+   "count": 864,
+   "scale": 0.000041261024811548205
+  },
+  {
+   "name": "breast-female-old-averagemuscle-maxweight-mincup-averagefirmness",
+   "count": 693,
+   "scale": 0.000007507553331095309
+  },
+  {
+   "name": "breast-female-old-averagemuscle-maxweight-mincup-maxfirmness",
+   "count": 693,
+   "scale": 0.000007507553331095309
+  },
+  {
+   "name": "breast-female-old-averagemuscle-maxweight-mincup-minfirmness",
+   "count": 693,
+   "scale": 0.000007507553331095309
+  },
+  {
+   "name": "breast-female-old-averagemuscle-minweight-averagecup-maxfirmness",
+   "count": 288,
+   "scale": 0.000003875850703451643
+  },
+  {
+   "name": "breast-female-old-averagemuscle-minweight-averagecup-minfirmness",
+   "count": 288,
+   "scale": 0.000003875850703451643
+  },
+  {
+   "name": "breast-female-old-averagemuscle-minweight-maxcup-averagefirmness",
+   "count": 775,
+   "scale": 0.000024201178014465776
+  },
+  {
+   "name": "breast-female-old-averagemuscle-minweight-maxcup-maxfirmness",
+   "count": 825,
+   "scale": 0.000020599993896298105
+  },
+  {
+   "name": "breast-female-old-averagemuscle-minweight-maxcup-minfirmness",
+   "count": 882,
+   "scale": 0.000039918210394604326
+  },
+  {
+   "name": "breast-female-old-averagemuscle-minweight-mincup-averagefirmness",
+   "count": 346,
+   "scale": 0.000004333628345591601
+  },
+  {
+   "name": "breast-female-old-averagemuscle-minweight-mincup-maxfirmness",
+   "count": 346,
+   "scale": 0.000004333628345591601
+  },
+  {
+   "name": "breast-female-old-averagemuscle-minweight-mincup-minfirmness",
+   "count": 346,
+   "scale": 0.000004333628345591601
+  },
+  {
+   "name": "breast-female-old-maxmuscle-averageweight-averagecup-maxfirmness",
+   "count": 276,
+   "scale": 0.0000035706656086916716
+  },
+  {
+   "name": "breast-female-old-maxmuscle-averageweight-averagecup-minfirmness",
+   "count": 356,
+   "scale": 0.00000891140476699118
+  },
+  {
+   "name": "breast-female-old-maxmuscle-averageweight-maxcup-averagefirmness",
+   "count": 769,
+   "scale": 0.00002673421430097354
+  },
+  {
+   "name": "breast-female-old-maxmuscle-averageweight-maxcup-maxfirmness",
+   "count": 780,
+   "scale": 0.000021668141727958007
+  },
+  {
+   "name": "breast-female-old-maxmuscle-averageweight-maxcup-minfirmness",
+   "count": 864,
+   "scale": 0.00004065065462202826
+  },
+  {
+   "name": "breast-female-old-maxmuscle-averageweight-mincup-averagefirmness",
+   "count": 296,
+   "scale": 0.000004516739402447584
+  },
+  {
+   "name": "breast-female-old-maxmuscle-averageweight-mincup-maxfirmness",
+   "count": 296,
+   "scale": 0.000004516739402447584
+  },
+  {
+   "name": "breast-female-old-maxmuscle-averageweight-mincup-minfirmness",
+   "count": 296,
+   "scale": 0.000004516739402447584
+  },
+  {
+   "name": "breast-female-old-maxmuscle-maxweight-averagecup-maxfirmness",
+   "count": 780,
+   "scale": 0.000019501327555162205
+  },
+  {
+   "name": "breast-female-old-maxmuscle-maxweight-averagecup-minfirmness",
+   "count": 362,
+   "scale": 0.00000891140476699118
+  },
+  {
+   "name": "breast-female-old-maxmuscle-maxweight-maxcup-averagefirmness",
+   "count": 780,
+   "scale": 0.000021118808557390055
+  },
+  {
+   "name": "breast-female-old-maxmuscle-maxweight-maxcup-maxfirmness",
+   "count": 780,
+   "scale": 0.000019501327555162205
+  },
+  {
+   "name": "breast-female-old-maxmuscle-maxweight-maxcup-minfirmness",
+   "count": 874,
+   "scale": 0.000039918210394604326
+  },
+  {
+   "name": "breast-female-old-maxmuscle-maxweight-mincup-averagefirmness",
+   "count": 693,
+   "scale": 0.000007507553331095309
+  },
+  {
+   "name": "breast-female-old-maxmuscle-maxweight-mincup-maxfirmness",
+   "count": 693,
+   "scale": 0.000007507553331095309
+  },
+  {
+   "name": "breast-female-old-maxmuscle-maxweight-mincup-minfirmness",
+   "count": 693,
+   "scale": 0.000007507553331095309
+  },
+  {
+   "name": "breast-female-old-maxmuscle-minweight-averagecup-maxfirmness",
+   "count": 264,
+   "scale": 0.0000026245918149357584
+  },
+  {
+   "name": "breast-female-old-maxmuscle-minweight-averagecup-minfirmness",
+   "count": 352,
+   "scale": 0.000004058961760307627
+  },
+  {
+   "name": "breast-female-old-maxmuscle-minweight-maxcup-averagefirmness",
+   "count": 769,
+   "scale": 0.00002139347514267403
+  },
+  {
+   "name": "breast-female-old-maxmuscle-minweight-maxcup-maxfirmness",
+   "count": 765,
+   "scale": 0.000019440290536210213
+  },
+  {
+   "name": "breast-female-old-maxmuscle-minweight-maxcup-minfirmness",
+   "count": 904,
+   "scale": 0.00004065065462202826
+  },
+  {
+   "name": "breast-female-old-maxmuscle-minweight-mincup-averagefirmness",
+   "count": 244,
+   "scale": 0.0000021668141727958005
+  },
+  {
+   "name": "breast-female-old-maxmuscle-minweight-mincup-maxfirmness",
+   "count": 244,
+   "scale": 0.0000021668141727958005
+  },
+  {
+   "name": "breast-female-old-maxmuscle-minweight-mincup-minfirmness",
+   "count": 244,
+   "scale": 0.0000021668141727958005
+  },
+  {
+   "name": "breast-female-old-minmuscle-averageweight-averagecup-maxfirmness",
+   "count": 276,
+   "scale": 0.0000035706656086916716
+  },
+  {
+   "name": "breast-female-old-minmuscle-averageweight-averagecup-minfirmness",
+   "count": 298,
+   "scale": 0.00000640888698995941
+  },
+  {
+   "name": "breast-female-old-minmuscle-averageweight-maxcup-averagefirmness",
+   "count": 769,
+   "scale": 0.000022339548936429943
+  },
+  {
+   "name": "breast-female-old-minmuscle-averageweight-maxcup-maxfirmness",
+   "count": 765,
+   "scale": 0.000020722067934202096
+  },
+  {
+   "name": "breast-female-old-minmuscle-averageweight-maxcup-minfirmness",
+   "count": 669,
+   "scale": 0.000041535691396832176
+  },
+  {
+   "name": "breast-female-old-minmuscle-averageweight-mincup-averagefirmness",
+   "count": 693,
+   "scale": 0.000007507553331095309
+  },
+  {
+   "name": "breast-female-old-minmuscle-averageweight-mincup-maxfirmness",
+   "count": 693,
+   "scale": 0.000007507553331095309
+  },
+  {
+   "name": "breast-female-old-minmuscle-averageweight-mincup-minfirmness",
+   "count": 693,
+   "scale": 0.000007507553331095309
+  },
+  {
+   "name": "breast-female-old-minmuscle-maxweight-averagecup-maxfirmness",
+   "count": 511,
+   "scale": 0.000006256294442579424
+  },
+  {
+   "name": "breast-female-old-minmuscle-maxweight-averagecup-minfirmness",
+   "count": 526,
+   "scale": 0.000010162663655507065
+  },
+  {
+   "name": "breast-female-old-minmuscle-maxweight-maxcup-averagefirmness",
+   "count": 830,
+   "scale": 0.000025574510940885646
+  },
+  {
+   "name": "breast-female-old-minmuscle-maxweight-maxcup-maxfirmness",
+   "count": 731,
+   "scale": 0.000023865474410229806
+  },
+  {
+   "name": "breast-female-old-minmuscle-maxweight-maxcup-minfirmness",
+   "count": 734,
+   "scale": 0.000055391094698934904
+  },
+  {
+   "name": "breast-female-old-minmuscle-maxweight-mincup-averagefirmness",
+   "count": 602,
+   "scale": 0.000009186071352275154
+  },
+  {
+   "name": "breast-female-old-minmuscle-maxweight-mincup-maxfirmness",
+   "count": 602,
+   "scale": 0.000009186071352275154
+  },
+  {
+   "name": "breast-female-old-minmuscle-maxweight-mincup-minfirmness",
+   "count": 602,
+   "scale": 0.000009186071352275154
+  },
+  {
+   "name": "breast-female-old-minmuscle-minweight-averagecup-maxfirmness",
+   "count": 284,
+   "scale": 0.0000023194067201757864
+  },
+  {
+   "name": "breast-female-old-minmuscle-minweight-averagecup-minfirmness",
+   "count": 196,
+   "scale": 0.000002014221625415815
+  },
+  {
+   "name": "breast-female-old-minmuscle-minweight-maxcup-averagefirmness",
+   "count": 19156,
+   "scale": 0.00004391613513595996
+  },
+  {
+   "name": "breast-female-old-minmuscle-minweight-maxcup-maxfirmness",
+   "count": 644,
+   "scale": 0.00001696829126865444
+  },
+  {
+   "name": "breast-female-old-minmuscle-minweight-maxcup-minfirmness",
+   "count": 704,
+   "scale": 0.000042481765190588086
+  },
+  {
+   "name": "breast-female-old-minmuscle-minweight-mincup-averagefirmness",
+   "count": 422,
+   "scale": 0.000001892147587511826
+  },
+  {
+   "name": "breast-female-old-minmuscle-minweight-mincup-maxfirmness",
+   "count": 422,
+   "scale": 0.000001892147587511826
+  },
+  {
+   "name": "breast-female-old-minmuscle-minweight-mincup-minfirmness",
+   "count": 422,
+   "scale": 0.000001892147587511826
+  },
+  {
+   "name": "breast-female-young-averagemuscle-averageweight-averagecup-maxfirmness",
+   "count": 280,
+   "scale": 0.0000023194067201757864
+  },
+  {
+   "name": "breast-female-young-averagemuscle-averageweight-averagecup-minfirmness",
+   "count": 334,
+   "scale": 0.000005035554063539537
+  },
+  {
+   "name": "breast-female-young-averagemuscle-averageweight-maxcup-averagefirmness",
+   "count": 700,
+   "scale": 0.00002639851069673757
+  },
+  {
+   "name": "breast-female-young-averagemuscle-averageweight-maxcup-maxfirmness",
+   "count": 702,
+   "scale": 0.000022492141483809932
+  },
+  {
+   "name": "breast-female-young-averagemuscle-averageweight-maxcup-minfirmness",
+   "count": 864,
+   "scale": 0.000039918210394604326
+  },
+  {
+   "name": "breast-female-young-averagemuscle-averageweight-mincup-averagefirmness",
+   "count": 534,
+   "scale": 0.000007324442274239326
+  },
+  {
+   "name": "breast-female-young-averagemuscle-averageweight-mincup-maxfirmness",
+   "count": 534,
+   "scale": 0.000007324442274239326
+  },
+  {
+   "name": "breast-female-young-averagemuscle-averageweight-mincup-minfirmness",
+   "count": 534,
+   "scale": 0.000007324442274239326
+  },
+  {
+   "name": "breast-female-young-averagemuscle-maxweight-averagecup-maxfirmness",
+   "count": 280,
+   "scale": 0.000002349925229651784
+  },
+  {
+   "name": "breast-female-young-averagemuscle-maxweight-averagecup-minfirmness",
+   "count": 336,
+   "scale": 0.000005035554063539537
+  },
+  {
+   "name": "breast-female-young-averagemuscle-maxweight-maxcup-averagefirmness",
+   "count": 700,
+   "scale": 0.00002639851069673757
+  },
+  {
+   "name": "breast-female-young-averagemuscle-maxweight-maxcup-maxfirmness",
+   "count": 702,
+   "scale": 0.000022492141483809932
+  },
+  {
+   "name": "breast-female-young-averagemuscle-maxweight-maxcup-minfirmness",
+   "count": 818,
+   "scale": 0.000039918210394604326
+  },
+  {
+   "name": "breast-female-young-averagemuscle-maxweight-mincup-averagefirmness",
+   "count": 532,
+   "scale": 0.000007324442274239326
+  },
+  {
+   "name": "breast-female-young-averagemuscle-maxweight-mincup-maxfirmness",
+   "count": 532,
+   "scale": 0.000007324442274239326
+  },
+  {
+   "name": "breast-female-young-averagemuscle-maxweight-mincup-minfirmness",
+   "count": 532,
+   "scale": 0.000007324442274239326
+  },
+  {
+   "name": "breast-female-young-averagemuscle-minweight-averagecup-maxfirmness",
+   "count": 210,
    "scale": 0.0000021362956633198035
   },
   {
-   "name": "modesty-nipple-point-decr",
+   "name": "breast-female-young-averagemuscle-minweight-averagecup-minfirmness",
+   "count": 380,
+   "scale": 0.000005279702139347514
+  },
+  {
+   "name": "breast-female-young-averagemuscle-minweight-maxcup-averagefirmness",
+   "count": 702,
+   "scale": 0.000025177770317697684
+  },
+  {
+   "name": "breast-female-young-averagemuscle-minweight-maxcup-maxfirmness",
+   "count": 702,
+   "scale": 0.000021698660237434
+  },
+  {
+   "name": "breast-female-young-averagemuscle-minweight-maxcup-minfirmness",
+   "count": 816,
+   "scale": 0.000039918210394604326
+  },
+  {
+   "name": "breast-female-young-averagemuscle-minweight-mincup-averagefirmness",
+   "count": 577,
+   "scale": 0.0000059511093478194525
+  },
+  {
+   "name": "breast-female-young-averagemuscle-minweight-mincup-maxfirmness",
+   "count": 577,
+   "scale": 0.0000059511093478194525
+  },
+  {
+   "name": "breast-female-young-averagemuscle-minweight-mincup-minfirmness",
+   "count": 577,
+   "scale": 0.0000059205908383434555
+  },
+  {
+   "name": "breast-female-young-maxmuscle-averageweight-averagecup-maxfirmness",
+   "count": 282,
+   "scale": 0.0000022888882106997894
+  },
+  {
+   "name": "breast-female-young-maxmuscle-averageweight-averagecup-minfirmness",
+   "count": 330,
+   "scale": 0.000005035554063539537
+  },
+  {
+   "name": "breast-female-young-maxmuscle-averageweight-maxcup-averagefirmness",
+   "count": 702,
+   "scale": 0.00002597125156407361
+  },
+  {
+   "name": "breast-female-young-maxmuscle-averageweight-maxcup-maxfirmness",
+   "count": 702,
+   "scale": 0.00002346873378704184
+  },
+  {
+   "name": "breast-female-young-maxmuscle-averageweight-maxcup-minfirmness",
+   "count": 816,
+   "scale": 0.000039918210394604326
+  },
+  {
+   "name": "breast-female-young-maxmuscle-averageweight-mincup-averagefirmness",
+   "count": 568,
+   "scale": 0.000007324442274239326
+  },
+  {
+   "name": "breast-female-young-maxmuscle-averageweight-mincup-maxfirmness",
+   "count": 568,
+   "scale": 0.000007324442274239326
+  },
+  {
+   "name": "breast-female-young-maxmuscle-averageweight-mincup-minfirmness",
+   "count": 566,
+   "scale": 0.000007324442274239326
+  },
+  {
+   "name": "breast-female-young-maxmuscle-maxweight-averagecup-maxfirmness",
+   "count": 282,
+   "scale": 0.0000022888882106997894
+  },
+  {
+   "name": "breast-female-young-maxmuscle-maxweight-averagecup-minfirmness",
+   "count": 330,
+   "scale": 0.000005035554063539537
+  },
+  {
+   "name": "breast-female-young-maxmuscle-maxweight-maxcup-averagefirmness",
+   "count": 702,
+   "scale": 0.00002597125156407361
+  },
+  {
+   "name": "breast-female-young-maxmuscle-maxweight-maxcup-maxfirmness",
+   "count": 662,
+   "scale": 0.00002563554795983764
+  },
+  {
+   "name": "breast-female-young-maxmuscle-maxweight-maxcup-minfirmness",
+   "count": 864,
+   "scale": 0.000039918210394604326
+  },
+  {
+   "name": "breast-female-young-maxmuscle-maxweight-mincup-averagefirmness",
+   "count": 594,
+   "scale": 0.0000063783684804834125
+  },
+  {
+   "name": "breast-female-young-maxmuscle-maxweight-mincup-maxfirmness",
+   "count": 587,
+   "scale": 0.0000063783684804834125
+  },
+  {
+   "name": "breast-female-young-maxmuscle-maxweight-mincup-minfirmness",
+   "count": 594,
+   "scale": 0.0000063783684804834125
+  },
+  {
+   "name": "breast-female-young-maxmuscle-minweight-averagecup-maxfirmness",
+   "count": 210,
+   "scale": 0.0000021362956633198035
+  },
+  {
+   "name": "breast-female-young-maxmuscle-minweight-averagecup-minfirmness",
+   "count": 378,
+   "scale": 0.000005279702139347514
+  },
+  {
+   "name": "breast-female-young-maxmuscle-minweight-maxcup-averagefirmness",
+   "count": 702,
+   "scale": 0.000025177770317697684
+  },
+  {
+   "name": "breast-female-young-maxmuscle-minweight-maxcup-maxfirmness",
+   "count": 702,
+   "scale": 0.000021698660237434
+  },
+  {
+   "name": "breast-female-young-maxmuscle-minweight-maxcup-minfirmness",
+   "count": 868,
+   "scale": 0.000039918210394604326
+  },
+  {
+   "name": "breast-female-young-maxmuscle-minweight-mincup-averagefirmness",
+   "count": 589,
+   "scale": 0.000005523850215155492
+  },
+  {
+   "name": "breast-female-young-maxmuscle-minweight-mincup-maxfirmness",
+   "count": 583,
+   "scale": 0.0000059511093478194525
+  },
+  {
+   "name": "breast-female-young-maxmuscle-minweight-mincup-minfirmness",
+   "count": 586,
+   "scale": 0.000005584887234107486
+  },
+  {
+   "name": "breast-female-young-minmuscle-averageweight-averagecup-maxfirmness",
+   "count": 284,
+   "scale": 0.0000023194067201757864
+  },
+  {
+   "name": "breast-female-young-minmuscle-averageweight-averagecup-minfirmness",
+   "count": 330,
+   "scale": 0.000005035554063539537
+  },
+  {
+   "name": "breast-female-young-minmuscle-averageweight-maxcup-averagefirmness",
+   "count": 700,
+   "scale": 0.00002639851069673757
+  },
+  {
+   "name": "breast-female-young-minmuscle-averageweight-maxcup-maxfirmness",
+   "count": 702,
+   "scale": 0.000022492141483809932
+  },
+  {
+   "name": "breast-female-young-minmuscle-averageweight-maxcup-minfirmness",
+   "count": 864,
+   "scale": 0.000039918210394604326
+  },
+  {
+   "name": "breast-female-young-minmuscle-averageweight-mincup-averagefirmness",
+   "count": 538,
+   "scale": 0.000007324442274239326
+  },
+  {
+   "name": "breast-female-young-minmuscle-averageweight-mincup-maxfirmness",
+   "count": 538,
+   "scale": 0.000007324442274239326
+  },
+  {
+   "name": "breast-female-young-minmuscle-averageweight-mincup-minfirmness",
+   "count": 538,
+   "scale": 0.000007324442274239326
+  },
+  {
+   "name": "breast-female-young-minmuscle-maxweight-averagecup-maxfirmness",
+   "count": 475,
+   "scale": 0.0000057374797814874725
+  },
+  {
+   "name": "breast-female-young-minmuscle-maxweight-averagecup-minfirmness",
+   "count": 522,
+   "scale": 0.000010162663655507065
+  },
+  {
+   "name": "breast-female-young-minmuscle-maxweight-maxcup-averagefirmness",
+   "count": 829,
+   "scale": 0.00002639851069673757
+  },
+  {
+   "name": "breast-female-young-minmuscle-maxweight-maxcup-maxfirmness",
+   "count": 704,
+   "scale": 0.000022492141483809932
+  },
+  {
+   "name": "breast-female-young-minmuscle-maxweight-maxcup-minfirmness",
+   "count": 1012,
+   "scale": 0.000039918210394604326
+  },
+  {
+   "name": "breast-female-young-minmuscle-maxweight-mincup-averagefirmness",
+   "count": 556,
+   "scale": 0.000009491256447035127
+  },
+  {
+   "name": "breast-female-young-minmuscle-maxweight-mincup-maxfirmness",
+   "count": 556,
+   "scale": 0.000009491256447035127
+  },
+  {
+   "name": "breast-female-young-minmuscle-maxweight-mincup-minfirmness",
+   "count": 556,
+   "scale": 0.00000946073793755913
+  },
+  {
+   "name": "breast-female-young-minmuscle-minweight-averagecup-maxfirmness",
+   "count": 210,
+   "scale": 0.0000021362956633198035
+  },
+  {
+   "name": "breast-female-young-minmuscle-minweight-averagecup-minfirmness",
+   "count": 380,
+   "scale": 0.000005279702139347514
+  },
+  {
+   "name": "breast-female-young-minmuscle-minweight-maxcup-averagefirmness",
+   "count": 702,
+   "scale": 0.000024414807580797754
+  },
+  {
+   "name": "breast-female-young-minmuscle-minweight-maxcup-maxfirmness",
+   "count": 702,
+   "scale": 0.00002227851191747795
+  },
+  {
+   "name": "breast-female-young-minmuscle-minweight-maxcup-minfirmness",
+   "count": 864,
+   "scale": 0.000039918210394604326
+  },
+  {
+   "name": "breast-female-young-minmuscle-minweight-mincup-averagefirmness",
+   "count": 585,
+   "scale": 0.000005523850215155492
+  },
+  {
+   "name": "breast-female-young-minmuscle-minweight-mincup-maxfirmness",
+   "count": 583,
+   "scale": 0.0000057985168004394665
+  },
+  {
+   "name": "breast-female-young-minmuscle-minweight-mincup-minfirmness",
+   "count": 585,
+   "scale": 0.000005523850215155492
+  },
+  {
+   "name": "breast-nipple-point-decr",
    "count": 32,
    "scale": 0.000001129184850611896
   },
   {
-   "name": "modesty-breast-point-decr",
-   "count": 393,
-   "scale": 0.000003784295175023652
+   "name": "breast-nipple-point-incr",
+   "count": 32,
+   "scale": 0.0000019837031159398175
+  },
+  {
+   "name": "breast-nipple-size-decr",
+   "count": 162,
+   "scale": 0.0000021362956633198035
+  },
+  {
+   "name": "breast-nipple-size-incr",
+   "count": 32,
+   "scale": 0.000002014221625415815
   }
  ],
  "cubes": {
@@ -2913,170 +6168,6 @@
    19157
   ]
  },
- "modestyRegion": [
-  1762,
-  1763,
-  1764,
-  1765,
-  1766,
-  1767,
-  1768,
-  1769,
-  1770,
-  1771,
-  1772,
-  1773,
-  1774,
-  1775,
-  1776,
-  1777,
-  1778,
-  1779,
-  1780,
-  1781,
-  1782,
-  1783,
-  1784,
-  1785,
-  1786,
-  1787,
-  1788,
-  1789,
-  1790,
-  1791,
-  1792,
-  1793,
-  1794,
-  1795,
-  1796,
-  1797,
-  1798,
-  1799,
-  1800,
-  1801,
-  1802,
-  1803,
-  1804,
-  1805,
-  1806,
-  1807,
-  1808,
-  1809,
-  1810,
-  1811,
-  1812,
-  1813,
-  1814,
-  1815,
-  1816,
-  1817,
-  1818,
-  1819,
-  1820,
-  1821,
-  1822,
-  1823,
-  1824,
-  1825,
-  1826,
-  1874,
-  1875,
-  1876,
-  1877,
-  1878,
-  1879,
-  1880,
-  1881,
-  1882,
-  1883,
-  1884,
-  1885,
-  1886,
-  1887,
-  1888,
-  1889,
-  8434,
-  8435,
-  8436,
-  8437,
-  8438,
-  8439,
-  8440,
-  8441,
-  8442,
-  8443,
-  8444,
-  8445,
-  8446,
-  8447,
-  8448,
-  8449,
-  8450,
-  8451,
-  8452,
-  8453,
-  8454,
-  8455,
-  8456,
-  8457,
-  8458,
-  8459,
-  8460,
-  8461,
-  8462,
-  8463,
-  8464,
-  8465,
-  8466,
-  8467,
-  8468,
-  8469,
-  8470,
-  8471,
-  8472,
-  8473,
-  8474,
-  8475,
-  8476,
-  8477,
-  8478,
-  8479,
-  8480,
-  8481,
-  8482,
-  8483,
-  8484,
-  8485,
-  8486,
-  8487,
-  8488,
-  8489,
-  8490,
-  8491,
-  8492,
-  8493,
-  8494,
-  8495,
-  8496,
-  8497,
-  8498,
-  8546,
-  8547,
-  8548,
-  8549,
-  8550,
-  8551,
-  8552,
-  8553,
-  8554,
-  8555,
-  8556,
-  8557,
-  8558,
-  8559,
-  8560,
-  8561
- ],
  "bones": [
   {
    "name": "Root",

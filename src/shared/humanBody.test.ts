@@ -40,14 +40,30 @@ describe('human body data', () => {
   })
 
   it('turns sliders into target weights that add up', () => {
-    const w = targetWeights({ gender: 1, age: 0.5, muscle: 0.5, weight: 0.5 })
+    const w = targetWeights({ ...AVERAGE_BODY, gender: 1, age: 0.5, muscle: 0.5, weight: 0.5 })
     expect(w.get('race-male-young')).toBeCloseTo(1)
     expect(w.has('race-female-young')).toBe(false)
-    const mixed = targetWeights({ gender: 0.3, age: 0.75, muscle: 0.25, weight: 1 })
+    const mixed = targetWeights({ ...AVERAGE_BODY, gender: 0.3, age: 0.75, muscle: 0.25, weight: 1 })
     const races = [...mixed].filter(([k]) => k.startsWith('race-')).reduce((s, [, v]) => s + v, 0)
     expect(races).toBeCloseTo(1)
     expect(mixed.get('race-female-young')).toBeCloseTo(0.7 * 0.5)
     expect(mixed.get('universal-male-old-minmuscle-maxweight')).toBeCloseTo(0.3 * 0.5 * 0.5 * 1)
+  })
+
+  it('shapes breasts and nipples with the MakeHuman targets, only when asked', () => {
+    // As modelled: no breast or nipple shapes at all.
+    expect([...targetWeights({ ...AVERAGE_BODY, gender: 0 }).keys()].some((k) => k.startsWith('breast-'))).toBe(false)
+    const w = targetWeights({ ...AVERAGE_BODY, gender: 0, breastSize: 1, breastFirmness: 0.25, nippleSize: 0.25, nipplePoint: 1 })
+    // Female, young, average muscle and weight, max cup, between min and average firmness.
+    expect(w.get('breast-female-young-averagemuscle-averageweight-maxcup-minfirmness')).toBeCloseTo(0.5)
+    expect(w.get('breast-female-young-averagemuscle-averageweight-maxcup-averagefirmness')).toBeCloseTo(0.5)
+    expect(w.get('breast-nipple-size-decr')).toBeCloseTo(0.5)
+    expect(w.get('breast-nipple-point-incr')).toBeCloseTo(1)
+    // Every breast shape the sliders ask for exists in the data.
+    for (const k of w.keys()) if (k.startsWith('breast-')) expect(body.targets.has(k), k).toBe(true)
+    // A male body barely gets any.
+    const male = targetWeights({ ...AVERAGE_BODY, gender: 1, breastSize: 1 })
+    expect([...male.keys()].some((k) => k.startsWith('breast-female'))).toBe(false)
   })
 
   it('maps years to the age slider and back', () => {

@@ -36,7 +36,6 @@ export interface BodyJson {
   sections: Record<string, Section>
   targets: TargetInfo[]
   cubes: Record<string, number[]>
-  modestyRegion?: number[]
   bones: BoneDef[]
 }
 
@@ -55,8 +54,6 @@ export interface BodyData {
   skinWeight: Uint8Array
   targets: Map<string, Target>
   cubes: Record<string, number[]>
-  /** Vertices smoothed flat for modesty. */
-  modestyRegion: number[]
   /** Parents before children. */
   bones: BoneDef[]
 }
@@ -81,7 +78,6 @@ export function parseBody(json: BodyJson, bin: ArrayBuffer): BodyData {
     skinWeight: section('skinWeight', 'Uint8Array'),
     targets,
     cubes: json.cubes,
-    modestyRegion: json.modestyRegion ?? [],
     bones: json.bones
   }
 }
@@ -98,9 +94,26 @@ export interface BodySliders {
   muscle: number
   /** 0 thin … 0.5 average … 1 heavy */
   weight: number
+  /** MakeHuman's breast size: 0 small … 0.5 average … 1 large (shapes a female body; little on a male one). */
+  breastSize: number
+  /** MakeHuman's breast firmness: 0 soft … 0.5 average … 1 firm. */
+  breastFirmness: number
+  /** Nipple size: 0 smaller … 0.5 as modelled … 1 bigger. */
+  nippleSize: number
+  /** How much the nipples stand out: 0 flatter … 0.5 as modelled … 1 more. */
+  nipplePoint: number
 }
 
-export const AVERAGE_BODY: BodySliders = { gender: 0.5, age: 0.5, muscle: 0.5, weight: 0.5 }
+export const AVERAGE_BODY: BodySliders = {
+  gender: 0.5,
+  age: 0.5,
+  muscle: 0.5,
+  weight: 0.5,
+  breastSize: 0.5,
+  breastFirmness: 0.5,
+  nippleSize: 0.5,
+  nipplePoint: 0.5
+}
 
 const clamp01 = (v: number) => (Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 0.5)
 
@@ -155,7 +168,41 @@ export function targetWeights(s: BodySliders): Map<string, number> {
     [0.5, 'averageweight'],
     [1, 'maxweight']
   ])
+  const cup = between(s.breastSize ?? 0.5, [
+    [0, 'mincup'],
+    [0.5, 'averagecup'],
+    [1, 'maxcup']
+  ])
+  const firmness = between(s.breastFirmness ?? 0.5, [
+    [0, 'minfirmness'],
+    [0.5, 'averagefirmness'],
+    [1, 'maxfirmness']
+  ])
   const out = new Map<string, number>()
+  // Breasts, the way MakeHuman blends them: female × age × muscle × weight × cup × firmness
+  // (there are no baby shapes, and average cup with average firmness is the body as it is).
+  for (const [a, aw] of Object.entries(age)) {
+    if (a === 'baby' || gender.female * aw === 0) continue
+    for (const [m, mw] of Object.entries(muscle)) {
+      for (const [w, ww] of Object.entries(weight)) {
+        for (const [c, cw] of Object.entries(cup)) {
+          for (const [f, fw] of Object.entries(firmness)) {
+            const v = gender.female * aw * mw * ww * cw * fw
+            if (v > 0 && !(c === 'averagecup' && f === 'averagefirmness')) out.set(`breast-female-${a}-${m}-${w}-${c}-${f}`, v)
+          }
+        }
+      }
+    }
+  }
+  // Nipples: MakeHuman's size and point adjustments, either way from as modelled (0.5).
+  for (const [key, target] of [
+    ['nippleSize', 'nipple-size'],
+    ['nipplePoint', 'nipple-point']
+  ] as const) {
+    const v = clamp01(s[key] ?? 0.5) - 0.5
+    if (v > 0) out.set(`breast-${target}-incr`, v * 2)
+    else if (v < 0) out.set(`breast-${target}-decr`, -v * 2)
+  }
   for (const [g, gw] of Object.entries(gender)) {
     for (const [a, aw] of Object.entries(age)) {
       if (gw * aw === 0) continue
@@ -212,115 +259,11 @@ export function boneRest(body: BodyData, positions: Float32Array): Map<string, {
   return new Map(body.bones.map((b) => [b.name, { head: bonePoint(body, positions, b.head), tail: bonePoint(body, positions, b.tail) }]))
 }
 
-// ---------- Modesty ----------
-
-const neighbours = new WeakMap<BodyData, Map<number, number[]>>()
-
-/** Which vertices share an edge with each vertex of the visible body (worked out once). */
-function adjacency(body: BodyData): Map<number, number[]> {
-  let map = neighbours.get(body)
-  if (!map) {
-    const sets = new Map<number, Set<number>>()
-    const link = (a: number, b: number) => {
-      let s = sets.get(a)
-      if (!s) sets.set(a, (s = new Set()))
-      s.add(b)
-    }
-    const idx = body.bodyIndices
-    for (let t = 0; t < idx.length; t += 3) {
-      for (const [a, b] of [
-        [idx[t], idx[t + 1]],
-        [idx[t + 1], idx[t + 2]],
-        [idx[t + 2], idx[t]]
-      ]) {
-        link(a, b)
-        link(b, a)
-      }
-    }
-    map = new Map([...sets].map(([v, s]) => [v, [...s]]))
-    neighbours.set(body, map)
-  }
-  return map
-}
-
-/**
- * Smooth an area by moving each vertex toward the average of its neighbours, a few times.
- * `strength` (0-1 per vertex, default 1) fades the effect toward the edge so no crease forms.
- */
-export function smoothRegion(body: BodyData, positions: Float32Array, region: number[], iterations = 6, strength?: Map<number, number>): void {
-  const adj = adjacency(body)
-  for (let it = 0; it < iterations; it++) {
-    const next: [number, number, number, number][] = []
-    for (const v of region) {
-      const n = adj.get(v)
-      if (!n?.length) continue
-      let x = 0
-      let y = 0
-      let z = 0
-      for (const u of n) {
-        x += positions[u * 3]
-        y += positions[u * 3 + 1]
-        z += positions[u * 3 + 2]
-      }
-      const k = strength?.get(v) ?? 1
-      next.push([
-        v,
-        positions[v * 3] + (x / n.length - positions[v * 3]) * k,
-        positions[v * 3 + 1] + (y / n.length - positions[v * 3 + 1]) * k,
-        positions[v * 3 + 2] + (z / n.length - positions[v * 3 + 2]) * k
-      ])
-    }
-    for (const [v, x, y, z] of next) {
-      positions[v * 3] = x
-      positions[v * 3 + 1] = y
-      positions[v * 3 + 2] = z
-    }
-  }
-}
-
-const modestyAreas = new WeakMap<BodyData, Map<number, number>>()
-
-/**
- * The nipple area plus four rings of neighbours, each vertex with how strongly it's smoothed:
- * fully in the middle, fading out over the rings so the breast stays round with no edge.
- */
-function modestyArea(body: BodyData): Map<number, number> {
-  let area = modestyAreas.get(body)
-  if (!area) {
-    const adj = adjacency(body)
-    const FADE = [1, 0.85, 0.6, 0.35, 0.15]
-    area = new Map(body.modestyRegion.map((v) => [v, FADE[0]]))
-    let ring = [...area.keys()]
-    for (let r = 1; r < FADE.length; r++) {
-      const next: number[] = []
-      for (const v of ring) {
-        for (const u of adj.get(v) ?? []) {
-          if (!area.has(u)) {
-            area.set(u, FADE[r])
-            next.push(u)
-          }
-        }
-      }
-      ring = next
-    }
-    modestyAreas.set(body, area)
-  }
-  return area
-}
-
-/** The body for these sliders (and facial expression), with modesty applied (no nipples): decimetres. */
+/** The body for these sliders (and facial expression): decimetres. */
 export function bodyPositions(body: BodyData, sliders: BodySliders, expression = 'neutral'): Float32Array {
   const weights = targetWeights(sliders)
   for (const [unit, w] of Object.entries(EXPRESSIONS[expression]?.units ?? {})) weights.set(`expression-${unit}`, w)
-  weights.set('modesty-nipple-size-decr', 1)
-  weights.set('modesty-nipple-point-decr', 1)
-  weights.set('modesty-breast-point-decr', 0.6)
-  const positions = morph(body, weights)
-  if (body.modestyRegion.length) {
-    const area = modestyArea(body)
-    smoothRegion(body, positions, [...area.keys()], 30, area)
-  }
-  return positions
+  return morph(body, weights)
 }
 
 // ---------- Fitting the posing skeleton ----------
@@ -406,7 +349,16 @@ export function sanitizeBody(raw: unknown, fallback: Partial<BodySliders> = {}):
     const v = r[k] ?? fallback[k]
     return typeof v === 'number' && Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : AVERAGE_BODY[k]
   }
-  return { gender: pick('gender'), age: pick('age'), muscle: pick('muscle'), weight: pick('weight') }
+  return {
+    gender: pick('gender'),
+    age: pick('age'),
+    muscle: pick('muscle'),
+    weight: pick('weight'),
+    breastSize: pick('breastSize'),
+    breastFirmness: pick('breastFirmness'),
+    nippleSize: pick('nippleSize'),
+    nipplePoint: pick('nipplePoint')
+  }
 }
 
 // ---------- Proxies: eyes, eyebrows, hair, clothes ----------

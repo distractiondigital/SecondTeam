@@ -215,17 +215,6 @@ export default function Toolbar({ boardOnly = false }: { boardOnly?: boolean }) 
             </div>
           </Group>
 
-          <Group label="Input">
-            <div className="segmented" title="Mouse: middle-drag orbits, scroll zooms. Trackpad: two-finger swipe orbits, Shift + swipe pans, pinch zooms. Alt + drag orbits (Alt + Shift pans) with either.">
-              <button className={navMode === 'mouse' ? 'active' : ''} onClick={() => ui().setNavMode('mouse')} title="Mouse: middle-drag orbits, scroll zooms">
-                <Mouse size={14} strokeWidth={1.75} />
-              </button>
-              <button className={navMode === 'trackpad' ? 'active' : ''} onClick={() => ui().setNavMode('trackpad')} title="Trackpad: two-finger swipe orbits, Shift + swipe pans, pinch zooms">
-                <Touchpad size={14} strokeWidth={1.75} />
-              </button>
-            </div>
-          </Group>
-
           <Group label="Units">
             <div className="segmented">
               <button className={units === 'm' ? 'active' : ''} onClick={() => ui().setUnits('m')}>
@@ -235,6 +224,18 @@ export default function Toolbar({ boardOnly = false }: { boardOnly?: boolean }) 
                 ft
               </button>
             </div>
+            {/* Mouse or trackpad navigation (one button: click to switch). */}
+            <button
+              className="tool-button narrow-icon"
+              onClick={() => ui().setNavMode(navMode === 'mouse' ? 'trackpad' : 'mouse')}
+              title={
+                navMode === 'mouse'
+                  ? 'Mouse controls: middle-drag orbits, scroll zooms. Click for trackpad controls (two-finger swipe orbits, Shift + swipe pans, pinch zooms).'
+                  : 'Trackpad controls: two-finger swipe orbits, Shift + swipe pans, pinch zooms. Click for mouse controls.'
+              }
+            >
+              {navMode === 'mouse' ? <Mouse size={15} strokeWidth={1.75} /> : <Touchpad size={15} strokeWidth={1.75} />}
+            </button>
           </Group>
         </>
       )}

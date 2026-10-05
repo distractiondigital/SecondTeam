@@ -236,6 +236,13 @@ function BodySection({ node, disabled }: { node: MannequinNode; disabled: boolea
       {slider('age', 'Age', 'Baby', 'Old', `${Math.round(ageYears(node.body.age))} years`)}
       {slider('muscle', 'Muscle', 'Soft', 'Muscular')}
       {slider('weight', 'Weight', 'Thin', 'Heavy')}
+      <details className="body-more">
+        <summary title="MakeHuman's own breast and nipple shapes (the middle of each slider is the body as modelled)">Chest</summary>
+        {slider('breastSize', 'Breast size', 'Small', 'Large')}
+        {slider('breastFirmness', 'Breast firmness', 'Soft', 'Firm')}
+        {slider('nippleSize', 'Nipple size', 'Smaller', 'Bigger')}
+        {slider('nipplePoint', 'Nipples', 'Flatter', 'Pointed')}
+      </details>
     </>
   )
 }
