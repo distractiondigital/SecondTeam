@@ -98,6 +98,8 @@ export interface MannequinNode extends NodeBase {
   description: string
   /** Keep joints inside realistic ranges. */
   limits: boolean
+  /** Look: realistic human (MakeHuman body) or the art mannequin. (M10, in progress) */
+  style?: 'mannequin' | 'human'
   pose: Pose
 }
 

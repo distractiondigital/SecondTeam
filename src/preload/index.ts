@@ -35,6 +35,8 @@ const api: SecondTeamApi = {
   restartBackend: () => ipcRenderer.invoke('backend:restart'),
   openBackendLog: () => ipcRenderer.invoke('backend:openLog'),
 
+  readFigureFile: (name) => ipcRenderer.invoke('figures:read', name),
+
   setupInfo: () => ipcRenderer.invoke('setup:info'),
   onSetupInfo: (callback) => {
     const listener = (_e: unknown, info: SetupInfo) => callback(info)

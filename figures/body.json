@@ -1,0 +1,3406 @@
+{
+ "source": "MakeHuman base mesh, targets, game-engine rig and weights (CC0), via MPFB 2.0.17 data",
+ "units": "decimetres, Y up, facing +Z",
+ "vertexCount": 19158,
+ "sections": {
+  "positions": {
+   "offset": 0,
+   "length": 57474,
+   "type": "Float32Array"
+  },
+  "bodyIndices": {
+   "offset": 229896,
+   "length": 80268,
+   "type": "Uint16Array"
+  },
+  "skinIndex": {
+   "offset": 390432,
+   "length": 76632,
+   "type": "Uint8Array"
+  },
+  "skinWeight": {
+   "offset": 467064,
+   "length": 76632,
+   "type": "Uint8Array"
+  },
+  "t:race-female-baby:i": {
+   "offset": 543696,
+   "length": 19150,
+   "type": "Uint16Array"
+  },
+  "t:race-female-baby:d": {
+   "offset": 581996,
+   "length": 57450,
+   "type": "Int16Array"
+  },
+  "t:universal-female-baby-minmuscle-minweight:i": {
+   "offset": 696896,
+   "length": 11168,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-baby-minmuscle-minweight:d": {
+   "offset": 719232,
+   "length": 33504,
+   "type": "Int16Array"
+  },
+  "t:universal-female-baby-minmuscle-averageweight:i": {
+   "offset": 786240,
+   "length": 2363,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-baby-minmuscle-averageweight:d": {
+   "offset": 790968,
+   "length": 7089,
+   "type": "Int16Array"
+  },
+  "t:universal-female-baby-minmuscle-maxweight:i": {
+   "offset": 805148,
+   "length": 6329,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-baby-minmuscle-maxweight:d": {
+   "offset": 817808,
+   "length": 18987,
+   "type": "Int16Array"
+  },
+  "t:universal-female-baby-averagemuscle-minweight:i": {
+   "offset": 855784,
+   "length": 5262,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-baby-averagemuscle-minweight:d": {
+   "offset": 866308,
+   "length": 15786,
+   "type": "Int16Array"
+  },
+  "t:universal-female-baby-averagemuscle-maxweight:i": {
+   "offset": 897880,
+   "length": 4202,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-baby-averagemuscle-maxweight:d": {
+   "offset": 906284,
+   "length": 12606,
+   "type": "Int16Array"
+  },
+  "t:universal-female-baby-maxmuscle-minweight:i": {
+   "offset": 931496,
+   "length": 5529,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-baby-maxmuscle-minweight:d": {
+   "offset": 942556,
+   "length": 16587,
+   "type": "Int16Array"
+  },
+  "t:universal-female-baby-maxmuscle-averageweight:i": {
+   "offset": 975732,
+   "length": 5474,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-baby-maxmuscle-averageweight:d": {
+   "offset": 986680,
+   "length": 16422,
+   "type": "Int16Array"
+  },
+  "t:universal-female-baby-maxmuscle-maxweight:i": {
+   "offset": 1019524,
+   "length": 5491,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-baby-maxmuscle-maxweight:d": {
+   "offset": 1030508,
+   "length": 16473,
+   "type": "Int16Array"
+  },
+  "t:race-female-child:i": {
+   "offset": 1063456,
+   "length": 19158,
+   "type": "Uint16Array"
+  },
+  "t:race-female-child:d": {
+   "offset": 1101772,
+   "length": 57474,
+   "type": "Int16Array"
+  },
+  "t:universal-female-child-minmuscle-minweight:i": {
+   "offset": 1216720,
+   "length": 11692,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-child-minmuscle-minweight:d": {
+   "offset": 1240104,
+   "length": 35076,
+   "type": "Int16Array"
+  },
+  "t:universal-female-child-minmuscle-averageweight:i": {
+   "offset": 1310256,
+   "length": 12780,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-child-minmuscle-averageweight:d": {
+   "offset": 1335816,
+   "length": 38340,
+   "type": "Int16Array"
+  },
+  "t:universal-female-child-minmuscle-maxweight:i": {
+   "offset": 1412496,
+   "length": 13454,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-child-minmuscle-maxweight:d": {
+   "offset": 1439404,
+   "length": 40362,
+   "type": "Int16Array"
+  },
+  "t:universal-female-child-averagemuscle-minweight:i": {
+   "offset": 1520128,
+   "length": 6725,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-child-averagemuscle-minweight:d": {
+   "offset": 1533580,
+   "length": 20175,
+   "type": "Int16Array"
+  },
+  "t:universal-female-child-averagemuscle-maxweight:i": {
+   "offset": 1573932,
+   "length": 6330,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-child-averagemuscle-maxweight:d": {
+   "offset": 1586592,
+   "length": 18990,
+   "type": "Int16Array"
+  },
+  "t:universal-female-child-maxmuscle-minweight:i": {
+   "offset": 1624572,
+   "length": 6609,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-child-maxmuscle-minweight:d": {
+   "offset": 1637792,
+   "length": 19827,
+   "type": "Int16Array"
+  },
+  "t:universal-female-child-maxmuscle-averageweight:i": {
+   "offset": 1677448,
+   "length": 6723,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-child-maxmuscle-averageweight:d": {
+   "offset": 1690896,
+   "length": 20169,
+   "type": "Int16Array"
+  },
+  "t:universal-female-child-maxmuscle-maxweight:i": {
+   "offset": 1731236,
+   "length": 6483,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-child-maxmuscle-maxweight:d": {
+   "offset": 1744204,
+   "length": 19449,
+   "type": "Int16Array"
+  },
+  "t:race-female-young:i": {
+   "offset": 1783104,
+   "length": 19158,
+   "type": "Uint16Array"
+  },
+  "t:race-female-young:d": {
+   "offset": 1821420,
+   "length": 57474,
+   "type": "Int16Array"
+  },
+  "t:universal-female-young-minmuscle-minweight:i": {
+   "offset": 1936368,
+   "length": 18910,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-young-minmuscle-minweight:d": {
+   "offset": 1974188,
+   "length": 56730,
+   "type": "Int16Array"
+  },
+  "t:universal-female-young-minmuscle-averageweight:i": {
+   "offset": 2087648,
+   "length": 5152,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-young-minmuscle-averageweight:d": {
+   "offset": 2097952,
+   "length": 15456,
+   "type": "Int16Array"
+  },
+  "t:universal-female-young-minmuscle-maxweight:i": {
+   "offset": 2128864,
+   "length": 9798,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-young-minmuscle-maxweight:d": {
+   "offset": 2148460,
+   "length": 29394,
+   "type": "Int16Array"
+  },
+  "t:universal-female-young-averagemuscle-minweight:i": {
+   "offset": 2207248,
+   "length": 6968,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-young-averagemuscle-minweight:d": {
+   "offset": 2221184,
+   "length": 20904,
+   "type": "Int16Array"
+  },
+  "t:universal-female-young-averagemuscle-maxweight:i": {
+   "offset": 2262992,
+   "length": 6025,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-young-averagemuscle-maxweight:d": {
+   "offset": 2275044,
+   "length": 18075,
+   "type": "Int16Array"
+  },
+  "t:universal-female-young-maxmuscle-minweight:i": {
+   "offset": 2311196,
+   "length": 7016,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-young-maxmuscle-minweight:d": {
+   "offset": 2325228,
+   "length": 21048,
+   "type": "Int16Array"
+  },
+  "t:universal-female-young-maxmuscle-averageweight:i": {
+   "offset": 2367324,
+   "length": 6544,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-young-maxmuscle-averageweight:d": {
+   "offset": 2380412,
+   "length": 19632,
+   "type": "Int16Array"
+  },
+  "t:universal-female-young-maxmuscle-maxweight:i": {
+   "offset": 2419676,
+   "length": 7747,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-young-maxmuscle-maxweight:d": {
+   "offset": 2435172,
+   "length": 23241,
+   "type": "Int16Array"
+  },
+  "t:race-female-old:i": {
+   "offset": 2481656,
+   "length": 19158,
+   "type": "Uint16Array"
+  },
+  "t:race-female-old:d": {
+   "offset": 2519972,
+   "length": 57474,
+   "type": "Int16Array"
+  },
+  "t:universal-female-old-minmuscle-minweight:i": {
+   "offset": 2634920,
+   "length": 12239,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-old-minmuscle-minweight:d": {
+   "offset": 2659400,
+   "length": 36717,
+   "type": "Int16Array"
+  },
+  "t:universal-female-old-minmuscle-averageweight:i": {
+   "offset": 2732836,
+   "length": 5258,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-old-minmuscle-averageweight:d": {
+   "offset": 2743352,
+   "length": 15774,
+   "type": "Int16Array"
+  },
+  "t:universal-female-old-minmuscle-maxweight:i": {
+   "offset": 2774900,
+   "length": 9526,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-old-minmuscle-maxweight:d": {
+   "offset": 2793952,
+   "length": 28578,
+   "type": "Int16Array"
+  },
+  "t:universal-female-old-averagemuscle-minweight:i": {
+   "offset": 2851108,
+   "length": 7001,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-old-averagemuscle-minweight:d": {
+   "offset": 2865112,
+   "length": 21003,
+   "type": "Int16Array"
+  },
+  "t:universal-female-old-averagemuscle-maxweight:i": {
+   "offset": 2907120,
+   "length": 7445,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-old-averagemuscle-maxweight:d": {
+   "offset": 2922012,
+   "length": 22335,
+   "type": "Int16Array"
+  },
+  "t:universal-female-old-maxmuscle-minweight:i": {
+   "offset": 2966684,
+   "length": 6964,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-old-maxmuscle-minweight:d": {
+   "offset": 2980612,
+   "length": 20892,
+   "type": "Int16Array"
+  },
+  "t:universal-female-old-maxmuscle-averageweight:i": {
+   "offset": 3022396,
+   "length": 6612,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-old-maxmuscle-averageweight:d": {
+   "offset": 3035620,
+   "length": 19836,
+   "type": "Int16Array"
+  },
+  "t:universal-female-old-maxmuscle-maxweight:i": {
+   "offset": 3075292,
+   "length": 7721,
+   "type": "Uint16Array"
+  },
+  "t:universal-female-old-maxmuscle-maxweight:d": {
+   "offset": 3090736,
+   "length": 23163,
+   "type": "Int16Array"
+  },
+  "t:race-male-baby:i": {
+   "offset": 3137064,
+   "length": 19150,
+   "type": "Uint16Array"
+  },
+  "t:race-male-baby:d": {
+   "offset": 3175364,
+   "length": 57450,
+   "type": "Int16Array"
+  },
+  "t:universal-male-baby-minmuscle-minweight:i": {
+   "offset": 3290264,
+   "length": 11168,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-baby-minmuscle-minweight:d": {
+   "offset": 3312600,
+   "length": 33504,
+   "type": "Int16Array"
+  },
+  "t:universal-male-baby-minmuscle-averageweight:i": {
+   "offset": 3379608,
+   "length": 2365,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-baby-minmuscle-averageweight:d": {
+   "offset": 3384340,
+   "length": 7095,
+   "type": "Int16Array"
+  },
+  "t:universal-male-baby-minmuscle-maxweight:i": {
+   "offset": 3398532,
+   "length": 6343,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-baby-minmuscle-maxweight:d": {
+   "offset": 3411220,
+   "length": 19029,
+   "type": "Int16Array"
+  },
+  "t:universal-male-baby-averagemuscle-minweight:i": {
+   "offset": 3449280,
+   "length": 5239,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-baby-averagemuscle-minweight:d": {
+   "offset": 3459760,
+   "length": 15717,
+   "type": "Int16Array"
+  },
+  "t:universal-male-baby-averagemuscle-maxweight:i": {
+   "offset": 3491196,
+   "length": 4215,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-baby-averagemuscle-maxweight:d": {
+   "offset": 3499628,
+   "length": 12645,
+   "type": "Int16Array"
+  },
+  "t:universal-male-baby-maxmuscle-minweight:i": {
+   "offset": 3524920,
+   "length": 5505,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-baby-maxmuscle-minweight:d": {
+   "offset": 3535932,
+   "length": 16515,
+   "type": "Int16Array"
+  },
+  "t:universal-male-baby-maxmuscle-averageweight:i": {
+   "offset": 3568964,
+   "length": 5450,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-baby-maxmuscle-averageweight:d": {
+   "offset": 3579864,
+   "length": 16350,
+   "type": "Int16Array"
+  },
+  "t:universal-male-baby-maxmuscle-maxweight:i": {
+   "offset": 3612564,
+   "length": 5469,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-baby-maxmuscle-maxweight:d": {
+   "offset": 3623504,
+   "length": 16407,
+   "type": "Int16Array"
+  },
+  "t:race-male-child:i": {
+   "offset": 3656320,
+   "length": 19158,
+   "type": "Uint16Array"
+  },
+  "t:race-male-child:d": {
+   "offset": 3694636,
+   "length": 57474,
+   "type": "Int16Array"
+  },
+  "t:universal-male-child-minmuscle-minweight:i": {
+   "offset": 3809584,
+   "length": 10071,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-child-minmuscle-minweight:d": {
+   "offset": 3829728,
+   "length": 30213,
+   "type": "Int16Array"
+  },
+  "t:universal-male-child-minmuscle-averageweight:i": {
+   "offset": 3890156,
+   "length": 7260,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-child-minmuscle-averageweight:d": {
+   "offset": 3904676,
+   "length": 21780,
+   "type": "Int16Array"
+  },
+  "t:universal-male-child-minmuscle-maxweight:i": {
+   "offset": 3948236,
+   "length": 11039,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-child-minmuscle-maxweight:d": {
+   "offset": 3970316,
+   "length": 33117,
+   "type": "Int16Array"
+  },
+  "t:universal-male-child-averagemuscle-minweight:i": {
+   "offset": 4036552,
+   "length": 7152,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-child-averagemuscle-minweight:d": {
+   "offset": 4050856,
+   "length": 21456,
+   "type": "Int16Array"
+  },
+  "t:universal-male-child-averagemuscle-maxweight:i": {
+   "offset": 4093768,
+   "length": 7191,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-child-averagemuscle-maxweight:d": {
+   "offset": 4108152,
+   "length": 21573,
+   "type": "Int16Array"
+  },
+  "t:universal-male-child-maxmuscle-minweight:i": {
+   "offset": 4151300,
+   "length": 7177,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-child-maxmuscle-minweight:d": {
+   "offset": 4165656,
+   "length": 21531,
+   "type": "Int16Array"
+  },
+  "t:universal-male-child-maxmuscle-averageweight:i": {
+   "offset": 4208720,
+   "length": 7819,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-child-maxmuscle-averageweight:d": {
+   "offset": 4224360,
+   "length": 23457,
+   "type": "Int16Array"
+  },
+  "t:universal-male-child-maxmuscle-maxweight:i": {
+   "offset": 4271276,
+   "length": 8103,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-child-maxmuscle-maxweight:d": {
+   "offset": 4287484,
+   "length": 24309,
+   "type": "Int16Array"
+  },
+  "t:race-male-young:i": {
+   "offset": 4336104,
+   "length": 19150,
+   "type": "Uint16Array"
+  },
+  "t:race-male-young:d": {
+   "offset": 4374404,
+   "length": 57450,
+   "type": "Int16Array"
+  },
+  "t:universal-male-young-minmuscle-minweight:i": {
+   "offset": 4489304,
+   "length": 8600,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-young-minmuscle-minweight:d": {
+   "offset": 4506504,
+   "length": 25800,
+   "type": "Int16Array"
+  },
+  "t:universal-male-young-minmuscle-averageweight:i": {
+   "offset": 4558104,
+   "length": 7321,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-young-minmuscle-averageweight:d": {
+   "offset": 4572748,
+   "length": 21963,
+   "type": "Int16Array"
+  },
+  "t:universal-male-young-minmuscle-maxweight:i": {
+   "offset": 4616676,
+   "length": 11115,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-young-minmuscle-maxweight:d": {
+   "offset": 4638908,
+   "length": 33345,
+   "type": "Int16Array"
+  },
+  "t:universal-male-young-averagemuscle-minweight:i": {
+   "offset": 4705600,
+   "length": 6993,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-young-averagemuscle-minweight:d": {
+   "offset": 4719588,
+   "length": 20979,
+   "type": "Int16Array"
+  },
+  "t:universal-male-young-averagemuscle-maxweight:i": {
+   "offset": 4761548,
+   "length": 7350,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-young-averagemuscle-maxweight:d": {
+   "offset": 4776248,
+   "length": 22050,
+   "type": "Int16Array"
+  },
+  "t:universal-male-young-maxmuscle-minweight:i": {
+   "offset": 4820348,
+   "length": 7027,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-young-maxmuscle-minweight:d": {
+   "offset": 4834404,
+   "length": 21081,
+   "type": "Int16Array"
+  },
+  "t:universal-male-young-maxmuscle-averageweight:i": {
+   "offset": 4876568,
+   "length": 6825,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-young-maxmuscle-averageweight:d": {
+   "offset": 4890220,
+   "length": 20475,
+   "type": "Int16Array"
+  },
+  "t:universal-male-young-maxmuscle-maxweight:i": {
+   "offset": 4931172,
+   "length": 8239,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-young-maxmuscle-maxweight:d": {
+   "offset": 4947652,
+   "length": 24717,
+   "type": "Int16Array"
+  },
+  "t:race-male-old:i": {
+   "offset": 4997088,
+   "length": 19158,
+   "type": "Uint16Array"
+  },
+  "t:race-male-old:d": {
+   "offset": 5035404,
+   "length": 57474,
+   "type": "Int16Array"
+  },
+  "t:universal-male-old-minmuscle-minweight:i": {
+   "offset": 5150352,
+   "length": 8596,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-old-minmuscle-minweight:d": {
+   "offset": 5167544,
+   "length": 25788,
+   "type": "Int16Array"
+  },
+  "t:universal-male-old-minmuscle-averageweight:i": {
+   "offset": 5219120,
+   "length": 7267,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-old-minmuscle-averageweight:d": {
+   "offset": 5233656,
+   "length": 21801,
+   "type": "Int16Array"
+  },
+  "t:universal-male-old-minmuscle-maxweight:i": {
+   "offset": 5277260,
+   "length": 11115,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-old-minmuscle-maxweight:d": {
+   "offset": 5299492,
+   "length": 33345,
+   "type": "Int16Array"
+  },
+  "t:universal-male-old-averagemuscle-minweight:i": {
+   "offset": 5366184,
+   "length": 7060,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-old-averagemuscle-minweight:d": {
+   "offset": 5380304,
+   "length": 21180,
+   "type": "Int16Array"
+  },
+  "t:universal-male-old-averagemuscle-maxweight:i": {
+   "offset": 5422664,
+   "length": 7297,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-old-averagemuscle-maxweight:d": {
+   "offset": 5437260,
+   "length": 21891,
+   "type": "Int16Array"
+  },
+  "t:universal-male-old-maxmuscle-minweight:i": {
+   "offset": 5481044,
+   "length": 7005,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-old-maxmuscle-minweight:d": {
+   "offset": 5495056,
+   "length": 21015,
+   "type": "Int16Array"
+  },
+  "t:universal-male-old-maxmuscle-averageweight:i": {
+   "offset": 5537088,
+   "length": 6947,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-old-maxmuscle-averageweight:d": {
+   "offset": 5550984,
+   "length": 20841,
+   "type": "Int16Array"
+  },
+  "t:universal-male-old-maxmuscle-maxweight:i": {
+   "offset": 5592668,
+   "length": 8241,
+   "type": "Uint16Array"
+  },
+  "t:universal-male-old-maxmuscle-maxweight:d": {
+   "offset": 5609152,
+   "length": 24723,
+   "type": "Int16Array"
+  },
+  "t:expression-eye-left-closure:i": {
+   "offset": 5658600,
+   "length": 186,
+   "type": "Uint16Array"
+  },
+  "t:expression-eye-left-closure:d": {
+   "offset": 5658972,
+   "length": 558,
+   "type": "Int16Array"
+  },
+  "t:expression-eye-left-opened-up:i": {
+   "offset": 5660088,
+   "length": 192,
+   "type": "Uint16Array"
+  },
+  "t:expression-eye-left-opened-up:d": {
+   "offset": 5660472,
+   "length": 576,
+   "type": "Int16Array"
+  },
+  "t:expression-eye-left-slit:i": {
+   "offset": 5661624,
+   "length": 279,
+   "type": "Uint16Array"
+  },
+  "t:expression-eye-left-slit:d": {
+   "offset": 5662184,
+   "length": 837,
+   "type": "Int16Array"
+  },
+  "t:expression-eye-right-closure:i": {
+   "offset": 5663860,
+   "length": 186,
+   "type": "Uint16Array"
+  },
+  "t:expression-eye-right-closure:d": {
+   "offset": 5664232,
+   "length": 558,
+   "type": "Int16Array"
+  },
+  "t:expression-eye-right-opened-up:i": {
+   "offset": 5665348,
+   "length": 192,
+   "type": "Uint16Array"
+  },
+  "t:expression-eye-right-opened-up:d": {
+   "offset": 5665732,
+   "length": 576,
+   "type": "Int16Array"
+  },
+  "t:expression-eye-right-slit:i": {
+   "offset": 5666884,
+   "length": 279,
+   "type": "Uint16Array"
+  },
+  "t:expression-eye-right-slit:d": {
+   "offset": 5667444,
+   "length": 837,
+   "type": "Int16Array"
+  },
+  "t:expression-eyebrows-left-down:i": {
+   "offset": 5669120,
+   "length": 54,
+   "type": "Uint16Array"
+  },
+  "t:expression-eyebrows-left-down:d": {
+   "offset": 5669228,
+   "length": 162,
+   "type": "Int16Array"
+  },
+  "t:expression-eyebrows-left-extern-up:i": {
+   "offset": 5669552,
+   "length": 72,
+   "type": "Uint16Array"
+  },
+  "t:expression-eyebrows-left-extern-up:d": {
+   "offset": 5669696,
+   "length": 216,
+   "type": "Int16Array"
+  },
+  "t:expression-eyebrows-left-inner-up:i": {
+   "offset": 5670128,
+   "length": 40,
+   "type": "Uint16Array"
+  },
+  "t:expression-eyebrows-left-inner-up:d": {
+   "offset": 5670208,
+   "length": 120,
+   "type": "Int16Array"
+  },
+  "t:expression-eyebrows-left-up:i": {
+   "offset": 5670448,
+   "length": 52,
+   "type": "Uint16Array"
+  },
+  "t:expression-eyebrows-left-up:d": {
+   "offset": 5670552,
+   "length": 156,
+   "type": "Int16Array"
+  },
+  "t:expression-eyebrows-right-down:i": {
+   "offset": 5670864,
+   "length": 54,
+   "type": "Uint16Array"
+  },
+  "t:expression-eyebrows-right-down:d": {
+   "offset": 5670972,
+   "length": 162,
+   "type": "Int16Array"
+  },
+  "t:expression-eyebrows-right-extern-up:i": {
+   "offset": 5671296,
+   "length": 79,
+   "type": "Uint16Array"
+  },
+  "t:expression-eyebrows-right-extern-up:d": {
+   "offset": 5671456,
+   "length": 237,
+   "type": "Int16Array"
+  },
+  "t:expression-eyebrows-right-inner-up:i": {
+   "offset": 5671932,
+   "length": 40,
+   "type": "Uint16Array"
+  },
+  "t:expression-eyebrows-right-inner-up:d": {
+   "offset": 5672012,
+   "length": 120,
+   "type": "Int16Array"
+  },
+  "t:expression-eyebrows-right-up:i": {
+   "offset": 5672252,
+   "length": 54,
+   "type": "Uint16Array"
+  },
+  "t:expression-eyebrows-right-up:d": {
+   "offset": 5672360,
+   "length": 162,
+   "type": "Int16Array"
+  },
+  "t:expression-mouth-compression:i": {
+   "offset": 5672684,
+   "length": 665,
+   "type": "Uint16Array"
+  },
+  "t:expression-mouth-compression:d": {
+   "offset": 5674016,
+   "length": 1995,
+   "type": "Int16Array"
+  },
+  "t:expression-mouth-corner-puller:i": {
+   "offset": 5678008,
+   "length": 710,
+   "type": "Uint16Array"
+  },
+  "t:expression-mouth-corner-puller:d": {
+   "offset": 5679428,
+   "length": 2130,
+   "type": "Int16Array"
+  },
+  "t:expression-mouth-depression-retraction:i": {
+   "offset": 5683688,
+   "length": 555,
+   "type": "Uint16Array"
+  },
+  "t:expression-mouth-depression-retraction:d": {
+   "offset": 5684800,
+   "length": 1665,
+   "type": "Int16Array"
+  },
+  "t:expression-mouth-depression:i": {
+   "offset": 5688132,
+   "length": 596,
+   "type": "Uint16Array"
+  },
+  "t:expression-mouth-depression:d": {
+   "offset": 5689324,
+   "length": 1788,
+   "type": "Int16Array"
+  },
+  "t:expression-mouth-elevation:i": {
+   "offset": 5692900,
+   "length": 633,
+   "type": "Uint16Array"
+  },
+  "t:expression-mouth-elevation:d": {
+   "offset": 5694168,
+   "length": 1899,
+   "type": "Int16Array"
+  },
+  "t:expression-mouth-eversion:i": {
+   "offset": 5697968,
+   "length": 385,
+   "type": "Uint16Array"
+  },
+  "t:expression-mouth-eversion:d": {
+   "offset": 5698740,
+   "length": 1155,
+   "type": "Int16Array"
+  },
+  "t:expression-mouth-open:i": {
+   "offset": 5701052,
+   "length": 1350,
+   "type": "Uint16Array"
+  },
+  "t:expression-mouth-open:d": {
+   "offset": 5703752,
+   "length": 4050,
+   "type": "Int16Array"
+  },
+  "t:expression-mouth-parling:i": {
+   "offset": 5711852,
+   "length": 219,
+   "type": "Uint16Array"
+  },
+  "t:expression-mouth-parling:d": {
+   "offset": 5712292,
+   "length": 657,
+   "type": "Int16Array"
+  },
+  "t:expression-mouth-part-later:i": {
+   "offset": 5713608,
+   "length": 928,
+   "type": "Uint16Array"
+  },
+  "t:expression-mouth-part-later:d": {
+   "offset": 5715464,
+   "length": 2784,
+   "type": "Int16Array"
+  },
+  "t:expression-mouth-protusion:i": {
+   "offset": 5721032,
+   "length": 689,
+   "type": "Uint16Array"
+  },
+  "t:expression-mouth-protusion:d": {
+   "offset": 5722412,
+   "length": 2067,
+   "type": "Int16Array"
+  },
+  "t:expression-mouth-pursing:i": {
+   "offset": 5726548,
+   "length": 864,
+   "type": "Uint16Array"
+  },
+  "t:expression-mouth-pursing:d": {
+   "offset": 5728276,
+   "length": 2592,
+   "type": "Int16Array"
+  },
+  "t:expression-mouth-retraction:i": {
+   "offset": 5733460,
+   "length": 612,
+   "type": "Uint16Array"
+  },
+  "t:expression-mouth-retraction:d": {
+   "offset": 5734684,
+   "length": 1836,
+   "type": "Int16Array"
+  },
+  "t:expression-mouth-upward-retraction:i": {
+   "offset": 5738356,
+   "length": 737,
+   "type": "Uint16Array"
+  },
+  "t:expression-mouth-upward-retraction:d": {
+   "offset": 5739832,
+   "length": 2211,
+   "type": "Int16Array"
+  },
+  "t:expression-neck-platysma:i": {
+   "offset": 5744256,
+   "length": 797,
+   "type": "Uint16Array"
+  },
+  "t:expression-neck-platysma:d": {
+   "offset": 5745852,
+   "length": 2391,
+   "type": "Int16Array"
+  },
+  "t:expression-nose-compression:i": {
+   "offset": 5750636,
+   "length": 50,
+   "type": "Uint16Array"
+  },
+  "t:expression-nose-compression:d": {
+   "offset": 5750736,
+   "length": 150,
+   "type": "Int16Array"
+  },
+  "t:expression-nose-depression:i": {
+   "offset": 5751036,
+   "length": 269,
+   "type": "Uint16Array"
+  },
+  "t:expression-nose-depression:d": {
+   "offset": 5751576,
+   "length": 807,
+   "type": "Int16Array"
+  },
+  "t:expression-nose-left-dilatation:i": {
+   "offset": 5753192,
+   "length": 78,
+   "type": "Uint16Array"
+  },
+  "t:expression-nose-left-dilatation:d": {
+   "offset": 5753348,
+   "length": 234,
+   "type": "Int16Array"
+  },
+  "t:expression-nose-left-elevation:i": {
+   "offset": 5753816,
+   "length": 180,
+   "type": "Uint16Array"
+  },
+  "t:expression-nose-left-elevation:d": {
+   "offset": 5754176,
+   "length": 540,
+   "type": "Int16Array"
+  },
+  "t:expression-nose-right-dilatation:i": {
+   "offset": 5755256,
+   "length": 78,
+   "type": "Uint16Array"
+  },
+  "t:expression-nose-right-dilatation:d": {
+   "offset": 5755412,
+   "length": 234,
+   "type": "Int16Array"
+  },
+  "t:expression-nose-right-elevation:i": {
+   "offset": 5755880,
+   "length": 180,
+   "type": "Uint16Array"
+  },
+  "t:expression-nose-right-elevation:d": {
+   "offset": 5756240,
+   "length": 540,
+   "type": "Int16Array"
+  }
+ },
+ "targets": [
+  {
+   "name": "race-female-baby",
+   "count": 19150,
+   "scale": 0.00032563249610889004
+  },
+  {
+   "name": "universal-female-baby-minmuscle-minweight",
+   "count": 11168,
+   "scale": 0.000012970366527298807
+  },
+  {
+   "name": "universal-female-baby-minmuscle-averageweight",
+   "count": 2363,
+   "scale": 0.0000017700735496078373
+  },
+  {
+   "name": "universal-female-baby-minmuscle-maxweight",
+   "count": 6329,
+   "scale": 0.000006530961027863399
+  },
+  {
+   "name": "universal-female-baby-averagemuscle-minweight",
+   "count": 5262,
+   "scale": 0.0000059511093478194525
+  },
+  {
+   "name": "universal-female-baby-averagemuscle-maxweight",
+   "count": 4202,
+   "scale": 0.0000020752586443678094
+  },
+  {
+   "name": "universal-female-baby-maxmuscle-minweight",
+   "count": 5529,
+   "scale": 0.000004608294930875576
+  },
+  {
+   "name": "universal-female-baby-maxmuscle-averageweight",
+   "count": 5474,
+   "scale": 0.0000037537766655476546
+  },
+  {
+   "name": "universal-female-baby-maxmuscle-maxweight",
+   "count": 5491,
+   "scale": 0.000003021332438123722
+  },
+  {
+   "name": "race-female-child",
+   "count": 19158,
+   "scale": 0.0001272214931689403
+  },
+  {
+   "name": "universal-female-child-minmuscle-minweight",
+   "count": 11692,
+   "scale": 0.000013214514603106785
+  },
+  {
+   "name": "universal-female-child-minmuscle-averageweight",
+   "count": 12780,
+   "scale": 0.000005249183629871517
+  },
+  {
+   "name": "universal-female-child-minmuscle-maxweight",
+   "count": 13454,
+   "scale": 0.000023438215277565846
+  },
+  {
+   "name": "universal-female-child-averagemuscle-minweight",
+   "count": 6725,
+   "scale": 0.00000402844325083163
+  },
+  {
+   "name": "universal-female-child-averagemuscle-maxweight",
+   "count": 6330,
+   "scale": 0.0000057985168004394665
+  },
+  {
+   "name": "universal-female-child-maxmuscle-minweight",
+   "count": 6609,
+   "scale": 0.000004974517044587543
+  },
+  {
+   "name": "universal-female-child-maxmuscle-averageweight",
+   "count": 6723,
+   "scale": 0.00000848414563432722
+  },
+  {
+   "name": "universal-female-child-maxmuscle-maxweight",
+   "count": 6483,
+   "scale": 0.000004974517044587543
+  },
+  {
+   "name": "race-female-young",
+   "count": 19158,
+   "scale": 0.000031902015238909066
+  },
+  {
+   "name": "universal-female-young-minmuscle-minweight",
+   "count": 18910,
+   "scale": 0.000019775994140446183
+  },
+  {
+   "name": "universal-female-young-minmuscle-averageweight",
+   "count": 5152,
+   "scale": 0.00001022370067445906
+  },
+  {
+   "name": "universal-female-young-minmuscle-maxweight",
+   "count": 9798,
+   "scale": 0.000028565324869533373
+  },
+  {
+   "name": "universal-female-young-averagemuscle-minweight",
+   "count": 6968,
+   "scale": 0.000008728293710135196
+  },
+  {
+   "name": "universal-female-young-averagemuscle-maxweight",
+   "count": 6025,
+   "scale": 0.000006683553575243385
+  },
+  {
+   "name": "universal-female-young-maxmuscle-minweight",
+   "count": 7016,
+   "scale": 0.000009643848994415113
+  },
+  {
+   "name": "universal-female-young-maxmuscle-averageweight",
+   "count": 6544,
+   "scale": 0.000008087405011139256
+  },
+  {
+   "name": "universal-female-young-maxmuscle-maxweight",
+   "count": 7747,
+   "scale": 0.000021576586199530013
+  },
+  {
+   "name": "race-female-old",
+   "count": 19158,
+   "scale": 0.000030966114281645157
+  },
+  {
+   "name": "universal-female-old-minmuscle-minweight",
+   "count": 12239,
+   "scale": 0.000016388439588610494
+  },
+  {
+   "name": "universal-female-old-minmuscle-averageweight",
+   "count": 5258,
+   "scale": 0.00001022370067445906
+  },
+  {
+   "name": "universal-female-old-minmuscle-maxweight",
+   "count": 9526,
+   "scale": 0.00003738517410809656
+  },
+  {
+   "name": "universal-female-old-averagemuscle-minweight",
+   "count": 7001,
+   "scale": 0.000010834070863979003
+  },
+  {
+   "name": "universal-female-old-averagemuscle-maxweight",
+   "count": 7445,
+   "scale": 0.000006561479537339396
+  },
+  {
+   "name": "universal-female-old-maxmuscle-minweight",
+   "count": 6964,
+   "scale": 0.000011658070619830927
+  },
+  {
+   "name": "universal-female-old-maxmuscle-averageweight",
+   "count": 6612,
+   "scale": 0.000008362071596423232
+  },
+  {
+   "name": "universal-female-old-maxmuscle-maxweight",
+   "count": 7721,
+   "scale": 0.000021576586199530013
+  },
+  {
+   "name": "race-male-baby",
+   "count": 19150,
+   "scale": 0.00032563249610889004
+  },
+  {
+   "name": "universal-male-baby-minmuscle-minweight",
+   "count": 11168,
+   "scale": 0.000012970366527298807
+  },
+  {
+   "name": "universal-male-baby-minmuscle-averageweight",
+   "count": 2365,
+   "scale": 0.0000017700735496078373
+  },
+  {
+   "name": "universal-male-baby-minmuscle-maxweight",
+   "count": 6343,
+   "scale": 0.000006530961027863399
+  },
+  {
+   "name": "universal-male-baby-averagemuscle-minweight",
+   "count": 5239,
+   "scale": 0.0000059511093478194525
+  },
+  {
+   "name": "universal-male-baby-averagemuscle-maxweight",
+   "count": 4215,
+   "scale": 0.0000020752586443678094
+  },
+  {
+   "name": "universal-male-baby-maxmuscle-minweight",
+   "count": 5505,
+   "scale": 0.000004608294930875576
+  },
+  {
+   "name": "universal-male-baby-maxmuscle-averageweight",
+   "count": 5450,
+   "scale": 0.0000037537766655476546
+  },
+  {
+   "name": "universal-male-baby-maxmuscle-maxweight",
+   "count": 5469,
+   "scale": 0.000003021332438123722
+  },
+  {
+   "name": "race-male-child",
+   "count": 19158,
+   "scale": 0.00009491256447035127
+  },
+  {
+   "name": "universal-male-child-minmuscle-minweight",
+   "count": 10071,
+   "scale": 0.00001281777397991882
+  },
+  {
+   "name": "universal-male-child-minmuscle-averageweight",
+   "count": 7260,
+   "scale": 0.000006530961027863399
+  },
+  {
+   "name": "universal-male-child-minmuscle-maxweight",
+   "count": 11039,
+   "scale": 0.000023987548448133794
+  },
+  {
+   "name": "universal-male-child-averagemuscle-minweight",
+   "count": 7152,
+   "scale": 0.000003906369212927641
+  },
+  {
+   "name": "universal-male-child-averagemuscle-maxweight",
+   "count": 7191,
+   "scale": 0.0000030518509475997192
+  },
+  {
+   "name": "universal-male-child-maxmuscle-minweight",
+   "count": 7177,
+   "scale": 0.000004943998535111546
+  },
+  {
+   "name": "universal-male-child-maxmuscle-averageweight",
+   "count": 7819,
+   "scale": 0.000004821924497207557
+  },
+  {
+   "name": "universal-male-child-maxmuscle-maxweight",
+   "count": 8103,
+   "scale": 0.000006805627613147374
+  },
+  {
+   "name": "race-male-young",
+   "count": 19150,
+   "scale": 0.0000369884334849086
+  },
+  {
+   "name": "universal-male-young-minmuscle-minweight",
+   "count": 8600,
+   "scale": 0.00002023377178258614
+  },
+  {
+   "name": "universal-male-young-minmuscle-averageweight",
+   "count": 7321,
+   "scale": 0.000013214514603106785
+  },
+  {
+   "name": "universal-male-young-minmuscle-maxweight",
+   "count": 11115,
+   "scale": 0.00003530991546372875
+  },
+  {
+   "name": "universal-male-young-averagemuscle-minweight",
+   "count": 6993,
+   "scale": 0.00000738547929319132
+  },
+  {
+   "name": "universal-male-young-averagemuscle-maxweight",
+   "count": 7350,
+   "scale": 0.00000793481246375927
+  },
+  {
+   "name": "universal-male-young-maxmuscle-minweight",
+   "count": 7027,
+   "scale": 0.000012573625904110843
+  },
+  {
+   "name": "universal-male-young-maxmuscle-averageweight",
+   "count": 6825,
+   "scale": 0.000012695699942014831
+  },
+  {
+   "name": "universal-male-young-maxmuscle-maxweight",
+   "count": 8239,
+   "scale": 0.000025696584978789634
+  },
+  {
+   "name": "race-male-old",
+   "count": 19158,
+   "scale": 0.00003328552100182094
+  },
+  {
+   "name": "universal-male-old-minmuscle-minweight",
+   "count": 8596,
+   "scale": 0.000021332438123722037
+  },
+  {
+   "name": "universal-male-old-minmuscle-averageweight",
+   "count": 7267,
+   "scale": 0.000006530961027863399
+  },
+  {
+   "name": "universal-male-old-minmuscle-maxweight",
+   "count": 11115,
+   "scale": 0.00003445539719840083
+  },
+  {
+   "name": "universal-male-old-averagemuscle-minweight",
+   "count": 7060,
+   "scale": 0.00000738547929319132
+  },
+  {
+   "name": "universal-male-old-averagemuscle-maxweight",
+   "count": 7297,
+   "scale": 0.000006042664876247444
+  },
+  {
+   "name": "universal-male-old-maxmuscle-minweight",
+   "count": 7005,
+   "scale": 0.00001379436628315073
+  },
+  {
+   "name": "universal-male-old-maxmuscle-averageweight",
+   "count": 6947,
+   "scale": 0.00001281777397991882
+  },
+  {
+   "name": "universal-male-old-maxmuscle-maxweight",
+   "count": 8241,
+   "scale": 0.000020935697500534075
+  },
+  {
+   "name": "expression-eye-left-closure",
+   "count": 186,
+   "scale": 0.000004852443006683554
+  },
+  {
+   "name": "expression-eye-left-opened-up",
+   "count": 192,
+   "scale": 0.0000010071108127079075
+  },
+  {
+   "name": "expression-eye-left-slit",
+   "count": 279,
+   "scale": 0.000001770073549607837
+  },
+  {
+   "name": "expression-eye-right-closure",
+   "count": 186,
+   "scale": 0.000004852443006683554
+  },
+  {
+   "name": "expression-eye-right-opened-up",
+   "count": 192,
+   "scale": 0.0000010071108127079075
+  },
+  {
+   "name": "expression-eye-right-slit",
+   "count": 279,
+   "scale": 0.0000012003947060558896
+  },
+  {
+   "name": "expression-eyebrows-left-down",
+   "count": 54,
+   "scale": 0.0000019531846064638205
+  },
+  {
+   "name": "expression-eyebrows-left-extern-up",
+   "count": 72,
+   "scale": 0.0000023092338836837873
+  },
+  {
+   "name": "expression-eyebrows-left-inner-up",
+   "count": 40,
+   "scale": 0.0000015259254737998598
+  },
+  {
+   "name": "expression-eyebrows-left-up",
+   "count": 52,
+   "scale": 0.0000015259254737998598
+  },
+  {
+   "name": "expression-eyebrows-right-down",
+   "count": 54,
+   "scale": 0.0000019531846064638205
+  },
+  {
+   "name": "expression-eyebrows-right-extern-up",
+   "count": 79,
+   "scale": 0.0000023092338836837873
+  },
+  {
+   "name": "expression-eyebrows-right-inner-up",
+   "count": 40,
+   "scale": 0.0000015259254737998598
+  },
+  {
+   "name": "expression-eyebrows-right-up",
+   "count": 54,
+   "scale": 0.0000015259254737998598
+  },
+  {
+   "name": "expression-mouth-compression",
+   "count": 665,
+   "scale": 0.0000022888882106997894
+  },
+  {
+   "name": "expression-mouth-corner-puller",
+   "count": 710,
+   "scale": 0.0000033468632058676924
+  },
+  {
+   "name": "expression-mouth-depression-retraction",
+   "count": 555,
+   "scale": 0.000003234962004455702
+  },
+  {
+   "name": "expression-mouth-depression",
+   "count": 596,
+   "scale": 0.000002176987009287799
+  },
+  {
+   "name": "expression-mouth-elevation",
+   "count": 633,
+   "scale": 0.0000024109622486037784
+  },
+  {
+   "name": "expression-mouth-eversion",
+   "count": 385,
+   "scale": 0.0000022787153742077903
+  },
+  {
+   "name": "expression-mouth-open",
+   "count": 1350,
+   "scale": 0.000010498367259743035
+  },
+  {
+   "name": "expression-mouth-parling",
+   "count": 219,
+   "scale": 0.0000010376293221839047
+  },
+  {
+   "name": "expression-mouth-part-later",
+   "count": 928,
+   "scale": 0.000003814813684499649
+  },
+  {
+   "name": "expression-mouth-protusion",
+   "count": 689,
+   "scale": 0.000004547257911923582
+  },
+  {
+   "name": "expression-mouth-pursing",
+   "count": 864,
+   "scale": 0.000004262418490147608
+  },
+  {
+   "name": "expression-mouth-retraction",
+   "count": 612,
+   "scale": 0.000002197332682271798
+  },
+  {
+   "name": "expression-mouth-upward-retraction",
+   "count": 737,
+   "scale": 0.0000031128879665517133
+  },
+  {
+   "name": "expression-neck-platysma",
+   "count": 797,
+   "scale": 0.0000021057771538438064
+  },
+  {
+   "name": "expression-nose-compression",
+   "count": 50,
+   "scale": 5.188146610919524e-7
+  },
+  {
+   "name": "expression-nose-depression",
+   "count": 269,
+   "scale": 0.000001251258888515885
+  },
+  {
+   "name": "expression-nose-left-dilatation",
+   "count": 78,
+   "scale": 3.9674062318796347e-7
+  },
+  {
+   "name": "expression-nose-left-elevation",
+   "count": 180,
+   "scale": 0.0000014954069643238626
+  },
+  {
+   "name": "expression-nose-right-dilatation",
+   "count": 78,
+   "scale": 3.9674062318796347e-7
+  },
+  {
+   "name": "expression-nose-right-elevation",
+   "count": 180,
+   "scale": 0.0000014954069643238626
+  }
+ ],
+ "cubes": {
+  "joint-l-eye": [
+   13606,
+   13607,
+   13608,
+   13609,
+   13610,
+   13611,
+   13612,
+   13613
+  ],
+  "joint-r-eye": [
+   13614,
+   13615,
+   13616,
+   13617,
+   13618,
+   13619,
+   13620,
+   13621
+  ],
+  "joint-pelvis": [
+   13622,
+   13623,
+   13624,
+   13625,
+   13626,
+   13627,
+   13628,
+   13629
+  ],
+  "joint-spine-4": [
+   13630,
+   13631,
+   13632,
+   13633,
+   13634,
+   13635,
+   13636,
+   13637
+  ],
+  "joint-spine-3": [
+   13638,
+   13639,
+   13640,
+   13641,
+   13642,
+   13643,
+   13644,
+   13645
+  ],
+  "joint-spine-2": [
+   13646,
+   13647,
+   13648,
+   13649,
+   13650,
+   13651,
+   13652,
+   13653
+  ],
+  "joint-spine-1": [
+   13654,
+   13655,
+   13656,
+   13657,
+   13658,
+   13659,
+   13660,
+   13661
+  ],
+  "joint-l-foot-2": [
+   13662,
+   13663,
+   13664,
+   13665,
+   13666,
+   13667,
+   13668,
+   13669
+  ],
+  "joint-l-foot-1": [
+   13670,
+   13671,
+   13672,
+   13673,
+   13674,
+   13675,
+   13676,
+   13677
+  ],
+  "joint-l-toe-5-3": [
+   13678,
+   13679,
+   13680,
+   13681,
+   13682,
+   13683,
+   13684,
+   13685
+  ],
+  "joint-l-toe-5-4": [
+   13686,
+   13687,
+   13688,
+   13689,
+   13690,
+   13691,
+   13692,
+   13693
+  ],
+  "joint-l-toe-4-3": [
+   13694,
+   13695,
+   13696,
+   13697,
+   13698,
+   13699,
+   13700,
+   13701
+  ],
+  "joint-l-toe-4-4": [
+   13702,
+   13703,
+   13704,
+   13705,
+   13706,
+   13707,
+   13708,
+   13709
+  ],
+  "joint-l-toe-3-3": [
+   13710,
+   13711,
+   13712,
+   13713,
+   13714,
+   13715,
+   13716,
+   13717
+  ],
+  "joint-l-toe-3-4": [
+   13718,
+   13719,
+   13720,
+   13721,
+   13722,
+   13723,
+   13724,
+   13725
+  ],
+  "joint-l-toe-2-4": [
+   13726,
+   13727,
+   13728,
+   13729,
+   13730,
+   13731,
+   13732,
+   13733
+  ],
+  "joint-l-toe-2-3": [
+   13734,
+   13735,
+   13736,
+   13737,
+   13738,
+   13739,
+   13740,
+   13741
+  ],
+  "joint-l-toe-2-2": [
+   13742,
+   13743,
+   13744,
+   13745,
+   13746,
+   13747,
+   13748,
+   13749
+  ],
+  "joint-l-toe-3-2": [
+   13750,
+   13751,
+   13752,
+   13753,
+   13754,
+   13755,
+   13756,
+   13757
+  ],
+  "joint-l-toe-4-2": [
+   13758,
+   13759,
+   13760,
+   13761,
+   13762,
+   13763,
+   13764,
+   13765
+  ],
+  "joint-l-toe-5-2": [
+   13766,
+   13767,
+   13768,
+   13769,
+   13770,
+   13771,
+   13772,
+   13773
+  ],
+  "joint-l-toe-5-1": [
+   13774,
+   13775,
+   13776,
+   13777,
+   13778,
+   13779,
+   13780,
+   13781
+  ],
+  "joint-l-toe-4-1": [
+   13782,
+   13783,
+   13784,
+   13785,
+   13786,
+   13787,
+   13788,
+   13789
+  ],
+  "joint-l-toe-3-1": [
+   13790,
+   13791,
+   13792,
+   13793,
+   13794,
+   13795,
+   13796,
+   13797
+  ],
+  "joint-l-toe-2-1": [
+   13798,
+   13799,
+   13800,
+   13801,
+   13802,
+   13803,
+   13804,
+   13805
+  ],
+  "joint-l-toe-1-3": [
+   13806,
+   13807,
+   13808,
+   13809,
+   13810,
+   13811,
+   13812,
+   13813
+  ],
+  "joint-l-toe-1-2": [
+   13814,
+   13815,
+   13816,
+   13817,
+   13818,
+   13819,
+   13820,
+   13821
+  ],
+  "joint-l-toe-1-1": [
+   13822,
+   13823,
+   13824,
+   13825,
+   13826,
+   13827,
+   13828,
+   13829
+  ],
+  "joint-l-ankle": [
+   13830,
+   13831,
+   13832,
+   13833,
+   13834,
+   13835,
+   13836,
+   13837
+  ],
+  "joint-l-knee": [
+   13838,
+   13839,
+   13840,
+   13841,
+   13842,
+   13843,
+   13844,
+   13845
+  ],
+  "joint-l-upper-leg": [
+   13846,
+   13847,
+   13848,
+   13849,
+   13850,
+   13851,
+   13852,
+   13853
+  ],
+  "joint-l-finger-2-4": [
+   13854,
+   13855,
+   13856,
+   13857,
+   13858,
+   13859,
+   13860,
+   13861
+  ],
+  "joint-l-finger-3-4": [
+   13862,
+   13863,
+   13864,
+   13865,
+   13866,
+   13867,
+   13868,
+   13869
+  ],
+  "joint-l-finger-4-4": [
+   13870,
+   13871,
+   13872,
+   13873,
+   13874,
+   13875,
+   13876,
+   13877
+  ],
+  "joint-l-finger-5-4": [
+   13878,
+   13879,
+   13880,
+   13881,
+   13882,
+   13883,
+   13884,
+   13885
+  ],
+  "joint-l-finger-5-3": [
+   13886,
+   13887,
+   13888,
+   13889,
+   13890,
+   13891,
+   13892,
+   13893
+  ],
+  "joint-l-finger-4-3": [
+   13894,
+   13895,
+   13896,
+   13897,
+   13898,
+   13899,
+   13900,
+   13901
+  ],
+  "joint-l-finger-3-3": [
+   13902,
+   13903,
+   13904,
+   13905,
+   13906,
+   13907,
+   13908,
+   13909
+  ],
+  "joint-l-finger-2-3": [
+   13910,
+   13911,
+   13912,
+   13913,
+   13914,
+   13915,
+   13916,
+   13917
+  ],
+  "joint-l-finger-2-2": [
+   13918,
+   13919,
+   13920,
+   13921,
+   13922,
+   13923,
+   13924,
+   13925
+  ],
+  "joint-l-finger-3-2": [
+   13926,
+   13927,
+   13928,
+   13929,
+   13930,
+   13931,
+   13932,
+   13933
+  ],
+  "joint-l-finger-4-2": [
+   13934,
+   13935,
+   13936,
+   13937,
+   13938,
+   13939,
+   13940,
+   13941
+  ],
+  "joint-l-finger-5-2": [
+   13942,
+   13943,
+   13944,
+   13945,
+   13946,
+   13947,
+   13948,
+   13949
+  ],
+  "joint-l-finger-5-1": [
+   13950,
+   13951,
+   13952,
+   13953,
+   13954,
+   13955,
+   13956,
+   13957
+  ],
+  "joint-l-finger-4-1": [
+   13958,
+   13959,
+   13960,
+   13961,
+   13962,
+   13963,
+   13964,
+   13965
+  ],
+  "joint-l-finger-3-1": [
+   13966,
+   13967,
+   13968,
+   13969,
+   13970,
+   13971,
+   13972,
+   13973
+  ],
+  "joint-l-finger-2-1": [
+   13974,
+   13975,
+   13976,
+   13977,
+   13978,
+   13979,
+   13980,
+   13981
+  ],
+  "joint-l-finger-1-4": [
+   13982,
+   13983,
+   13984,
+   13985,
+   13986,
+   13987,
+   13988,
+   13989
+  ],
+  "joint-l-finger-1-3": [
+   13990,
+   13991,
+   13992,
+   13993,
+   13994,
+   13995,
+   13996,
+   13997
+  ],
+  "joint-l-finger-1-2": [
+   13998,
+   13999,
+   14000,
+   14001,
+   14002,
+   14003,
+   14004,
+   14005
+  ],
+  "joint-l-finger-1-1": [
+   14006,
+   14007,
+   14008,
+   14009,
+   14010,
+   14011,
+   14012,
+   14013
+  ],
+  "joint-l-hand-3": [
+   14014,
+   14015,
+   14016,
+   14017,
+   14018,
+   14019,
+   14020,
+   14021
+  ],
+  "joint-l-hand-2": [
+   14022,
+   14023,
+   14024,
+   14025,
+   14026,
+   14027,
+   14028,
+   14029
+  ],
+  "joint-l-hand": [
+   14030,
+   14031,
+   14032,
+   14033,
+   14034,
+   14035,
+   14036,
+   14037
+  ],
+  "joint-l-elbow": [
+   14038,
+   14039,
+   14040,
+   14041,
+   14042,
+   14043,
+   14044,
+   14045
+  ],
+  "joint-l-shoulder": [
+   14046,
+   14047,
+   14048,
+   14049,
+   14050,
+   14051,
+   14052,
+   14053
+  ],
+  "joint-l-clavicle": [
+   14054,
+   14055,
+   14056,
+   14057,
+   14058,
+   14059,
+   14060,
+   14061
+  ],
+  "joint-l-scapula": [
+   14062,
+   14063,
+   14064,
+   14065,
+   14066,
+   14067,
+   14068,
+   14069
+  ],
+  "joint-head": [
+   14070,
+   14071,
+   14072,
+   14073,
+   14074,
+   14075,
+   14076,
+   14077
+  ],
+  "joint-l-lowerlid": [
+   14078,
+   14079,
+   14080,
+   14081,
+   14082,
+   14083,
+   14084,
+   14085
+  ],
+  "joint-l-eye-target": [
+   14086,
+   14087,
+   14088,
+   14089,
+   14090,
+   14091,
+   14092,
+   14093
+  ],
+  "joint-l-upperlid": [
+   14094,
+   14095,
+   14096,
+   14097,
+   14098,
+   14099,
+   14100,
+   14101
+  ],
+  "joint-r-foot-2": [
+   14102,
+   14103,
+   14104,
+   14105,
+   14106,
+   14107,
+   14108,
+   14109
+  ],
+  "joint-r-foot-1": [
+   14110,
+   14111,
+   14112,
+   14113,
+   14114,
+   14115,
+   14116,
+   14117
+  ],
+  "joint-r-toe-5-3": [
+   14118,
+   14119,
+   14120,
+   14121,
+   14122,
+   14123,
+   14124,
+   14125
+  ],
+  "joint-r-toe-5-4": [
+   14126,
+   14127,
+   14128,
+   14129,
+   14130,
+   14131,
+   14132,
+   14133
+  ],
+  "joint-r-toe-4-3": [
+   14134,
+   14135,
+   14136,
+   14137,
+   14138,
+   14139,
+   14140,
+   14141
+  ],
+  "joint-r-toe-4-4": [
+   14142,
+   14143,
+   14144,
+   14145,
+   14146,
+   14147,
+   14148,
+   14149
+  ],
+  "joint-r-toe-3-3": [
+   14150,
+   14151,
+   14152,
+   14153,
+   14154,
+   14155,
+   14156,
+   14157
+  ],
+  "joint-r-toe-3-4": [
+   14158,
+   14159,
+   14160,
+   14161,
+   14162,
+   14163,
+   14164,
+   14165
+  ],
+  "joint-r-toe-2-4": [
+   14166,
+   14167,
+   14168,
+   14169,
+   14170,
+   14171,
+   14172,
+   14173
+  ],
+  "joint-r-toe-2-3": [
+   14174,
+   14175,
+   14176,
+   14177,
+   14178,
+   14179,
+   14180,
+   14181
+  ],
+  "joint-r-toe-2-2": [
+   14182,
+   14183,
+   14184,
+   14185,
+   14186,
+   14187,
+   14188,
+   14189
+  ],
+  "joint-r-toe-3-2": [
+   14190,
+   14191,
+   14192,
+   14193,
+   14194,
+   14195,
+   14196,
+   14197
+  ],
+  "joint-r-toe-4-2": [
+   14198,
+   14199,
+   14200,
+   14201,
+   14202,
+   14203,
+   14204,
+   14205
+  ],
+  "joint-r-toe-5-2": [
+   14206,
+   14207,
+   14208,
+   14209,
+   14210,
+   14211,
+   14212,
+   14213
+  ],
+  "joint-r-toe-5-1": [
+   14214,
+   14215,
+   14216,
+   14217,
+   14218,
+   14219,
+   14220,
+   14221
+  ],
+  "joint-r-toe-4-1": [
+   14222,
+   14223,
+   14224,
+   14225,
+   14226,
+   14227,
+   14228,
+   14229
+  ],
+  "joint-r-toe-3-1": [
+   14230,
+   14231,
+   14232,
+   14233,
+   14234,
+   14235,
+   14236,
+   14237
+  ],
+  "joint-r-toe-2-1": [
+   14238,
+   14239,
+   14240,
+   14241,
+   14242,
+   14243,
+   14244,
+   14245
+  ],
+  "joint-r-toe-1-3": [
+   14246,
+   14247,
+   14248,
+   14249,
+   14250,
+   14251,
+   14252,
+   14253
+  ],
+  "joint-r-toe-1-2": [
+   14254,
+   14255,
+   14256,
+   14257,
+   14258,
+   14259,
+   14260,
+   14261
+  ],
+  "joint-r-toe-1-1": [
+   14262,
+   14263,
+   14264,
+   14265,
+   14266,
+   14267,
+   14268,
+   14269
+  ],
+  "joint-r-ankle": [
+   14270,
+   14271,
+   14272,
+   14273,
+   14274,
+   14275,
+   14276,
+   14277
+  ],
+  "joint-r-knee": [
+   14278,
+   14279,
+   14280,
+   14281,
+   14282,
+   14283,
+   14284,
+   14285
+  ],
+  "joint-r-upper-leg": [
+   14286,
+   14287,
+   14288,
+   14289,
+   14290,
+   14291,
+   14292,
+   14293
+  ],
+  "joint-r-finger-2-4": [
+   14294,
+   14295,
+   14296,
+   14297,
+   14298,
+   14299,
+   14300,
+   14301
+  ],
+  "joint-r-finger-3-4": [
+   14302,
+   14303,
+   14304,
+   14305,
+   14306,
+   14307,
+   14308,
+   14309
+  ],
+  "joint-r-finger-4-4": [
+   14310,
+   14311,
+   14312,
+   14313,
+   14314,
+   14315,
+   14316,
+   14317
+  ],
+  "joint-r-finger-5-4": [
+   14318,
+   14319,
+   14320,
+   14321,
+   14322,
+   14323,
+   14324,
+   14325
+  ],
+  "joint-r-finger-5-3": [
+   14326,
+   14327,
+   14328,
+   14329,
+   14330,
+   14331,
+   14332,
+   14333
+  ],
+  "joint-r-finger-4-3": [
+   14334,
+   14335,
+   14336,
+   14337,
+   14338,
+   14339,
+   14340,
+   14341
+  ],
+  "joint-r-finger-3-3": [
+   14342,
+   14343,
+   14344,
+   14345,
+   14346,
+   14347,
+   14348,
+   14349
+  ],
+  "joint-r-finger-2-3": [
+   14350,
+   14351,
+   14352,
+   14353,
+   14354,
+   14355,
+   14356,
+   14357
+  ],
+  "joint-r-finger-2-2": [
+   14358,
+   14359,
+   14360,
+   14361,
+   14362,
+   14363,
+   14364,
+   14365
+  ],
+  "joint-r-finger-3-2": [
+   14366,
+   14367,
+   14368,
+   14369,
+   14370,
+   14371,
+   14372,
+   14373
+  ],
+  "joint-r-finger-4-2": [
+   14374,
+   14375,
+   14376,
+   14377,
+   14378,
+   14379,
+   14380,
+   14381
+  ],
+  "joint-r-finger-5-2": [
+   14382,
+   14383,
+   14384,
+   14385,
+   14386,
+   14387,
+   14388,
+   14389
+  ],
+  "joint-r-finger-5-1": [
+   14390,
+   14391,
+   14392,
+   14393,
+   14394,
+   14395,
+   14396,
+   14397
+  ],
+  "joint-r-finger-4-1": [
+   14398,
+   14399,
+   14400,
+   14401,
+   14402,
+   14403,
+   14404,
+   14405
+  ],
+  "joint-r-finger-3-1": [
+   14406,
+   14407,
+   14408,
+   14409,
+   14410,
+   14411,
+   14412,
+   14413
+  ],
+  "joint-r-finger-2-1": [
+   14414,
+   14415,
+   14416,
+   14417,
+   14418,
+   14419,
+   14420,
+   14421
+  ],
+  "joint-r-finger-1-4": [
+   14422,
+   14423,
+   14424,
+   14425,
+   14426,
+   14427,
+   14428,
+   14429
+  ],
+  "joint-r-finger-1-3": [
+   14430,
+   14431,
+   14432,
+   14433,
+   14434,
+   14435,
+   14436,
+   14437
+  ],
+  "joint-r-finger-1-2": [
+   14438,
+   14439,
+   14440,
+   14441,
+   14442,
+   14443,
+   14444,
+   14445
+  ],
+  "joint-r-finger-1-1": [
+   14446,
+   14447,
+   14448,
+   14449,
+   14450,
+   14451,
+   14452,
+   14453
+  ],
+  "joint-r-hand-3": [
+   14454,
+   14455,
+   14456,
+   14457,
+   14458,
+   14459,
+   14460,
+   14461
+  ],
+  "joint-r-hand-2": [
+   14462,
+   14463,
+   14464,
+   14465,
+   14466,
+   14467,
+   14468,
+   14469
+  ],
+  "joint-r-hand": [
+   14470,
+   14471,
+   14472,
+   14473,
+   14474,
+   14475,
+   14476,
+   14477
+  ],
+  "joint-r-elbow": [
+   14478,
+   14479,
+   14480,
+   14481,
+   14482,
+   14483,
+   14484,
+   14485
+  ],
+  "joint-r-shoulder": [
+   14486,
+   14487,
+   14488,
+   14489,
+   14490,
+   14491,
+   14492,
+   14493
+  ],
+  "joint-r-clavicle": [
+   14494,
+   14495,
+   14496,
+   14497,
+   14498,
+   14499,
+   14500,
+   14501
+  ],
+  "joint-r-scapula": [
+   14502,
+   14503,
+   14504,
+   14505,
+   14506,
+   14507,
+   14508,
+   14509
+  ],
+  "joint-r-lowerlid": [
+   14510,
+   14511,
+   14512,
+   14513,
+   14514,
+   14515,
+   14516,
+   14517
+  ],
+  "joint-r-eye-target": [
+   14518,
+   14519,
+   14520,
+   14521,
+   14522,
+   14523,
+   14524,
+   14525
+  ],
+  "joint-r-upperlid": [
+   14526,
+   14527,
+   14528,
+   14529,
+   14530,
+   14531,
+   14532,
+   14533
+  ],
+  "joint-neck": [
+   14534,
+   14535,
+   14536,
+   14537,
+   14538,
+   14539,
+   14540,
+   14541
+  ],
+  "joint-jaw": [
+   14542,
+   14543,
+   14544,
+   14545,
+   14546,
+   14547,
+   14548,
+   14549
+  ],
+  "joint-tongue-4": [
+   14550,
+   14551,
+   14552,
+   14553,
+   14554,
+   14555,
+   14556,
+   14557
+  ],
+  "joint-tongue-3": [
+   14558,
+   14559,
+   14560,
+   14561,
+   14562,
+   14563,
+   14564,
+   14565
+  ],
+  "joint-head-2": [
+   14566,
+   14567,
+   14568,
+   14569,
+   14570,
+   14571,
+   14572,
+   14573
+  ],
+  "joint-tongue-2": [
+   14574,
+   14575,
+   14576,
+   14577,
+   14578,
+   14579,
+   14580,
+   14581
+  ],
+  "joint-tongue-1": [
+   14582,
+   14583,
+   14584,
+   14585,
+   14586,
+   14587,
+   14588,
+   14589
+  ],
+  "joint-mouth": [
+   14590,
+   14591,
+   14592,
+   14593,
+   14594,
+   14595,
+   14596,
+   14597
+  ],
+  "joint-ground": [
+   19150,
+   19151,
+   19152,
+   19153,
+   19154,
+   19155,
+   19156,
+   19157
+  ]
+ },
+ "bones": [
+  {
+   "name": "Root",
+   "parent": null,
+   "head": {
+    "cube": "joint-ground"
+   },
+   "tail": {
+    "verts": [
+     19152,
+     19155
+    ]
+   }
+  },
+  {
+   "name": "pelvis",
+   "parent": "Root",
+   "head": {
+    "cube": "joint-pelvis"
+   },
+   "tail": {
+    "cube": "joint-spine-4"
+   }
+  },
+  {
+   "name": "spine_01",
+   "parent": "pelvis",
+   "head": {
+    "cube": "joint-spine-4"
+   },
+   "tail": {
+    "cube": "joint-spine-3"
+   }
+  },
+  {
+   "name": "spine_02",
+   "parent": "spine_01",
+   "head": {
+    "cube": "joint-spine-3"
+   },
+   "tail": {
+    "cube": "joint-spine-2"
+   }
+  },
+  {
+   "name": "spine_03",
+   "parent": "spine_02",
+   "head": {
+    "cube": "joint-spine-2"
+   },
+   "tail": {
+    "cube": "joint-spine-1"
+   }
+  },
+  {
+   "name": "thigh_l",
+   "parent": "pelvis",
+   "head": {
+    "cube": "joint-l-upper-leg"
+   },
+   "tail": {
+    "cube": "joint-l-knee"
+   }
+  },
+  {
+   "name": "thigh_r",
+   "parent": "pelvis",
+   "head": {
+    "cube": "joint-r-upper-leg"
+   },
+   "tail": {
+    "cube": "joint-r-knee"
+   }
+  },
+  {
+   "name": "calf_l",
+   "parent": "thigh_l",
+   "head": {
+    "cube": "joint-l-knee"
+   },
+   "tail": {
+    "cube": "joint-l-ankle"
+   }
+  },
+  {
+   "name": "calf_r",
+   "parent": "thigh_r",
+   "head": {
+    "cube": "joint-r-knee"
+   },
+   "tail": {
+    "cube": "joint-r-ankle"
+   }
+  },
+  {
+   "name": "clavicle_l",
+   "parent": "spine_03",
+   "head": {
+    "cube": "joint-l-clavicle"
+   },
+   "tail": {
+    "cube": "joint-l-shoulder"
+   }
+  },
+  {
+   "name": "clavicle_r",
+   "parent": "spine_03",
+   "head": {
+    "cube": "joint-r-clavicle"
+   },
+   "tail": {
+    "cube": "joint-r-shoulder"
+   }
+  },
+  {
+   "name": "foot_l",
+   "parent": "calf_l",
+   "head": {
+    "cube": "joint-l-ankle"
+   },
+   "tail": {
+    "cube": "joint-l-foot-1"
+   }
+  },
+  {
+   "name": "foot_r",
+   "parent": "calf_r",
+   "head": {
+    "cube": "joint-r-ankle"
+   },
+   "tail": {
+    "cube": "joint-r-foot-1"
+   }
+  },
+  {
+   "name": "neck_01",
+   "parent": "spine_03",
+   "head": {
+    "cube": "joint-neck"
+   },
+   "tail": {
+    "cube": "joint-head"
+   }
+  },
+  {
+   "name": "upperarm_l",
+   "parent": "clavicle_l",
+   "head": {
+    "cube": "joint-l-shoulder"
+   },
+   "tail": {
+    "cube": "joint-l-elbow"
+   }
+  },
+  {
+   "name": "upperarm_r",
+   "parent": "clavicle_r",
+   "head": {
+    "cube": "joint-r-shoulder"
+   },
+   "tail": {
+    "cube": "joint-r-elbow"
+   }
+  },
+  {
+   "name": "ball_l",
+   "parent": "foot_l",
+   "head": {
+    "cube": "joint-l-foot-1"
+   },
+   "tail": {
+    "cube": "joint-l-toe-2-4"
+   }
+  },
+  {
+   "name": "ball_r",
+   "parent": "foot_r",
+   "head": {
+    "cube": "joint-r-foot-1"
+   },
+   "tail": {
+    "cube": "joint-r-toe-2-4"
+   }
+  },
+  {
+   "name": "head",
+   "parent": "neck_01",
+   "head": {
+    "cube": "joint-head"
+   },
+   "tail": {
+    "cube": "joint-head-2"
+   }
+  },
+  {
+   "name": "lowerarm_l",
+   "parent": "upperarm_l",
+   "head": {
+    "cube": "joint-l-elbow"
+   },
+   "tail": {
+    "cube": "joint-l-hand"
+   }
+  },
+  {
+   "name": "lowerarm_r",
+   "parent": "upperarm_r",
+   "head": {
+    "cube": "joint-r-elbow"
+   },
+   "tail": {
+    "cube": "joint-r-hand"
+   }
+  },
+  {
+   "name": "hand_l",
+   "parent": "lowerarm_l",
+   "head": {
+    "cube": "joint-l-hand"
+   },
+   "tail": {
+    "cube": "joint-l-hand-3"
+   }
+  },
+  {
+   "name": "hand_r",
+   "parent": "lowerarm_r",
+   "head": {
+    "cube": "joint-r-hand"
+   },
+   "tail": {
+    "cube": "joint-r-hand-3"
+   }
+  },
+  {
+   "name": "index_01_l",
+   "parent": "hand_l",
+   "head": {
+    "cube": "joint-l-finger-2-1"
+   },
+   "tail": {
+    "cube": "joint-l-finger-2-2"
+   }
+  },
+  {
+   "name": "index_01_r",
+   "parent": "hand_r",
+   "head": {
+    "cube": "joint-r-finger-2-1"
+   },
+   "tail": {
+    "cube": "joint-r-finger-2-2"
+   }
+  },
+  {
+   "name": "index_02_l",
+   "parent": "index_01_l",
+   "head": {
+    "cube": "joint-l-finger-2-2"
+   },
+   "tail": {
+    "cube": "joint-l-finger-2-3"
+   }
+  },
+  {
+   "name": "index_02_r",
+   "parent": "index_01_r",
+   "head": {
+    "cube": "joint-r-finger-2-2"
+   },
+   "tail": {
+    "cube": "joint-r-finger-2-3"
+   }
+  },
+  {
+   "name": "index_03_l",
+   "parent": "index_02_l",
+   "head": {
+    "cube": "joint-l-finger-2-3"
+   },
+   "tail": {
+    "cube": "joint-l-finger-2-4"
+   }
+  },
+  {
+   "name": "index_03_r",
+   "parent": "index_02_r",
+   "head": {
+    "cube": "joint-r-finger-2-3"
+   },
+   "tail": {
+    "cube": "joint-r-finger-2-4"
+   }
+  },
+  {
+   "name": "middle_01_l",
+   "parent": "hand_l",
+   "head": {
+    "cube": "joint-l-finger-3-1"
+   },
+   "tail": {
+    "cube": "joint-l-finger-3-2"
+   }
+  },
+  {
+   "name": "middle_01_r",
+   "parent": "hand_r",
+   "head": {
+    "cube": "joint-r-finger-3-1"
+   },
+   "tail": {
+    "cube": "joint-r-finger-3-2"
+   }
+  },
+  {
+   "name": "middle_02_l",
+   "parent": "middle_01_l",
+   "head": {
+    "cube": "joint-l-finger-3-2"
+   },
+   "tail": {
+    "cube": "joint-l-finger-3-3"
+   }
+  },
+  {
+   "name": "middle_02_r",
+   "parent": "middle_01_r",
+   "head": {
+    "cube": "joint-r-finger-3-2"
+   },
+   "tail": {
+    "cube": "joint-r-finger-3-3"
+   }
+  },
+  {
+   "name": "middle_03_l",
+   "parent": "middle_02_l",
+   "head": {
+    "cube": "joint-l-finger-3-3"
+   },
+   "tail": {
+    "cube": "joint-l-finger-3-4"
+   }
+  },
+  {
+   "name": "middle_03_r",
+   "parent": "middle_02_r",
+   "head": {
+    "cube": "joint-r-finger-3-3"
+   },
+   "tail": {
+    "cube": "joint-r-finger-3-4"
+   }
+  },
+  {
+   "name": "pinky_01_l",
+   "parent": "hand_l",
+   "head": {
+    "cube": "joint-l-finger-5-1"
+   },
+   "tail": {
+    "cube": "joint-l-finger-5-2"
+   }
+  },
+  {
+   "name": "pinky_01_r",
+   "parent": "hand_r",
+   "head": {
+    "cube": "joint-r-finger-5-1"
+   },
+   "tail": {
+    "cube": "joint-r-finger-5-2"
+   }
+  },
+  {
+   "name": "pinky_02_l",
+   "parent": "pinky_01_l",
+   "head": {
+    "cube": "joint-l-finger-5-2"
+   },
+   "tail": {
+    "cube": "joint-l-finger-5-3"
+   }
+  },
+  {
+   "name": "pinky_02_r",
+   "parent": "pinky_01_r",
+   "head": {
+    "cube": "joint-r-finger-5-2"
+   },
+   "tail": {
+    "cube": "joint-r-finger-5-3"
+   }
+  },
+  {
+   "name": "pinky_03_l",
+   "parent": "pinky_02_l",
+   "head": {
+    "cube": "joint-l-finger-5-3"
+   },
+   "tail": {
+    "cube": "joint-l-finger-5-4"
+   }
+  },
+  {
+   "name": "pinky_03_r",
+   "parent": "pinky_02_r",
+   "head": {
+    "cube": "joint-r-finger-5-3"
+   },
+   "tail": {
+    "cube": "joint-r-finger-5-4"
+   }
+  },
+  {
+   "name": "ring_01_l",
+   "parent": "hand_l",
+   "head": {
+    "cube": "joint-l-finger-4-1"
+   },
+   "tail": {
+    "cube": "joint-l-finger-4-2"
+   }
+  },
+  {
+   "name": "ring_01_r",
+   "parent": "hand_r",
+   "head": {
+    "cube": "joint-r-finger-4-1"
+   },
+   "tail": {
+    "cube": "joint-r-finger-4-2"
+   }
+  },
+  {
+   "name": "ring_02_l",
+   "parent": "ring_01_l",
+   "head": {
+    "cube": "joint-l-finger-4-2"
+   },
+   "tail": {
+    "cube": "joint-l-finger-4-3"
+   }
+  },
+  {
+   "name": "ring_02_r",
+   "parent": "ring_01_r",
+   "head": {
+    "cube": "joint-r-finger-4-2"
+   },
+   "tail": {
+    "cube": "joint-r-finger-4-3"
+   }
+  },
+  {
+   "name": "ring_03_l",
+   "parent": "ring_02_l",
+   "head": {
+    "cube": "joint-l-finger-4-3"
+   },
+   "tail": {
+    "cube": "joint-l-finger-4-4"
+   }
+  },
+  {
+   "name": "ring_03_r",
+   "parent": "ring_02_r",
+   "head": {
+    "cube": "joint-r-finger-4-3"
+   },
+   "tail": {
+    "cube": "joint-r-finger-4-4"
+   }
+  },
+  {
+   "name": "thumb_01_l",
+   "parent": "hand_l",
+   "head": {
+    "cube": "joint-l-finger-1-1"
+   },
+   "tail": {
+    "cube": "joint-l-finger-1-2"
+   }
+  },
+  {
+   "name": "thumb_01_r",
+   "parent": "hand_r",
+   "head": {
+    "cube": "joint-r-finger-1-1"
+   },
+   "tail": {
+    "cube": "joint-r-finger-1-2"
+   }
+  },
+  {
+   "name": "thumb_02_l",
+   "parent": "thumb_01_l",
+   "head": {
+    "cube": "joint-l-finger-1-2"
+   },
+   "tail": {
+    "cube": "joint-l-finger-1-3"
+   }
+  },
+  {
+   "name": "thumb_02_r",
+   "parent": "thumb_01_r",
+   "head": {
+    "cube": "joint-r-finger-1-2"
+   },
+   "tail": {
+    "cube": "joint-r-finger-1-3"
+   }
+  },
+  {
+   "name": "thumb_03_l",
+   "parent": "thumb_02_l",
+   "head": {
+    "cube": "joint-l-finger-1-3"
+   },
+   "tail": {
+    "cube": "joint-l-finger-1-4"
+   }
+  },
+  {
+   "name": "thumb_03_r",
+   "parent": "thumb_02_r",
+   "head": {
+    "cube": "joint-r-finger-1-3"
+   },
+   "tail": {
+    "cube": "joint-r-finger-1-4"
+   }
+  }
+ ]
+}

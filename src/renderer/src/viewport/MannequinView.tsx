@@ -61,9 +61,11 @@ interface Props {
   passive?: boolean
   /** Clay shading: matte grey, casts and receives shadows. */
   clay?: boolean
+  /** Invisible: only for clicking body parts and placing joints (a human body is drawn instead). */
+  ghost?: boolean
 }
 
-export default function MannequinView({ node, selected, clickable, passive = false, clay = false }: Props) {
+export default function MannequinView({ node, selected, clickable, passive = false, clay = false, ghost = false }: Props) {
   const { id, pose } = node
   const p = useMemo(() => proportions(node.height, node.build), [node.height, node.build])
   const g = useGeometries(p)
@@ -93,23 +95,24 @@ export default function MannequinView({ node, selected, clickable, passive = fal
       <mesh
         key={key}
         geometry={geometry}
-        castShadow={clay}
-        receiveShadow={clay}
+        castShadow={clay && !ghost}
+        receiveShadow={clay && !ghost}
         position={position}
         scale={scale}
-        userData={{ joint }}
+        userData={{ joint, helper: ghost }}
         raycast={clickable ? undefined : noRaycast}
         onClick={clickable ? (e) => onClick(e, joint) : undefined}
         onDoubleClick={clickable ? (e) => handleNodeDoubleClick(e, id) : undefined}
       >
         <meshStandardMaterial
+          visible={!ghost}
           color={ball ? ballColor : bodyColor}
           roughness={clay ? 0.92 : 0.7}
           metalness={0}
           emissive={highlighted || selected ? SELECTION_COLOR : '#000000'}
           emissiveIntensity={highlighted ? 0.55 : selected ? 0.1 : 0}
         />
-        {(selected || highlighted) && (
+        {!ghost && (selected || highlighted) && (
           <Outlines thickness={highlighted ? 3 : 2} color={SELECTION_COLOR} userData={{ helper: true }} />
         )}
       </mesh>

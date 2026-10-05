@@ -45,6 +45,9 @@ export interface SecondTeamApi {
   restartBackend: () => Promise<void>
   openBackendLog: () => Promise<{ ok: true } | { error: string }>
 
+  /** Human figure data files (body.json, body.bin). */
+  readFigureFile: (name: 'body.json' | 'body.bin') => Promise<Uint8Array>
+
   /** Setup wizard / engine settings. */
   setupInfo: () => Promise<SetupInfo>
   onSetupInfo: (callback: (info: SetupInfo) => void) => () => void

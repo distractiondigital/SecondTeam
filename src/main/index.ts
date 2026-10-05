@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { registerAssetIpc } from './assetFiles'
 import { registerBoardIpc } from './boardExport'
+import { registerFigureIpc } from './figureFiles'
 import { registerBackendIpc, stopBackend } from './backend/ipc'
 import { registerPassIpc } from './passFiles'
 import { registerPoseLibraryIpc } from './poseLibrary'
@@ -96,6 +97,7 @@ app.whenReady().then(() => {
   registerPassIpc()
   registerAssetIpc(() => mainWindow)
   registerBoardIpc()
+  registerFigureIpc()
   createWindow()
   // Start the AI engine (ComfyUI) in the background; the UI shows its status.
   registerBackendIpc(() => mainWindow)
