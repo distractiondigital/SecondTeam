@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { sceneLabel, type CastMember, type Prop, type SceneNode } from '../../../shared/project'
-import { useDocument } from '../state/documentStore'
+import { activeScene, useDocument } from '../state/documentStore'
 import { useUi, type LeftTab } from '../state/uiStore'
 import Outliner from './Outliner'
 import ReferenceImages from './ReferenceImages'
@@ -82,6 +82,12 @@ function EntityList({ kind }: { kind: 'cast' | 'prop' }) {
 
 function EntityRow({ kind, entry, selected }: { kind: 'cast' | 'prop'; entry: CastMember | Prop; selected: boolean }) {
   const links = useLinks(kind, entry.id)
+  // Has its own text in this scene or the shot being edited?
+  const tweaked = useDocument((s) => {
+    const scene = activeScene(s)
+    const shot = s.activeShotId ? scene.nodes[s.activeShotId] : undefined
+    return entry.id in scene.descriptions || (shot?.type === 'camera' && entry.id in shot.descriptions)
+  })
   return (
     <div
       className={`outliner-row entity-row${selected ? ' selected' : ''}`}
@@ -91,10 +97,81 @@ function EntityRow({ kind, entry, selected }: { kind: 'cast' | 'prop'; entry: Ca
       {'color' in entry && <i className="cast-dot" style={{ background: entry.color }} />}
       <span className="row-name">{entry.name}</span>
       <span className="entity-meta">
-        {[entry.images.length ? `${entry.images.length} ref` : '', links.length ? `${links.length} linked` : 'not linked']
+        {[tweaked ? 'changed here' : '', entry.images.length ? `${entry.images.length} ref` : '', links.length ? `${links.length} linked` : 'not linked']
           .filter(Boolean)
           .join(' · ')}
       </span>
+    </div>
+  )
+}
+
+type Scope = 'everywhere' | 'scene' | 'shot'
+
+/**
+ * The description, for everywhere, this scene or the shot being edited. A scene's or shot's box
+ * starts with the text it uses now, so you can add to it or rewrite it; what you type is used
+ * there instead (shot, then scene, then everywhere).
+ */
+function DescriptionSection({ kind, entry, onChange }: { kind: 'cast' | 'prop'; entry: CastMember | Prop; onChange: (text: string) => void }) {
+  const scene = useDocument((s) => activeScene(s))
+  const shot = useDocument((s) => {
+    const n = s.activeShotId ? activeScene(s).nodes[s.activeShotId] : undefined
+    return n?.type === 'camera' ? n : null
+  })
+  const [scope, setScope] = useState<Scope>('everywhere')
+  const effective: Scope = scope === 'shot' && !shot ? 'everywhere' : scope
+  const sceneText = scene.descriptions[entry.id]
+  const shotText = shot?.descriptions[entry.id]
+  // What this scope uses now, and what it would use without its own text.
+  const fallback = effective === 'shot' ? (sceneText ?? entry.description) : entry.description
+  const own = effective === 'shot' ? shotText : effective === 'scene' ? sceneText : undefined
+  const value = effective === 'everywhere' ? entry.description : (own ?? fallback)
+  const commit = (text: string) => {
+    if (effective === 'everywhere') {
+      if (text !== entry.description) onChange(text)
+      return
+    }
+    if (text === value) return
+    useDocument.getState().setDescriptionTweak(entry.id, effective, text === fallback ? null : text)
+  }
+  const tab = (key: Scope, label: string, changed: boolean, title: string) => (
+    <button key={key} className={effective === key ? 'active' : ''} onClick={() => setScope(key)} title={title}>
+      {label}
+      {changed && <i className="tweak-dot" />}
+    </button>
+  )
+  return (
+    <div className="prop-section">
+      <div className="prop-title" title="Used as this one's own prompt, applied only to its part of the frame. Describe how it looks, not who it is.">
+        Description
+      </div>
+      <div className="segmented description-scope">
+        {tab('everywhere', 'Everywhere', false, 'The usual description, for every scene and shot')}
+        {tab('scene', sceneLabel({ number: scene.number, name: '' }), sceneText !== undefined, "This scene's own text (e.g. soaking wet); used in all its shots")}
+        {shot && tab('shot', `Shot ${shot.shotNumber}`, shotText !== undefined, "This shot's own text; used instead of the scene's or the usual one")}
+      </div>
+      <textarea
+        key={entry.id + effective + value}
+        className="notes"
+        defaultValue={value}
+        placeholder={kind === 'cast' ? 'e.g. woman in her 20s, curly dark hair, olive raincoat' : 'e.g. battered brown leather briefcase'}
+        onBlur={(e) => commit(e.target.value)}
+      />
+      {effective !== 'everywhere' && (
+        <p className="hint small">
+          {own === undefined
+            ? `Starts as the ${effective === 'shot' && sceneText !== undefined ? "scene's" : 'usual'} text: add to it or rewrite it for ${effective === 'shot' ? 'this shot' : 'this scene'}.`
+            : `Used in ${effective === 'shot' ? 'this shot' : 'this scene'} instead.`}
+          {own !== undefined && (
+            <>
+              {' '}
+              <button className="link-button" onClick={() => useDocument.getState().setDescriptionTweak(entry.id, effective, null)}>
+                Back to the {effective === 'shot' && sceneText !== undefined ? "scene's" : 'usual'} text
+              </button>
+            </>
+          )}
+        </p>
+      )}
     </div>
   )
 }
@@ -121,18 +198,7 @@ export function EntityProperties({ kind, id }: { kind: 'cast' | 'prop'; id: stri
         <div className="prop-kind">{kind === 'cast' ? 'Cast member' : 'Prop'}</div>
       </div>
 
-      <div className="prop-section">
-        <div className="prop-title" title="Used as this one's own prompt, applied only to its part of the frame. Describe how it looks, not who it is.">
-          Description
-        </div>
-        <textarea
-          key={entry.id + entry.description}
-          className="notes"
-          defaultValue={entry.description}
-          placeholder={kind === 'cast' ? 'e.g. woman in her 20s, curly dark hair, olive raincoat' : 'e.g. battered brown leather briefcase'}
-          onBlur={(e) => e.target.value !== entry.description && update({ description: e.target.value })}
-        />
-      </div>
+      <DescriptionSection kind={kind} entry={entry} onChange={(description) => update({ description })} />
 
       <div className="prop-section">
         <div className="prop-title" title="Photos or drawings of how this should look. They guide only this one's part of the frame.">

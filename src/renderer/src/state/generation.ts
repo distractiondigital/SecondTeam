@@ -1,10 +1,10 @@
 import { create } from 'zustand'
 import { expressionPhrase } from '../../../shared/humanBody'
-import { buildPrompt, randomSeed, regionPrompt, takeSeeds } from '../../../shared/prompt'
+import { buildPrompt, materialWords, randomSeed, regionPrompt, takeSeeds } from '../../../shared/prompt'
 import type { IdEntry } from '../../../shared/passes'
-import type { SceneNode } from '../../../shared/project'
+import { descriptionFor, type SceneNode } from '../../../shared/project'
 import type { BackendStatus, GenerationEvent, InstalledModel, JobEntity, TakeInfo, TakeMeta } from '../../../shared/takes'
-import { activeScene, sceneForShot, useDocument } from './documentStore'
+import { activeScene, sceneForShot, sceneOfShot, useDocument } from './documentStore'
 import { renderAndSavePasses } from './passes'
 import { useUi } from './uiStore'
 
@@ -31,6 +31,14 @@ export interface OpenTake {
   takeId: string
   image: string | null
   meta: TakeMeta | null
+  /** A second take of the same shot, shown beside (or wiped against) this one. */
+  compare: CompareTake | null
+}
+
+export interface CompareTake {
+  takeId: string
+  image: string | null
+  meta: TakeMeta | null
 }
 
 interface GenerationState {
@@ -40,6 +48,8 @@ interface GenerationState {
   /** Takes per shot id, newest first. */
   takes: Record<string, TakeInfo[]>
   viewer: OpenTake | null
+  /** How two takes are compared: side by side, or one frame with a wipe divider. */
+  compareMode: 'side' | 'wipe'
   /** Last error from a Generate, shown in the take strip. */
   error: string | null
   /** A heads-up from the last Generate (e.g. references left out). */
@@ -52,6 +62,7 @@ export const useGeneration = create<GenerationState>()(() => ({
   job: null,
   takes: {},
   viewer: null,
+  compareMode: 'side',
   error: null,
   notice: null
 }))
@@ -246,19 +257,28 @@ function jobEntities(legend: IdEntry[], shotId: string, facings: Record<string, 
     return regionPrompt([text, expression].filter(Boolean).join(', '), figure ? (facings[figure] ?? null) : null, context)
   }
   const isFigure = (e: IdEntry) => e.nodeIds.some((id) => nodes[id]?.type === 'mannequin')
+  // This scene's / this shot's own text for a cast member or prop, if it has one.
+  const scene = sceneOfShot(state, shotId)
+  const text = (entity: { id: string; description: string }) => descriptionFor(entity, scene, shot?.type === 'camera' ? shot : null)
+  // What it's made of: "…, metal" (objects and props; figures have no material).
+  const withMaterial = (description: string, ids: string[]) => {
+    const words = [...new Set(ids.map((id) => materialWords(nodes, id)).filter(Boolean))].join(', ')
+    return [description.trim(), words].filter(Boolean).join(', ')
+  }
   const out: JobEntity[] = []
   for (const e of legend) {
     if (!e.pixels) continue // not in frame
     if (e.kind === 'cast') {
       const c = project.cast.find((x) => x.id === e.refId)
-      if (c) out.push({ name: c.name, kind: 'cast', ownerId: c.id, color: e.color, text: own(c.description, e), images: c.images, strength: c.strength, figure: isFigure(e) })
+      if (c) out.push({ name: c.name, kind: 'cast', ownerId: c.id, color: e.color, text: own(text(c), e), images: c.images, strength: c.strength, figure: isFigure(e) })
     } else if (e.kind === 'prop') {
       const p = project.props.find((x) => x.id === e.refId)
-      if (p) out.push({ name: p.name, kind: 'props', ownerId: p.id, color: e.color, text: own(p.description, e), images: p.images, strength: p.strength, figure: isFigure(e) })
+      if (p) out.push({ name: p.name, kind: 'props', ownerId: p.id, color: e.color, text: own(withMaterial(text(p), e.nodeIds), e), images: p.images, strength: p.strength, figure: isFigure(e) })
     } else {
       const n = nodes[e.refId]
-      const text = own(n && 'description' in n ? n.description : '', e)
-      if (text) out.push({ name: e.name, kind: 'object', ownerId: e.refId, color: e.color, text, images: [], strength: 0, figure: isFigure(e) })
+      const description = n && 'description' in n ? n.description : ''
+      const own_ = own(description.trim() ? withMaterial(description, [e.refId]) : '', e)
+      if (own_) out.push({ name: e.name, kind: 'object', ownerId: e.refId, color: e.color, text: own_, images: [], strength: 0, figure: isFigure(e) })
     }
   }
   return out
@@ -271,25 +291,60 @@ export async function cancelGeneration(): Promise<void> {
   await api().cancelGeneration()
 }
 
-/** Open a take in the viewer (loading its full image). */
-export async function openTake(shotId: string, takeId: string): Promise<void> {
+/** Open a take in the viewer (loading its full image). `keepCompare` keeps a second take beside it. */
+export async function openTake(shotId: string, takeId: string, keepCompare = false): Promise<void> {
   const folder = useUi.getState().projectPath
   if (!folder) return
-  useGeneration.setState({ viewer: { shotId, takeId, image: null, meta: null } })
+  const before = useGeneration.getState().viewer
+  const compare = keepCompare && before?.shotId === shotId ? before.compare : null
+  useGeneration.setState({ viewer: { shotId, takeId, image: null, meta: null, compare } })
   const r = await api().readTake(folder, useDocument.getState().sceneId, shotId, takeId)
-  if (useGeneration.getState().viewer?.takeId !== takeId) return
+  const now = useGeneration.getState().viewer
+  if (now?.takeId !== takeId) return
   if ('error' in r) useGeneration.setState({ viewer: null, error: r.error })
-  else useGeneration.setState({ viewer: { shotId, takeId, image: r.image, meta: r.meta } })
+  else useGeneration.setState({ viewer: { ...now, image: r.image, meta: r.meta } })
 }
 
-/** Flip to the next (older) or previous (newer) take in the viewer. */
-export function stepTake(direction: 1 | -1): void {
+/**
+ * Compare a take with the one open in the viewer (same shot), side by side or with a wipe. If the
+ * viewer isn't open on that shot, it just opens the take.
+ */
+export async function openCompare(shotId: string, takeId: string): Promise<void> {
+  const folder = useUi.getState().projectPath
+  const viewer = useGeneration.getState().viewer
+  if (!folder) return
+  if (!viewer || viewer.shotId !== shotId) return openTake(shotId, takeId)
+  if (viewer.takeId === takeId) return
+  useGeneration.setState({ viewer: { ...viewer, compare: { takeId, image: null, meta: null } } })
+  const r = await api().readTake(folder, useDocument.getState().sceneId, shotId, takeId)
+  const now = useGeneration.getState().viewer
+  if (now?.compare?.takeId !== takeId) return
+  if ('error' in r) useGeneration.setState({ viewer: { ...now, compare: null }, error: r.error })
+  else useGeneration.setState({ viewer: { ...now, compare: { takeId, image: r.image, meta: r.meta } } })
+}
+
+/** Back to one take in the viewer. */
+export function closeCompare(): void {
+  const viewer = useGeneration.getState().viewer
+  if (viewer) useGeneration.setState({ viewer: { ...viewer, compare: null } })
+}
+
+/**
+ * Flip to the next (older) or previous (newer) take in the viewer. When comparing, `side` says
+ * which one flips: 'b' (the second take) or 'a' (the first); it skips over the other one.
+ */
+export function stepTake(direction: 1 | -1, side: 'a' | 'b' = 'a'): void {
   const { viewer, takes } = useGeneration.getState()
   if (!viewer) return
   const list = takes[viewer.shotId] ?? []
-  const i = list.findIndex((t) => t.id === viewer.takeId)
-  const next = list[i + direction]
-  if (next) void openTake(viewer.shotId, next.id)
+  const current = side === 'b' && viewer.compare ? viewer.compare.takeId : viewer.takeId
+  const other = side === 'b' ? viewer.takeId : viewer.compare?.takeId
+  let i = list.findIndex((t) => t.id === current) + direction
+  if (list[i]?.id === other) i += direction
+  const next = list[i]
+  if (!next) return
+  if (side === 'b' && viewer.compare) void openCompare(viewer.shotId, next.id)
+  else void openTake(viewer.shotId, next.id, true)
 }
 
 /** The shot's circle take, or null. */
@@ -321,6 +376,7 @@ export async function deleteTake(shotId: string, takeId: string): Promise<void> 
   useGeneration.setState((s) => ({ takes: { ...s.takes, [shotId]: rest } }))
   if (circleTakeOf(shotId) === takeId) useDocument.getState().updateNode(shotId, { circleTake: null })
   const viewer = useGeneration.getState().viewer
+  if (viewer?.compare?.takeId === takeId) closeCompare()
   if (viewer?.takeId === takeId) {
     const next = rest[Math.min(Math.max(i, 0), rest.length - 1)]
     if (next) void openTake(shotId, next.id)

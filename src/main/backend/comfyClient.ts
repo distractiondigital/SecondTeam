@@ -142,11 +142,19 @@ export class ComfyClient {
     return body.prompt_id
   }
 
-  /** The images a finished prompt produced at `outputNode`. */
-  async outputs(promptId: string, outputNode: string): Promise<ComfyImageRef[]> {
-    const res = await fetch(`${this.baseUrl}/history/${encodeURIComponent(promptId)}`)
-    const body = (await res.json()) as Record<string, { outputs?: Record<string, { images?: ComfyImageRef[] }> }>
-    return body[promptId]?.outputs?.[outputNode]?.images ?? []
+  /**
+   * The images a finished prompt produced at `outputNode`. ComfyUI says "finished" a moment before
+   * it records the prompt in its history, so this waits (up to a few seconds) for the record.
+   */
+  async outputs(promptId: string, outputNode: string, waitMs = 5000): Promise<ComfyImageRef[]> {
+    const until = Date.now() + waitMs
+    for (;;) {
+      const res = await fetch(`${this.baseUrl}/history/${encodeURIComponent(promptId)}`)
+      const body = (await res.json()) as Record<string, { outputs?: Record<string, { images?: ComfyImageRef[] }> }>
+      const recorded = body[promptId]
+      if (recorded || Date.now() >= until) return recorded?.outputs?.[outputNode]?.images ?? []
+      await new Promise((r) => setTimeout(r, 200))
+    }
   }
 
   async image(ref: ComfyImageRef): Promise<Buffer> {

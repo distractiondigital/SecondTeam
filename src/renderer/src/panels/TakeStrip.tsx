@@ -7,6 +7,7 @@ import {
   generateBlocker,
   generateShot,
   loadTakes,
+  openCompare,
   openTake,
   toggleCircleTake,
   useGeneration
@@ -40,7 +41,11 @@ export default function TakeStrip() {
   const job = useGeneration((s) => s.job)
   const error = useGeneration((s) => s.error)
   const notice = useGeneration((s) => s.notice)
+  // Re-render when anything that feeds the Generate blocker changes (the model list arrives after the engine is ready).
   useGeneration((s) => s.status)
+  useGeneration((s) => s.models)
+  useUi((s) => s.projectPath)
+  useDocument((s) => s.project.generation)
 
   const shotId = shot?.id ?? null
   const loaded = takes !== undefined
@@ -101,9 +106,10 @@ export default function TakeStrip() {
               role="button"
               tabIndex={0}
               className={`take-card${t.id === circle ? ' circled' : ''}`}
-              onClick={() => void openTake(shot.id, t.id)}
+              // Ctrl+click: compare with the take already open.
+              onClick={(e) => void (e.ctrlKey ? openCompare(shot.id, t.id) : openTake(shot.id, t.id))}
               onKeyDown={(e) => e.key === 'Enter' && void openTake(shot.id, t.id)}
-              title={`Seed ${t.seed} · ${t.checkpoint} · ${new Date(t.createdAt).toLocaleString()}`}
+              title={`Seed ${t.seed} · ${t.checkpoint} · ${new Date(t.createdAt).toLocaleString()} · Ctrl+click to compare with the open take`}
             >
               <img src={t.thumbnail} alt="" />
               <div className="take-caption">Seed {t.seed}</div>

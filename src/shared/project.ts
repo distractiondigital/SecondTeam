@@ -36,7 +36,8 @@ import { sanitizeLookAt, sanitizePlants, type LookAt, type Plants } from './posi
 // v11: environment (time of day + ground colour) per scene, optionally changed per shot.
 // v12: human figures (figure style + MakeHuman body sliders).
 // v13: Posing 2 (planted hands/feet, head look-at).
-export const SCHEMA_VERSION = 13
+// v14: materials on objects; per-scene / per-shot cast and prop descriptions.
+export const SCHEMA_VERSION = 14
 
 export type Vec3 = [number, number, number]
 
@@ -65,11 +66,17 @@ interface NodeBase {
   locked: boolean
 }
 
+/** What an object's surface is like (with its colour): how it looks in Clay and a word for the AI. */
+export const MATERIALS = ['matte', 'glossy', 'metal', 'glass', 'glowing'] as const
+export type MaterialKind = (typeof MATERIALS)[number]
+
 export interface PrimitiveNode extends NodeBase {
   type: 'primitive'
   primitive: PrimitiveType
-  /** Material (for now just a colour): seen in the viewport and clay renders; not sent to the AI. */
+  /** Material colour: seen in the viewport and clay renders; not sent to the AI. */
   color: string
+  /** Material kind: how the surface looks in Clay; non-matte ones go into a described object's prompt. */
+  material: MaterialKind
   /** Origin point along the height. Planes are always 'center'. */
   anchor: Anchor
   /** Link to a Prop entry (Milestone 7). */
@@ -153,6 +160,8 @@ export interface CameraNode extends NodeBase {
   environment: Environment | null
   /** This shot's changes to other objects; everything else follows the Master scene. */
   overrides: ShotOverrides
+  /** This shot's own text for cast members / props (by id), used instead of the scene's or the usual one. */
+  descriptions: Record<string, string>
 }
 
 /** A light. Sun and spot shine down their local -Z; ambient is an even fill with no direction. */
@@ -185,6 +194,8 @@ export interface Scene {
   floor: boolean
   /** Time of day (sky and fill) and ground colour; shots can change it for themselves. */
   environment: Environment
+  /** This scene's own text for cast members / props (by id), used instead of the usual one. */
+  descriptions: Record<string, string>
   nodes: Record<string, SceneNode>
   /** Top-level node order (outliner order). */
   rootIds: string[]
@@ -301,7 +312,7 @@ export function newId(): string {
 }
 
 export function createEmptyScene(number = 1, name = ''): Scene {
-  return { id: newId(), number, name, notes: '', floor: true, environment: { ...DEFAULT_ENVIRONMENT }, nodes: {}, rootIds: [] }
+  return { id: newId(), number, name, notes: '', floor: true, environment: { ...DEFAULT_ENVIRONMENT }, descriptions: {}, nodes: {}, rootIds: [] }
 }
 
 /** 'Scene 01', or 'Scene 01 · INT. KITCHEN' when it has a title. */
@@ -408,6 +419,30 @@ function checkNode(node: unknown, id: string, scene: Scene): void {
   }
 }
 
+const MAX_DESCRIPTION = 2000
+
+/** Per-scene / per-shot cast and prop texts from a file: strings only, kept to a sensible length. */
+export function cleanDescriptions(raw: unknown): Record<string, string> {
+  const out: Record<string, string> = {}
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out
+  for (const [id, text] of Object.entries(raw as Record<string, unknown>)) {
+    if (typeof text === 'string' && id) out[id] = text.slice(0, MAX_DESCRIPTION)
+  }
+  return out
+}
+
+/**
+ * A cast member's or prop's text for a shot: the shot's own, else its scene's, else the usual one.
+ * Either scope may be missing (null).
+ */
+export function descriptionFor(
+  entity: { id: string; description: string },
+  scene: Pick<Scene, 'descriptions'> | null,
+  shot: Pick<CameraNode, 'descriptions'> | null
+): string {
+  return shot?.descriptions[entity.id] ?? scene?.descriptions[entity.id] ?? entity.description
+}
+
 /** Keep a camera's settings in range and fill any missing ones. */
 export function repairCamera(c: CameraNode): void {
   c.scale = [1, 1, 1]
@@ -427,6 +462,7 @@ export function repairCamera(c: CameraNode): void {
   c.boardText = typeof c.boardText === 'string' ? c.boardText : null
   c.dialogue = typeof c.dialogue === 'string' ? c.dialogue : ''
   c.environment = c.environment ? repairEnvironment(c.environment) : null
+  c.descriptions = cleanDescriptions(c.descriptions)
 }
 
 /** Fill in fields added after a file was saved, and fix values that would break the viewport. */
@@ -437,6 +473,7 @@ function repairNode(node: SceneNode, scene: Scene): void {
     if (node.primitive === 'plane') node.anchor = 'center'
     else if (!ANCHORS.includes(node.anchor)) node.anchor = 'bottom'
   }
+  if (node.type === 'primitive') node.material = MATERIALS.includes(node.material) ? node.material : 'matte'
   if (node.type === 'group' || node.type === 'primitive') {
     node.propId = typeof node.propId === 'string' ? node.propId : null
     node.description = typeof node.description === 'string' ? node.description : ''
@@ -505,6 +542,7 @@ export function parseProject(json: string): Project {
     if (typeof scene.name !== 'string') scene.name = ''
     scene.floor = scene.floor !== false
     scene.environment = repairEnvironment(scene.environment)
+    scene.descriptions = cleanDescriptions(scene.descriptions)
   }
   return {
     schemaVersion: SCHEMA_VERSION,

@@ -125,6 +125,7 @@ In the Properties panel, **drag left/right on any number box** to change it (hol
 
 ## Lights & clay
 - **Lights** (toolbar): **Sun** (daylight from one direction; only its angle matters), **Point** (a bare bulb), **Spot** (a beam) and **Ambient** (soft even fill from the sky). Aim sun and spot with the rotate gizmo (E) or Pan/Tilt in Properties. While a sun or spot is selected, a dashed **aim line** shows where it lands (a cross where it hits), and a spot also outlines its **pool of light** on the floor and objects. The cross has its own **move handle**: drag it and the light turns to point at it, staying where it is.
+- **Material** (Properties, objects): the colour plus **Matte · Glossy · Metal · Glass · Glow**: how the surface looks in Clay, thumbnails and Clay exports (render passes ignore it). For an object with a description, or one linked to a prop, a non-matte material is added to its prompt (*…, metal*; a group lists its parts' different ones: *glass and metal*). Changeable per shot.
 - Light Properties: **intensity in stops** (0 = a standard key, +1 = twice as bright), **colour temperature** in Kelvin (with Candle / Tungsten / Daylight / Overcast / Shade presets), **softness** (hard to soft shadows), casts shadows, and for spots the cone angle and beam edge. Point and spot lights fall off with distance like real ones.
 - **Work / Clay** (toolbar): Work shows object colours under even light; **Clay** shows every surface in its **Material** colour (Properties), matte, lit by your lights, with shadows, under the **environment**'s sky and on its ground (below). Looking through a camera switches to Clay automatically (and back when you leave, if you were in Work).
 - Each shot gets an automatic **lighting description** (e.g. "Soft key light from camera left, rim light from behind, warm tungsten, high contrast"), shown in the camera HUD and the shot's Properties, where you can overwrite it. It will go into the AI prompt.
@@ -162,6 +163,7 @@ Keep characters and story objects looking the same from shot to shot.
 
 - The left column has three tabs: **Outliner | Cast | Props**. In **Cast** or **Props**, click **＋ New**, then fill it in on the right:
   - **Description**: how it looks, e.g. *young woman in her 20s, curly dark hair, olive raincoat*. It becomes that one's own prompt, applied only to its part of the frame. Describe the look, not the name.
+  - **Everywhere | Scene 01 | Shot 1B** above the Description: change the text for just one scene or one shot (*…, soaking wet, hair plastered down*). The box starts with the text that scene or shot uses now, so add to it or rewrite it; a dot marks scopes with their own text, and **Back to the … text** removes it. A shot's own text wins over its scene's, which wins over the usual one. The Cast/Props list says *changed here* when the current scene or shot has its own.
   - **Reference images** (up to 4, PNG or JPEG): photos or drawings of how it should look. Add files with the image button, or **paste** (the clipboard button, or **Ctrl+V** while the cast member or prop is open): an image copied from a browser or a screenshot tool, or image files copied in Explorer. They're copied into the project (`assets\cast\…`, `assets\props\…`) and guide only its part of the frame.
   - **Reference strength**, and for cast a **Material** colour (linked figures wear it).
   - **Linked to** lists every figure or object that is this one, in every scene.
@@ -172,6 +174,8 @@ Keep characters and story objects looking the same from shot to shot.
 - **Figures and depth:** the depth pass guides the **set and props** (so what's behind whom stays right), while each **figure's own area gets only a weak, heavily softened version of it** (how far away they are, so props stay in front of or behind them): figures are shaped by their pose skeleton, their own prompt and references, never by the mannequin's ball joints. A figure that isn't a cast member gets its own area too, as *a person*.
 - **Advanced → Cast & props:** **Feather** (how soft each one's edge is) and **End** (when references stop guiding). If a look leaks across an edge, raise Feather or lower End.
 - **Good references:** at least a few hundred pixels tall, showing what should carry over (a full-length outfit shot, a face close-up; several are combined, keeping each one's detail). Make the description agree with them: if the photo shows a cloak and vest, don't write "sweater".
+- **Compare takes:** in the take viewer click **Compare**, or **Ctrl+click** a second take in the strip. **Side by side** shows both; **Wipe** shows one frame, take A left of a divider that follows the mouse, take B right of it. **← / →** flip B through the shot's takes, **Shift+← / →** flip A, the ☆ on either side circles it, **Esc** goes back to one take.
+- **Live previews** while a take is being made are sharp (TAESD, MIT licence, shipped with the engine).
 - **Circle takes:** click the ☆ on a take (or *Circle this take* in the take viewer). One per shot; it keeps its place in the strip (marked with a filled star and an orange border) and becomes the shot's thumbnail in the Shot list. The Storyboard uses it. Ctrl+Z undoes it.
 - Takes with cast and props take longer (about 30 s instead of 7), because each one's part of the frame is worked out separately. At most 6 cast members/props with reference images are used per take; the strip says who was left out.
 
@@ -191,7 +195,7 @@ Turn the circle takes into a board you can send to a client or crew.
 
 ## Render passes
 The images the AI will work from (Milestone 6), rendered from a shot's camera through its delivery frame:
-- Select a shot and click **Render passes** in its Properties. The **pass viewer** opens over the viewport:
+- You never need to render passes yourself: **Generate makes them fresh** for the shot every time, right before the AI works. To look at them, click **Check passes** in the shot's Properties. The **pass viewer** opens over the viewport:
   - **Clay**: the lit set, in each object's Material colour.
   - **Depth**: near is white, far is black.
   - **Normals**: which way each surface faces (blue/lilac faces the lens).

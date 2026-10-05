@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseBinaryMessage, parseTextMessage } from './comfyClient'
+import { ComfyClient, parseBinaryMessage, parseTextMessage } from './comfyClient'
 
 function frame(parts: (number | Uint8Array)[]): ArrayBuffer {
   const size = parts.reduce<number>((n, p) => n + (typeof p === 'number' ? 4 : p.length), 0)
@@ -52,5 +52,28 @@ describe('ComfyUI messages', () => {
     })
     expect(msg('execution_interrupted', { prompt_id: 'p1' })).toEqual({ type: 'interrupted', promptId: 'p1' })
     expect(parseTextMessage('not json')).toBeNull()
+  })
+})
+
+describe('fetching a finished prompt\'s image', () => {
+  it('waits for ComfyUI to record the prompt (it says "finished" a moment before)', async () => {
+    const realFetch = globalThis.fetch
+    let calls = 0
+    globalThis.fetch = (async () => {
+      calls++
+      // Not in the history for the first two asks.
+      const body = calls < 3 ? {} : { p1: { outputs: { '11': { images: [{ filename: 'a.png', subfolder: '', type: 'output' }] } } } }
+      return new Response(JSON.stringify(body))
+    }) as typeof fetch
+    try {
+      const images = await new ComfyClient('http://127.0.0.1:1').outputs('p1', '11')
+      expect(images).toEqual([{ filename: 'a.png', subfolder: '', type: 'output' }])
+      expect(calls).toBe(3)
+      // Never recorded: gives up after the wait, with no image.
+      calls = -100
+      expect(await new ComfyClient('http://127.0.0.1:1').outputs('p1', '11', 300)).toEqual([])
+    } finally {
+      globalThis.fetch = realFetch
+    }
   })
 })

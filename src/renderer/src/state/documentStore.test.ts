@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { Vector3 } from 'three'
 import { activeScene, environmentFor, hasUnsavedChanges, sceneForShot, useDocument, worldMatrix } from './documentStore'
-import { parseProject, sceneLabel, serializeProject, type MannequinNode } from '../../../shared/project'
+import { descriptionFor, parseProject, SCHEMA_VERSION, sceneLabel, serializeProject, type MannequinNode } from '../../../shared/project'
 
 const doc = () => useDocument.getState()
 const scene = () => activeScene(doc())
@@ -293,7 +293,7 @@ describe('figures', () => {
     expect(figure(copy).pose).toEqual(figure(a).pose)
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(13)
+    expect(loaded.schemaVersion).toBe(SCHEMA_VERSION)
   })
 
   it('posing 2: plants, look-at and several joints in one step, per shot, and older files', () => {
@@ -335,6 +335,43 @@ describe('figures', () => {
     const f = old.scenes[0].nodes[a] as MannequinNode
     expect(f.plants).toEqual({})
     expect(f.lookAt).toBeNull()
+  })
+
+  it('cast and prop texts per scene and per shot (shot, then scene, then the usual one)', () => {
+    const maribel = doc().addCast({ name: 'Maribel', description: 'woman in her 20s, olive raincoat' })
+    const entity = () => doc().project.cast.find((c) => c.id === maribel)!
+    const a = doc().addCamera({ position: [0, 1.6, 4], rotation: [0, 0, 0] })
+    const b = doc().addCamera({ position: [1, 1.6, 4], rotation: [0, 0, 0] })
+    const cam = (id: string) => scene().nodes[id] as never
+    doc().setDescriptionTweak(maribel, 'scene', 'woman in her 20s, olive raincoat, soaking wet')
+    doc().setActiveShot(a)
+    doc().setDescriptionTweak(maribel, 'shot', 'woman in her 20s, soaking wet, hair plastered down')
+    doc().setActiveShot(null)
+    expect(descriptionFor(entity(), scene(), cam(a))).toBe('woman in her 20s, soaking wet, hair plastered down')
+    expect(descriptionFor(entity(), scene(), cam(b))).toBe('woman in her 20s, olive raincoat, soaking wet')
+    expect(descriptionFor(entity(), null, null)).toBe('woman in her 20s, olive raincoat')
+    // Survives save/load; back to the usual text.
+    expect(parseProject(serializeProject(doc().project))).toEqual(doc().project)
+    doc().setDescriptionTweak(maribel, 'scene', null)
+    expect(descriptionFor(entity(), scene(), cam(b))).toBe('woman in her 20s, olive raincoat')
+  })
+
+  it('objects have a material (matte by default, older files too), changeable per shot', () => {
+    const box = doc().addPrimitive('box')
+    expect((scene().nodes[box] as { material: string }).material).toBe('matte')
+    const shot = doc().addCamera({ position: [0, 1.6, 4], rotation: [0, 0, 0] })
+    doc().setActiveShot(shot)
+    doc().updateNode(box, { material: 'metal' })
+    expect((sceneForShot(doc(), shot)[box] as { material: string }).material).toBe('metal')
+    expect((scene().nodes[box] as { material: string }).material).toBe('matte')
+    doc().setActiveShot(null)
+    const raw = JSON.parse(serializeProject(doc().project))
+    raw.schemaVersion = 13
+    delete raw.scenes[0].nodes[box].material
+    delete raw.scenes[0].descriptions
+    const old = parseProject(JSON.stringify(raw))
+    expect((old.scenes[0].nodes[box] as { material: string }).material).toBe('matte')
+    expect(old.scenes[0].descriptions).toEqual({})
   })
 
   it('saves poses into the project and applies them to other figures', () => {
@@ -782,7 +819,7 @@ describe('older project files', () => {
       ]
     }
     const p = parseProject(JSON.stringify(raw))
-    expect(p.schemaVersion).toBe(13)
+    expect(p.schemaVersion).toBe(SCHEMA_VERSION)
     expect(p.camera.sensor.preset).toBe('alexa35')
     expect(p.camera.delivery).toBe('2.39')
     expect(p.scenes[0].number).toBe(1)
@@ -803,7 +840,7 @@ describe('older project files', () => {
     const raw = JSON.parse(serializeProject(doc().project))
     raw.schemaVersion = 1
     delete raw.camera
-    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(13)
+    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(SCHEMA_VERSION)
   })
 })
 describe('master scene and per-shot changes', () => {
@@ -911,7 +948,7 @@ describe('master scene and per-shot changes', () => {
     doc().updateNode(box, { hidden: true })
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(13)
+    expect(loaded.schemaVersion).toBe(SCHEMA_VERSION)
   })
 
   it('leaves the shot if undo removes its camera', () => {

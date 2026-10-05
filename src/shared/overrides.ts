@@ -1,4 +1,4 @@
-import type { Anchor, SceneNode, Vec3 } from './project'
+import { MATERIALS, type Anchor, type MaterialKind, type SceneNode, type Vec3 } from './project'
 import { sanitizeAppearance, sanitizeBody, sanitizeExpression, sanitizeHands, type BodySliders, type FigureAppearance, type Hands } from './humanBody'
 import { sanitizePose, type Pose } from './mannequin'
 import { sanitizeLookAt, sanitizePlants, type LookAt, type Plants } from './posing'
@@ -16,6 +16,7 @@ export const OVERRIDABLE_FIELDS = [
   'anchor',
   'hidden',
   'color',
+  'material',
   'pose',
   'height',
   'build',
@@ -42,6 +43,7 @@ export interface NodeOverride {
   anchor?: Anchor
   hidden?: boolean
   color?: string
+  material?: MaterialKind
   pose?: Pose
   height?: number
   build?: number
@@ -66,7 +68,7 @@ export type ShotOverrides = Record<string, NodeOverride>
 export function overridableFor(node: SceneNode): OverridableField[] {
   switch (node.type) {
     case 'primitive':
-      return ['position', 'rotation', 'scale', 'anchor', 'hidden', 'color']
+      return ['position', 'rotation', 'scale', 'anchor', 'hidden', 'color', 'material']
     case 'group':
       return ['position', 'rotation', 'scale', 'hidden']
     case 'mannequin':
@@ -154,6 +156,7 @@ export function sanitizeOverrides(raw: unknown, nodes: Record<string, SceneNode>
       if ((f === 'position' || f === 'rotation' || f === 'scale') && isVec3(x)) o[f] = x
       else if ((f === 'hidden' || f === 'limits' || f === 'shadows') && typeof x === 'boolean') o[f] = x
       else if (f === 'color' && typeof x === 'string') o.color = x
+      else if (f === 'material' && MATERIALS.includes(x as MaterialKind)) o.material = x as MaterialKind
       else if (f === 'anchor' && (x === 'bottom' || x === 'center' || x === 'top')) o.anchor = x
       else if (NUMBER_FIELDS.includes(f) && typeof x === 'number' && Number.isFinite(x)) o[f as NumberField] = x
       else if (f === 'body' && x && typeof x === 'object') o.body = sanitizeBody(x)

@@ -27,6 +27,7 @@ function shot(id: string, shotNumber: string, extra: Partial<CameraNode> = {}): 
     dialogue: '',
     environment: null,
     overrides: {},
+    descriptions: {},
     ...extra
   }
 }

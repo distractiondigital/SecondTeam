@@ -11,6 +11,7 @@ const FIELD_LABELS: Record<OverridableField, string> = {
   scale: 'size',
   anchor: 'anchor',
   hidden: 'hidden',
+  material: 'material',
   color: 'colour',
   pose: 'pose',
   height: 'height',

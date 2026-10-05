@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import type { SceneNode } from './project'
 import {
+  materialWords,
   buildPrompt,
   depthBlur,
   facingPhrase,
@@ -102,5 +104,24 @@ describe('seeds and settings', () => {
     expect(r.end).toBe(0.8)
     expect(r.strictness).toBeNull()
     expect(r.cfg).toBe(DEFAULT_GENERATION.cfg)
+  })
+})
+
+describe('material words', () => {
+  const prim = (id: string, material: string, parentId: string | null = null) =>
+    ({ id, type: 'primitive', material, parentId }) as unknown as SceneNode
+  const nodes: Record<string, SceneNode> = {
+    a: prim('a', 'metal', 'g'),
+    b: prim('b', 'glass', 'g'),
+    c: prim('c', 'matte', 'g'),
+    d: prim('d', 'metal', 'g'),
+    g: { id: 'g', type: 'group', childIds: ['a', 'b', 'c', 'd'], parentId: null } as unknown as SceneNode,
+    m: prim('m', 'matte')
+  }
+  it('names an object material, the different ones in a group, and nothing for matte', () => {
+    expect(materialWords(nodes, 'a')).toBe('metal')
+    expect(materialWords(nodes, 'm')).toBe('')
+    expect(materialWords(nodes, 'g')).toBe('metal and glass')
+    expect(materialWords(nodes, 'missing')).toBe('')
   })
 })

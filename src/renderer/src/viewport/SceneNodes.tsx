@@ -1,12 +1,14 @@
 import { memo, useContext, useMemo } from 'react'
 import { DoubleSide, FrontSide } from 'three'
 import { Outlines } from '@react-three/drei'
+import { useThree } from '@react-three/fiber'
 import type { SceneNode } from '../../../shared/project'
 import { sceneForShot, sceneOfShot, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import CameraView from './CameraView'
 import { getGeometry } from './geometries'
 import LightView from './LightView'
+import { MATERIAL_LOOKS, studioReflections } from './materials'
 import HumanFigure from './HumanFigure'
 import MannequinView from './MannequinView'
 import { SceneNodesContext } from './sceneContext'
@@ -32,6 +34,7 @@ const NodeView = memo(function NodeView({ id, inSelection, inLocked }: NodeViewP
   const { shotId, passive, clay } = useContext(SceneNodesContext)
   const node = useDocument((s) => sceneForShot(s, shotId)[id]) as SceneNode | undefined
   const selectedHere = useUi((s) => !passive && s.selection.includes(id))
+  const gl = useThree((s) => s.gl)
   const selected = selectedHere || inSelection
   if (!node) return null
 
@@ -79,11 +82,13 @@ const NodeView = memo(function NodeView({ id, inSelection, inLocked }: NodeViewP
     )
   }
 
+  const look = MATERIAL_LOOKS[node.material] ?? MATERIAL_LOOKS.matte
+  const reflections = look.reflect > 0 ? studioReflections(gl) : null
   return (
     <mesh
       {...common}
       geometry={getGeometry(node.primitive, node.anchor)}
-      castShadow={clay}
+      castShadow={clay && look.castShadow}
       receiveShadow={clay}
       raycast={clickable ? undefined : noRaycast}
       onClick={clickable ? (e) => handleNodeClick(e, id) : undefined}
@@ -91,11 +96,16 @@ const NodeView = memo(function NodeView({ id, inSelection, inLocked }: NodeViewP
     >
       <meshStandardMaterial
         color={node.color}
-        roughness={clay ? 0.92 : 0.85}
-        metalness={0}
-        side={node.primitive === 'plane' ? DoubleSide : FrontSide}
-        emissive={selected ? SELECTION_COLOR : '#000000'}
-        emissiveIntensity={selected ? 0.12 : 0}
+        roughness={node.material === 'matte' && !clay ? 0.85 : look.roughness}
+        envMap={reflections}
+        envMapIntensity={look.reflect}
+        metalness={look.metalness}
+        transparent={look.opacity < 1}
+        opacity={look.opacity}
+        depthWrite={look.opacity >= 1}
+        side={node.primitive === 'plane' || look.opacity < 1 ? DoubleSide : FrontSide}
+        emissive={selected ? SELECTION_COLOR : look.glow ? node.color : '#000000'}
+        emissiveIntensity={selected ? 0.12 + look.glow * 0.8 : look.glow}
       />
       {/* With screenspace off (the default), drei's Outlines thickness is in screen pixels. */}
       {selected && <Outlines thickness={3} color={SELECTION_COLOR} userData={{ helper: true }} />}

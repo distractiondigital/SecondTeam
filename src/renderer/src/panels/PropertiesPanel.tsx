@@ -1,4 +1,5 @@
-import { MIN_SCALE, type Anchor, type SceneNode, type Vec3 } from '../../../shared/project'
+import { MATERIALS, MIN_SCALE, type Anchor, type SceneNode, type Vec3 } from '../../../shared/project'
+import { MATERIAL_LABELS } from '../viewport/materials'
 import { PRIMITIVES, supportsAnchor } from '../../../shared/primitives'
 import { deleteSelected, groupSelected, ungroupSelected } from '../state/actions'
 import { activeScene, editedNodes, useDocument } from '../state/documentStore'
@@ -164,6 +165,15 @@ function NodeProperties({ node }: { node: SceneNode }) {
               onChange={(e) => update(node.id, { color: e.target.value })}
             />
           </label>
+          {node.type === 'primitive' && (
+            <div className="segmented material-kinds" title="How the surface looks in Clay; for a described object or prop it also goes into the AI prompt (e.g. 'metal')">
+              {MATERIALS.map((m) => (
+                <button key={m} className={node.material === m ? 'active' : ''} disabled={disabled} onClick={() => update(node.id, { material: m })}>
+                  {MATERIAL_LABELS[m]}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

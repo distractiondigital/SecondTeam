@@ -45,7 +45,7 @@ export function GenerateSection({ node }: { node: CameraNode }) {
           className="generate-button"
           disabled={Boolean(blocker)}
           onClick={() => void generateShot(node.id)}
-          title={blocker ?? 'Render the passes and generate takes for this shot'}
+          title={blocker ?? 'Generate takes for this shot (its passes are made fresh first)'}
         >
           <Sparkles size={14} /> {running ? 'Generating…' : 'Generate'}
         </button>

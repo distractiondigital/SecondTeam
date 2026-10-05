@@ -58,19 +58,20 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
             <Eye size={14} /> {lookingThrough ? 'Exit view' : 'Look through'}
           </button>
         </div>
-        <div className="prop-actions">
-          <button
-            className="render-passes-button"
-            disabled={rendering}
-            onClick={() => void renderShotPasses(node.id)}
-            title="Render depth, normals, object ID, pose and clay images for this shot (what the AI will work from)"
-          >
-            <Layers size={14} /> {rendering ? 'Rendering…' : 'Render passes'}
-          </button>
-        </div>
       </div>
 
       <GenerateSection node={node} />
+      {/* Generate makes the passes itself, fresh every time; this only shows them. */}
+      <div className="prop-section check-passes">
+        <button
+          className="link-button"
+          disabled={rendering}
+          onClick={() => void renderShotPasses(node.id)}
+          title="See the depth, normals, object ID, pose and clay images the AI works from (Generate makes them fresh every time)"
+        >
+          <Layers size={13} /> {rendering ? 'Rendering…' : 'Check passes'}
+        </button>
+      </div>
 
       <div className="prop-section">
         <div className="prop-title">Position</div>

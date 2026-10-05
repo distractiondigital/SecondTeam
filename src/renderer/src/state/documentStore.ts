@@ -25,7 +25,9 @@ import {
   type Project,
   type Scene,
   type SceneNode,
-  type Vec3
+  type Vec3,
+  MATERIALS,
+  type MaterialKind
 } from '../../../shared/project'
 import {
   anchorHeight,
@@ -105,6 +107,7 @@ const LIGHT_FIELDS: LightField[] = ['stops', 'kelvin', 'softness', 'shadows', 'c
 export type NodePatch = Partial<
   Pick<PrimitiveNode, 'name' | 'position' | 'rotation' | 'scale' | 'color' | 'hidden' | 'locked'> &
     Pick<MannequinNode, 'height' | 'build' | 'limits' | 'castId' | 'style' | 'body' | 'appearance' | 'expression' | 'hands' | 'plants' | 'lookAt'> &
+    Pick<PrimitiveNode, 'material'> &
     Pick<PrimitiveNode, 'propId'> &
     Pick<CameraNode, CameraField> &
     Pick<LightNode, LightField>
@@ -138,6 +141,7 @@ const FIELD_TYPES: Partial<Record<keyof NodePatch, SceneNode['type'][]>> = {
   expression: ['mannequin'],
   hands: ['mannequin'],
   plants: ['mannequin'],
+  material: ['primitive'],
   lookAt: ['mannequin'],
   propId: ['primitive', 'group'],
   scale: ['primitive', 'group'], // a figure's size comes from its height; cameras don't scale
@@ -164,6 +168,7 @@ function normalizeField(key: keyof NodePatch, value: unknown): unknown {
   if (key === 'expression') return sanitizeExpression(value)
   if (key === 'hands') return sanitizeHands(value)
   if (key === 'plants') return sanitizePlants(value)
+  if (key === 'material') return MATERIALS.includes(value as MaterialKind) ? value : 'matte'
   if (key === 'lookAt') return sanitizeLookAt(value)
   if (key === 'style') return value === 'mannequin' ? 'mannequin' : 'human'
   if (key === 'stops') return clampStops(value as number)
@@ -215,6 +220,11 @@ interface DocumentState {
   deleteCast: (id: string) => void
   addProp: (init?: Partial<Omit<Prop, 'id'>>) => string
   updateProp: (id: string, patch: Partial<Omit<Prop, 'id'>>) => void
+  /**
+   * A cast member's / prop's own text for the active scene or the shot being edited (used instead
+   * of the usual description there); null goes back to the usual one.
+   */
+  setDescriptionTweak: (entityId: string, scope: 'scene' | 'shot', text: string | null) => void
   /** Delete a prop; objects and groups linked to it (in every scene) become unlinked. */
   deleteProp: (id: string) => void
   /** The storyboard's order (shot camera ids, across scenes). */
@@ -387,6 +397,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
           locked: false,
           color: DEFAULT_PRIMITIVE_COLOR,
           anchor: defaultAnchor(primitive),
+          material: 'matte',
           propId: null,
           description: ''
         }
@@ -467,7 +478,9 @@ export const useDocument = create<DocumentState>()((set, get) => {
           dialogue: '',
           environment: shot?.environment ? toPlainValue(shot.environment)! : null,
           // A shot made while another shot is active starts from that shot's version of the set.
-          overrides: shot ? toPlainValue(shot.overrides)! : {}
+          overrides: shot ? toPlainValue(shot.overrides)! : {},
+          // …and that shot's own cast/prop texts.
+          descriptions: shot ? { ...shot.descriptions } : {}
         }
         repairCamera(node)
         scene.nodes[id] = node
@@ -552,6 +565,17 @@ export const useDocument = create<DocumentState>()((set, get) => {
         })
       })
       return id
+    },
+
+    setDescriptionTweak: (entityId, scope, text) => {
+      change((scene) => {
+        const shotId = get().activeShotId
+        const shot = shotId ? scene.nodes[shotId] : undefined
+        const holder = scope === 'scene' ? scene : shot?.type === 'camera' ? shot : null
+        if (!holder) return
+        if (text === null) delete holder.descriptions[entityId]
+        else holder.descriptions[entityId] = text.slice(0, 2000)
+      })
     },
 
     updateProp: (id, patch) => {

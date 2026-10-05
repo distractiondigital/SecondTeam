@@ -1,3 +1,4 @@
+import type { MaterialKind, SceneNode } from './project'
 // Generation settings and the prompt (Milestone 6). Pure, tested.
 // The prompt is assembled from the shot (what's in frame, size/angle, lens, lighting) plus the
 // project's style text; the settings are project-wide.
@@ -186,4 +187,24 @@ function clamp(v: number, lo: number, hi: number): number {
 
 function round(v: number): number {
   return Math.round(v * 100) / 100
+}
+
+const MATERIAL_WORDS: Record<MaterialKind, string> = { matte: '', glossy: 'glossy', metal: 'metal', glass: 'glass', glowing: 'glowing' }
+
+/**
+ * The material words for a described object or group (as the shot sees it): its own material, or
+ * for a group its parts' different ones ("glass and metal"). Matte adds nothing.
+ */
+export function materialWords(nodes: Record<string, SceneNode>, id: string): string {
+  const found: string[] = []
+  const visit = (nodeId: string) => {
+    const n = nodes[nodeId]
+    if (!n) return
+    if (n.type === 'primitive') {
+      const word = MATERIAL_WORDS[n.material] ?? ''
+      if (word && !found.includes(word)) found.push(word)
+    } else if (n.type === 'group') n.childIds.forEach(visit)
+  }
+  visit(id)
+  return found.length <= 1 ? (found[0] ?? '') : `${found.slice(0, -1).join(', ')} and ${found[found.length - 1]}`
 }

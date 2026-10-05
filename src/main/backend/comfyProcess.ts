@@ -127,8 +127,10 @@ export class ComfyProcess {
         '127.0.0.1',
         '--port',
         String(port),
+        // Sharp live previews with TAESD (MIT): the portable package ships its decoders in
+        // models\vae_approx. Without them ComfyUI falls back to its rough built-in preview.
         '--preview-method',
-        'auto',
+        'taesd',
         '--disable-auto-launch'
       ],
       { cwd: this.comfyDir, windowsHide: true, env: { ...process.env, PYTHONIOENCODING: 'utf-8' } }
