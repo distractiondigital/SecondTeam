@@ -12,12 +12,12 @@
 | 7 | Continuity | ✅ Done (tested by Spencer 2026-09-30; continuity "not 100% but okay for now") | Cast and Props (description, up to 4 reference images, strength) with links from figures/objects/groups and per-object descriptions; ID pass per cast/prop/described object; regional prompts + masked IP-Adapter references per entity; project style reference images; feather / reference end controls; circle takes (strip, viewer, Shot list thumbnail). |
 | 8 | Storyboard | ✅ Done (tested by Spencer 2026-10-04) | Set/Board switch; a panel per shot (circle take or clay render, shot + scene, lens/size/angle, Description/Dialogue/Notes); own drag order across scenes; double-click to go to the shot; export PDF (Grid 2/3/6 landscape or Rows 2/3/4 portrait, Letter/A4, title, footer, page sketch) and a PNG sequence, from AI or Clay. Follow-ups: Material colours in Clay; Environment (time-of-day sky, atmosphere fog, ground colour; per scene or per shot). |
 | 9 | Plug-and-play | 🟡 Built, waiting for Spencer's test on another PC | Windows installer (`npm run dist`, 112 MB, into Program Files, unsigned); first-run setup wizard (PC check, location or existing files, models with licences, resumable checksum-verified download, unpack with Windows' own tar); Engine settings (installed pieces, Add, Repair / Full check, log, restart, external ComfyUI). Engine + models live outside the app folder (default `%LOCALAPPDATA%\SecondTeam\backend`). |
-| 10 | Figures 2 | 🟡 Built, waiting for Spencer's test | Realistic humans built live from MakeHuman CC0 data: Style Human/Mannequin, body sliders + presets (gender, age in years, muscle, weight, height), skeleton fitted to each body; 64 wardrobe items (hair, outfits, dresses, suits, tops, bottoms incl. three shorts, outerwear, shoes, hat) re-fitted to any body with per-part colours, smooth-shaded; expressions and hand shapes (thumb wraps the fist); looks shared through cast members; passes (depth/normals/ID/pose) and per-figure prompts verified. |
+| 10 | Figures 2 | ✅ Done 2026-10-05 (looks to revisit later) | Realistic humans built live from MakeHuman CC0 data: Style Human/Mannequin, body sliders + presets (gender, age in years, muscle, weight, height), skeleton fitted to each body; 64 wardrobe items (hair, outfits, dresses, suits, tops, bottoms incl. three shorts, outerwear, shoes, hat) re-fitted to any body with per-part colours, smooth-shaded; expressions and hand shapes (thumb wraps the fist); looks shared through cast members; passes (depth/normals/ID/pose) and per-figure prompts verified. |
 | 11 | Polish | ⬜ | Spencer's list (2026-10-04): box select, move a multi-selection, Outliner drag & drop, recent projects, light aim line, fly in free view, per-shot cast/prop tweaks, compare takes, Material palette, passes for all shots; plus **Posing 2** (IK hands/feet, head look-at, planted limbs) and figure polish (see Ideas). |
 | 12 | Mac version | ⬜ | Added by Spencer 2026-10-04, after Polish, so a collaborator on a Mac can use it. See "Mac version notes" below. |
 
-## Where we are (2026-10-02)
-Milestones 0–8 are done and tested; Milestone 9 (Plug-and-play) is built and waiting for Spencer's test on another PC; Milestone 10 (Figures 2) is built and waiting for his test. The whole "build the shot" half of the app works:
+## Where we are (2026-10-05)
+Milestones 0–8 and 10 are done and tested; Milestone 9 (Plug-and-play) is built and waiting for Spencer's test on another PC. The whole "build the shot" half of the app works:
 - Greybox a set with shapes, posed figures and lights.
 - Break a project into scenes (01, 02…) and shots (1A, 1B…). Each shot has its own camera and can cheat anything in the set just for that shot.
 - Look through any shot with real sensor/lens/squeeze maths, frame guides, and readouts for height, tilt, distance, shot size, angle and lighting.
@@ -53,7 +53,7 @@ The AI engine (ComfyUI) lives in the `ComfyUI` folder and is set up by the in-ap
 - **For development** (in `CLAUDE.md`): files use LF line endings, enforced by `.gitattributes`. Changes to `src/main` or `src/preload` need an app restart.
 
 ## What's next
-**Milestone 11: Polish** (once Spencer has tried M10): his ticked list plus Posing 2 and the figure polish items (sitting/thigh shapes, smoother close-up surfaces, more coats). M9's other-PC test is still open.
+**Milestone 11: Polish**: Spencer's ticked list plus Posing 2. Functionality first (Spencer, 2026-10-05); the figures' looks can get another overhaul later. M9's other-PC test is still open.
 
 ## Decisions log
 - 2026-09-29: Name "Second Team" (working title). Stack: Electron + React + three.js (R3F) + managed ComfyUI. SDXL first for ControlNet/IP-Adapter maturity and commercial licence.
@@ -129,7 +129,8 @@ Agreed 2026-10-04: build it after M10. Plan sketched with Spencer:
 - **Questions for M11:** the collaborator's Mac (chip and memory, from  → About This Mac); signing route.
 
 ## Ideas / later
-- **Figure polish** (M11): sitting/bent-hip shapes (linear skinning flattens the seat; corrective shapes or better weights), smoother surfaces in close-ups (subdivision for the viewport), more coats/outerwear (a CC0/CC-BY trench coat), an expression strength slider, lumpy fist knuckles.
+- **Figure looks overhaul** (Spencer, 2026-10-05: "not in love with the MakeHuman models"): revisit the bodies' visuals as a whole later, after functionality. Options: a different CC0 base, subdivision, better skin shading.
+- **Figure polish**: sitting/bent-hip shapes (linear skinning flattens the seat; corrective shapes or better weights), smoother surfaces in close-ups (subdivision for the viewport), more coats/outerwear (a CC0/CC-BY trench coat), an expression strength slider, lumpy fist knuckles.
 - **Code signing** (removes the "Windows protected your PC" warning): a code-signing certificate, roughly $200–400/year; electron-builder can sign with it once bought.
 - **Auto-update** of the app (electron-updater) once it's shared beyond Spencer; models would stay put.
 - **Material palette** (Spencer, 2026-10-04): Material is just a colour for now; later a small palette of basic materials (matte, glossy, metal, glass, emissive) to pick from.
