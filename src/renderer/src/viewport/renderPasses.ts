@@ -4,16 +4,17 @@ import {
   FloatType,
   FrontSide,
   HemisphereLight,
-  Quaternion,
-  ShaderMaterial,
-  Vector3,
-  WebGLRenderTarget,
   type Material,
   type Mesh,
   type Object3D,
   type PerspectiveCamera,
+  Quaternion,
   type Scene as ThreeScene,
+  ShaderMaterial,
   type Side,
+  type Texture,
+  Vector3,
+  WebGLRenderTarget,
   type WebGLRenderer
 } from 'three'
 import { deliveryFrame, opticsFor, type CameraKit } from '../../../shared/camera'
@@ -66,28 +67,55 @@ export interface PassInput {
   props: Prop[]
 }
 
+// Three.js's own chunks, so posed (skinned) and morphed bodies render as posed in every pass.
 const VERTEX = /* glsl */ `
+  #include <common>
+  #include <skinning_pars_vertex>
+  #include <morphtarget_pars_vertex>
   varying vec3 vNormal;
   varying float vDepth;
+  varying vec2 vUv;
   void main() {
-    vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
-    vNormal = normalize(normalMatrix * normal);
+    #include <beginnormal_vertex>
+    #include <morphnormal_vertex>
+    #include <skinbase_vertex>
+    #include <skinnormal_vertex>
+    #include <begin_vertex>
+    #include <morphtarget_vertex>
+    #include <skinning_vertex>
+    vec4 viewPosition = modelViewMatrix * vec4(transformed, 1.0);
+    vNormal = normalize(normalMatrix * objectNormal);
     vDepth = -viewPosition.z;
+    vUv = uv;
     gl_Position = projectionMatrix * viewPosition;
   }
 `
 
+// Hair and eyebrows are cards cut out by a mask: the passes cut them out the same way.
+const MASK = /* glsl */ `
+  #ifdef MASKED
+    uniform sampler2D maskMap;
+    varying vec2 vUv;
+    #define MASK_TEST if (texture2D(maskMap, vUv).g < 0.5) discard;
+  #else
+    #define MASK_TEST
+  #endif
+`
+
 const DEPTH_FRAGMENT = /* glsl */ `
+  ${MASK}
   varying vec3 vNormal;
   varying float vDepth;
-  void main() { gl_FragColor = vec4(vDepth, 0.0, 0.0, 1.0); }
+  void main() { MASK_TEST gl_FragColor = vec4(vDepth, 0.0, 0.0, 1.0); }
 `
 
 // View-space normal: red = facing right, green = up, blue = toward the lens.
 const NORMAL_FRAGMENT = /* glsl */ `
+  ${MASK}
   varying vec3 vNormal;
   varying float vDepth;
   void main() {
+    MASK_TEST
     vec3 n = normalize(vNormal);
     if (!gl_FrontFacing) n = -n;
     gl_FragColor = vec4(n * 0.5 + 0.5, 1.0);
@@ -95,10 +123,11 @@ const NORMAL_FRAGMENT = /* glsl */ `
 `
 
 const FLAT_FRAGMENT = /* glsl */ `
+  ${MASK}
   uniform vec3 color;
   varying vec3 vNormal;
   varying float vDepth;
-  void main() { gl_FragColor = vec4(color, 1.0); }
+  void main() { MASK_TEST gl_FragColor = vec4(color, 1.0); }
 `
 
 function shader(fragmentShader: string, side: Side, color?: [number, number, number]): ShaderMaterial {
@@ -121,16 +150,30 @@ function sideOf(mesh: Mesh): Side {
 /** Put `pick(mesh)` on every visible mesh while `run` renders, then restore the real materials. */
 function withMaterials<T>(scene: ThreeScene, pick: (mesh: Mesh) => Material, run: () => T): T {
   const saved: [Mesh, Mesh['material']][] = []
+  const masked: Material[] = []
   scene.traverse((o) => {
     if (isMesh(o)) {
       saved.push([o, o.material])
-      o.material = pick(o)
+      const pass = pick(o)
+      const mask = (o.material as { alphaMap?: Texture | null }).alphaMap
+      if (mask && pass instanceof ShaderMaterial) {
+        // A cut-out card (hair, eyebrows): the same pass material, cutting out the same shape.
+        const m = pass.clone()
+        m.defines = { ...m.defines, MASKED: '' }
+        m.uniforms.maskMap = { value: mask }
+        m.side = DoubleSide
+        masked.push(m)
+        o.material = m
+      } else {
+        o.material = pass
+      }
     }
   })
   try {
     return run()
   } finally {
     for (const [mesh, material] of saved) mesh.material = material
+    for (const m of masked) m.dispose()
   }
 }
 

@@ -29,7 +29,7 @@ export default function HumanFigure({ node, selected, clickable, passive = false
   return (
     <>
       <MannequinView node={node} selected={selected} clickable={clickable} passive={passive} clay={clay} ghost fitted={fit.proportions} />
-      <HumanView fit={fit} pose={node.pose} color={castColor ?? node.color} selected={selected} />
+      <HumanView fit={fit} pose={node.pose} color={castColor ?? node.color} appearance={node.appearance} selected={selected} />
     </>
   )
 }

@@ -12,13 +12,23 @@ import {
   type PresetName,
   type SavedPose
 } from '../../../shared/mannequin'
-import { ageSlider, ageYears, type BodySliders } from '../../../shared/humanBody'
+import {
+  ageSlider,
+  ageYears,
+  partColor,
+  type AppearancePart,
+  type BodySliders,
+  type FigureAppearance,
+  type GarmentSlot,
+  type ProxyKind
+} from '../../../shared/humanBody'
 import type { MannequinNode, Vec3 } from '../../../shared/project'
 import { useDocument } from '../state/documentStore'
 import { usePoseLibrary } from '../state/poseLibrary'
 import { useUi } from '../state/uiStore'
 import { METRES_PER_FOOT, type Units } from '../units'
 import { useCtrlHeld } from '../viewport/gizmoShared'
+import { useCatalogue } from '../viewport/humanData'
 import NumberField from './NumberField'
 
 // Properties for posable figures: the whole-figure section and the joint-posing section.
@@ -70,6 +80,87 @@ const BODY_PRESETS: { label: string; body: Partial<BodySliders>; height?: number
   { label: 'Heavy', body: { muscle: 0.4, weight: 0.95 } },
   { label: 'Slim', body: { muscle: 0.4, weight: 0.15 } }
 ]
+
+/** Picker rows for the human's look: what's worn in each part, and its colour. */
+const LOOK_ROWS: { part: AppearancePart; label: string; kind: ProxyKind; slot?: GarmentSlot }[] = [
+  { part: 'hair', label: 'Hair', kind: 'hair' },
+  { part: 'outfit', label: 'Outfit', kind: 'clothes', slot: 'outfit' },
+  { part: 'top', label: 'Top', kind: 'clothes', slot: 'top' },
+  { part: 'bottom', label: 'Bottom', kind: 'clothes', slot: 'bottom' },
+  { part: 'outer', label: 'Outerwear', kind: 'clothes', slot: 'outer' },
+  { part: 'shoes', label: 'Shoes', kind: 'clothes', slot: 'shoes' },
+  { part: 'hat', label: 'Hat', kind: 'clothes', slot: 'hat' }
+]
+
+function LookSection({ node, disabled }: { node: MannequinNode; disabled: boolean }) {
+  const doc = useDocument.getState()
+  const catalogue = useCatalogue()
+  const figureColor = useDocument((s) => (node.castId ? s.project.cast.find((c) => c.id === node.castId)?.color : undefined)) ?? node.color
+  const a = node.appearance
+  const set = (patch: Partial<FigureAppearance>) => doc.updateNode(node.id, { appearance: { ...a, ...patch } })
+  const choose = (row: (typeof LOOK_ROWS)[number], id: string) => {
+    if (row.kind === 'hair') return set({ hair: id || null })
+    const garments = { ...a.garments }
+    if (id) garments[row.slot!] = id
+    else delete garments[row.slot!]
+    // A full outfit and a separate top/bottom don't mix.
+    if (id && row.slot === 'outfit') {
+      delete garments.top
+      delete garments.bottom
+    }
+    if (id && (row.slot === 'top' || row.slot === 'bottom')) delete garments.outfit
+    set({ garments })
+  }
+  const recolor = (part: AppearancePart, color: string | null) => {
+    const colors = { ...a.colors }
+    if (color) colors[part] = color
+    else delete colors[part]
+    set({ colors })
+  }
+  return (
+    <>
+      <div className="prop-title prop-title-spaced">Look</div>
+      <div className="look-rows">
+        {LOOK_ROWS.map((row) => {
+          const options = catalogue.filter((i) => i.kind === row.kind && (row.slot ? i.slot === row.slot : true))
+          if (!options.length) return null
+          const value = row.kind === 'hair' ? (a.hair ?? '') : (a.garments[row.slot!] ?? '')
+          const own = a.colors[row.part] !== undefined
+          return (
+            <div key={row.part} className="look-row">
+              <span className="look-label">{row.label}</span>
+              <select className="name-input plain" value={value} disabled={disabled} onChange={(e) => choose(row, e.target.value)}>
+                <option value="">None</option>
+                {options.map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="color"
+                value={partColor(a, row.part, figureColor)}
+                disabled={disabled}
+                title={own ? 'Its own colour' : 'Following the figure’s colour (a shade of it); pick to set its own'}
+                onFocus={() => doc.beginGesture('lookColor')}
+                onBlur={() => doc.endGesture('lookColor')}
+                onChange={(e) => recolor(row.part, e.target.value)}
+              />
+              <button
+                className="look-reset"
+                disabled={disabled || !own}
+                title="Back to a shade of the figure’s colour"
+                onClick={() => recolor(row.part, null)}
+              >
+                ×
+              </button>
+            </div>
+          )
+        })}
+      </div>
+    </>
+  )
+}
 
 /** The human body sliders (MakeHuman's macro sliders). */
 function BodySection({ node, disabled }: { node: MannequinNode; disabled: boolean }) {
@@ -137,6 +228,7 @@ export function FigureSection({ node }: { node: MannequinNode }) {
           ))}
         </div>
         {node.style === 'human' && <BodySection node={node} disabled={disabled} />}
+        {node.style === 'human' && <LookSection node={node} disabled={disabled} />}
         <div className="prop-title prop-title-spaced" title="Hold Ctrl while dragging the slider for whole inches (ft) or centimetres (m)">
           Height
         </div>

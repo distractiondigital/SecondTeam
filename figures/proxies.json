@@ -1,0 +1,1833 @@
+{
+ "items": [
+  {
+   "id": "eyes",
+   "kind": "eyes",
+   "slot": null,
+   "label": "Eyes",
+   "vertexCount": 96,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.7412
+    ],
+    "z": [
+     962,
+     5320,
+     2.2613
+    ],
+    "y": [
+     791,
+     881,
+     2.7409
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 288,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 576,
+     "length": 288,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 1728,
+     "length": 288,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 2880,
+     "length": 192,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 3648,
+     "length": 516,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 4680,
+     "length": 0,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (eyes/low-poly)"
+  },
+  {
+   "id": "eyebrows-1",
+   "kind": "eyebrows",
+   "slot": null,
+   "label": "Eyebrows",
+   "vertexCount": 126,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.416
+    ],
+    "z": [
+     962,
+     5320,
+     1.9231
+    ],
+    "y": [
+     791,
+     881,
+     2.3073
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 378,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 756,
+     "length": 378,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 2268,
+     "length": 378,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 3780,
+     "length": 252,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 4788,
+     "length": 576,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 5940,
+     "length": 0,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": "eyebrows-1.png",
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (eyebrows/eyebrow001)"
+  },
+  {
+   "id": "hair-short01",
+   "kind": "hair",
+   "slot": null,
+   "label": "Short (cropped)",
+   "vertexCount": 3177,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.6682
+    ],
+    "z": [
+     962,
+     5320,
+     2.3542
+    ],
+    "y": [
+     791,
+     881,
+     2.8351
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 9531,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 19064,
+     "length": 9531,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 57188,
+     "length": 9531,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 95312,
+     "length": 6354,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 120728,
+     "length": 11034,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 142796,
+     "length": 0,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": "hair-short01.png",
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (hair/short01)"
+  },
+  {
+   "id": "hair-short02",
+   "kind": "hair",
+   "slot": null,
+   "label": "Short (textured)",
+   "vertexCount": 2061,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.434
+    ],
+    "z": [
+     962,
+     5320,
+     2.0001
+    ],
+    "y": [
+     791,
+     881,
+     2.4098
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 6183,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 12368,
+     "length": 6183,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 37100,
+     "length": 6183,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 61832,
+     "length": 4122,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 78320,
+     "length": 10032,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 98384,
+     "length": 0,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": "hair-short02.png",
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (hair/short02)"
+  },
+  {
+   "id": "hair-short03",
+   "kind": "hair",
+   "slot": null,
+   "label": "Short (side part)",
+   "vertexCount": 1071,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.398
+    ],
+    "z": [
+     962,
+     5320,
+     1.8461
+    ],
+    "y": [
+     791,
+     881,
+     2.2048
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 3213,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 6428,
+     "length": 3213,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 19280,
+     "length": 3213,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 32132,
+     "length": 2142,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 40700,
+     "length": 5766,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 52232,
+     "length": 0,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": "hair-short03.png",
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (hair/short03)"
+  },
+  {
+   "id": "hair-short04",
+   "kind": "hair",
+   "slot": null,
+   "label": "Short (swept)",
+   "vertexCount": 991,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.48
+    ],
+    "z": [
+     962,
+     5320,
+     1.9221
+    ],
+    "y": [
+     791,
+     881,
+     2.3298
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 2973,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 5948,
+     "length": 2973,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 17840,
+     "length": 2973,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 29732,
+     "length": 1982,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 37660,
+     "length": 3150,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 43960,
+     "length": 0,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": "hair-short04.png",
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (hair/short04)"
+  },
+  {
+   "id": "hair-bob01",
+   "kind": "hair",
+   "slot": null,
+   "label": "Bob",
+   "vertexCount": 5961,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.398
+    ],
+    "z": [
+     962,
+     5320,
+     1.8461
+    ],
+    "y": [
+     791,
+     881,
+     2.2048
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 17883,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 35768,
+     "length": 17883,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 107300,
+     "length": 17883,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 178832,
+     "length": 11922,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 226520,
+     "length": 25422,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 277364,
+     "length": 0,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": "hair-bob01.png",
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (hair/bob01)"
+  },
+  {
+   "id": "hair-bob02",
+   "kind": "hair",
+   "slot": null,
+   "label": "Bob (chin)",
+   "vertexCount": 1759,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.398
+    ],
+    "z": [
+     962,
+     5320,
+     1.8461
+    ],
+    "y": [
+     791,
+     881,
+     2.2048
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 5277,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 10556,
+     "length": 5277,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 31664,
+     "length": 5277,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 52772,
+     "length": 3518,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 66844,
+     "length": 6744,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 80332,
+     "length": 0,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": "hair-bob02.png",
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (hair/bob02)"
+  },
+  {
+   "id": "hair-long01",
+   "kind": "hair",
+   "slot": null,
+   "label": "Long",
+   "vertexCount": 3314,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.398
+    ],
+    "z": [
+     962,
+     5320,
+     1.8461
+    ],
+    "y": [
+     791,
+     881,
+     2.2048
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 9942,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 19884,
+     "length": 9942,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 59652,
+     "length": 9942,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 99420,
+     "length": 6628,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 125932,
+     "length": 12324,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 150580,
+     "length": 0,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": "hair-long01.png",
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (hair/long01)"
+  },
+  {
+   "id": "hair-ponytail01",
+   "kind": "hair",
+   "slot": null,
+   "label": "Ponytail",
+   "vertexCount": 4049,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.398
+    ],
+    "z": [
+     962,
+     5320,
+     1.8461
+    ],
+    "y": [
+     791,
+     881,
+     2.2048
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 12147,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 24296,
+     "length": 12147,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 72884,
+     "length": 12147,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 121472,
+     "length": 8098,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 153864,
+     "length": 16056,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 185976,
+     "length": 0,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": "hair-ponytail01.png",
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (hair/ponytail01)"
+  },
+  {
+   "id": "hair-braid01",
+   "kind": "hair",
+   "slot": null,
+   "label": "Braid",
+   "vertexCount": 4771,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.398
+    ],
+    "z": [
+     962,
+     5320,
+     1.8461
+    ],
+    "y": [
+     791,
+     881,
+     2.2048
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 14313,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 28628,
+     "length": 14313,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 85880,
+     "length": 14313,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 143132,
+     "length": 9542,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 181300,
+     "length": 16554,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 214408,
+     "length": 0,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": "hair-braid01.png",
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (hair/braid01)"
+  },
+  {
+   "id": "hair-afro01",
+   "kind": "hair",
+   "slot": null,
+   "label": "Afro",
+   "vertexCount": 2276,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.7412
+    ],
+    "z": [
+     962,
+     5320,
+     2.2613
+    ],
+    "y": [
+     791,
+     881,
+     2.7409
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 6828,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 13656,
+     "length": 6828,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 40968,
+     "length": 6828,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 68280,
+     "length": 4552,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 86488,
+     "length": 6576,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 99640,
+     "length": 0,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": "hair-afro01.png",
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (hair/afro01)"
+  },
+  {
+   "id": "outfit-male-casual-1",
+   "kind": "clothes",
+   "slot": "outfit",
+   "label": "Casual (men's) 1",
+   "vertexCount": 8984,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.434
+    ],
+    "z": [
+     962,
+     5320,
+     2.0001
+    ],
+    "y": [
+     791,
+     881,
+     2.4098
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 26952,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 53904,
+     "length": 26952,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 161712,
+     "length": 26952,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 269520,
+     "length": 17968,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 341392,
+     "length": 50016,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 441424,
+     "length": 8430,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/male_casualsuit01)"
+  },
+  {
+   "id": "outfit-male-casual-2",
+   "kind": "clothes",
+   "slot": "outfit",
+   "label": "Casual (men's) 2",
+   "vertexCount": 2349,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.434
+    ],
+    "z": [
+     962,
+     5320,
+     2.0001
+    ],
+    "y": [
+     791,
+     881,
+     2.4098
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 7047,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 14096,
+     "length": 7047,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 42284,
+     "length": 7047,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 70472,
+     "length": 4698,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 89264,
+     "length": 12360,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 113984,
+     "length": 6058,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/male_casualsuit02)"
+  },
+  {
+   "id": "outfit-male-casual-3",
+   "kind": "clothes",
+   "slot": "outfit",
+   "label": "Casual (men's) 3",
+   "vertexCount": 2796,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.434
+    ],
+    "z": [
+     962,
+     5320,
+     2.0001
+    ],
+    "y": [
+     791,
+     881,
+     2.4098
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 8388,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 16776,
+     "length": 8388,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 50328,
+     "length": 8388,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 83880,
+     "length": 5592,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 106248,
+     "length": 14400,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 135048,
+     "length": 6058,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/male_casualsuit03)"
+  },
+  {
+   "id": "outfit-male-casual-4",
+   "kind": "clothes",
+   "slot": "outfit",
+   "label": "Casual (men's) 4",
+   "vertexCount": 1887,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.434
+    ],
+    "z": [
+     962,
+     5320,
+     2.0001
+    ],
+    "y": [
+     791,
+     881,
+     2.4098
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 5661,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 11324,
+     "length": 5661,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 33968,
+     "length": 5661,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 56612,
+     "length": 3774,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 71708,
+     "length": 9720,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 91148,
+     "length": 5026,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/male_casualsuit04)"
+  },
+  {
+   "id": "outfit-male-casual-5",
+   "kind": "clothes",
+   "slot": "outfit",
+   "label": "Casual (men's) 5",
+   "vertexCount": 3871,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.434
+    ],
+    "z": [
+     962,
+     5320,
+     2.0001
+    ],
+    "y": [
+     791,
+     881,
+     2.4098
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 11613,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 23228,
+     "length": 11613,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 69680,
+     "length": 11613,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 116132,
+     "length": 7742,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 147100,
+     "length": 17988,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 183076,
+     "length": 6058,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/male_casualsuit05)"
+  },
+  {
+   "id": "outfit-male-casual-6",
+   "kind": "clothes",
+   "slot": "outfit",
+   "label": "Casual (men's) 6",
+   "vertexCount": 4035,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.434
+    ],
+    "z": [
+     962,
+     5320,
+     2.0001
+    ],
+    "y": [
+     791,
+     881,
+     2.4098
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 12105,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 24212,
+     "length": 12105,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 72632,
+     "length": 12105,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 121052,
+     "length": 8070,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 153332,
+     "length": 21504,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 196340,
+     "length": 5026,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/male_casualsuit06)"
+  },
+  {
+   "id": "outfit-male-suit",
+   "kind": "clothes",
+   "slot": "outfit",
+   "label": "Suit (men's)",
+   "vertexCount": 8522,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.434
+    ],
+    "z": [
+     962,
+     5320,
+     2.0001
+    ],
+    "y": [
+     791,
+     881,
+     2.4098
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 25566,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 51132,
+     "length": 25566,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 153396,
+     "length": 25566,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 255660,
+     "length": 17044,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 323836,
+     "length": 44868,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 413572,
+     "length": 6410,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/male_elegantsuit01)"
+  },
+  {
+   "id": "outfit-work",
+   "kind": "clothes",
+   "slot": "outfit",
+   "label": "Work clothes",
+   "vertexCount": 4166,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.3983
+    ],
+    "z": [
+     962,
+     5320,
+     1.9038
+    ],
+    "y": [
+     791,
+     881,
+     2.3149
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 12498,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 24996,
+     "length": 12498,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 74988,
+     "length": 12498,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 124980,
+     "length": 8332,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 158308,
+     "length": 20958,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 200224,
+     "length": 2868,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/male_worksuit01)"
+  },
+  {
+   "id": "outfit-female-casual-1",
+   "kind": "clothes",
+   "slot": "outfit",
+   "label": "Casual (women's) 1",
+   "vertexCount": 2406,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.398
+    ],
+    "z": [
+     962,
+     5320,
+     1.8461
+    ],
+    "y": [
+     791,
+     881,
+     2.2048
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 7218,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 14436,
+     "length": 7218,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 43308,
+     "length": 7218,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 72180,
+     "length": 4812,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 91428,
+     "length": 12708,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 116844,
+     "length": 5372,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/female_casualsuit01)"
+  },
+  {
+   "id": "outfit-female-casual-2",
+   "kind": "clothes",
+   "slot": "outfit",
+   "label": "Casual (women's) 2",
+   "vertexCount": 3204,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.398
+    ],
+    "z": [
+     962,
+     5320,
+     1.8461
+    ],
+    "y": [
+     791,
+     881,
+     2.2048
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 9612,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 19224,
+     "length": 9612,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 57672,
+     "length": 9612,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 96120,
+     "length": 6408,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 121752,
+     "length": 16464,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 154680,
+     "length": 2716,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/female_casualsuit02)"
+  },
+  {
+   "id": "outfit-female-suit",
+   "kind": "clothes",
+   "slot": "outfit",
+   "label": "Suit (women's)",
+   "vertexCount": 2446,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.398
+    ],
+    "z": [
+     962,
+     5320,
+     1.8461
+    ],
+    "y": [
+     791,
+     881,
+     2.2048
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 7338,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 14676,
+     "length": 7338,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 44028,
+     "length": 7338,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 73380,
+     "length": 4892,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 92948,
+     "length": 12576,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 118100,
+     "length": 4136,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/female_elegantsuit01)"
+  },
+  {
+   "id": "outfit-sport",
+   "kind": "clothes",
+   "slot": "outfit",
+   "label": "Sportswear",
+   "vertexCount": 1986,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.398
+    ],
+    "z": [
+     962,
+     5320,
+     1.8461
+    ],
+    "y": [
+     791,
+     881,
+     2.2048
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 5958,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 11916,
+     "length": 5958,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 35748,
+     "length": 5958,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 59580,
+     "length": 3972,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 75468,
+     "length": 10308,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 96084,
+     "length": 4678,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/female_sportsuit01)"
+  },
+  {
+   "id": "shoes-1",
+   "kind": "clothes",
+   "slot": "shoes",
+   "label": "Shoes 1",
+   "vertexCount": 1904,
+   "scales": {
+    "x": [
+     12839,
+     12860,
+     0.7045
+    ],
+    "z": [
+     11609,
+     12442,
+     2.539
+    ],
+    "y": [
+     12828,
+     12888,
+     0.5875
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 5712,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 11424,
+     "length": 5712,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 34272,
+     "length": 5712,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 57120,
+     "length": 3808,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 72352,
+     "length": 9960,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 92272,
+     "length": 3206,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/shoes01)"
+  },
+  {
+   "id": "shoes-2",
+   "kind": "clothes",
+   "slot": "shoes",
+   "label": "Shoes 2",
+   "vertexCount": 1744,
+   "scales": {
+    "x": [
+     12839,
+     12860,
+     0.7045
+    ],
+    "z": [
+     11609,
+     12442,
+     2.539
+    ],
+    "y": [
+     12828,
+     12888,
+     0.5875
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 5232,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 10464,
+     "length": 5232,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 31392,
+     "length": 5232,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 52320,
+     "length": 3488,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 66272,
+     "length": 9192,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 84656,
+     "length": 3206,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/shoes02)"
+  },
+  {
+   "id": "shoes-3",
+   "kind": "clothes",
+   "slot": "shoes",
+   "label": "Shoes 3",
+   "vertexCount": 2542,
+   "scales": {
+    "x": [
+     12839,
+     12860,
+     0.7045
+    ],
+    "z": [
+     11609,
+     12442,
+     2.539
+    ],
+    "y": [
+     12828,
+     12888,
+     0.5875
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 7626,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 15252,
+     "length": 7626,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 45756,
+     "length": 7626,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 76260,
+     "length": 5084,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 96596,
+     "length": 12384,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 121364,
+     "length": 3206,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/shoes03)"
+  },
+  {
+   "id": "shoes-4",
+   "kind": "clothes",
+   "slot": "shoes",
+   "label": "Shoes 4",
+   "vertexCount": 1904,
+   "scales": {
+    "x": [
+     12839,
+     12860,
+     0.7045
+    ],
+    "z": [
+     11609,
+     12442,
+     2.539
+    ],
+    "y": [
+     12828,
+     12888,
+     0.5875
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 5712,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 11424,
+     "length": 5712,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 34272,
+     "length": 5712,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 57120,
+     "length": 3808,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 72352,
+     "length": 9960,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 92272,
+     "length": 3206,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/shoes04)"
+  },
+  {
+   "id": "shoes-5",
+   "kind": "clothes",
+   "slot": "shoes",
+   "label": "Shoes 5",
+   "vertexCount": 1744,
+   "scales": {
+    "x": [
+     12839,
+     12860,
+     0.7045
+    ],
+    "z": [
+     11609,
+     12442,
+     2.539
+    ],
+    "y": [
+     12828,
+     12888,
+     0.5875
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 5232,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 10464,
+     "length": 5232,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 31392,
+     "length": 5232,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 52320,
+     "length": 3488,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 66272,
+     "length": 9192,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 84656,
+     "length": 3206,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/shoes05)"
+  },
+  {
+   "id": "shoes-6",
+   "kind": "clothes",
+   "slot": "shoes",
+   "label": "Shoes 6",
+   "vertexCount": 1744,
+   "scales": {
+    "x": [
+     12839,
+     12860,
+     0.7045
+    ],
+    "z": [
+     11609,
+     12442,
+     2.539
+    ],
+    "y": [
+     12828,
+     12888,
+     0.5875
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 5232,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 10464,
+     "length": 5232,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 31392,
+     "length": 5232,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 52320,
+     "length": 3488,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 66272,
+     "length": 9192,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 84656,
+     "length": 3206,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/shoes06)"
+  },
+  {
+   "id": "hat-fedora",
+   "kind": "clothes",
+   "slot": "hat",
+   "label": "Fedora",
+   "vertexCount": 702,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.48
+    ],
+    "z": [
+     962,
+     5320,
+     1.9221
+    ],
+    "y": [
+     791,
+     881,
+     2.3298
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 2106,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 4212,
+     "length": 2106,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 12636,
+     "length": 2106,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 21060,
+     "length": 1404,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 26676,
+     "length": 3732,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 34140,
+     "length": 0,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/fedora01)"
+  }
+ ]
+}

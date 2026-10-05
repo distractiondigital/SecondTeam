@@ -17,6 +17,7 @@ const FIELD_LABELS: Record<OverridableField, string> = {
   build: 'build',
   limits: 'joint limits',
   body: 'body',
+  appearance: 'clothes and hair',
   stops: 'brightness',
   kelvin: 'colour temperature',
   softness: 'softness',

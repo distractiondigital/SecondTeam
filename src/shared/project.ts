@@ -25,7 +25,7 @@ import { sanitizeOverrides, type ShotOverrides } from './overrides'
 import { clampCone, clampKelvin, clampStops, clampUnit, LIGHT_KINDS, type LightKind } from './lighting'
 import { DEFAULT_GENERATION, repairGeneration, type GenerationSettings } from './prompt'
 import { DEFAULT_ENVIRONMENT, repairEnvironment, type Environment } from './environment'
-import { sanitizeBody, type BodySliders } from './humanBody'
+import { sanitizeAppearance, sanitizeBody, type BodySliders, type FigureAppearance } from './humanBody'
 
 // v1: M1 (primitives, groups). v2: M2 adds mannequins. v3: M3 adds cameras.
 // v4: per-shot changes (camera.overrides). v5: numbered scenes, shots 1A/1B…, one camera kit per project.
@@ -106,6 +106,8 @@ export interface MannequinNode extends NodeBase {
   style: FigureStyle
   /** Human body sliders (0-1 each); the mannequin uses `build` instead. */
   body: BodySliders
+  /** Human hair, eyebrows, clothes and their colours. */
+  appearance: FigureAppearance
   pose: Pose
 }
 
@@ -425,6 +427,7 @@ function repairNode(node: SceneNode, scene: Scene): void {
     // Figures saved before v12 were mannequins.
     node.style = node.style === 'human' ? 'human' : 'mannequin'
     node.body = sanitizeBody(node.body, { weight: node.build })
+    node.appearance = sanitizeAppearance(node.appearance, node.body.gender)
     node.castId = typeof node.castId === 'string' ? node.castId : null
     node.description = typeof node.description === 'string' ? node.description : ''
     node.color = typeof node.color === 'string' ? node.color : FIGURE_COLORS[0]

@@ -3,17 +3,29 @@ import {
   Bone,
   BufferAttribute,
   BufferGeometry,
+  DoubleSide,
   Euler,
+  FrontSide,
   MathUtils,
   Quaternion,
   Skeleton,
   SkinnedMesh,
   Vector3
 } from 'three'
-import type { BodyData, HumanFit } from '../../../shared/humanBody'
+import {
+  fitProxy,
+  partColor,
+  partOf,
+  proxySkin,
+  visibleBody,
+  wornIds,
+  type BodyData,
+  type FigureAppearance,
+  type HumanFit
+} from '../../../shared/humanBody'
 import { JOINTS, JOINT_NAMES, type JointName, type Pose } from '../../../shared/mannequin'
 import { SELECTION_COLOR } from './selection'
-import { useBodyData } from './humanData'
+import { useBodyData, useProxies, type LoadedProxy } from './humanData'
 
 // A realistic human (MakeHuman CC0 body) posed by the same 17-joint skeleton as the mannequin.
 // The body is built for the figure's sliders; each rig bone that matches one of our joints takes
@@ -106,6 +118,7 @@ function build(body: BodyData, fit: HumanFit): Built {
   mesh.bind(new Skeleton([...bones.values()]))
   mesh.castShadow = true
   mesh.receiveShadow = true
+  mesh.frustumCulled = false // its bounds are the rest pose; a posed arm could be culled
 
   return { mesh, bones, corrections, scale: fit.scale, ground: fit.ground }
 }
@@ -139,22 +152,75 @@ function applyPose(b: Built, body: BodyData, pose: Pose, height: number): void {
   }
 }
 
+/** One worn item (eyes, eyebrows, hair, a garment), fitted to this body and bent by its skeleton. */
+function ProxyMesh({ body, fit, built, item, color, selected }: { body: BodyData; fit: HumanFit; built: Built; item: LoadedProxy; color: string; selected: boolean }) {
+  const mesh = useMemo(() => {
+    const geometry = new BufferGeometry()
+    geometry.setAttribute('position', new BufferAttribute(fitProxy(item.data, fit.positions), 3))
+    if (item.data.uv.length) geometry.setAttribute('uv', new BufferAttribute(item.data.uv, 2))
+    geometry.setIndex(new BufferAttribute(item.data.indices, 1))
+    const { skinIndex, skinWeight } = proxySkin(item.data, body)
+    geometry.setAttribute('skinIndex', new BufferAttribute(skinIndex, 4))
+    geometry.setAttribute('skinWeight', new BufferAttribute(skinWeight, 4))
+    geometry.computeVertexNormals()
+    const m = new SkinnedMesh(geometry)
+    // Same skeleton and bind as the body (passing the bind matrix keeps its rest pose intact).
+    m.bind(built.mesh.skeleton, built.mesh.bindMatrix)
+    m.castShadow = true
+    m.receiveShadow = true
+    m.frustumCulled = false
+    return m
+  }, [body, fit, built, item])
+  useEffect(() => () => mesh.geometry.dispose(), [mesh])
+  const masked = item.mask !== null
+  return (
+    <primitive object={mesh}>
+      <meshStandardMaterial
+        attach="material"
+        color={color}
+        roughness={item.data.info.kind === 'eyes' ? 0.35 : 0.8}
+        metalness={0}
+        alphaMap={item.mask}
+        alphaTest={masked ? 0.5 : 0}
+        side={masked ? DoubleSide : FrontSide}
+        emissive={selected ? SELECTION_COLOR : '#000000'}
+        emissiveIntensity={selected ? 0.12 : 0}
+      />
+    </primitive>
+  )
+}
+
 interface Props {
   fit: HumanFit
   pose: Pose
+  /** The figure's colour: skin, and every part without its own colour. */
   color: string
+  appearance: FigureAppearance
   selected: boolean
 }
 
-export default function HumanView({ fit, pose, color, selected }: Props) {
+/** Which colour a worn item takes. */
+function itemColor(item: LoadedProxy, appearance: FigureAppearance, color: string): string {
+  const part = partOf(item.data.info)
+  return part ? partColor(appearance, part, color) : color
+}
+
+export default function HumanView({ fit, pose, color, appearance, selected }: Props) {
   const body = useBodyData()
   const built = useMemo(() => (body ? build(body, fit) : null), [body, fit])
   useEffect(() => () => built?.mesh.geometry.dispose(), [built])
+  const items = useProxies(wornIds(appearance))
+  // Hide the skin under the clothes being worn (so it can't poke through).
+  useEffect(() => {
+    if (!built || !body) return
+    const worn = (items ?? []).filter((i) => i.data.info.kind === 'clothes').map((i) => i.data)
+    built.mesh.geometry.setIndex(new BufferAttribute(visibleBody(body, worn), 1))
+  }, [built, body, items])
   const height = fit.proportions.height
   useEffect(() => {
     if (built && body) applyPose(built, body, pose, height)
   }, [built, body, pose, height])
-  if (!built) return null
+  if (!built || !body) return null
   const s = built.scale
   return (
     <group scale={[s, s, s]} position={[0, -built.ground * s, 0]}>
@@ -168,6 +234,9 @@ export default function HumanView({ fit, pose, color, selected }: Props) {
           emissiveIntensity={selected ? 0.12 : 0}
         />
       </primitive>
+      {(items ?? []).map((item) => (
+        <ProxyMesh key={item.data.info.id} body={body} fit={fit} built={built} item={item} color={itemColor(item, appearance, color)} selected={selected} />
+      ))}
     </group>
   )
 }

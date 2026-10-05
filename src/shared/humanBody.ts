@@ -407,3 +407,199 @@ export function sanitizeBody(raw: unknown, fallback: Partial<BodySliders> = {}):
   }
   return { gender: pick('gender'), age: pick('age'), muscle: pick('muscle'), weight: pick('weight') }
 }
+
+// ---------- Proxies: eyes, eyebrows, hair, clothes ----------
+
+export type ProxyKind = 'eyes' | 'eyebrows' | 'hair' | 'clothes'
+export type GarmentSlot = 'outfit' | 'top' | 'bottom' | 'outer' | 'shoes' | 'hat'
+
+export interface ProxyInfo {
+  id: string
+  kind: ProxyKind
+  slot: GarmentSlot | null
+  label: string
+  vertexCount: number
+  /** Axis scale references: [vertex a, vertex b, distance in the reference body]. */
+  scales: Partial<Record<'x' | 'y' | 'z', [number, number, number]>>
+  sections: Record<string, Section>
+  /** Transparency mask file (hair, eyebrows), or null. */
+  mask: string | null
+  license: string
+  source: string
+}
+
+export interface ProxyData {
+  info: ProxyInfo
+  refs: Uint16Array
+  weights: Float32Array
+  offsets: Float32Array
+  uv: Float32Array
+  indices: Uint16Array | Uint32Array
+  /** Base-mesh vertices this item covers (the skin there is hidden while it's worn). */
+  deleteVerts: Uint16Array
+}
+
+export function parseProxy(info: ProxyInfo, bin: ArrayBuffer): ProxyData {
+  const get = (name: string) => {
+    const s = info.sections[name]
+    const T = { Float32Array, Uint16Array, Uint32Array }[s.type as 'Float32Array' | 'Uint16Array' | 'Uint32Array']
+    return new T(bin, s.offset, s.length)
+  }
+  return {
+    info,
+    refs: get('refs') as Uint16Array,
+    weights: get('weights') as Float32Array,
+    offsets: get('offsets') as Float32Array,
+    uv: get('uv') as Float32Array,
+    indices: get('indices') as Uint16Array | Uint32Array,
+    deleteVerts: get('deleteVerts') as Uint16Array
+  }
+}
+
+/** The item's vertices on this body (decimetres): weighted body points plus a size-scaled offset. */
+export function fitProxy(proxy: ProxyData, positions: Float32Array): Float32Array {
+  const axisScale = (axis: 'x' | 'y' | 'z', k: number) => {
+    const s = proxy.info.scales[axis]
+    if (!s || !s[2]) return 1
+    return Math.abs(positions[s[0] * 3 + k] - positions[s[1] * 3 + k]) / s[2]
+  }
+  const sx = axisScale('x', 0)
+  const sy = axisScale('y', 1)
+  const sz = axisScale('z', 2)
+  const n = proxy.refs.length / 3
+  const out = new Float32Array(n * 3)
+  for (let i = 0; i < n; i++) {
+    for (let k = 0; k < 3; k++) {
+      let v = 0
+      for (let r = 0; r < 3; r++) v += proxy.weights[i * 3 + r] * positions[proxy.refs[i * 3 + r] * 3 + k]
+      out[i * 3 + k] = v + proxy.offsets[i * 3 + k] * (k === 0 ? sx : k === 1 ? sy : sz)
+    }
+  }
+  return out
+}
+
+/** Skin weights for the item: each vertex blends its reference vertices' weights (top 4 kept). */
+export function proxySkin(proxy: ProxyData, body: BodyData): { skinIndex: Uint16Array; skinWeight: Float32Array } {
+  const n = proxy.refs.length / 3
+  const skinIndex = new Uint16Array(n * 4)
+  const skinWeight = new Float32Array(n * 4)
+  const acc = new Map<number, number>()
+  for (let i = 0; i < n; i++) {
+    acc.clear()
+    for (let r = 0; r < 3; r++) {
+      const w = proxy.weights[i * 3 + r]
+      if (!w) continue
+      const v = proxy.refs[i * 3 + r]
+      for (let k = 0; k < 4; k++) {
+        const bw = body.skinWeight[v * 4 + k] / 255
+        if (bw) acc.set(body.skinIndex[v * 4 + k], (acc.get(body.skinIndex[v * 4 + k]) ?? 0) + w * bw)
+      }
+    }
+    const top = [...acc].sort((a, b) => b[1] - a[1]).slice(0, 4)
+    const total = top.reduce((s, [, w]) => s + w, 0) || 1
+    top.forEach(([b, w], k) => {
+      skinIndex[i * 4 + k] = b
+      skinWeight[i * 4 + k] = w / total
+    })
+    if (!top.length) skinWeight[i * 4] = 1
+  }
+  return { skinIndex, skinWeight }
+}
+
+/** The body's visible triangles with the skin under the worn items left out. */
+export function visibleBody(body: BodyData, worn: ProxyData[]): Uint16Array {
+  if (!worn.some((p) => p.deleteVerts.length)) return body.bodyIndices
+  const hidden = new Uint8Array(body.vertexCount)
+  for (const p of worn) for (const v of p.deleteVerts) hidden[v] = 1
+  const idx = body.bodyIndices
+  const out: number[] = []
+  for (let t = 0; t < idx.length; t += 3) {
+    if (!hidden[idx[t]] && !hidden[idx[t + 1]] && !hidden[idx[t + 2]]) out.push(idx[t], idx[t + 1], idx[t + 2])
+  }
+  return new Uint16Array(out)
+}
+
+// ---------- Appearance ----------
+
+export const GARMENT_SLOTS: GarmentSlot[] = ['outfit', 'top', 'bottom', 'outer', 'shoes', 'hat']
+export type AppearancePart = 'hair' | 'eyes' | GarmentSlot
+
+/** What a human figure wears. Ids refer to figures/proxies.json; a missing colour = the figure's colour. */
+export interface FigureAppearance {
+  hair: string | null
+  eyebrows: string | null
+  garments: Partial<Record<GarmentSlot, string>>
+  colors: Partial<Record<AppearancePart, string>>
+}
+
+/** A dressed starting look (one colour: everything follows the figure's colour until changed). */
+export function defaultAppearance(gender: number): FigureAppearance {
+  return gender >= 0.5
+    ? { hair: 'hair-short02', eyebrows: 'eyebrows-1', garments: { outfit: 'outfit-male-casual-1', shoes: 'shoes-1' }, colors: {} }
+    : { hair: 'hair-ponytail01', eyebrows: 'eyebrows-1', garments: { outfit: 'outfit-female-casual-1', shoes: 'shoes-2' }, colors: {} }
+}
+
+const ID = /^[a-z0-9-]{1,60}$/
+const HEX = /^#[0-9a-f]{6}$/i
+const PARTS: AppearancePart[] = ['hair', 'eyes', ...GARMENT_SLOTS]
+
+export function sanitizeAppearance(raw: unknown, gender: number): FigureAppearance {
+  if (!raw || typeof raw !== 'object') return defaultAppearance(gender)
+  const r = raw as Partial<Record<keyof FigureAppearance, unknown>>
+  const id = (v: unknown) => (typeof v === 'string' && ID.test(v) ? v : null)
+  const garments: FigureAppearance['garments'] = {}
+  const g = (r.garments && typeof r.garments === 'object' ? r.garments : {}) as Record<string, unknown>
+  for (const slot of GARMENT_SLOTS) {
+    const v = id(g[slot])
+    if (v) garments[slot] = v
+  }
+  const colors: FigureAppearance['colors'] = {}
+  const c = (r.colors && typeof r.colors === 'object' ? r.colors : {}) as Record<string, unknown>
+  for (const part of PARTS) {
+    const v = c[part]
+    if (typeof v === 'string' && HEX.test(v)) colors[part] = v.toLowerCase()
+  }
+  return { hair: id(r.hair), eyebrows: id(r.eyebrows), garments, colors }
+}
+
+/** Everything a figure shows besides its body, in drawing order. */
+export function wornIds(a: FigureAppearance): string[] {
+  const ids = ['eyes']
+  if (a.eyebrows) ids.push(a.eyebrows)
+  if (a.hair) ids.push(a.hair)
+  for (const slot of GARMENT_SLOTS) {
+    const id = a.garments[slot]
+    // A full outfit replaces a separate top and bottom.
+    if (id && !((slot === 'top' || slot === 'bottom') && a.garments.outfit)) ids.push(id)
+  }
+  return ids
+}
+
+/**
+ * How dark each part is by default compared with the figure's colour, so clothes read as clothes
+ * while the figure stays one colour family. Any part can be given its own colour instead.
+ */
+const DEFAULT_SHADE: Record<AppearancePart, number> = { hair: 0.45, eyes: 0.4, outfit: 0.78, top: 0.78, bottom: 0.66, outer: 0.68, shoes: 0.4, hat: 0.55 }
+
+/** The colour a part shows: its own, or a shade of the figure's colour. */
+export function partColor(appearance: FigureAppearance, part: AppearancePart, figureColor: string): string {
+  const own = appearance.colors[part]
+  if (own) return own
+  const k = DEFAULT_SHADE[part]
+  const hex = HEX.test(figureColor) ? figureColor : '#999999'
+  return (
+    '#' +
+    [1, 3, 5]
+      .map((i) =>
+        Math.round(parseInt(hex.slice(i, i + 2), 16) * k)
+          .toString(16)
+          .padStart(2, '0')
+      )
+      .join('')
+  )
+}
+
+/** Which appearance part an item belongs to (eyebrows go with the hair). */
+export function partOf(info: ProxyInfo): AppearancePart | null {
+  return info.kind === 'hair' || info.kind === 'eyebrows' ? 'hair' : info.kind === 'eyes' ? 'eyes' : info.slot
+}
