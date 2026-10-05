@@ -1,7 +1,8 @@
 // What the UI and the main process exchange about generation: the job, its progress events,
 // finished takes and the backend's status. (Types only; the work happens in src/main/backend.)
 
-export type BackendState = 'not-installed' | 'starting' | 'ready' | 'error' | 'stopped'
+/** 'unavailable': this computer can't run the built-in engine (a Mac, for now). */
+export type BackendState = 'not-installed' | 'unavailable' | 'starting' | 'ready' | 'error' | 'stopped'
 
 export interface BackendStatus {
   state: BackendState

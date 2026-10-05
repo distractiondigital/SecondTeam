@@ -32,6 +32,7 @@ import { newProject, openProject, saveProject, saveProjectAs } from '../state/pr
 import { RecentMenu } from './RecentProjects'
 import { useUi, type GizmoMode, type SnapMode } from '../state/uiStore'
 import type { Units } from '../units'
+import { CTRL } from '../platform'
 
 const PRIMITIVE_ICONS: Record<PrimitiveType, LucideIcon> = {
   box: Box,
@@ -55,7 +56,7 @@ const LIGHT_DESCRIPTIONS = {
   ambient: 'an ambient fill (soft, even light from the sky)'
 }
 
-const HOLD_CTRL = 'Hold Ctrl while dragging to flip grid snapping on or off. Shift+Tab cycles modes.'
+const HOLD_CTRL = `Hold ${CTRL} while dragging to flip grid snapping on or off. Shift+Tab cycles modes.`
 
 const SNAP_OPTIONS: { mode: SnapMode; label: string; title: (units: Units) => string }[] = [
   { mode: 'off', label: 'Off', title: () => `No snapping. ${HOLD_CTRL}` },

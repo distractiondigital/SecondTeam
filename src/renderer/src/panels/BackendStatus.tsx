@@ -7,6 +7,7 @@ import { openEngineSettings, openWizard } from '../state/setup'
 
 const LABELS = {
   'not-installed': 'Not installed',
+  unavailable: 'Coming soon on Mac',
   starting: 'Starting…',
   ready: 'Ready',
   error: 'Error',
@@ -39,6 +40,12 @@ export default function BackendStatus() {
           {state === 'ready' && (
             <p className="hint small">
               Models: {models.length ? models.map((m) => m.name).join(', ') : 'none installed'}
+            </p>
+          )}
+          {state === 'unavailable' && (
+            <p className="hint small">
+              Advanced: if you already run ComfyUI on this Mac (with the same models and the IP-Adapter add-on), you can connect it in
+              Engine settings → Advanced.
             </p>
           )}
           <div className="prop-actions tight">
@@ -78,7 +85,7 @@ export default function BackendStatus() {
             <button onClick={() => void window.secondTeam.openBackendLog()}>
               <FileText size={13} /> Open log
             </button>
-            <button onClick={() => void window.secondTeam.restartBackend()} disabled={state === 'not-installed'}>
+            <button onClick={() => void window.secondTeam.restartBackend()} disabled={state === 'not-installed' || state === 'unavailable'}>
               <RotateCw size={13} /> Restart
             </button>
           </div>

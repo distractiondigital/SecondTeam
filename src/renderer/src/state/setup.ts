@@ -54,7 +54,8 @@ export function connectSetup(): () => void {
     .setupInfo()
     .then((info) => {
       setInfo(info)
-      if (!info.ready && !info.skipped && !info.externalUrl) openWizard('pc')
+      // First run on a PC that can run the engine: offer to set it up (never on a Mac: AI is coming soon there).
+      if (info.builtInEngine && !info.ready && !info.skipped && !info.externalUrl) openWizard('pc')
     })
   const offInfo = api().onSetupInfo(setInfo)
   const offProgress = api().onSetupProgress((progress) => {

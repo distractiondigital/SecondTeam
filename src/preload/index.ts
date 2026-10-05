@@ -5,6 +5,8 @@ import type { SecondTeamApi } from './api'
 
 // The UI can only reach the Node side through the functions listed here.
 const api: SecondTeamApi = {
+  // Asked once, as the window opens (Mac keys and the "AI coming soon" messages depend on it).
+  platform: ipcRenderer.sendSync('app:platform') === 'mac' ? 'mac' : 'win',
   getVersion: () => ipcRenderer.invoke('app:getVersion'),
   setUnsaved: (unsaved, projectName) => ipcRenderer.send('app:setUnsaved', unsaved, projectName),
   closeNow: () => ipcRenderer.send('app:closeNow'),

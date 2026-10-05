@@ -7,7 +7,8 @@
   --text-dim: #8b8e95;
   --accent: #f2a33a;
   --accent-soft: rgba(242, 163, 58, 0.18);
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  /* Segoe UI on Windows; the Mac's own system font there. */
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   font-size: 13px;
   color: var(--text);
   background: var(--bg);
@@ -2286,7 +2287,7 @@ input {
   border: 1px solid var(--border);
   border-radius: 5px;
   font-size: 12px;
-  font-family: Consolas, monospace;
+  font-family: Consolas, Menlo, monospace;
 }
 
 .setup-path span {

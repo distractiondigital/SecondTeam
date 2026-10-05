@@ -207,7 +207,8 @@ export default function LookThrough() {
         if (!state.flying && !state.roll) state.working = null
         doc().endGesture('wheel')
       }, WHEEL_GESTURE_END)
-      if (e.ctrlKey) {
+      // Ctrl+scroll (Cmd+scroll on a Mac) or a pinch (which arrives as Ctrl+scroll): zoom the lens.
+      if (e.ctrlKey || e.metaKey) {
         const f = node.focalLength * Math.pow(1.06, steps)
         doc().updateNode(id, { focalLength: Math.round(clampFocal(f) * 10) / 10 })
       } else {

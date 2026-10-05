@@ -1,4 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
+import { homedir } from 'os'
 import { join } from 'path'
 import { safeRename } from './safeRename'
 
@@ -15,7 +16,13 @@ export interface AppSettings {
 
 export const DEFAULT_SETTINGS: AppSettings = { backendDir: null, externalComfyUrl: null, setupSkipped: false }
 
+/**
+ * Where the app keeps its own files (settings, libraries, logs, the AI engine by default):
+ * Windows %LOCALAPPDATA%\SecondTeam, Mac ~/Library/Application Support/SecondTeam.
+ * (Tests on Windows point LOCALAPPDATA at a scratch folder.)
+ */
 export function appDataFolder(): string {
+  if (process.platform === 'darwin') return join(homedir(), 'Library', 'Application Support', 'SecondTeam')
   const base = process.env['LOCALAPPDATA'] ?? join(process.env['USERPROFILE'] ?? '.', 'AppData', 'Local')
   return join(base, 'SecondTeam')
 }

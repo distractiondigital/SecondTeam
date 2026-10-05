@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { MathUtils, type Euler } from 'three'
 import { useUi } from '../state/uiStore'
+import { addKey } from '../platform'
 
 // Helpers shared by the object gizmo and the joint gizmo.
 
@@ -8,11 +9,11 @@ export const ROTATE_SNAP_DEGREES = 15
 
 export const r4 = (n: number) => Math.round(n * 10000) / 10000 || 0
 
-/** True while the Ctrl key is held (it flips grid snapping during a drag). */
+/** True while Ctrl (Cmd on a Mac) is held: it flips grid snapping during a drag. */
 export function useCtrlHeld(): boolean {
   const [held, setHeld] = useState(false)
   useEffect(() => {
-    const update = (e: KeyboardEvent) => setHeld(e.ctrlKey)
+    const update = (e: KeyboardEvent) => setHeld(addKey(e))
     const release = () => setHeld(false)
     window.addEventListener('keydown', update)
     window.addEventListener('keyup', update)

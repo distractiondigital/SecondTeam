@@ -4,6 +4,8 @@ import type { BackendStatus, GenerationEvent, GenerationJob, InstalledModel, Tak
 
 // Shape of the bridge exposed to the UI as `window.secondTeam`.
 export interface SecondTeamApi {
+  /** 'mac' on a Mac (Cmd instead of Ctrl, AI coming soon), else 'win'. */
+  platform: 'mac' | 'win'
   getVersion: () => Promise<string>
   /** Tell the main process whether there are unsaved changes (used when closing the window). */
   setUnsaved: (unsaved: boolean, projectName: string) => void

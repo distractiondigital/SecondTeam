@@ -6,6 +6,7 @@ import { useUi } from '../state/uiStore'
 import { isMovable } from './SelectionGizmo'
 import { CLICK_DRAG_TOLERANCE, outermostAncestor } from './selection'
 import { viewportBridge } from './viewportBridge'
+import { addKey } from '../platform'
 
 // Box select: left-drag in the viewport draws a rectangle; everything whose middle (the centre
 // of its on-screen bounds) is inside gets selected. Plain drag replaces the selection, Shift adds,
@@ -68,7 +69,7 @@ export default function BoxSelect() {
       const to = local(e)
       select(
         { left: Math.min(from.x, to.x), right: Math.max(from.x, to.x), top: Math.min(from.y, to.y), bottom: Math.max(from.y, to.y) },
-        e.shiftKey ? 'add' : e.ctrlKey ? 'remove' : 'replace'
+        e.shiftKey ? 'add' : addKey(e) ? 'remove' : 'replace'
       )
       // The browser sends a click after the release; don't let it clear the new selection.
       setTimeout(() => (viewportBridge.boxSelecting = false), 0)

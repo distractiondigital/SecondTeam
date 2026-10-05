@@ -64,7 +64,7 @@ export default function EngineSettings() {
             {status?.comfyVersion && <span className="dim">ComfyUI {status.comfyVersion}</span>}
           </div>
           <div className="prop-actions tight">
-            <button onClick={() => void window.secondTeam.restartBackend()} disabled={busy || status?.state === 'not-installed'}>
+            <button onClick={() => void window.secondTeam.restartBackend()} disabled={busy || status?.state === 'not-installed' || status?.state === 'unavailable'}>
               <RotateCw size={13} /> Restart
             </button>
             <button onClick={() => void window.secondTeam.openBackendLog()}>
@@ -76,6 +76,12 @@ export default function EngineSettings() {
             <p className="hint small">
               Using the ComfyUI at <b>{info.externalUrl}</b> (Advanced, below). Second Team doesn’t start or update it, and it
               needs the same models and add-on installed.
+            </p>
+          ) : !info.builtInEngine ? (
+            <p className="hint small">
+              The built-in AI engine runs on Windows PCs with an NVIDIA graphics card. On a Mac it's coming soon: everything else in
+              Second Team works, and AI takes made on a PC show up when you open the same project here. If you already run ComfyUI
+              on this Mac, you can connect it under Advanced.
             </p>
           ) : (
             <>
@@ -150,7 +156,7 @@ export default function EngineSettings() {
           <details className="engine-advanced">
             <summary>Advanced</summary>
             <p className="hint small">
-              Use a ComfyUI that’s already running on this PC (for development). It must have the same models and the
+              Use a ComfyUI that’s already running on this computer. It must have the same models and the
               IP-Adapter add-on.
             </p>
             {info.externalUrl ? (

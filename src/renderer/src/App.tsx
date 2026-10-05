@@ -17,6 +17,7 @@ import { useStyleLibrary } from './state/styleLibrary'
 import { projectDisplayName, syncWindowState } from './state/projectIO'
 import { useUi } from './state/uiStore'
 import Viewport from './viewport/Viewport'
+import { ALT, CTRL } from './platform'
 
 /** What's selected, e.g. "Figure 1 › Left elbow", plus hints for the current mode. */
 function StatusBar() {
@@ -29,9 +30,9 @@ function StatusBar() {
   let readout = ''
   const navigation =
     navMode === 'trackpad'
-      ? 'Two-finger swipe: orbit · Shift+swipe: pan · Pinch: zoom · Alt+drag: orbit (Shift: pan)'
-      : 'Middle-drag: orbit · Shift+middle-drag: pan · Scroll: zoom · Alt+drag: orbit (Shift: pan)'
-  let hints = `${navigation} · Right-drag + WASD: fly · Click: select (double-click: inside a group) · Drag: box select (Shift add, Ctrl remove) · W/E/R: move/rotate/scale · F: frame · Ctrl+D: duplicate · Del: delete · Ctrl+G: group`
+      ? `Two-finger swipe: orbit · Shift+swipe: pan · Pinch: zoom · ${ALT}+drag: orbit (Shift: pan)`
+      : `Middle-drag: orbit · Shift+middle-drag: pan · Scroll: zoom · ${ALT}+drag: orbit (Shift: pan)`
+  let hints = `${navigation} · Right-drag + WASD: fly · Click: select (double-click: inside a group) · Drag: box select (Shift add, ${CTRL} remove) · W/E/R: move/rotate/scale · F: frame · ${CTRL}+D: duplicate · Del: delete · ${CTRL}+G: group`
   if (node) readout = node.name
   else if (selection.length > 1) readout = `${selection.length} objects`
   if (node?.type === 'mannequin') {
@@ -41,7 +42,7 @@ function StatusBar() {
       hints =
         grabbable && mode === 'translate'
           ? 'Hold the ball and move the mouse · while holding: W/S away/closer, Shift faster, Space snapping on/off · E: rotate instead · Esc: back to the figure'
-          : `Drag the rings to rotate this joint · Hold Ctrl: 15° steps${grabbable ? ' · W: drag it to a spot instead' : ''} · Click another body part to pose it · Esc: back to the figure`
+          : `Drag the rings to rotate this joint · Hold ${CTRL}: 15° steps${grabbable ? ' · W: drag it to a spot instead' : ''} · Click another body part to pose it · Esc: back to the figure`
     } else {
       hints = 'Click a body part to pose its joint (a hand, foot or the hips + W: drag it to a spot) · W/E: move/rotate the figure · Look at, presets and planted hands/feet in Properties'
     }

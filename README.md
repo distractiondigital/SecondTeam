@@ -6,7 +6,7 @@ A local Windows desktop app for film previs. You greybox a set, place real camer
 - Progress: [docs/PROGRESS.md](docs/PROGRESS.md)
 
 ## Install it (no developer setup)
-1. Run `Second Team Setup 0.10.0.exe` (made with `npm run dist`, in `release\`). It isn't code-signed yet, so Windows shows **"Windows protected your PC"**: click **More info → Run anyway**. Windows asks for administrator permission once; it installs into `C:Program FilesSecond Team` (changeable) with Start-menu and desktop shortcuts. Each Windows user who opens it sets up their own engine and settings (in their own AppData), or points at an existing copy.
+1. Run `Second Team Setup 0.10.0.exe` (made with `npm run dist`, in `release\`). It isn't code-signed yet, so Windows shows **"Windows protected your PC"**: click **More info → Run anyway**. Windows asks for administrator permission once; it installs into `C:\Program Files\Second Team` (changeable) with Start-menu and desktop shortcuts. Each Windows user who opens it sets up their own engine and settings (in their own AppData), or points at an existing copy.
 2. On the first start, the **AI engine setup** opens:
    1. **This PC**: checks the graphics card (an NVIDIA card with driver 580 or newer; 8 GB+ video memory recommended) and that Windows can unpack the engine (Windows 11 can by itself; Windows 10 needs [7-Zip](https://www.7-zip.org)).
    2. **Location**: where the engine and models go, by default `%LOCALAPPDATA%\SecondTeam\backend`. **Change…** for another drive. Or **Use files I already have…** to point at an existing copy (e.g. this repo's `ComfyUI` folder): nothing is copied.
@@ -15,6 +15,14 @@ A local Windows desktop app for film previs. You greybox a set, place real camer
    **Set up later** skips it: everything except AI frames works without the engine.
 3. **Engine settings** (click the AI light in the Takes strip → **Engine settings…**, the AI window's **Engine** tab): status, location, what's installed (**Add** a model you skipped), **Repair** (re-downloads anything missing or damaged; **Full check** also re-reads every model's checksum), **Open log**, **Restart**, and under **Advanced** a ComfyUI that's already running on this PC.
 4. Uninstalling (Windows Settings → Apps) removes the app but keeps the engine, the models and your projects, so reinstalling doesn't download again. To free the space, delete the backend folder yourself.
+
+## Mac (Apple Silicon)
+The Mac version is the whole app except the AI engine (*coming soon* on Mac; AI takes made on a PC still show in shared projects). Install it and the controls on a Mac: [docs/MAC.md](docs/MAC.md).
+
+- It's built by GitHub Actions (`.github/workflows/mac.yml`) on GitHub's Mac machines, since Apple only allows building Mac apps on a Mac. Every push to `main` that changes the app (or **Actions → Mac build → Run workflow**) makes `Second Team <version> (Apple Silicon).dmg`, under that run's **Artifacts** (kept 30 days). On a private repo, Mac build minutes count 10× against the free allowance (about 25 builds a month).
+- It isn't notarized by Apple (no paid developer account yet), so the first launch of each version needs **System Settings → Privacy & Security → Open Anyway**.
+- On a Mac, settings and libraries live in `~/Library/Application Support/SecondTeam`; **Cmd** replaces Ctrl for clicks and shortcuts, **Option** replaces Alt, trackpad controls are the default, and Delete deletes.
+- To try the Mac behaviour on a PC (development only): start the dev app with `SECONDTEAM_PLATFORM=mac`.
 
 ## Develop it
 ### Requirements

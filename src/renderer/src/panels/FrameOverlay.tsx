@@ -6,6 +6,7 @@ import { useUi } from '../state/uiStore'
 import { formatLengthLabel } from '../units'
 import { viewFit, type Rect } from '../viewport/viewFit'
 import NumberField from './NumberField'
+import { ALT, CTRL } from '../platform'
 
 // Drawn over the viewport while looking through a shot camera: the delivery frame (everything
 // outside it shaded), the other frame guides, optional rule of thirds, and the camera HUD.
@@ -107,8 +108,8 @@ export default function FrameOverlay({ container }: { container: RefObject<HTMLE
       </div>
 
       <div className="hud hud-help">
-        Hold right mouse (or Alt + left): look · +WASD move · Space up · C/Ctrl down · Q/E roll (Ctrl: level) ·{' '}
-        {trackpad ? 'Two-finger swipe: dolly · Pinch: zoom' : 'Scroll: dolly · Ctrl+scroll: zoom'} · ←/→ shots · Esc or `: exit · speed{' '}
+        Hold right mouse (or {ALT} + left): look · +WASD move · Space up · C/Ctrl down · Q/E roll (Ctrl: level) ·{' '}
+        {trackpad ? 'Two-finger swipe: dolly · Pinch: zoom' : `Scroll: dolly · ${CTRL}+scroll: zoom`} · ←/→ shots · Esc or `: exit · speed{' '}
         {flySpeed.toFixed(1)} m/s
       </div>
     </div>

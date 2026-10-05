@@ -38,6 +38,8 @@ export interface SetupInfo {
   partial: Record<string, number>
   /** Everything needed to generate is installed. */
   ready: boolean
+  /** This computer can run the built-in engine (Windows + NVIDIA). False on a Mac: AI is coming soon there. */
+  builtInEngine: boolean
   /** An install is running right now. */
   installing: boolean
 }

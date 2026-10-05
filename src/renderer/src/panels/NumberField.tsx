@@ -2,6 +2,7 @@ import { useRef, useState, type PointerEvent } from 'react'
 import { useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import { formatLength, METRES_PER_FOOT, parseLength, trimNumber } from '../units'
+import { addKey } from '../platform'
 
 export type NumberKind = 'length' | 'angle' | 'factor'
 
@@ -80,7 +81,7 @@ export default function NumberField({ label, value, kind, onCommit, disabled, mi
     } else {
       s.total += document.pointerLockElement ? e.movementX : e.clientX - s.startX - s.total
     }
-    const size = (step ?? defaultStep(kind, units)) * (e.shiftKey ? 0.1 : e.ctrlKey ? 10 : 1)
+    const size = (step ?? defaultStep(kind, units)) * (e.shiftKey ? 0.1 : addKey(e) ? 10 : 1)
     const next = clamp(Math.round((s.start + s.total * size) / size) * size)
     const rounded = Math.round(next * 100000) / 100000
     if (rounded !== value) onCommit(rounded)

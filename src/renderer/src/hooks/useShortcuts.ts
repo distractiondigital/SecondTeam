@@ -14,6 +14,7 @@ import {
 import { newProject, openProject, saveProject, saveProjectAs } from '../state/projectIO'
 import { useUi } from '../state/uiStore'
 import { viewportBridge } from '../viewport/viewportBridge'
+import { isMac } from '../platform'
 
 // Keyboard shortcuts, loosely following Blender and Unreal.
 
@@ -78,6 +79,9 @@ export function useShortcuts(): void {
           return run(() => ui.setGizmoMode('scale'))
         case 'f':
           return run(ui.requestFrame)
+        case 'backspace': // the Delete key on a Mac keyboard
+          if (!isMac) return
+          return run(deleteSelected)
         case 'delete':
         case 'x':
           return run(deleteSelected)

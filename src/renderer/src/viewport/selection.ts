@@ -3,6 +3,7 @@ import type { ThreeEvent } from '@react-three/fiber'
 import type { Scene, Vec3 } from '../../../shared/project'
 import { activeScene, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
+import { addKey } from '../platform'
 
 // Shared click-to-select behaviour for everything in the viewport.
 
@@ -26,7 +27,7 @@ export function handleNodeClick(e: ThreeEvent<MouseEvent>, id: string): void {
   const scene = activeScene(useDocument.getState())
   const target = outermostAncestor(scene, id)
   const ui = useUi.getState()
-  if (e.ctrlKey || e.shiftKey) ui.toggleSelected(target)
+  if (addKey(e) || e.shiftKey) ui.toggleSelected(target)
   else ui.select([target])
 }
 

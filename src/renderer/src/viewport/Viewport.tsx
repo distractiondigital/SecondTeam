@@ -25,6 +25,7 @@ import ShotScenes, { BACKGROUND, RenderFloor, WorkLights } from './ShotScenes'
 import RendererHandle from './RendererHandle'
 import ShotTracker from './ShotTracker'
 import { viewportBridge } from './viewportBridge'
+import { addKey } from '../platform'
 
 // Blender-style navigation: middle-drag orbits, Shift+middle-drag pans (built into
 // OrbitControls), scroll zooms; hold the right button to fly (FreeFly). The left button selects
@@ -50,7 +51,7 @@ export default function Viewport() {
         camera={{ position: [6, 4, 8], fov: 40, near: 0.05, far: 1000 }}
         onPointerMissed={(e) => {
           // Clicking empty space steps back out of joint posing, then clears the selection.
-          if (viewportBridge.gizmoBusy || viewportBridge.boxSelecting || viewportBridge.suppressClick || e.button !== 0 || e.ctrlKey || e.shiftKey) return
+          if (viewportBridge.gizmoBusy || viewportBridge.boxSelecting || viewportBridge.suppressClick || e.button !== 0 || addKey(e) || e.shiftKey) return
           const ui = useUi.getState()
           if (ui.selectedJoint) ui.selectJoint(null)
           else ui.select([])

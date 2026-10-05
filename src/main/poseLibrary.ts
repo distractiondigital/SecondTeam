@@ -3,15 +3,15 @@ import { existsSync } from 'fs'
 import { mkdir, readFile, writeFile } from 'fs/promises'
 import { dirname, join } from 'path'
 import { safeRename } from './safeRename'
+import { appDataFolder } from './settings'
 
 // The user's app-wide libraries, available in every project:
-//   %LOCALAPPDATA%\SecondTeam\poses.json    saved poses
-//   %LOCALAPPDATA%\SecondTeam\styles.json   style presets
+//   <app data>\poses.json    saved poses     (app data = %LOCALAPPDATA%\SecondTeam on Windows,
+//   <app data>\styles.json   style presets    ~/Library/Application Support/SecondTeam on a Mac)
 // The UI can only read or replace these files; it never chooses a path.
 
 function libraryPath(file: string): string {
-  const base = process.env['LOCALAPPDATA'] ?? join(process.env['USERPROFILE'] ?? '.', 'AppData', 'Local')
-  return join(base, 'SecondTeam', file)
+  return join(appDataFolder(), file)
 }
 
 export function poseLibraryPath(): string {

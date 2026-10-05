@@ -1,7 +1,7 @@
 {
   "name": "second-team",
   "productName": "Second Team",
-  "version": "0.10.0",
+  "version": "0.12.0",
   "description": "Local film previs: greybox a set, place real cameras, generate AI frames, build a storyboard.",
   "author": "spencer",
   "private": true,
@@ -12,7 +12,8 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "build": "npm run typecheck && electron-vite build",
-    "dist": "npm run build && electron-builder --win"
+    "dist": "npm run build && electron-builder --win",
+    "dist:mac": "npm run build && electron-builder --mac --arm64 --publish never"
   },
   "devDependencies": {
     "@react-three/drei": "^10.7.9",

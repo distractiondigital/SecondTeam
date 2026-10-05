@@ -5,6 +5,7 @@ import { useUi } from '../state/uiStore'
 import ScenePicker from './ScenePicker'
 import { LIGHT_ICONS } from './lightIcons'
 import { kelvinToRgb, type LightKind } from '../../../shared/lighting'
+import { addKey } from '../platform'
 
 function LightIcon({ kind, kelvin }: { kind: LightKind; kelvin: number }) {
   const Icon = LIGHT_ICONS[kind]
@@ -102,12 +103,12 @@ function OutlinerRow({ id, depth, inHidden }: { id: string; depth: number; inHid
       const [from, to] = [order.indexOf(anchorId), order.indexOf(id)].sort((a, b) => a - b)
       if (from >= 0) {
         const range = order.slice(from, to + 1)
-        ui.select(e.ctrlKey ? [...new Set([...ui.selection, ...range])] : range)
+        ui.select(addKey(e) ? [...new Set([...ui.selection, ...range])] : range)
         return
       }
     }
     anchorId = id
-    if (e.ctrlKey) ui.toggleSelected(id)
+    if (addKey(e)) ui.toggleSelected(id)
     else ui.select([id])
   }
 

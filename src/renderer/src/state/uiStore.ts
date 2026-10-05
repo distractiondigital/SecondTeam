@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { isMac } from '../platform'
 import type { JointName } from '../../../shared/mannequin'
 import type { Units } from '../units'
 import type { ShotInfo } from '../viewport/shotInfo'
@@ -25,10 +26,13 @@ const NAV_MODE_KEY = 'secondteam.navMode'
 
 function loadNavMode(): NavMode {
   try {
-    return localStorage.getItem(NAV_MODE_KEY) === 'trackpad' ? 'trackpad' : 'mouse'
+    const saved = localStorage.getItem(NAV_MODE_KEY)
+    if (saved === 'trackpad' || saved === 'mouse') return saved
   } catch {
-    return 'mouse'
+    // fall through to the default
   }
+  // Macs usually have a trackpad (and no middle button); PCs a mouse.
+  return isMac ? 'trackpad' : 'mouse'
 }
 
 /** The folds that keep AI features out of the way: a shot's AI generation, cast/props' AI references, the takes strip. */

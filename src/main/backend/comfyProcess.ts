@@ -40,7 +40,9 @@ export class ComfyProcess {
   constructor(
     private comfyDir: string,
     logDir: string,
-    private readonly onStatus: (status: BackendStatus) => void
+    private readonly onStatus: (status: BackendStatus) => void,
+    /** False on a Mac: the built-in (Windows) engine can't run, only an external ComfyUI. */
+    private readonly builtIn = true
   ) {
     mkdirSync(logDir, { recursive: true })
     this.status = { state: 'stopped', message: '', url: null, comfyVersion: null, logFile: join(logDir, 'comfyui.log') }
@@ -101,6 +103,14 @@ export class ComfyProcess {
   async start(): Promise<void> {
     if (this.child) return
     if (this.externalUrl) return this.useExternal(this.externalUrl)
+    if (!this.builtIn) {
+      this.set({
+        state: 'unavailable',
+        message: 'AI on Mac is coming soon. Everything else in Second Team works; AI takes made on a PC show up in shared projects.',
+        url: null
+      })
+      return
+    }
     if (!this.installed) {
       this.set({
         state: 'not-installed',

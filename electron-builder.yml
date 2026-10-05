@@ -25,3 +25,20 @@ nsis:
   shortcutName: Second Team
   deleteAppDataOnUninstall: false
   artifactName: ${productName} Setup ${version}.${ext}
+
+# Mac (npm run dist:mac, on a Mac; normally built by GitHub Actions: .github/workflows/mac.yml).
+# Apple Silicon only. Ad-hoc signed (identity '-'), not notarized: macOS asks to confirm the first
+# launch of each version (System Settings → Privacy & Security → Open Anyway; see docs/MAC.md).
+# The AI engine isn't part of the Mac version yet.
+mac:
+  target:
+    - target: dmg
+      arch: arm64
+  icon: build/icon.png
+  category: public.app-category.video
+  identity: '-'
+  hardenedRuntime: false
+  gatekeeperAssess: false
+  artifactName: ${productName} ${version} (Apple Silicon).${ext}
+dmg:
+  title: ${productName} ${version}

@@ -144,6 +144,7 @@ export function generateBlocker(): string | null {
   const { status, job } = useGeneration.getState()
   if (job) return 'Already generating.'
   if (!useUi.getState().projectPath) return 'Save the project first: takes are stored in the project folder.'
+  if (status?.state === 'unavailable') return 'AI on Mac is coming soon (or connect your own ComfyUI in Engine settings → Advanced).'
   if (!status || status.state !== 'ready') return status?.message || 'The AI engine is starting…'
   if (!currentModel()) return 'No model is installed: open Engine settings (the AI light) to add one.'
   return null

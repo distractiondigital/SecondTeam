@@ -4,7 +4,8 @@ import { join } from 'path'
 import { chosenIds, hasCheckpoint, installItems, type Manifest } from '../../shared/backendManifest'
 import type { SetupInfo, SetupProgress, VerifyResult } from '../../shared/setup'
 import type { BackendStatus, GenerationEvent, GenerationJob } from '../../shared/takes'
-import { cleanComfyUrl, defaultBackendDir, loadSettings, saveSettings, type AppSettings } from '../settings'
+import { appDataFolder, cleanComfyUrl, defaultBackendDir, loadSettings, saveSettings, type AppSettings } from '../settings'
+import { isMac } from '../platform'
 import { ComfyProcess } from './comfyProcess'
 import { ComfyBackend, type GenerationBackend } from './generation'
 import { checkSystem, findExistingInstall, install, installStates, isReady, partialBytes, removeDamaged, verify } from './installer'
@@ -33,8 +34,9 @@ export function registerBackendIpc(getWindow: () => BrowserWindow | null): void 
 
   comfy = new ComfyProcess(
     backendDir(),
-    join(process.env['LOCALAPPDATA'] ?? app.getPath('appData'), 'SecondTeam', 'logs'),
-    (status: BackendStatus) => send('backend:status', status)
+    join(appDataFolder(), 'logs'),
+    (status: BackendStatus) => send('backend:status', status),
+    !isMac
   )
   backend = new ComfyBackend(comfy, join(root, 'backend'))
 
@@ -57,12 +59,14 @@ export function registerBackendIpc(getWindow: () => BrowserWindow | null): void 
       states: installStates(manifest, dir),
       partial: partialBytes(manifest, dir),
       ready: isReady(manifest, dir),
+      builtInEngine: !isMac,
       installing: installing !== null
     }
   }
 
   /** Install `ids` in the background, then (re)start the engine from that folder. */
   const runInstall = (ids: string[]): { ok: true } | { error: string } => {
+    if (isMac) return { error: 'AI on Mac is coming soon: the built-in engine is Windows-only for now.' }
     if (installing) return { error: 'Already installing.' }
     const dir = backendDir()
     const controller = new AbortController()
@@ -144,6 +148,7 @@ export function registerBackendIpc(getWindow: () => BrowserWindow | null): void 
   // Repair: check everything (with `full`, recompute model checksums), then re-download what's
   // damaged plus any required piece that's missing. Models never installed stay uninstalled.
   ipcMain.handle('backend:repair', async (_e, full: boolean) => {
+    if (isMac) return { error: 'AI on Mac is coming soon: the built-in engine is Windows-only for now.' }
     if (installing) return { error: 'Already installing.' }
     const dir = backendDir()
     const controller = new AbortController()
@@ -169,7 +174,7 @@ export function registerBackendIpc(getWindow: () => BrowserWindow | null): void 
 
   ipcMain.handle('backend:setExternal', async (_e, url: string | null) => {
     const clean = url === null ? null : cleanComfyUrl(url)
-    if (url !== null && !clean) return { error: 'Use an address on this PC, like http://127.0.0.1:8188' }
+    if (url !== null && !clean) return { error: 'Use an address on this computer, like http://127.0.0.1:8188' }
     await update({ externalComfyUrl: clean })
     restartEngine()
     return info()

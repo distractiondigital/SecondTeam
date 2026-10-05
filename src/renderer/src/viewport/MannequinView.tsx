@@ -9,6 +9,7 @@ import { useDocument } from '../state/documentStore'
 import { useEffectivePose } from './figurePose'
 import { jointOffsets } from '../../../shared/posing'
 import { CLICK_DRAG_TOLERANCE, handleNodeClick, handleNodeDoubleClick, noRaycast, SELECTION_COLOR, toRadians } from './selection'
+import { addKey } from '../platform'
 
 // A smooth artist's mannequin: nested joint groups (forward kinematics) with simple
 // capsule and ellipsoid body parts. Each joint group is named "<figureId>:<joint>" so the
@@ -93,7 +94,7 @@ export default function MannequinView({ node, selected, clickable, passive = fal
   const onClick = (e: ThreeEvent<MouseEvent>, joint: JointName) => {
     const ui = useUi.getState()
     const figureIsSelected = ui.selection.length === 1 && ui.selection[0] === id
-    if (figureIsSelected && !e.ctrlKey && !e.shiftKey) {
+    if (figureIsSelected && !addKey(e) && !e.shiftKey) {
       e.stopPropagation()
       if (e.delta <= CLICK_DRAG_TOLERANCE) ui.selectJoint(joint)
     } else {

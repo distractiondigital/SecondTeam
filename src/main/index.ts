@@ -7,10 +7,12 @@ import { registerBackendIpc, stopBackend } from './backend/ipc'
 import { registerPassIpc } from './passFiles'
 import { registerPoseLibraryIpc } from './poseLibrary'
 import { askToSave, registerProjectIpc } from './projectFiles'
+import { appDataFolder } from './settings'
+import { isMac, onRealMac } from './platform'
 
-// Keep Electron's own cache and settings in %LOCALAPPDATA%\SecondTeam (not the default %APPDATA%).
-// Must run before the app is ready.
-app.setPath('userData', join(process.env['LOCALAPPDATA'] ?? app.getPath('appData'), 'SecondTeam', 'app-data'))
+// Keep Electron's own cache and settings in the app's folder (Windows %LOCALAPPDATA%\SecondTeam,
+// not the default %APPDATA%; Mac ~/Library/Application Support/SecondTeam). Must run before ready.
+app.setPath('userData', join(appDataFolder(), 'app-data'))
 
 // Only one copy of the app at a time. A second launch just focuses the existing window.
 if (!app.requestSingleInstanceLock()) {
@@ -85,18 +87,21 @@ app.on('second-instance', () => {
 })
 
 app.whenReady().then(() => {
-  // No built-in menu shortcuts: Electron's default menu would close the window on Ctrl+W and reload
-  // it on Ctrl+R (losing unsaved work). The app's own shortcuts live in the UI; typing shortcuts
-  // (copy, paste, select all) still work in text boxes. Development keeps reload and DevTools.
-  // (The Mac version will need an Edit menu for copy/paste.)
-  Menu.setApplicationMenu(
-    app.isPackaged
-      ? null
-      : Menu.buildFromTemplate([
-          { label: 'Develop', submenu: [{ role: 'reload' }, { role: 'forceReload' }, { role: 'toggleDevTools' }] }
-        ])
-  )
+  // No built-in shortcuts beyond what's needed: Electron's default menu would close the window on
+  // Ctrl+W and reload it on Ctrl+R (losing unsaved work). The app's own shortcuts live in the UI.
+  // Windows: no menu at all (copy/paste in text boxes works without one). Mac: the app menu
+  // (About, Hide, Quit ⌘Q, which still asks about unsaved changes) and Cut/Copy/Paste/Select All,
+  // which typing needs there; no Undo or Close items, so ⌘Z stays the app's own and there's no ⌘W.
+  // Development adds Reload and DevTools.
+  const template: Electron.MenuItemConstructorOptions[] = []
+  if (onRealMac) {
+    template.push({ role: 'appMenu' })
+    template.push({ label: 'Edit', submenu: [{ role: 'cut' }, { role: 'copy' }, { role: 'paste' }, { role: 'selectAll' }] })
+  }
+  if (!app.isPackaged) template.push({ label: 'Develop', submenu: [{ role: 'reload' }, { role: 'forceReload' }, { role: 'toggleDevTools' }] })
+  Menu.setApplicationMenu(template.length ? Menu.buildFromTemplate(template) : null)
   ipcMain.handle('app:getVersion', () => app.getVersion())
+  ipcMain.on('app:platform', (e) => (e.returnValue = isMac ? 'mac' : 'win'))
   ipcMain.on('app:setUnsaved', (_e, unsaved: boolean, name: string) => {
     hasUnsavedChanges = unsaved
     projectName = name

@@ -2,6 +2,7 @@ import { BrowserWindow, ipcMain, nativeImage, shell, type NativeImage } from 'el
 import { existsSync } from 'fs'
 import { copyFile, mkdir, rm, writeFile } from 'fs/promises'
 import { join, resolve } from 'path'
+import { appDataFolder } from './settings'
 import { exportStamp, freeName, layoutLabel, sequenceFileName } from '../shared/board'
 import { boardHtml, imageKey, printedPanels, type BoardExportSpec, type BoardPanelData } from '../shared/boardHtml'
 import { isSafeId } from '../shared/passes'
@@ -32,8 +33,7 @@ function takePath(folder: string, sceneId: string, shotId: string, takeId: strin
 }
 
 function tempFolder(): string {
-  const base = process.env['LOCALAPPDATA'] ?? join(process.env['USERPROFILE'] ?? '.', 'AppData', 'Local')
-  return join(base, 'SecondTeam', 'tmp')
+  return join(appDataFolder(), 'tmp')
 }
 
 /** A clay render the UI sent: only a PNG data URL, decoded by Electron (never written as given). */

@@ -1,0 +1,38 @@
+# Builds the Mac version (Apple Silicon .dmg) on GitHub's Mac machines, since Apple only lets Mac
+# apps be built on a Mac. Runs on every push to main that changes the app (not docs-only
+# changes), or on demand from the Actions tab ("Run workflow"). The .dmg is attached to the run
+# as "Second Team (Apple Silicon)" (kept 30 days).
+name: Mac build
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+  workflow_dispatch:
+
+jobs:
+  mac:
+    runs-on: macos-14 # Apple Silicon
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Tests
+        run: npm test
+      - name: Build
+        run: npm run dist:mac
+        env:
+          # Never look for (or try to use) a signing certificate: the app is ad-hoc signed.
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Second Team (Apple Silicon)
+          path: release/*.dmg
+          if-no-files-found: error
+          retention-days: 30

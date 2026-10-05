@@ -14,6 +14,7 @@ import {
 } from '../state/generation'
 import { useUi } from '../state/uiStore'
 import BackendStatus from './BackendStatus'
+import { addKey } from '../platform'
 
 // The take strip under the viewport: the takes of the selected (or active) shot, newest first,
 // with the running Generate (live preview, progress, Cancel) at the front.
@@ -124,7 +125,7 @@ export default function TakeStrip() {
                 tabIndex={0}
                 className={`take-card${t.id === circle ? ' circled' : ''}`}
                 // Ctrl+click: compare with the take already open.
-                onClick={(e) => void (e.ctrlKey ? openCompare(shot.id, t.id) : openTake(shot.id, t.id))}
+                onClick={(e) => void (addKey(e) ? openCompare(shot.id, t.id) : openTake(shot.id, t.id))}
                 onKeyDown={(e) => e.key === 'Enter' && void openTake(shot.id, t.id)}
                 title={`Seed ${t.seed} · ${t.checkpoint} · ${new Date(t.createdAt).toLocaleString()} · Ctrl+click to compare with the open take`}
               >
