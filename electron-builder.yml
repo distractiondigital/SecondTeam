@@ -17,7 +17,7 @@ win:
   icon: build/icon.png
 nsis:
   oneClick: false
-  perMachine: false
+  perMachine: false # with build/installer.nsh: always "only for me", no install-mode page
   allowToChangeInstallationDirectory: true
   createStartMenuShortcut: true
   createDesktopShortcut: true

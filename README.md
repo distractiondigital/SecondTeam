@@ -6,7 +6,7 @@ A local Windows desktop app for film previs. You greybox a set, place real camer
 - Progress: [docs/PROGRESS.md](docs/PROGRESS.md)
 
 ## Install it (no developer setup)
-1. Run `Second Team Setup 0.9.0.exe` (made with `npm run dist`, in `release\`). It isn't code-signed yet, so Windows shows **"Windows protected your PC"**: click **More info → Run anyway**. Choose where to install; you get Start-menu and desktop shortcuts.
+1. Run `Second Team Setup 0.9.0.exe` (made with `npm run dist`, in `release\`). It isn't code-signed yet, so Windows shows **"Windows protected your PC"**: click **More info → Run anyway**. It installs just for your Windows account (no admin prompt; you choose the folder) with Start-menu and desktop shortcuts.
 2. On the first start, the **AI engine setup** opens:
    1. **This PC**: checks the graphics card (an NVIDIA card with driver 580 or newer; 8 GB+ video memory recommended) and that Windows can unpack the engine (Windows 11 can by itself; Windows 10 needs [7-Zip](https://www.7-zip.org)).
    2. **Location**: where the engine and models go, by default `%LOCALAPPDATA%\SecondTeam\backend`. **Change…** for another drive. Or **Use files I already have…** to point at an existing copy (e.g. this repo's `ComfyUI` folder): nothing is copied.
