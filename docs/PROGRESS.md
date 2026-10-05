@@ -10,12 +10,12 @@
 | 5 | Render passes | ✅ Done (tested by Spencer 2026-09-30) | Clay, depth, normals, object ID and OpenPose passes per shot at the SDXL size (about 1 MP, sides in 64s); saved into the project folder with a `passes.json` sidecar; pass viewer. Automatic floor in renders (per-scene toggle). |
 | 6 | First AI frames | ✅ Done (tested by Spencer 2026-09-30) | Managed ComfyUI 0.38 (starts hidden with the app); RealVisXL V5 + SDXL 1.0 + Union ControlNet (depth) from a pinned, licence-checked manifest; depth (softened) + pose guides; prompt from frame description + which way the subject faces + shot size/angle + lens + lighting + style; strictness, takes, seed lock; live previews, cancel; take strip + viewer; takes saved with full sidecars. |
 | 7 | Continuity | ✅ Done (tested by Spencer 2026-09-30; continuity "not 100% but okay for now") | Cast and Props (description, up to 4 reference images, strength) with links from figures/objects/groups and per-object descriptions; ID pass per cast/prop/described object; regional prompts + masked IP-Adapter references per entity; project style reference images; feather / reference end controls; circle takes (strip, viewer, Shot list thumbnail). |
-| 8 | Storyboard | 🟡 Built, waiting for Spencer's test | Set/Board switch; a panel per shot (circle take, shot + scene, lens/size/angle, Description/Dialogue/Notes); own drag order across scenes; double-click to go to the shot; export PDF (Grid 2/3/6 landscape or Rows 2/3/4 portrait, Letter/A4, title, footer) and a PNG sequence. |
+| 8 | Storyboard | ✅ Done (tested by Spencer 2026-10-04) | Set/Board switch; a panel per shot (circle take or clay render, shot + scene, lens/size/angle, Description/Dialogue/Notes); own drag order across scenes; double-click to go to the shot; export PDF (Grid 2/3/6 landscape or Rows 2/3/4 portrait, Letter/A4, title, footer, page sketch) and a PNG sequence, from AI or Clay. Follow-ups: Material colours in Clay; Environment (time-of-day sky, atmosphere fog, ground colour; per scene or per shot). |
 | 9 | Plug-and-play | ⬜ | |
 | 10 | Polish | ⬜ | Includes **Posing 2** (Spencer, 2026-09-29): IK hands/feet, head look-at target that flows subtly into the torso, choosing which end of a limb stays put (e.g. plant a foot). |
 
 ## Where we are (2026-10-02)
-Milestones 0–7 are done and tested; Milestone 8 (Storyboard) is built and waiting for Spencer's test. The whole "build the shot" half of the app works:
+Milestones 0–8 are done and tested. The whole "build the shot" half of the app works:
 - Greybox a set with shapes, posed figures and lights.
 - Break a project into scenes (01, 02…) and shots (1A, 1B…). Each shot has its own camera and can cheat anything in the set just for that shot.
 - Look through any shot with real sensor/lens/squeeze maths, frame guides, and readouts for height, tilt, distance, shot size, angle and lighting.
@@ -51,7 +51,7 @@ The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `no
 - **For development** (in `CLAUDE.md`): files use LF line endings, enforced by `.gitattributes`. Changes to `src/main` or `src/preload` need an app restart.
 
 ## What's next
-**Milestone 9: Plug-and-play** (once M8 is confirmed). A Windows installer that sets up the AI engine and chosen models on first run (with a progress screen), so the app works on a PC without Node or a dev setup.
+**Milestone 9: Plug-and-play.** A Windows installer that sets up the AI engine and chosen models on first run (with a progress screen), so the app works on a PC without Node or a dev setup.
 
 ## Decisions log
 - 2026-09-29: Name "Second Team" (working title). Stack: Electron + React + three.js (R3F) + managed ComfyUI. SDXL first for ControlNet/IP-Adapter maturity and commercial licence.
