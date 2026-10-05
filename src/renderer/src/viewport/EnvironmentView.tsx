@@ -11,17 +11,21 @@ function skyTexture(env: Environment): CanvasTexture {
   const sky = skyAt(env.time)
   const canvas = document.createElement('canvas')
   canvas.width = 4
-  canvas.height = 256
+  canvas.height = 512
   const ctx = canvas.getContext('2d')!
-  const g = ctx.createLinearGradient(0, 0, 0, 256)
-  g.addColorStop(0, sky.zenith)
-  g.addColorStop(0.42, sky.horizon)
-  g.addColorStop(0.5, sky.horizon)
-  // Below the horizon (only seen past the floor's edge, or with the floor off): dim haze.
-  g.addColorStop(0.56, mix(sky.horizon, env.ground, 0.6))
-  g.addColorStop(1, mix(env.ground, '#000000', 0.5))
+  // Rows run from straight up (top) to straight down (bottom); the horizon is the middle.
+  const g = ctx.createLinearGradient(0, 0, 0, 512)
+  // Most of the change sits in the lowest 30° or so, where a level camera actually looks:
+  // horizon glow fading quickly into the sky colour, which keeps deepening towards the zenith.
+  for (let e = 0; e <= 90; e += 2) {
+    g.addColorStop(0.5 - e / 180, mix(sky.horizon, sky.zenith, Math.pow(e / 90, 0.6)))
+  }
+  // Below the horizon (seen past the floor's edge, or with the floor off): haze into dim ground.
+  for (let e = 2; e <= 90; e += 4) {
+    g.addColorStop(0.5 + e / 180, mix(sky.horizon, mix(env.ground, '#000000', 0.5), Math.pow(e / 90, 0.5)))
+  }
   ctx.fillStyle = g
-  ctx.fillRect(0, 0, 4, 256)
+  ctx.fillRect(0, 0, 4, 512)
   const texture = new CanvasTexture(canvas)
   texture.mapping = EquirectangularReflectionMapping
   texture.colorSpace = SRGBColorSpace
