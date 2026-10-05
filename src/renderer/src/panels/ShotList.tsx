@@ -169,7 +169,7 @@ export default function ShotList() {
             }}
           />
         ))}
-        <button className="add-shot" onClick={addShot} title="New shot with its camera where your view is now">
+        <button className="add-shot" onClick={addShot} title="New shot with its camera where your view is now (opens its camera view)">
           <Plus size={14} /> Add shot
         </button>
         {cameras.length === 0 && <p className="hint">Frame something in the viewport, then add a shot.</p>}

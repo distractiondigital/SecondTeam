@@ -3,6 +3,7 @@ import type { LightKind } from '../../../shared/lighting'
 import { sceneLabel, type CameraNode, type PrimitiveType } from '../../../shared/project'
 import { viewportBridge } from '../viewport/viewportBridge'
 import { activeScene, editedNodes, useDocument } from './documentStore'
+import { closeTake } from './generation'
 import { useUi } from './uiStore'
 
 // Editing actions shared by the toolbar, panels and keyboard shortcuts.
@@ -42,11 +43,12 @@ export function camerasInShotOrder(): CameraNode[] {
  * New shot (1A, 1B…) with its camera where the view is now: the free view, or the current shot's
  * camera while looking through it. Its lens copies the active shot's.
  */
+/** A new shot from the current view, straight into its camera view (like double-clicking it). */
 export function addShot(): void {
   const id = doc().addCamera(viewportBridge.getViewPose())
   ui().select([id])
-  // Working in a shot? Carry on in the new one (it started from the active shot's version).
-  if (doc().activeShotId) activateShot(id)
+  closeTake()
+  lookThrough(id)
 }
 
 /** Switch scene: back to that scene's own set, out of camera view, nothing selected. */
