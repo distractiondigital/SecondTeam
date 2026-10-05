@@ -14,6 +14,8 @@ import { CLICK_DRAG_TOLERANCE, handleNodeClick, handleNodeDoubleClick, noRaycast
 // that joint once the figure is selected).
 
 const UNIT_SPHERE = new SphereGeometry(1, 24, 16)
+/** The see-through posing skeleton shown over a selected human. */
+const SKELETON_COLOR = '#8fd0ff'
 
 /** Named empty points on the head, used for the pose (OpenPose) render in Milestone 5. */
 const HEAD_MARKERS: { name: string; at: (s: number) => Vec3 }[] = [
@@ -94,28 +96,55 @@ export default function MannequinView({ node, selected, clickable, passive = fal
   /** One body part, moved by `joint`. */
   const part = (joint: JointName, key: string, geometry: BufferGeometry, position: Vec3, scale?: Vec3, ball = false) => {
     const highlighted = selectedJoint === joint
+    if (ghost) {
+      // A human's posing skeleton: invisible (but clickable) until the figure is selected, then a
+      // faint see-through overlay, with the selected joint's parts in solid orange. A viewport
+      // helper only: never in renders, thumbnails or passes.
+      const show = selected || highlighted
+      return (
+        <mesh
+          key={key}
+          geometry={geometry}
+          position={position}
+          scale={scale}
+          renderOrder={highlighted ? 1001 : 1000}
+          userData={{ joint, helper: true }}
+          raycast={clickable ? undefined : noRaycast}
+          onClick={clickable ? (e) => onClick(e, joint) : undefined}
+          onDoubleClick={clickable ? (e) => handleNodeDoubleClick(e, id) : undefined}
+        >
+          <meshBasicMaterial
+            visible={show}
+            color={highlighted ? SELECTION_COLOR : SKELETON_COLOR}
+            transparent
+            opacity={highlighted ? 0.75 : ball ? 0.35 : 0.18}
+            depthTest={false}
+            depthWrite={false}
+          />
+        </mesh>
+      )
+    }
     return (
       <mesh
         key={key}
         geometry={geometry}
-        castShadow={clay && !ghost}
-        receiveShadow={clay && !ghost}
+        castShadow={clay}
+        receiveShadow={clay}
         position={position}
         scale={scale}
-        userData={{ joint, helper: ghost }}
+        userData={{ joint }}
         raycast={clickable ? undefined : noRaycast}
         onClick={clickable ? (e) => onClick(e, joint) : undefined}
         onDoubleClick={clickable ? (e) => handleNodeDoubleClick(e, id) : undefined}
       >
         <meshStandardMaterial
-          visible={!ghost}
           color={ball ? ballColor : bodyColor}
           roughness={clay ? 0.92 : 0.7}
           metalness={0}
           emissive={highlighted || selected ? SELECTION_COLOR : '#000000'}
           emissiveIntensity={highlighted ? 0.55 : selected ? 0.1 : 0}
         />
-        {!ghost && (selected || highlighted) && (
+        {(selected || highlighted) && (
           <Outlines thickness={highlighted ? 3 : 2} color={SELECTION_COLOR} userData={{ helper: true }} />
         )}
       </mesh>
