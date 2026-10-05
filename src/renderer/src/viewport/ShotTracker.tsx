@@ -110,6 +110,7 @@ export default function ShotTracker() {
     })
     const unsubscribeUi = useUi.subscribe((state, previous) => {
       if (state.view !== previous.view || state.boardImage !== previous.boardImage) schedule('all')
+      if (state.thumbnailRefresh !== previous.thumbnailRefresh) schedule('all')
       // Leaving camera view: that shot's final still.
       if (state.lookThroughId !== previous.lookThroughId && previous.lookThroughId) schedule(new Set([previous.lookThroughId]))
     })

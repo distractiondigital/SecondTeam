@@ -2882,3 +2882,15 @@ input {
 .ai-tabs {
   margin-left: 12px;
 }
+
+/* Shot list: refresh every shot's thumbnail (on the scene row). */
+.shot-refresh {
+  flex: none;
+  align-self: center;
+  margin-left: auto;
+  color: var(--text-dim);
+}
+
+.shot-refresh:hover {
+  color: var(--text);
+}
