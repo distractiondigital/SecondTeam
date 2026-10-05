@@ -63,6 +63,7 @@ import {
   LIGHT_LABELS,
   type LightKind
 } from '../../../shared/lighting'
+import { clampTime, DEFAULT_ENVIRONMENT, type Environment } from '../../../shared/environment'
 import { repairGeneration, type GenerationSettings } from '../../../shared/prompt'
 
 // The document store holds the project: everything that is saved to disk and can be undone.
@@ -203,6 +204,10 @@ interface DocumentState {
   renameScene: (number: number, name: string) => void
   /** Whether render passes and thumbnails get the automatic floor. */
   setSceneFloor: (floor: boolean) => void
+  /** Time of day / ground of a shot (if it has its own) or else of the active scene. */
+  setEnvironment: (shotId: string | null, patch: Partial<Environment>) => void
+  /** Give a shot its own environment (starting from the scene's), or make it follow the scene again. */
+  setShotOwnEnvironment: (shotId: string, own: boolean) => void
   /** Delete the current scene (not the last one). */
   deleteScene: () => void
   /** Put the scene's shots in this order; they're renamed to match (1A, 1B, 1C…). */
@@ -403,6 +408,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
           circleTake: null,
           boardText: null,
           dialogue: '',
+          environment: shot?.environment ? toPlainValue(shot.environment)! : null,
           // A shot made while another shot is active starts from that shot's version of the set.
           overrides: shot ? toPlainValue(shot.overrides)! : {}
         }
@@ -554,6 +560,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
         scene.nodes = plain.nodes
         scene.rootIds = plain.rootIds.filter((id) => id in plain.nodes)
         scene.floor = plain.floor
+        scene.environment = plain.environment
       }
       change((_scene, project) => {
         const i = project.scenes.findIndex((s) => s.id === current.id)
@@ -576,6 +583,23 @@ export const useDocument = create<DocumentState>()((set, get) => {
           scene.number = n
         }
         if (scene.name !== name.trim()) scene.name = name.trim()
+      })
+    },
+
+    setEnvironment: (shotId, patch) => {
+      const clean = { ...patch, ...(patch.time !== undefined ? { time: clampTime(patch.time) } : {}) }
+      change((scene) => {
+        const shot = shotId ? scene.nodes[shotId] : undefined
+        if (shot?.type === 'camera' && shot.environment) Object.assign(shot.environment, clean)
+        else scene.environment = { ...(toPlainValue(scene.environment) ?? DEFAULT_ENVIRONMENT), ...clean }
+      })
+    },
+
+    setShotOwnEnvironment: (shotId, own) => {
+      change((scene) => {
+        const shot = scene.nodes[shotId]
+        if (shot?.type !== 'camera' || Boolean(shot.environment) === own) return
+        shot.environment = own ? (toPlainValue(scene.environment) ?? { ...DEFAULT_ENVIRONMENT }) : null
       })
     },
 
@@ -952,6 +976,14 @@ export function sceneForShot(
   const scene = sceneOfShot(state, shotId)
   const shot = shotId ? scene.nodes[shotId] : undefined
   return effectiveNodes(scene.nodes, shot?.type === 'camera' ? shot.overrides : undefined)
+}
+
+/** A shot's environment (its own, else its scene's); null = the active scene's. */
+export function environmentFor(state: Pick<DocumentState, 'project' | 'sceneId'>, shotId: string | null): Environment {
+  const scene = sceneOfShot(state, shotId)
+  const shot = shotId ? scene.nodes[shotId] : undefined
+  // (A project loaded by an older build and still in memory has none yet.)
+  return (shot?.type === 'camera' && shot.environment) || scene.environment || DEFAULT_ENVIRONMENT
 }
 
 /** The active scene's nodes as the shot being edited sees them. */

@@ -24,13 +24,15 @@ import {
 import { sanitizeOverrides, type ShotOverrides } from './overrides'
 import { clampCone, clampKelvin, clampStops, clampUnit, LIGHT_KINDS, type LightKind } from './lighting'
 import { DEFAULT_GENERATION, repairGeneration, type GenerationSettings } from './prompt'
+import { DEFAULT_ENVIRONMENT, repairEnvironment, type Environment } from './environment'
 
 // v1: M1 (primitives, groups). v2: M2 adds mannequins. v3: M3 adds cameras.
 // v4: per-shot changes (camera.overrides). v5: numbered scenes, shots 1A/1B…, one camera kit per project.
 // v6: lights. v7: scene.floor (automatic floor in renders). v8: shot descriptions, project.generation.
 // v9: cast and props (with reference images), links from figures/groups, style images, circle takes.
 // v10: the storyboard (board order, per-shot board description and dialogue).
-export const SCHEMA_VERSION = 10
+// v11: environment (time of day + ground colour) per scene, optionally changed per shot.
+export const SCHEMA_VERSION = 11
 
 export type Vec3 = [number, number, number]
 
@@ -126,6 +128,8 @@ export interface CameraNode extends NodeBase {
   boardText: string | null
   /** Dialogue for the storyboard panel. */
   dialogue: string
+  /** This shot's own time of day and ground; null = the scene's. */
+  environment: Environment | null
   /** This shot's changes to other objects; everything else follows the Master scene. */
   overrides: ShotOverrides
 }
@@ -158,6 +162,8 @@ export interface Scene {
   notes: string
   /** Render passes and thumbnails include an endless floor at ground level. */
   floor: boolean
+  /** Time of day (sky and fill) and ground colour; shots can change it for themselves. */
+  environment: Environment
   nodes: Record<string, SceneNode>
   /** Top-level node order (outliner order). */
   rootIds: string[]
@@ -250,7 +256,7 @@ export function newId(): string {
 }
 
 export function createEmptyScene(number = 1, name = ''): Scene {
-  return { id: newId(), number, name, notes: '', floor: true, nodes: {}, rootIds: [] }
+  return { id: newId(), number, name, notes: '', floor: true, environment: { ...DEFAULT_ENVIRONMENT }, nodes: {}, rootIds: [] }
 }
 
 /** 'Scene 01', or 'Scene 01 · INT. KITCHEN' when it has a title. */
@@ -375,6 +381,7 @@ export function repairCamera(c: CameraNode): void {
   c.circleTake = typeof c.circleTake === 'string' && c.circleTake ? c.circleTake : null
   c.boardText = typeof c.boardText === 'string' ? c.boardText : null
   c.dialogue = typeof c.dialogue === 'string' ? c.dialogue : ''
+  c.environment = c.environment ? repairEnvironment(c.environment) : null
 }
 
 /** Fill in fields added after a file was saved, and fix values that would break the viewport. */
@@ -443,6 +450,7 @@ export function parseProject(json: string): Project {
     if (typeof scene.number !== 'number' || !Number.isFinite(scene.number)) scene.number = p.scenes.indexOf(scene) + 1
     if (typeof scene.name !== 'string') scene.name = ''
     scene.floor = scene.floor !== false
+    scene.environment = repairEnvironment(scene.environment)
   }
   return {
     schemaVersion: SCHEMA_VERSION,

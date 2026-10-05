@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { Vector3 } from 'three'
-import { activeScene, hasUnsavedChanges, sceneForShot, useDocument, worldMatrix } from './documentStore'
+import { activeScene, environmentFor, hasUnsavedChanges, sceneForShot, useDocument, worldMatrix } from './documentStore'
 import { parseProject, sceneLabel, serializeProject } from '../../../shared/project'
 
 const doc = () => useDocument.getState()
@@ -207,7 +207,7 @@ describe('figures', () => {
     expect(figure(copy).pose).toEqual(figure(a).pose)
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(10)
+    expect(loaded.schemaVersion).toBe(11)
   })
 
   it('saves poses into the project and applies them to other figures', () => {
@@ -499,6 +499,39 @@ describe('cast, props and circle takes', () => {
   })
 })
 
+describe('environment', () => {
+  it('belongs to the scene, and a shot can have its own (undoable, saved)', () => {
+    const a = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
+    const b = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
+    expect(environmentFor(doc(), a)).toEqual({ time: 12, ground: '#9a9a96' })
+    doc().setEnvironment(a, { time: 18.5 }) // a follows the scene: changes the scene
+    expect(scene().environment.time).toBe(18.5)
+    expect(environmentFor(doc(), b).time).toBe(18.5)
+    doc().setShotOwnEnvironment(a, true)
+    doc().setEnvironment(a, { time: 2, ground: '#224422' })
+    expect(environmentFor(doc(), a)).toEqual({ time: 2, ground: '#224422' })
+    expect(environmentFor(doc(), b).time).toBe(18.5)
+    doc().setEnvironment(null, { time: 40 }) // clamped
+    expect(scene().environment.time).toBe(24)
+    const loaded = parseProject(serializeProject(doc().project))
+    const la = loaded.scenes[0].nodes[a]
+    expect(la.type === 'camera' && la.environment).toEqual({ time: 2, ground: '#224422' })
+    expect(loaded.scenes[0].environment.time).toBe(24)
+    doc().undo()
+    doc().setShotOwnEnvironment(a, false)
+    expect(environmentFor(doc(), a).time).toBe(18.5)
+    doc().undo()
+    expect(environmentFor(doc(), a).time).toBe(2)
+  })
+
+  it('fills in a midday default for older files', () => {
+    const raw = JSON.parse(serializeProject(doc().project))
+    raw.schemaVersion = 10
+    delete raw.scenes[0].environment
+    expect(parseProject(JSON.stringify(raw)).scenes[0].environment).toEqual({ time: 12, ground: '#9a9a96' })
+  })
+})
+
 describe('storyboard', () => {
   it('keeps its own order and panel captions, with undo, and saves them', () => {
     const a = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
@@ -556,7 +589,7 @@ describe('older project files', () => {
       ]
     }
     const p = parseProject(JSON.stringify(raw))
-    expect(p.schemaVersion).toBe(10)
+    expect(p.schemaVersion).toBe(11)
     expect(p.camera.sensor.preset).toBe('alexa35')
     expect(p.camera.delivery).toBe('2.39')
     expect(p.scenes[0].number).toBe(1)
@@ -577,7 +610,7 @@ describe('older project files', () => {
     const raw = JSON.parse(serializeProject(doc().project))
     raw.schemaVersion = 1
     delete raw.camera
-    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(10)
+    expect(parseProject(JSON.stringify(raw)).schemaVersion).toBe(11)
   })
 })
 describe('master scene and per-shot changes', () => {
@@ -685,7 +718,7 @@ describe('master scene and per-shot changes', () => {
     doc().updateNode(box, { hidden: true })
     const loaded = parseProject(serializeProject(doc().project))
     expect(loaded).toEqual(doc().project)
-    expect(loaded.schemaVersion).toBe(10)
+    expect(loaded.schemaVersion).toBe(11)
   })
 
   it('leaves the shot if undo removes its camera', () => {

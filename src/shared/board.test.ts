@@ -25,6 +25,7 @@ function shot(id: string, shotNumber: string, extra: Partial<CameraNode> = {}): 
     circleTake: null,
     boardText: null,
     dialogue: '',
+    environment: null,
     overrides: {},
     ...extra
   }

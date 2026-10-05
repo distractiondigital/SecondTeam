@@ -1,10 +1,10 @@
 import { useEffect, useMemo } from 'react'
 import { Color, Scene } from 'three'
 import { createPortal } from '@react-three/fiber'
-import { activeScene, sceneForShot, sceneOfShot, useDocument } from '../state/documentStore'
+import { activeScene, environmentFor, sceneForShot, sceneOfShot, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import GroundGrid from './GroundGrid'
-import { CLAY_COLOR } from './clay'
+import EnvironmentView from './EnvironmentView'
 import SceneNodes, { hasLights } from './SceneNodes'
 
 // A hidden copy of the set for every shot, each showing that shot's version (Master plus the
@@ -27,12 +27,12 @@ export function WorkLights() {
   )
 }
 
-/** The automatic floor: a hair below 0 so floor planes built in the set cover it. */
-function RenderFloor({ clay }: { clay: boolean }) {
+/** The automatic floor: a hair below 0 so floor planes built in the set cover it. In Clay it's the environment's ground colour. */
+export function RenderFloor({ clay, ground }: { clay: boolean; ground: string }) {
   return (
     <mesh rotation-x={-Math.PI / 2} position={[0, -0.002, 0]} receiveShadow={clay} userData={{ floor: true }}>
       <circleGeometry args={[FLOOR_RADIUS, 96]} />
-      <meshStandardMaterial color={clay ? CLAY_COLOR : FLOOR_WORK_COLOR} roughness={clay ? 0.92 : 0.95} metalness={0} />
+      <meshStandardMaterial color={clay ? ground : FLOOR_WORK_COLOR} roughness={clay ? 0.92 : 0.95} metalness={0} />
     </mesh>
   )
 }
@@ -44,6 +44,7 @@ function ShotScene({ shotId }: { shotId: string }) {
   // Thumbnails show the shot lit (Clay); a scene without lights falls back to the work look.
   const clay = useDocument((s) => hasLights(sceneForShot(s, shotId)))
   const floor = useDocument((s) => sceneOfShot(s, shotId).floor)
+  const env = useDocument((s) => environmentFor(s, shotId))
   const scene = useMemo(() => {
     const s = new Scene()
     s.background = new Color(BACKGROUND)
@@ -58,9 +59,9 @@ function ShotScene({ shotId }: { shotId: string }) {
 
   return createPortal(
     <>
-      {!clay && <WorkLights />}
+      {clay ? <EnvironmentView env={env} /> : <WorkLights />}
       {/* The floor replaces the grid (they'd flicker against each other in the distance). */}
-      {floor ? <RenderFloor clay={clay} /> : <GroundGrid />}
+      {floor ? <RenderFloor clay={clay} ground={env.ground} /> : <GroundGrid />}
       <SceneNodes shotId={shotId} passive clay={clay} />
     </>,
     scene

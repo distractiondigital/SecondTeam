@@ -18,6 +18,7 @@ import { activeScene, editedNodes, useDocument, type NodePatch } from '../state/
 import { useUi } from '../state/uiStore'
 import { formatLengthLabel } from '../units'
 import { GenerateSection, GenerationSettingsSection } from './GenerateSection'
+import EnvironmentSection from './EnvironmentSection'
 import NumberField from './NumberField'
 
 // Properties for a shot: its name, camera placement (pan/tilt/roll), lens, subject, the shot-size /
@@ -203,6 +204,8 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
         />
         {info?.lighting && !node.lightingOverride && <p className="hint small">{info.lighting}</p>}
       </div>
+
+      <EnvironmentSection node={node} />
 
       <div className="prop-section">
         <div className="prop-title">Notes</div>

@@ -2116,3 +2116,31 @@ input {
 .page-preview .pp-label { width: 30%; background: #555; }
 .page-preview .pp-short { width: 65%; }
 .page-preview .pp-footer { width: 40%; margin-top: 3px; background: #ccc; }
+
+/* Environment (shot Properties) */
+.env-scope button {
+  flex: 1;
+}
+.slider.env-time {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 6px 0 2px;
+}
+.slider.env-time::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 16px;
+  border-radius: 3px;
+  background: var(--text);
+  border: 1px solid #000;
+  cursor: pointer;
+}
+.env-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-dim);
+}

@@ -1,6 +1,7 @@
 import { Box3, Euler, MathUtils, Matrix4, Mesh, Quaternion, Vector3, type Object3D } from 'three'
 import { cameraAngle, fieldOfView, opticsFor, shotSize, type CameraKit, type ShotSize } from '../../../shared/camera'
 import type { CameraNode, Scene, Vec3 } from '../../../shared/project'
+import { DEFAULT_ENVIRONMENT, timePhrase } from '../../../shared/environment'
 import { describeLighting, type LightSample } from '../../../shared/lighting'
 
 // Live readouts for a shot camera, measured from the rendered 3D scene (so posed and grouped
@@ -132,10 +133,15 @@ export function computeShotInfo(scene: Scene, camera: CameraNode, kit: CameraKit
       falloff: n.falloff
     })
   }
-  const lighting = describeLighting(samples, measureAt.toArray() as Vec3, {
+  const fromLights = describeLighting(samples, measureAt.toArray() as Vec3, {
     forward: forward.toArray() as Vec3,
     right: right.toArray() as Vec3
   })
+  // The time of day comes first ("At sunset, warm golden-hour light, soft key light from…").
+  const time = timePhrase((camera.environment ?? scene.environment ?? DEFAULT_ENVIRONMENT).time)
+  const lighting = [time.charAt(0).toUpperCase() + time.slice(1), fromLights.charAt(0).toLowerCase() + fromLights.slice(1)]
+    .filter(Boolean)
+    .join(', ')
 
   return {
     lighting,

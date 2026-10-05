@@ -6,7 +6,7 @@ import EditingBanner from '../panels/EditingBanner'
 import FrameOverlay from '../panels/FrameOverlay'
 import PassViewer from '../panels/PassViewer'
 import TakeViewer from '../panels/TakeViewer'
-import { editedNodes, useDocument } from '../state/documentStore'
+import { activeScene, editedNodes, environmentFor, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import FrameController from './FrameController'
 import GroundGrid from './GroundGrid'
@@ -14,7 +14,8 @@ import JointGizmo from './JointGizmo'
 import LookThrough from './LookThrough'
 import SceneNodes, { hasLights } from './SceneNodes'
 import SelectionGizmo from './SelectionGizmo'
-import ShotScenes, { BACKGROUND, WorkLights } from './ShotScenes'
+import EnvironmentView from './EnvironmentView'
+import ShotScenes, { BACKGROUND, RenderFloor, WorkLights } from './ShotScenes'
 import RendererHandle from './RendererHandle'
 import ShotTracker from './ShotTracker'
 import { viewportBridge } from './viewportBridge'
@@ -32,6 +33,8 @@ export default function Viewport() {
   const activeShotId = useDocument((s) => s.activeShotId)
   const clay = useUi((s) => s.shading === 'clay')
   const lit = useDocument((s) => hasLights(editedNodes(s)))
+  const env = useDocument((s) => environmentFor(s, s.activeShotId))
+  const floor = useDocument((s) => activeScene(s).floor)
 
   return (
     <div className={`viewport-wrap${activeShotId ? ' in-shot' : ''}`} ref={container}>
@@ -47,11 +50,13 @@ export default function Viewport() {
         }}
       >
         <color attach="background" args={[BACKGROUND]} />
-        {/* Work shading: even work light. Clay: only the scene's lights (a dim fill if there are none). */}
+        {/* Work shading: even work light. Clay: the scene's lights plus the environment's sky and
+            fill (a dim fill if there are no lights), standing on the ground colour. */}
         {!clay && <WorkLights />}
+        {clay && lit && <EnvironmentView env={env} />}
         {clay && !lit && <hemisphereLight args={['#ffffff', '#444444', 0.6]} />}
 
-        <GroundGrid />
+        {clay && lit && floor ? <RenderFloor clay ground={env.ground} /> : <GroundGrid />}
         {/* The set as the shot being edited sees it (Master if none). */}
         <SceneNodes shotId={activeShotId} clay={clay} />
         <ShotScenes />

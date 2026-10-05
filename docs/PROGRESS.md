@@ -25,10 +25,10 @@ Milestones 0–7 are done and tested; Milestone 8 (Storyboard) is built and wait
 - Keep characters and props consistent across shots with cast/prop descriptions and reference images, and circle the best take.
 - Lay the circle takes out on a storyboard with captions, and export it as a PDF or a PNG sequence.
 
-The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `node scripts/fetch-backend.mjs`. There are 144 automated checks (`npm test`), and all pass.
+The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `node scripts/fetch-backend.mjs`. There are 150 automated checks (`npm test`), and all pass.
 
 ## Things to know
-- **Project files:** saved projects are format **v10**. Every older format still opens, but a build from before a format change can't open a newer file.
+- **Project files:** saved projects are format **v11**. Every older format still opens, but a build from before a format change can't open a newer file.
 - **What undo covers:**
   - Undo goes back 200 steps and covers every change to the project, including per-shot changes, lights and deleting a scene.
   - Selection, switching scenes and the saved-pose *library* (the one shared across projects) aren't undoable. Poses saved into a project are.
@@ -111,6 +111,7 @@ The AI engine (ComfyUI) lives in the `ComfyUI` folder and is downloaded with `no
 - 2026-09-30 (M7 check): Spencer suspected broken passes. Verified: the depth/pose/ID images ComfyUI received were byte-identical to the project's pass files, and replaying his take reproduced it exactly; that take had run on the version before his restart. On the current version, 5 fresh seeds of shot 1B gave 4 good takes (crate placed right, both facing as posed) and 1 bad (dark cut-out head). Some seeds are simply bad rolls. Also fixed: saving into a Nextcloud-synced folder could fail mid-swap (a `passes.json.tmp` was left behind); every temp-file swap now retries while another program holds the file (`src/main/safeRename.ts`).
 - 2026-10-02 (M8): **Storyboard.** Spencer's choices: the board has its **own order** across all scenes (`project.board.order`; dragging never renames shots; new shots join the end in scene/shot order); **both PDF layouts, chosen at export** (Grid 2/3/6 landscape, captions under; Rows 2/3/4 portrait, captions beside, after his `build_board.py`); captions = **Description** (`CameraNode.boardText`, null = the Frame description, so the AI prompt and the board text can differ) + **Dialogue** + **Notes**. Schema **v10**. The PDF is our own HTML printed by Electron's built-in `printToPDF` (no new libraries); takes are embedded as 1600 px JPEGs to keep it small. Export names carry date, time and layout, and never overwrite (" (2)").
 - 2026-10-04 (M8 feedback): Clay renders (viewport Clay, thumbnails, board, Clay exports and the Clay pass) now show each object's colour instead of one grey; the setting is called **Material** (was "Viewport colour"). Still stored as `color` (no format change), still not sent to the AI. A Material palette is on the Ideas list.
+- 2026-10-04 (M8 feedback): **Environment** (Spencer): time of day + ground colour, a Unity-style simple sky. His choices: sky + soft fill only (no automatic sun; his lights stay the key), scene default with "This shot only" per shot, and the time of day goes into the prompt (at the start of the lighting description). Schema **v11** (`Scene.environment`, `CameraNode.environment`); older files get midday and a neutral grey ground. Clay with lights now shows the floor (ground colour) instead of the grid.
 - 2026-09-30: The repo keeps LF line endings in the working copy (`.gitattributes`); mixed endings had been making some scripted edits silently miss.
 
 ## Ideas / later
