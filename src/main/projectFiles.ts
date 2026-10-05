@@ -70,12 +70,17 @@ export function registerProjectIpc(getWindow: () => BrowserWindow | null): void 
   ipcMain.handle('project:open', async (): Promise<OpenResult> => {
     const win = getWindow()
     if (!win) return null
-    const result = await dialog.showOpenDialog(win, {
-      title: 'Open project: choose a .secondteam folder',
-      buttonLabel: 'Open project',
-      defaultPath: app.getPath('documents'),
-      properties: ['openDirectory']
-    })
+    // Development only: SECONDTEAM_OPEN=<folder> opens that project without the dialog (for
+    // automated testing over the debugger). Never used by the installed app.
+    const forced = !app.isPackaged ? process.env['SECONDTEAM_OPEN'] : undefined
+    const result = forced
+      ? { canceled: false, filePaths: [forced] }
+      : await dialog.showOpenDialog(win, {
+          title: 'Open project: choose a .secondteam folder',
+          buttonLabel: 'Open project',
+          defaultPath: app.getPath('documents'),
+          properties: ['openDirectory']
+        })
     if (result.canceled || result.filePaths.length === 0) return null
     const folder = result.filePaths[0]
     const file = join(folder, PROJECT_FILE)

@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { expressionPhrase } from '../../../shared/humanBody'
 import { buildPrompt, randomSeed, regionPrompt, takeSeeds } from '../../../shared/prompt'
 import type { IdEntry } from '../../../shared/passes'
 import type { SceneNode } from '../../../shared/project'
@@ -133,7 +134,7 @@ export function generateBlocker(): string | null {
   if (job) return 'Already generating.'
   if (!useUi.getState().projectPath) return 'Save the project first: takes are stored in the project folder.'
   if (!status || status.state !== 'ready') return status?.message || 'The AI engine is starting…'
-  if (!currentModel()) return 'No model is installed. Run: node scripts/fetch-backend.mjs'
+  if (!currentModel()) return 'No model is installed: open Engine settings (the AI light) to add one.'
   return null
 }
 
@@ -237,7 +238,12 @@ function jobEntities(legend: IdEntry[], shotId: string, facings: Record<string, 
     // An extra (a figure with no cast member or description) is still a person.
     const text = description.trim() || (figure ? 'a person' : '')
     if (!text) return null
-    return regionPrompt(text, figure ? (facings[figure] ?? null) : null, context)
+    // A human figure's expression goes with its own description ("…, smiling").
+    const f = figure ? nodes[figure] : undefined
+    const phrase = f?.type === 'mannequin' && f.style === 'human' ? expressionPhrase(f.expression) : ''
+    // A little extra weight (ComfyUI's "(words:1.3)"), or a small face change gets lost in a wide frame.
+    const expression = phrase ? `(${phrase}:1.3)` : ''
+    return regionPrompt([text, expression].filter(Boolean).join(', '), figure ? (facings[figure] ?? null) : null, context)
   }
   const isFigure = (e: IdEntry) => e.nodeIds.some((id) => nodes[id]?.type === 'mannequin')
   const out: JobEntity[] = []
