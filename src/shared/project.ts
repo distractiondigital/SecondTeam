@@ -216,6 +216,28 @@ export interface CastMember {
   images: string[]
   /** How strongly the reference images guide the look, 0–1.5. */
   strength: number
+  /** The figure look shared by every figure linked to this cast member (null until one is linked). */
+  look: CastLook | null
+}
+
+/** What a cast member's linked figures share: style, height, body and clothes. */
+export interface CastLook {
+  style: FigureStyle
+  height: number
+  body: BodySliders
+  appearance: FigureAppearance
+}
+
+export function sanitizeCastLook(raw: unknown): CastLook | null {
+  if (!raw || typeof raw !== 'object') return null
+  const r = raw as Partial<Record<keyof CastLook, unknown>>
+  const body = sanitizeBody(r.body)
+  return {
+    style: r.style === 'mannequin' ? 'mannequin' : 'human',
+    height: clampHeight(typeof r.height === 'number' ? r.height : DEFAULT_HEIGHT),
+    body,
+    appearance: sanitizeAppearance(r.appearance, body.gender)
+  }
 }
 
 /** A prop: a story object that stays the same from shot to shot. */
@@ -260,7 +282,9 @@ function sanitizeEntries(raw: unknown, isCast: boolean): (CastMember | Prop)[] {
       images: sanitizeImages(e.images),
       strength
     }
-    out.push(isCast ? { ...base, color: typeof e.color === 'string' ? e.color : FIGURE_COLORS[i % FIGURE_COLORS.length] } : base)
+    out.push(
+      isCast ? { ...base, color: typeof e.color === 'string' ? e.color : FIGURE_COLORS[i % FIGURE_COLORS.length], look: sanitizeCastLook(e.look) } : base
+    )
   })
   return out
 }

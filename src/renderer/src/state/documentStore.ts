@@ -12,6 +12,7 @@ import {
   repairCamera,
   type Anchor,
   type CameraNode,
+  type CastLook,
   type CastMember,
   type Prop,
   type GroupNode,
@@ -305,6 +306,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
      * equal to Master's clears the override); everything else, and all Master edits, change the node.
      */
     write: (id: string, fields: Record<string, unknown>) => void
+    project: Draft<Project>
   }
 
   /** If undo/redo removed the active shot's camera, go back to editing Master. */
@@ -316,7 +318,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
   /** Like `change`, but aware of the active shot (see EditContext). */
   function edit(recipe: (ctx: EditContext) => void): void {
     const shotId = get().activeShotId
-    change((scene) => {
+    change((scene, project) => {
       const s = shotId ? scene.nodes[shotId] : undefined
       const shot = s?.type === 'camera' ? (s as Draft<CameraNode>) : null
       const view = (id: string) => {
@@ -340,7 +342,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
           }
         }
       }
-      recipe({ scene, shot, view, write })
+      recipe({ scene, shot, view, write, project })
     })
   }
 
@@ -379,7 +381,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
 
     updateNode: (id, patch) => get().updateNodes([id], patch),
     updateNodes: (ids, patch) => {
-      edit(({ scene, write }) => {
+      edit(({ scene, shot, write, project }) => {
         for (const id of ids) {
           const node = scene.nodes[id]
           if (!node) continue
@@ -395,6 +397,25 @@ export const useDocument = create<DocumentState>()((set, get) => {
           }
           write(id, fields)
           if (node.type === 'camera') repairCamera(node as CameraNode)
+          // Figures linked to a cast member share its look (in the scene's set; a shot's change
+          // stays a cheat for that shot).
+          if (node.type === 'mannequin' && node.castId && (!shot || 'castId' in fields)) {
+            const cast = project.cast.find((c) => c.id === node.castId)
+            if (!cast) continue
+            if ('castId' in fields && cast.look) {
+              // Just linked: take the cast member's look.
+              Object.assign(node, toPlainValue(cast.look))
+            } else if ('castId' in fields || LOOK_FIELDS.some((f) => f in fields)) {
+              // Changed (or first linked): this figure's look becomes the cast member's, everywhere.
+              const look = lookOf(node as MannequinNode)
+              cast.look = look
+              for (const sc of project.scenes) {
+                for (const other of Object.values(sc.nodes)) {
+                  if (other.type === 'mannequin' && other.castId === cast.id && other.id !== node.id) Object.assign(other, toPlainValue(look))
+                }
+              }
+            }
+          }
         }
       })
     },
@@ -474,7 +495,8 @@ export const useDocument = create<DocumentState>()((set, get) => {
           description: init.description ?? '',
           color: init.color ?? FIGURE_COLORS[project.cast.length % FIGURE_COLORS.length],
           images: (init.images ?? []).filter(isSafeFileName).slice(0, MAX_REFERENCE_IMAGES),
-          strength: clampStrength(init.strength ?? DEFAULT_REFERENCE_STRENGTH)
+          strength: clampStrength(init.strength ?? DEFAULT_REFERENCE_STRENGTH),
+          look: null
         })
       })
       return id
@@ -1024,6 +1046,15 @@ export function hasUnsavedChanges(state: Pick<DocumentState, 'project' | 'savedP
     return state.project.scenes.some((s) => s.rootIds.length > 0)
   }
   return state.project !== state.savedProject
+}
+
+// ---------- Cast looks ----------
+
+/** The fields a cast member's linked figures share. */
+const LOOK_FIELDS = ['style', 'height', 'body', 'appearance'] as const
+
+function lookOf(node: MannequinNode): CastLook {
+  return toPlainValue({ style: node.style, height: node.height, body: node.body, appearance: node.appearance })!
 }
 
 // ---------- Scene helpers ----------

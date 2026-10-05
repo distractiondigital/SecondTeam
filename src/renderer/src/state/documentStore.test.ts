@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { Vector3 } from 'three'
 import { activeScene, environmentFor, hasUnsavedChanges, sceneForShot, useDocument, worldMatrix } from './documentStore'
-import { parseProject, sceneLabel, serializeProject } from '../../../shared/project'
+import { parseProject, sceneLabel, serializeProject, type MannequinNode } from '../../../shared/project'
 
 const doc = () => useDocument.getState()
 const scene = () => activeScene(doc())
@@ -535,6 +535,33 @@ describe('human figures', () => {
     const master = scene().nodes[fig]
     expect(inShot.type === 'mannequin' && inShot.body.age).toBe(0.9)
     expect(master.type === 'mannequin' && master.body.age).toBe(0.5)
+  })
+})
+
+describe('cast looks', () => {
+  it('shares body and clothes between figures linked to the same cast member', () => {
+    const a = doc().addMannequin()
+    const b = doc().addMannequin()
+    const maribel = doc().addCast({ name: 'Maribel' })
+    doc().updateNode(a, { body: { gender: 0, age: 0.6, muscle: 0.4, weight: 0.3 } })
+    doc().updateNode(a, { castId: maribel }) // first link: the cast member takes a's look
+    expect(doc().project.cast[0].look?.body.age).toBe(0.6)
+    doc().updateNode(b, { castId: maribel }) // b takes the cast member's look
+    const fig = (id: string) => scene().nodes[id] as MannequinNode
+    expect(fig(b).body.age).toBe(0.6)
+    // Changing either one changes both (one undo step).
+    doc().updateNode(b, { appearance: { hair: 'hair-bob01', eyebrows: null, garments: { outfit: 'outfit-dress-shift' }, colors: {} } })
+    expect(fig(a).appearance.hair).toBe('hair-bob01')
+    expect(doc().project.cast[0].look?.appearance.garments.outfit).toBe('outfit-dress-shift')
+    doc().undo()
+    expect(fig(a).appearance.hair).not.toBe('hair-bob01')
+    // A change inside a shot stays that shot's cheat.
+    const cam = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
+    doc().setActiveShot(cam)
+    doc().updateNode(a, { body: { gender: 0, age: 0.9, muscle: 0.4, weight: 0.3 } })
+    expect(fig(b).body.age).toBe(0.6)
+    const loaded = parseProject(serializeProject(doc().project))
+    expect(loaded.cast[0].look?.body.age).toBe(0.6)
   })
 })
 

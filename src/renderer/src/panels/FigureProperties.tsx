@@ -238,6 +238,7 @@ function BodySection({ node, disabled }: { node: MannequinNode; disabled: boolea
 
 export function FigureSection({ node }: { node: MannequinNode }) {
   const doc = useDocument.getState()
+  const castName = useDocument((s) => (node.castId ? s.project.cast.find((c) => c.id === node.castId)?.name : undefined))
   const projectPoses = useDocument((s) => s.project.poses)
   const libraryPoses = usePoseLibrary((s) => s.poses)
   const units = useUi((s) => s.units)
@@ -260,6 +261,12 @@ export function FigureSection({ node }: { node: MannequinNode }) {
             </button>
           ))}
         </div>
+        {castName && (
+          <p className="hint small">
+            Body and look are shared with <b>{castName}</b>: changing them here changes every figure linked to {castName} (inside a shot it's just
+            this shot).
+          </p>
+        )}
         {node.style === 'human' && <BodySection node={node} disabled={disabled} />}
         {node.style === 'human' && <LookSection node={node} disabled={disabled} />}
         <div className="prop-title prop-title-spaced" title="Hold Ctrl while dragging the slider for whole inches (ft) or centimetres (m)">
