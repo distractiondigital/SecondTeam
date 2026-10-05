@@ -26,7 +26,7 @@ function StatusBar() {
 
   let readout = ''
   let hints =
-    'Middle-drag: orbit · Shift+middle-drag: pan · Scroll: zoom · Click: select (double-click: inside a group) · W/E/R: move/rotate/scale · F: frame · Ctrl+D: duplicate · Del: delete · Ctrl+G: group'
+    'Middle-drag: orbit · Shift+middle-drag: pan · Scroll: zoom · Right-drag + WASD: fly · Click: select (double-click: inside a group) · Drag: box select (Shift add, Ctrl remove) · W/E/R: move/rotate/scale · F: frame · Ctrl+D: duplicate · Del: delete · Ctrl+G: group'
   if (node) readout = node.name
   else if (selection.length > 1) readout = `${selection.length} objects`
   if (node?.type === 'mannequin') {

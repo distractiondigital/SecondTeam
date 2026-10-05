@@ -3,6 +3,7 @@ import { MOUSE } from 'three'
 import { Canvas } from '@react-three/fiber'
 import { GizmoHelper, GizmoViewport, OrbitControls } from '@react-three/drei'
 import EditingBanner from '../panels/EditingBanner'
+import { StartScreen } from '../panels/RecentProjects'
 import FrameOverlay from '../panels/FrameOverlay'
 import PassViewer from '../panels/PassViewer'
 import TakeViewer from '../panels/TakeViewer'
@@ -15,13 +16,17 @@ import LookThrough from './LookThrough'
 import SceneNodes, { hasLights } from './SceneNodes'
 import SelectionGizmo from './SelectionGizmo'
 import EnvironmentView from './EnvironmentView'
+import BoxSelect from './BoxSelect'
+import FreeFly from './FreeFly'
+import LightAim from './LightAim'
 import ShotScenes, { BACKGROUND, RenderFloor, WorkLights } from './ShotScenes'
 import RendererHandle from './RendererHandle'
 import ShotTracker from './ShotTracker'
 import { viewportBridge } from './viewportBridge'
 
 // Blender-style navigation: middle-drag orbits, Shift+middle-drag pans (built into
-// OrbitControls), scroll zooms. The left button is left free for selecting.
+// OrbitControls), scroll zooms; hold the right button to fly (FreeFly). The left button selects
+// (click, or drag a box).
 // While looking through a shot camera, LookThrough takes over the mouse and keyboard.
 const NO_ACTION = -1 as MOUSE
 const MOUSE_BUTTONS = { LEFT: NO_ACTION, MIDDLE: MOUSE.ROTATE, RIGHT: NO_ACTION }
@@ -43,7 +48,7 @@ export default function Viewport() {
         camera={{ position: [6, 4, 8], fov: 40, near: 0.05, far: 1000 }}
         onPointerMissed={(e) => {
           // Clicking empty space steps back out of joint posing, then clears the selection.
-          if (viewportBridge.gizmoBusy || e.button !== 0 || e.ctrlKey || e.shiftKey) return
+          if (viewportBridge.gizmoBusy || viewportBridge.boxSelecting || e.button !== 0 || e.ctrlKey || e.shiftKey) return
           const ui = useUi.getState()
           if (ui.selectedJoint) ui.selectJoint(null)
           else ui.select([])
@@ -62,10 +67,13 @@ export default function Viewport() {
         <ShotScenes />
         <SelectionGizmo />
         <JointGizmo />
+        <BoxSelect />
+        <LightAim />
 
         <OrbitControls makeDefault mouseButtons={MOUSE_BUTTONS} />
         <FrameController />
         <LookThrough />
+        <FreeFly />
         <ShotTracker />
         <RendererHandle />
 
@@ -79,6 +87,7 @@ export default function Viewport() {
       <EditingBanner />
       <PassViewer />
       <TakeViewer />
+      <StartScreen />
       {clay && !lit && <div className="viewport-note">No lights in this scene: add one from the toolbar.</div>}
     </div>
   )

@@ -27,6 +27,7 @@ import { LIGHT_KINDS, LIGHT_LABELS } from '../../../shared/lighting'
 import { LIGHT_ICONS } from './lightIcons'
 import { useDocument } from '../state/documentStore'
 import { newProject, openProject, saveProject, saveProjectAs } from '../state/projectIO'
+import { RecentMenu } from './RecentProjects'
 import { useUi, type GizmoMode, type SnapMode } from '../state/uiStore'
 import type { Units } from '../units'
 
@@ -117,6 +118,7 @@ export default function Toolbar({ boardOnly = false }: { boardOnly?: boolean }) 
       <Group label="File">
         <ToolButton icon={FilePlus} label="New" title="New project (Ctrl+N)" onClick={newProject} showLabel={false} />
         <ToolButton icon={FolderOpen} label="Open" title="Open project (Ctrl+O)" onClick={openProject} showLabel={false} />
+        <RecentMenu />
         <ToolButton icon={Save} label="Save" title="Save (Ctrl+S)" onClick={saveProject} showLabel={false} />
         <ToolButton icon={SaveAll} label="Save as" title="Save as… (Ctrl+Shift+S)" onClick={saveProjectAs} showLabel={false} />
       </Group>

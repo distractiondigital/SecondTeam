@@ -121,6 +121,92 @@ describe('group / ungroup', () => {
     expect(scene().rootIds).toEqual([a, b])
     expect(worldPos(a).distanceTo(moved)).toBeLessThan(1e-3)
   })
+
+  it('keeps a shot-moved object where it is in that shot when grouping', () => {
+    const a = doc().addPrimitive('box', [2, 0])
+    const b = doc().addPrimitive('sphere', [4, 2])
+    const shot = doc().addCamera({ position: [0, 1.6, 6], rotation: [0, 0, 0] })
+    doc().setActiveShot(shot)
+    doc().updateNode(a, { position: [-3, 0, 1] })
+    doc().setActiveShot(null)
+    const g = doc().groupNodes([a, b])!
+    const inShot = () => new Vector3().setFromMatrixPosition(worldMatrix({ ...scene(), nodes: sceneForShot(doc(), shot) }, a))
+    expect(inShot().distanceTo(new Vector3(-3, 0, 1))).toBeLessThan(1e-3)
+    expect(worldPos(a).distanceTo(new Vector3(2, 0, 0))).toBeLessThan(1e-3)
+    doc().ungroup([g])
+    expect(inShot().distanceTo(new Vector3(-3, 0, 1))).toBeLessThan(1e-3)
+  })
+})
+
+describe('outliner drag & drop (moveNodes)', () => {
+  const near = (v: Vector3, x: number, y: number, z: number) => expect(v.distanceTo(new Vector3(x, y, z))).toBeLessThan(1e-3)
+
+  it('reorders at the top level', () => {
+    const a = doc().addPrimitive('box')
+    const b = doc().addPrimitive('box')
+    const c = doc().addPrimitive('box')
+    doc().moveNodes([c], null, a)
+    expect(scene().rootIds).toEqual([c, a, b])
+    doc().moveNodes([c], null, null)
+    expect(scene().rootIds).toEqual([a, b, c])
+    // Several at once keep their order; dropping before one of them anchors on the next one.
+    doc().moveNodes([b, a], null, c)
+    expect(scene().rootIds).toEqual([a, b, c])
+    doc().moveNodes([a, b], null, a)
+    expect(scene().rootIds).toEqual([a, b, c])
+    doc().moveNodes([c], null, b)
+    expect(scene().rootIds).toEqual([a, c, b])
+  })
+
+  it('moves into and out of a group without moving in the world', () => {
+    const a = doc().addPrimitive('box', [1, 1])
+    const b = doc().addPrimitive('box', [3, 0])
+    const c = doc().addPrimitive('sphere', [-2, 4])
+    const g = doc().groupNodes([a, b])!
+    doc().updateNode(g, { position: [5, 0, 0], rotation: [0, 90, 0] })
+    const cWorld = worldPos(c)
+    doc().moveNodes([c], g, null)
+    expect(scene().nodes[c].parentId).toBe(g)
+    expect(scene().rootIds).toEqual([g])
+    const group = scene().nodes[g]
+    expect(group.type === 'group' && group.childIds).toEqual([a, b, c])
+    near(worldPos(c), cWorld.x, cWorld.y, cWorld.z)
+
+    doc().moveNodes([c], null, g)
+    expect(scene().rootIds).toEqual([c, g])
+    expect(scene().nodes[c].parentId).toBeNull()
+    near(worldPos(c), cWorld.x, cWorld.y, cWorld.z)
+
+    // One undo step.
+    doc().undo()
+    expect(scene().nodes[c].parentId).toBe(g)
+  })
+
+  it('keeps per-shot placements in place', () => {
+    const a = doc().addPrimitive('box', [1, 1])
+    const c = doc().addPrimitive('sphere', [-2, 4])
+    const g = doc().groupNodes([a])!
+    doc().updateNode(g, { position: [5, 0, 0], rotation: [0, 90, 0] })
+    const shot = doc().addCamera({ position: [0, 1.6, 6], rotation: [0, 0, 0] })
+    doc().setActiveShot(shot)
+    doc().updateNode(c, { position: [0, 2, -1] })
+    doc().moveNodes([c], g, null)
+    // Changed Master's hierarchy even while editing the shot.
+    expect(scene().nodes[c].parentId).toBe(g)
+    const inShot = new Vector3().setFromMatrixPosition(worldMatrix({ ...scene(), nodes: sceneForShot(doc(), shot) }, c))
+    near(inShot, 0, 2, -1)
+    near(worldPos(c), -2, 0, 4)
+  })
+
+  it('refuses to put a group inside itself or its contents', () => {
+    const a = doc().addPrimitive('box')
+    const inner = doc().groupNodes([a])!
+    const outer = doc().groupNodes([inner])!
+    doc().moveNodes([outer], inner, null)
+    expect(scene().nodes[outer].parentId).toBeNull()
+    doc().moveNodes([outer], outer, null)
+    expect(scene().nodes[outer].parentId).toBeNull()
+  })
 })
 
 describe('anchor and scale', () => {

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { produce, type Draft } from 'immer'
 import { Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import { localMatrix, parentWorldMatrix, placementFromMatrix, placementUnder, worldMatrix as worldMatrixOf } from '../../../shared/transforms'
 import {
   clampScale,
   createEmptyProject,
@@ -258,6 +259,12 @@ interface DocumentState {
   duplicateNodes: (ids: string[]) => string[]
   groupNodes: (ids: string[]) => string | null
   ungroup: (ids: string[]) => string[]
+  /**
+   * Outliner drag & drop: move nodes into `parentId` (a group, or null for the top level), just
+   * before `beforeId` (or at the end). Everything keeps its place in the world, in Master and in
+   * every shot. A group can't go inside itself. Always changes Master (the hierarchy is Master's).
+   */
+  moveNodes: (ids: string[], parentId: string | null, beforeId: string | null) => void
 
   /** Start a group of changes that undo as one step. owner says who started it; only that owner ends it. */
   beginGesture: (owner?: string) => void
@@ -933,14 +940,13 @@ export const useDocument = create<DocumentState>()((set, get) => {
         scene.nodes[id] = group
         insertAfter(scene, members[0], id)
 
-        const groupWorldInverse = parentWorld.clone().multiply(localMatrix(group)).invert()
-        for (const m of members) {
-          const world = worldMatrix(scene, m.id)
-          detach(scene, m)
-          setLocalFromMatrix(m, groupWorldInverse.clone().multiply(world))
-          m.parentId = id
-          group.childIds.push(m.id)
-        }
+        reparentInPlace(scene, members.map((m) => m.id), () => {
+          for (const m of members) {
+            detach(scene, m)
+            m.parentId = id
+            group.childIds.push(m.id)
+          }
+        })
         groupId = id
       })
       return groupId
@@ -952,21 +958,49 @@ export const useDocument = create<DocumentState>()((set, get) => {
         for (const id of ids) {
           const group = scene.nodes[id]
           if (!group || group.type !== 'group') continue
-          const groupLocal = localMatrix(group)
           const children = [...group.childIds]
-          for (const childId of children) {
-            const child = scene.nodes[childId]
-            setLocalFromMatrix(child, groupLocal.clone().multiply(localMatrix(child)))
-            child.parentId = group.parentId
-            insertAfter(scene, group, childId, children.indexOf(childId))
-            released.push(childId)
-          }
-          group.childIds = []
+          reparentInPlace(scene, children, () => {
+            for (const childId of children) {
+              scene.nodes[childId].parentId = group.parentId
+              insertAfter(scene, group, childId, children.indexOf(childId))
+              released.push(childId)
+            }
+            group.childIds = []
+          })
           detach(scene, group)
           delete scene.nodes[id]
         }
       })
       return released
+    },
+
+    moveNodes: (ids, parentId, beforeId) => {
+      change((scene) => {
+        if (parentId && scene.nodes[parentId]?.type !== 'group') return
+        // Not into itself or anything inside it, and cameras stay out of the hierarchy.
+        const members = topLevelOnly(scene, ids).filter((id) => {
+          const node = scene.nodes[id]
+          return node && node.type !== 'camera' && !(parentId && subtreeIds(scene, id).includes(parentId))
+        })
+        if (members.length === 0) return
+        // Keep their Outliner order, whatever order they were selected in.
+        const order = scene.rootIds.flatMap((id) => subtreeIds(scene, id))
+        members.sort((x, y) => order.indexOf(x) - order.indexOf(y))
+        const target = () => (parentId ? (scene.nodes[parentId] as Draft<GroupNode>).childIds : scene.rootIds)
+        // Dropping next to one of the moved items: anchor on the next item that stays.
+        let anchor = beforeId
+        if (anchor && members.includes(anchor)) {
+          const list = target()
+          anchor = list.slice(list.indexOf(anchor)).find((x) => !members.includes(x)) ?? null
+        }
+        reparentInPlace(scene, members, () => {
+          for (const id of members) detach(scene, scene.nodes[id])
+          const list = target()
+          const at = anchor && list.includes(anchor) ? list.indexOf(anchor) : list.length
+          list.splice(at, 0, ...members)
+          for (const id of members) scene.nodes[id].parentId = parentId
+        })
+      })
     },
 
     beginGesture: (owner = 'default') => {
@@ -1175,30 +1209,60 @@ function toPlainValue<T>(value: T | undefined): T | undefined {
   return value === undefined ? undefined : (JSON.parse(JSON.stringify(value)) as T)
 }
 
-// ---------- Transform math (positions in metres, rotations in degrees) ----------
+// ---------- Transform math (see shared/transforms.ts) ----------
 
-export function localMatrix(node: Pick<SceneNode, 'position' | 'rotation' | 'scale'>): Matrix4 {
-  const euler = new Euler(...(node.rotation.map((d) => MathUtils.degToRad(d)) as Vec3), 'XYZ')
-  return new Matrix4().compose(
-    new Vector3(...node.position),
-    new Quaternion().setFromEuler(euler),
-    new Vector3(...node.scale)
-  )
-}
+export { localMatrix }
 
 export function worldMatrix(scene: Scene, id: string): Matrix4 {
-  const node = scene.nodes[id]
-  const local = localMatrix(node)
-  return node.parentId ? worldMatrix(scene, node.parentId).multiply(local) : local
+  return worldMatrixOf(scene.nodes, id)
 }
 
 function setLocalFromMatrix(node: Draft<SceneNode>, m: Matrix4): void {
-  const p = new Vector3()
-  const q = new Quaternion()
-  const s = new Vector3()
-  m.decompose(p, q, s)
-  const e = new Euler().setFromQuaternion(q, 'XYZ')
-  node.position = [round(p.x), round(p.y), round(p.z)]
-  node.rotation = [round(MathUtils.radToDeg(e.x)), round(MathUtils.radToDeg(e.y)), round(MathUtils.radToDeg(e.z))]
-  node.scale = [round(s.x), round(s.y), round(s.z)]
+  Object.assign(node, placementFromMatrix(m))
+}
+
+/** A plain (non-draft) copy of the scene's nodes, for maths that reads the whole scene. */
+function plainNodes(scene: Draft<Scene>): Record<string, SceneNode> {
+  return JSON.parse(JSON.stringify(scene.nodes)) as Record<string, SceneNode>
+}
+
+const PLACEMENT_FIELDS = ['position', 'rotation', 'scale'] as const
+const PLACEMENT_TOLERANCE = 1e-3
+
+/**
+ * Re-parent `ids` (what `restructure` does to parentIds and child lists) without anything moving
+ * in the world: in Master, and in every shot of the scene (a shot that had moved one of them,
+ * or its old or new group, gets its own placement re-expressed in the new group).
+ */
+function reparentInPlace(scene: Draft<Scene>, ids: string[], restructure: () => void): void {
+  const shots = Object.values(scene.nodes).filter((n): n is Draft<CameraNode> => n.type === 'camera')
+  const before = plainNodes(scene)
+  const masterWorld = new Map(ids.map((id) => [id, worldMatrixOf(before, id)]))
+  const shotWorld = shots.map((shot) => {
+    const view = effectiveNodes(before, toPlainValue(shot.overrides))
+    return new Map(ids.map((id) => [id, worldMatrixOf(view, id)]))
+  })
+
+  restructure()
+
+  for (const id of ids) {
+    const node = scene.nodes[id]
+    setLocalFromMatrix(node, parentWorldMatrix(plainNodes(scene), node.parentId).invert().multiply(masterWorld.get(id)!))
+  }
+  const after = plainNodes(scene)
+  shots.forEach((shot, i) => {
+    const view = effectiveNodes(after, toPlainValue(shot.overrides))
+    for (const id of ids) {
+      const node = scene.nodes[id]
+      const needed = placementUnder(shotWorld[i].get(id)!, parentWorldMatrix(view, node.parentId))
+      const o = (shot.overrides[id] ?? {}) as Record<string, unknown>
+      for (const field of PLACEMENT_FIELDS) {
+        const master = node[field]
+        if (needed[field].every((v, k) => Math.abs(v - master[k]) < PLACEMENT_TOLERANCE)) delete o[field]
+        else o[field] = needed[field]
+      }
+      if (Object.keys(o).length) shot.overrides[id] = o
+      else delete shot.overrides[id]
+    }
+  })
 }

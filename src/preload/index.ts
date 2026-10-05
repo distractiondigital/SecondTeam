@@ -17,6 +17,9 @@ const api: SecondTeamApi = {
   saveProjectAs: (suggestedName) => ipcRenderer.invoke('project:saveAs', suggestedName),
   openProject: () => ipcRenderer.invoke('project:open'),
   writeProject: (folder, json) => ipcRenderer.invoke('project:write', folder, json),
+  recentProjects: () => ipcRenderer.invoke('project:recent'),
+  openRecentProject: (folder) => ipcRenderer.invoke('project:openRecent', folder),
+  forgetRecentProject: (folder) => ipcRenderer.invoke('project:forgetRecent', folder),
 
   loadPoseLibrary: () => ipcRenderer.invoke('poses:load'),
   savePoseLibrary: (json) => ipcRenderer.invoke('poses:save', json),

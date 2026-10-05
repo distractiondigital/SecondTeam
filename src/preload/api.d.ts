@@ -18,6 +18,12 @@ export interface SecondTeamApi {
   openProject: () => Promise<{ path: string; json: string } | { error: string } | null>
   /** Write project.json into a folder previously chosen through saveProjectAs or openProject. */
   writeProject: (folder: string, json: string) => Promise<{ ok: true } | { error: string }>
+  /** Projects opened or saved recently, newest first (exists = still on disk; savedAt in ms). */
+  recentProjects: () => Promise<{ path: string; name: string; exists: boolean; savedAt: number | null }[]>
+  /** Open a project from the recent list (main refuses anything not on its list). */
+  openRecentProject: (folder: string) => Promise<{ path: string; json: string } | { error: string } | null>
+  /** Take a project off the recent list (the folder itself is left alone). */
+  forgetRecentProject: (folder: string) => Promise<void>
 
   /** The app-wide pose library (poses.json in %LOCALAPPDATA%\SecondTeam), or null if none yet. */
   loadPoseLibrary: () => Promise<string | null>

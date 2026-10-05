@@ -254,7 +254,7 @@ export default function PropertiesPanel() {
         {live.length > 1 && (
           <>
             <p className="hint">
-              {live.length} objects selected. Group them (Ctrl+G) to move, rotate or scale them together.
+              {live.length} objects selected. Move (W) or rotate (E) them together with the gizmo; group them (Ctrl+G) to keep them together or scale them.
             </p>
             <div className="prop-actions">
               <button onClick={groupSelected}>Group</button>

@@ -8,6 +8,7 @@ import { useUi } from '../state/uiStore'
 import { cameraPose } from './shotInfo'
 import { viewFit } from './viewFit'
 import { viewportBridge } from './viewportBridge'
+import { flyStep, isMoving, isTyping, LOOK_SENSITIVITY, MOVE_KEYS } from './flyInput'
 
 // Looking through a shot camera. The viewport's own camera copies the shot camera every frame
 // (with a wider field of view so the frame fits with a margin; FrameOverlay draws the frame).
@@ -21,20 +22,13 @@ import { viewportBridge } from './viewportBridge'
 //   Ctrl+scroll        zoom (focal length)
 // Each drag, scroll burst or roll press is one undo step.
 
-const LOOK_SENSITIVITY = 0.12 // degrees per pixel
 const ROLL_SPEED = 30 // degrees per second
-const FAST = 3
 const DOLLY_STEP = 0.15 // metres per scroll notch at normal speed
 const WHEEL_GESTURE_END = 350 // ms after the last scroll notch
-const MOVE_KEYS = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'Space', 'KeyC', 'ControlLeft'])
 
 interface OrbitLike {
   enabled: boolean
   update: () => void
-}
-
-function isTyping(target: EventTarget | null): boolean {
-  return target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))
 }
 
 const r4 = (n: number) => Math.round(n * 10000) / 10000 || 0
@@ -243,7 +237,7 @@ export default function LookThrough() {
     const state = input.current
 
     // Fly: apply mouse look, movement and roll to the shot camera.
-    const moving = state.flying && [...state.keys].some((k) => MOVE_KEYS.has(k))
+    const moving = state.flying && isMoving(state.keys)
     if ((state.flying && (state.look.x || state.look.y)) || moving || state.roll) {
       const w = (state.working ??= startPose(object))
       w.pan -= state.look.x * LOOK_SENSITIVITY
@@ -252,17 +246,7 @@ export default function LookThrough() {
       state.look.x = 0
       state.look.y = 0
       const { position, pan, tilt, roll } = w
-      if (moving) {
-        const k = state.keys
-        const speed = useUi.getState().flySpeed * (k.has('ShiftLeft') || k.has('ShiftRight') ? FAST : 1) * delta
-        const yaw = MathUtils.degToRad(pan)
-        const forward = new Vector3(-Math.sin(yaw), 0, -Math.cos(yaw))
-        const right = new Vector3(Math.cos(yaw), 0, -Math.sin(yaw))
-        const axis = (plus: string, minus: string) => (k.has(plus) ? 1 : 0) - (k.has(minus) ? 1 : 0)
-        position.addScaledVector(forward, axis('KeyW', 'KeyS') * speed)
-        position.addScaledVector(right, axis('KeyD', 'KeyA') * speed)
-        position.y += ((k.has('Space') ? 1 : 0) - (k.has('KeyC') || k.has('ControlLeft') ? 1 : 0)) * speed
-      }
+      if (moving) flyStep(position, pan, state.keys, useUi.getState().flySpeed, delta)
       setWorldPose(id, position, pan, tilt, roll)
     }
 

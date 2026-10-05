@@ -28,6 +28,8 @@ interface UiState {
   units: Units
   /** Folder of the open project (…\Name.secondteam), or null if never saved. */
   projectPath: string | null
+  /** The start panel (new / open / recent) was closed for this session. */
+  startDismissed: boolean
   /** Node whose name is being edited in the outliner. */
   renamingId: string | null
   /** Bumped to ask the viewport to frame the selection. */
@@ -59,6 +61,7 @@ interface UiState {
   cycleSnapMode: () => void
   setUnits: (units: Units) => void
   setProjectPath: (path: string | null) => void
+  dismissStart: () => void
   setRenamingId: (id: string | null) => void
   requestFrame: () => void
   setLookThrough: (id: string | null) => void
@@ -81,6 +84,7 @@ export const useUi = create<UiState>()((set) => ({
   snapMode: 'off',
   units: 'm',
   projectPath: null,
+  startDismissed: false,
   renamingId: null,
   frameRequest: 0,
   lookThroughId: null,
@@ -108,6 +112,7 @@ export const useUi = create<UiState>()((set) => ({
     set((s) => ({ snapMode: SNAP_MODES[(SNAP_MODES.indexOf(s.snapMode) + 1) % SNAP_MODES.length] })),
   setUnits: (units) => set({ units }),
   setProjectPath: (projectPath) => set({ projectPath }),
+  dismissStart: () => set({ startDismissed: true }),
   setRenamingId: (renamingId) => set({ renamingId }),
   requestFrame: () => set((s) => ({ frameRequest: s.frameRequest + 1 })),
   // Camera view shows the shot lit (Clay); leaving it goes back to Work if that's where you were.

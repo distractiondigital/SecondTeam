@@ -52,8 +52,12 @@ While `npm run dev` is running, most UI edits show up in the window instantly.
 - **Middle-drag:** orbit
 - **Shift + middle-drag:** pan
 - **Scroll:** zoom
+- **Hold right mouse:** fly. Move the mouse to look around; while it's held, **W A S D** move, **Space** up, **C** down, **Shift** faster, scroll sets the speed. Let go and orbit as usual (around a point in front of you).
 - **Left-click:** select. **Ctrl/Shift + click** adds to the selection. Clicking empty space clears it.
+- **Left-drag:** box select: everything whose middle is inside the rectangle. **Shift**-drag adds, **Ctrl**-drag removes.
 - Clicking an object inside a group selects the whole group. **Double-click** selects just that object.
+- **Several things selected:** the gizmo sits under their middle and **moves (W) or rotates (E)** them all together, in one undo step (group them to scale them).
+- **Outliner:** **Ctrl+click** adds or removes one, **Shift+click** selects a range. **Drag** rows to reorder them, onto the middle of a group to put them inside, or below the list to take them out. Nothing moves in the set (in any shot) when it changes group. Dragging a selected row moves the whole selection.
 
 The grid is in real-world units. In metres: faint lines every 1 m, stronger every 10 m. In feet: every 1 ft and 10 ft.
 
@@ -116,7 +120,7 @@ In the Properties panel, **drag left/right on any number box** to change it (hol
 - The HUD and Shot list show camera height, tilt, distance to the subject, and the **shot size and angle** (e.g. "Medium close-up · Slight high angle"), worked out from the nearest figure in frame. Override them in Properties if you like.
 
 ## Lights & clay
-- **Lights** (toolbar): **Sun** (daylight from one direction; only its angle matters), **Point** (a bare bulb), **Spot** (a beam) and **Ambient** (soft even fill from the sky). Aim sun and spot with the rotate gizmo (E) or Pan/Tilt in Properties.
+- **Lights** (toolbar): **Sun** (daylight from one direction; only its angle matters), **Point** (a bare bulb), **Spot** (a beam) and **Ambient** (soft even fill from the sky). Aim sun and spot with the rotate gizmo (E) or Pan/Tilt in Properties. While a sun or spot is selected, a dashed **aim line** shows where it lands (a cross where it hits), and a spot also outlines its **pool of light** on the floor and objects.
 - Light Properties: **intensity in stops** (0 = a standard key, +1 = twice as bright), **colour temperature** in Kelvin (with Candle / Tungsten / Daylight / Overcast / Shade presets), **softness** (hard to soft shadows), casts shadows, and for spots the cone angle and beam edge. Point and spot lights fall off with distance like real ones.
 - **Work / Clay** (toolbar): Work shows object colours under even light; **Clay** shows every surface in its **Material** colour (Properties), matte, lit by your lights, with shadows, under the **environment**'s sky and on its ground (below). Looking through a camera switches to Clay automatically (and back when you leave, if you were in Work).
 - Each shot gets an automatic **lighting description** (e.g. "Soft key light from camera left, rim light from behind, warm tungsten, high contrast"), shown in the camera HUD and the shot's Properties, where you can overwrite it. It will go into the AI prompt.
@@ -202,6 +206,8 @@ The images the AI will work from (Milestone 6), rendered from a shot's camera th
 
 ## Projects
 A project is a folder called `Name.secondteam` containing `project.json` (the set, in plain readable JSON) and folders for reference images, renders and exports. To open one, choose that folder in the Open dialog. The project's name is the folder's name.
+
+When the app starts, a panel offers **New project**, **Open…** and your **recent projects** (newest first; a moved or deleted one says "Not found", and × takes it off the list). The **▾** next to Open in the toolbar lists them too. The list is kept in `%LOCALAPPDATA%\SecondTeam\recent.json`.
 
 ## Credits
 Human bodies, faces, eyes, hair and most clothes: MakeHuman (CC0), via the MakeHuman community and its MPFB add-on. These items are CC-BY (credit the authors):

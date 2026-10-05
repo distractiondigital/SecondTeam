@@ -14,7 +14,7 @@ export const toRadians = (rotation: Vec3): Vec3 => rotation.map((d) => MathUtils
 export const noRaycast = () => null
 
 /** Outermost group containing this node (clicking an object in a group selects the group). */
-function outermostAncestor(scene: Scene, id: string): string {
+export function outermostAncestor(scene: Scene, id: string): string {
   let current = scene.nodes[id]
   while (current?.parentId && scene.nodes[current.parentId]) current = scene.nodes[current.parentId]
   return current?.id ?? id

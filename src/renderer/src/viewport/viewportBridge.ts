@@ -11,6 +11,8 @@ export const viewportBridge = {
   }),
   /** True while the gizmo is being dragged (and just after), so releasing it isn't treated as a click. */
   gizmoBusy: false,
+  /** True while (and just after) a box-select drag, so its release isn't treated as a click. */
+  boxSelecting: false,
   /** True while flying a shot camera (right mouse held); other shortcuts stay quiet. */
   flying: false
 }

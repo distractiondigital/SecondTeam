@@ -3,6 +3,7 @@ import { existsSync } from 'fs'
 import { mkdir, readFile, writeFile } from 'fs/promises'
 import { basename, join, resolve } from 'path'
 import { safeRename } from './safeRename'
+import { describeRecent, isRecent, loadRecent, saveRecent, withoutRecent, withRecent, type RecentProject } from './recentProjects'
 
 // Saving and opening project folders (Name.secondteam\project.json).
 // The UI never passes arbitrary paths to write to: main only writes into folders the user
@@ -26,6 +27,33 @@ function approve(folder: string): string {
 
 export function isApproved(folder: string): boolean {
   return approvedFolders.has(resolve(folder).toLowerCase())
+}
+
+/** Remember a project as opened or saved just now (for the start screen and Open ▾). */
+async function remember(folder: string): Promise<void> {
+  try {
+    await saveRecent(withRecent(loadRecent(), folder))
+  } catch {
+    // Not worth failing a save or an open over.
+  }
+}
+
+/** Read a project folder the user chose (or picked from the recent list) and approve it for saving. */
+async function readProjectFolder(folder: string): Promise<OpenResult> {
+  const file = join(folder, PROJECT_FILE)
+  if (!existsSync(file)) {
+    return {
+      error: `"${basename(folder)}" isn't a Second Team project (there's no project.json inside). Choose the folder that ends in ${PROJECT_EXT}.`
+    }
+  }
+  try {
+    const json = await readFile(file, 'utf-8')
+    const path = approve(folder)
+    await remember(path)
+    return { path, json }
+  } catch (err) {
+    return { error: `Couldn't read project.json: ${(err as Error).message}` }
+  }
 }
 
 async function ensureStructure(folder: string): Promise<void> {
@@ -82,19 +110,17 @@ export function registerProjectIpc(getWindow: () => BrowserWindow | null): void 
           properties: ['openDirectory']
         })
     if (result.canceled || result.filePaths.length === 0) return null
-    const folder = result.filePaths[0]
-    const file = join(folder, PROJECT_FILE)
-    if (!existsSync(file)) {
-      return {
-        error: `"${basename(folder)}" isn't a Second Team project (there's no project.json inside). Choose the folder that ends in ${PROJECT_EXT}.`
-      }
-    }
-    try {
-      const json = await readFile(file, 'utf-8')
-      return { path: approve(folder), json }
-    } catch (err) {
-      return { error: `Couldn't read project.json: ${(err as Error).message}` }
-    }
+    return readProjectFolder(result.filePaths[0])
+  })
+
+  // Recent projects. Only folders main itself put on the list can be opened this way.
+  ipcMain.handle('project:recent', (): RecentProject[] => describeRecent(loadRecent()))
+  ipcMain.handle('project:openRecent', async (_e, folder: string): Promise<OpenResult> => {
+    if (typeof folder !== 'string' || !isRecent(loadRecent(), folder)) return { error: 'That project is no longer in the recent list.' }
+    return readProjectFolder(resolve(folder))
+  })
+  ipcMain.handle('project:forgetRecent', async (_e, folder: string): Promise<void> => {
+    if (typeof folder === 'string') await saveRecent(withoutRecent(loadRecent(), folder))
   })
 
   ipcMain.handle('project:write', async (_e, folder: string, json: string): Promise<WriteResult> => {
@@ -106,6 +132,7 @@ export function registerProjectIpc(getWindow: () => BrowserWindow | null): void 
       const temp = `${target}.tmp`
       await writeFile(temp, json, 'utf-8')
       await safeRename(temp, target)
+      await remember(folder)
       return { ok: true }
     } catch (err) {
       return { error: `Couldn't save: ${(err as Error).message}` }

@@ -53,7 +53,16 @@ export async function newProject(): Promise<void> {
 
 export async function openProject(): Promise<void> {
   if (!(await confirmLeave())) return
-  const result = await api().openProject()
+  await load(await api().openProject())
+}
+
+/** Open a project from the recent list (start screen, or Open ▾ in the toolbar). */
+export async function openRecentProject(folder: string): Promise<void> {
+  if (!(await confirmLeave())) return
+  await load(await api().openRecentProject(folder))
+}
+
+async function load(result: Awaited<ReturnType<Window['secondTeam']['openProject']>>): Promise<void> {
   if (!result) return
   if ('error' in result) {
     await api().showError(result.error)
