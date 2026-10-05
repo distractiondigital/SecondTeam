@@ -725,7 +725,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Casual (men's) 1",
-   "vertexCount": 8984,
+   "vertexCount": 8426,
    "scales": {
     "x": [
      5399,
@@ -746,31 +746,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 26952,
+     "length": 25278,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 53904,
-     "length": 26952,
+     "offset": 50556,
+     "length": 25278,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 161712,
-     "length": 26952,
+     "offset": 151668,
+     "length": 25278,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 269520,
-     "length": 17968,
+     "offset": 252780,
+     "length": 16852,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 341392,
+     "offset": 320188,
      "length": 50016,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 441424,
+     "offset": 420220,
      "length": 8430,
      "type": "Uint16Array"
     }
@@ -785,7 +785,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Casual (men's) 2",
-   "vertexCount": 2349,
+   "vertexCount": 2136,
    "scales": {
     "x": [
      5399,
@@ -806,31 +806,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 7047,
+     "length": 6408,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 14096,
-     "length": 7047,
+     "offset": 12816,
+     "length": 6408,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 42284,
-     "length": 7047,
+     "offset": 38448,
+     "length": 6408,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 70472,
-     "length": 4698,
+     "offset": 64080,
+     "length": 4272,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 89264,
+     "offset": 81168,
      "length": 12360,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 113984,
+     "offset": 105888,
      "length": 6058,
      "type": "Uint16Array"
     }
@@ -845,7 +845,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Casual (men's) 3",
-   "vertexCount": 2796,
+   "vertexCount": 2499,
    "scales": {
     "x": [
      5399,
@@ -866,31 +866,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 8388,
+     "length": 7497,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 16776,
-     "length": 8388,
+     "offset": 14996,
+     "length": 7497,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 50328,
-     "length": 8388,
+     "offset": 44984,
+     "length": 7497,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 83880,
-     "length": 5592,
+     "offset": 74972,
+     "length": 4998,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 106248,
+     "offset": 94964,
      "length": 14400,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 135048,
+     "offset": 123764,
      "length": 6058,
      "type": "Uint16Array"
     }
@@ -905,7 +905,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Casual (men's) 4",
-   "vertexCount": 1887,
+   "vertexCount": 1696,
    "scales": {
     "x": [
      5399,
@@ -926,31 +926,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 5661,
+     "length": 5088,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 11324,
-     "length": 5661,
+     "offset": 10176,
+     "length": 5088,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 33968,
-     "length": 5661,
+     "offset": 30528,
+     "length": 5088,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 56612,
-     "length": 3774,
+     "offset": 50880,
+     "length": 3392,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 71708,
+     "offset": 64448,
      "length": 9720,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 91148,
+     "offset": 83888,
      "length": 5026,
      "type": "Uint16Array"
     }
@@ -965,7 +965,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Casual (men's) 5",
-   "vertexCount": 3871,
+   "vertexCount": 3195,
    "scales": {
     "x": [
      5399,
@@ -986,31 +986,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 11613,
+     "length": 9585,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 23228,
-     "length": 11613,
+     "offset": 19172,
+     "length": 9585,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 69680,
-     "length": 11613,
+     "offset": 57512,
+     "length": 9585,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 116132,
-     "length": 7742,
+     "offset": 95852,
+     "length": 6390,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 147100,
+     "offset": 121412,
      "length": 17988,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 183076,
+     "offset": 157388,
      "length": 6058,
      "type": "Uint16Array"
     }
@@ -1025,7 +1025,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Casual (men's) 6",
-   "vertexCount": 4035,
+   "vertexCount": 3708,
    "scales": {
     "x": [
      5399,
@@ -1046,31 +1046,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 12105,
+     "length": 11124,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 24212,
-     "length": 12105,
+     "offset": 22248,
+     "length": 11124,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 72632,
-     "length": 12105,
+     "offset": 66744,
+     "length": 11124,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 121052,
-     "length": 8070,
+     "offset": 111240,
+     "length": 7416,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 153332,
+     "offset": 140904,
      "length": 21504,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 196340,
+     "offset": 183912,
      "length": 5026,
      "type": "Uint16Array"
     }
@@ -1085,7 +1085,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Suit (men's)",
-   "vertexCount": 8522,
+   "vertexCount": 7613,
    "scales": {
     "x": [
      5399,
@@ -1106,31 +1106,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 25566,
+     "length": 22839,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 51132,
-     "length": 25566,
+     "offset": 45680,
+     "length": 22839,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 153396,
-     "length": 25566,
+     "offset": 137036,
+     "length": 22839,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 255660,
-     "length": 17044,
+     "offset": 228392,
+     "length": 15226,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 323836,
+     "offset": 289296,
      "length": 44868,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 413572,
+     "offset": 379032,
      "length": 6410,
      "type": "Uint16Array"
     }
@@ -1145,7 +1145,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Work clothes",
-   "vertexCount": 4166,
+   "vertexCount": 3763,
    "scales": {
     "x": [
      5399,
@@ -1166,31 +1166,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 12498,
+     "length": 11289,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 24996,
-     "length": 12498,
+     "offset": 22580,
+     "length": 11289,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 74988,
-     "length": 12498,
+     "offset": 67736,
+     "length": 11289,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 124980,
-     "length": 8332,
+     "offset": 112892,
+     "length": 7526,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 158308,
+     "offset": 142996,
      "length": 20958,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 200224,
+     "offset": 184912,
      "length": 2868,
      "type": "Uint16Array"
     }
@@ -1205,7 +1205,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Casual (women's) 1",
-   "vertexCount": 2406,
+   "vertexCount": 2197,
    "scales": {
     "x": [
      5399,
@@ -1226,31 +1226,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 7218,
+     "length": 6591,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 14436,
-     "length": 7218,
+     "offset": 13184,
+     "length": 6591,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 43308,
-     "length": 7218,
+     "offset": 39548,
+     "length": 6591,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 72180,
-     "length": 4812,
+     "offset": 65912,
+     "length": 4394,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 91428,
+     "offset": 83488,
      "length": 12708,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 116844,
+     "offset": 108904,
      "length": 5372,
      "type": "Uint16Array"
     }
@@ -1265,7 +1265,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Casual (women's) 2",
-   "vertexCount": 3204,
+   "vertexCount": 2876,
    "scales": {
     "x": [
      5399,
@@ -1286,31 +1286,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 9612,
+     "length": 8628,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 19224,
-     "length": 9612,
+     "offset": 17256,
+     "length": 8628,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 57672,
-     "length": 9612,
+     "offset": 51768,
+     "length": 8628,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 96120,
-     "length": 6408,
+     "offset": 86280,
+     "length": 5752,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 121752,
+     "offset": 109288,
      "length": 16464,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 154680,
+     "offset": 142216,
      "length": 2716,
      "type": "Uint16Array"
     }
@@ -1325,7 +1325,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Suit (women's)",
-   "vertexCount": 2446,
+   "vertexCount": 2205,
    "scales": {
     "x": [
      5399,
@@ -1346,31 +1346,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 7338,
+     "length": 6615,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 14676,
-     "length": 7338,
+     "offset": 13232,
+     "length": 6615,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 44028,
-     "length": 7338,
+     "offset": 39692,
+     "length": 6615,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 73380,
-     "length": 4892,
+     "offset": 66152,
+     "length": 4410,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 92948,
+     "offset": 83792,
      "length": 12576,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 118100,
+     "offset": 108944,
      "length": 4136,
      "type": "Uint16Array"
     }
@@ -1385,7 +1385,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Sportswear",
-   "vertexCount": 1986,
+   "vertexCount": 1797,
    "scales": {
     "x": [
      5399,
@@ -1406,31 +1406,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 5958,
+     "length": 5391,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 11916,
-     "length": 5958,
+     "offset": 10784,
+     "length": 5391,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 35748,
-     "length": 5958,
+     "offset": 32348,
+     "length": 5391,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 59580,
-     "length": 3972,
+     "offset": 53912,
+     "length": 3594,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 75468,
+     "offset": 68288,
      "length": 10308,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 96084,
+     "offset": 88904,
      "length": 4678,
      "type": "Uint16Array"
     }
@@ -1445,7 +1445,7 @@
    "kind": "clothes",
    "slot": "shoes",
    "label": "Shoes 1",
-   "vertexCount": 1904,
+   "vertexCount": 1722,
    "scales": {
     "x": [
      12839,
@@ -1466,31 +1466,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 5712,
+     "length": 5166,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 11424,
-     "length": 5712,
+     "offset": 10332,
+     "length": 5166,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 34272,
-     "length": 5712,
+     "offset": 30996,
+     "length": 5166,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 57120,
-     "length": 3808,
+     "offset": 51660,
+     "length": 3444,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 72352,
+     "offset": 65436,
      "length": 9960,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 92272,
+     "offset": 85356,
      "length": 3206,
      "type": "Uint16Array"
     }
@@ -1505,7 +1505,7 @@
    "kind": "clothes",
    "slot": "shoes",
    "label": "Shoes 2",
-   "vertexCount": 1744,
+   "vertexCount": 1594,
    "scales": {
     "x": [
      12839,
@@ -1526,31 +1526,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 5232,
+     "length": 4782,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 10464,
-     "length": 5232,
+     "offset": 9564,
+     "length": 4782,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 31392,
-     "length": 5232,
+     "offset": 28692,
+     "length": 4782,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 52320,
-     "length": 3488,
+     "offset": 47820,
+     "length": 3188,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 66272,
+     "offset": 60572,
      "length": 9192,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 84656,
+     "offset": 78956,
      "length": 3206,
      "type": "Uint16Array"
     }
@@ -1565,7 +1565,7 @@
    "kind": "clothes",
    "slot": "shoes",
    "label": "Shoes 3",
-   "vertexCount": 2542,
+   "vertexCount": 2222,
    "scales": {
     "x": [
      12839,
@@ -1586,31 +1586,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 7626,
+     "length": 6666,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 15252,
-     "length": 7626,
+     "offset": 13332,
+     "length": 6666,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 45756,
-     "length": 7626,
+     "offset": 39996,
+     "length": 6666,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 76260,
-     "length": 5084,
+     "offset": 66660,
+     "length": 4444,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 96596,
+     "offset": 84436,
      "length": 12384,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 121364,
+     "offset": 109204,
      "length": 3206,
      "type": "Uint16Array"
     }
@@ -1625,7 +1625,7 @@
    "kind": "clothes",
    "slot": "shoes",
    "label": "Shoes 4",
-   "vertexCount": 1904,
+   "vertexCount": 1722,
    "scales": {
     "x": [
      12839,
@@ -1646,31 +1646,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 5712,
+     "length": 5166,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 11424,
-     "length": 5712,
+     "offset": 10332,
+     "length": 5166,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 34272,
-     "length": 5712,
+     "offset": 30996,
+     "length": 5166,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 57120,
-     "length": 3808,
+     "offset": 51660,
+     "length": 3444,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 72352,
+     "offset": 65436,
      "length": 9960,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 92272,
+     "offset": 85356,
      "length": 3206,
      "type": "Uint16Array"
     }
@@ -1685,7 +1685,7 @@
    "kind": "clothes",
    "slot": "shoes",
    "label": "Shoes 5",
-   "vertexCount": 1744,
+   "vertexCount": 1594,
    "scales": {
     "x": [
      12839,
@@ -1706,31 +1706,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 5232,
+     "length": 4782,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 10464,
-     "length": 5232,
+     "offset": 9564,
+     "length": 4782,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 31392,
-     "length": 5232,
+     "offset": 28692,
+     "length": 4782,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 52320,
-     "length": 3488,
+     "offset": 47820,
+     "length": 3188,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 66272,
+     "offset": 60572,
      "length": 9192,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 84656,
+     "offset": 78956,
      "length": 3206,
      "type": "Uint16Array"
     }
@@ -1745,7 +1745,7 @@
    "kind": "clothes",
    "slot": "shoes",
    "label": "Shoes 6",
-   "vertexCount": 1744,
+   "vertexCount": 1594,
    "scales": {
     "x": [
      12839,
@@ -1766,31 +1766,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 5232,
+     "length": 4782,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 10464,
-     "length": 5232,
+     "offset": 9564,
+     "length": 4782,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 31392,
-     "length": 5232,
+     "offset": 28692,
+     "length": 4782,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 52320,
-     "length": 3488,
+     "offset": 47820,
+     "length": 3188,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 66272,
+     "offset": 60572,
      "length": 9192,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 84656,
+     "offset": 78956,
      "length": 3206,
      "type": "Uint16Array"
     }
@@ -1805,7 +1805,7 @@
    "kind": "clothes",
    "slot": "hat",
    "label": "Fedora",
-   "vertexCount": 702,
+   "vertexCount": 634,
    "scales": {
     "x": [
      5399,
@@ -1826,31 +1826,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 2106,
+     "length": 1902,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 4212,
-     "length": 2106,
+     "offset": 3804,
+     "length": 1902,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 12636,
-     "length": 2106,
+     "offset": 11412,
+     "length": 1902,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 21060,
-     "length": 1404,
+     "offset": 19020,
+     "length": 1268,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 26676,
+     "offset": 24092,
      "length": 3732,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 34140,
+     "offset": 31556,
      "length": 0,
      "type": "Uint16Array"
     }
@@ -1865,7 +1865,7 @@
    "kind": "clothes",
    "slot": "top",
    "label": "T-shirt (tucked)",
-   "vertexCount": 1644,
+   "vertexCount": 1391,
    "scales": {
     "x": [
      5399,
@@ -1886,31 +1886,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 4932,
+     "length": 4173,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 9864,
-     "length": 4932,
+     "offset": 8348,
+     "length": 4173,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 29592,
-     "length": 4932,
+     "offset": 25040,
+     "length": 4173,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 49320,
-     "length": 3288,
+     "offset": 41732,
+     "length": 2782,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 62472,
+     "offset": 52860,
      "length": 8100,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 78672,
+     "offset": 69060,
      "length": 0,
      "type": "Uint16Array"
     }
@@ -1925,7 +1925,7 @@
    "kind": "clothes",
    "slot": "top",
    "label": "T-shirt (men's)",
-   "vertexCount": 1150,
+   "vertexCount": 1095,
    "scales": {
     "x": [
      5399,
@@ -1946,31 +1946,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 3450,
+     "length": 3285,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 6900,
-     "length": 3450,
+     "offset": 6572,
+     "length": 3285,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 20700,
-     "length": 3450,
+     "offset": 19712,
+     "length": 3285,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 34500,
-     "length": 2300,
+     "offset": 32852,
+     "length": 2190,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 43700,
+     "offset": 41612,
      "length": 6204,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 56108,
+     "offset": 54020,
      "length": 892,
      "type": "Uint16Array"
     }
@@ -1985,7 +1985,7 @@
    "kind": "clothes",
    "slot": "top",
    "label": "T-shirt (women's)",
-   "vertexCount": 1152,
+   "vertexCount": 1095,
    "scales": {
     "x": [
      5399,
@@ -2006,31 +2006,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 3456,
+     "length": 3285,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 6912,
-     "length": 3456,
+     "offset": 6572,
+     "length": 3285,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 20736,
-     "length": 3456,
+     "offset": 19712,
+     "length": 3285,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 34560,
-     "length": 2304,
+     "offset": 32852,
+     "length": 2190,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 43776,
+     "offset": 41612,
      "length": 6204,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 56184,
+     "offset": 54020,
      "length": 1560,
      "type": "Uint16Array"
     }
@@ -2045,7 +2045,7 @@
    "kind": "clothes",
    "slot": "top",
    "label": "Polo shirt",
-   "vertexCount": 2574,
+   "vertexCount": 2189,
    "scales": {
     "x": [
      3924,
@@ -2066,31 +2066,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 7722,
+     "length": 6567,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 15444,
-     "length": 7722,
+     "offset": 13136,
+     "length": 6567,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 46332,
-     "length": 7722,
+     "offset": 39404,
+     "length": 6567,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 77220,
-     "length": 5148,
+     "offset": 65672,
+     "length": 4378,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 97812,
+     "offset": 83184,
      "length": 12318,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 122448,
+     "offset": 107820,
      "length": 0,
      "type": "Uint16Array"
     }
@@ -2105,7 +2105,7 @@
    "kind": "clothes",
    "slot": "top",
    "label": "Fisherman sweater",
-   "vertexCount": 2511,
+   "vertexCount": 2126,
    "scales": {
     "x": [
      5399,
@@ -2126,31 +2126,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 7533,
+     "length": 6378,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 15068,
-     "length": 7533,
+     "offset": 12756,
+     "length": 6378,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 45200,
-     "length": 7533,
+     "offset": 38268,
+     "length": 6378,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 75332,
-     "length": 5022,
+     "offset": 63780,
+     "length": 4252,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 95420,
+     "offset": 80788,
      "length": 12492,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 120404,
+     "offset": 105772,
      "length": 0,
      "type": "Uint16Array"
     }
@@ -2165,7 +2165,7 @@
    "kind": "clothes",
    "slot": "top",
    "label": "Camisole",
-   "vertexCount": 5096,
+   "vertexCount": 4224,
    "scales": {
     "x": [
      5399,
@@ -2186,31 +2186,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 15288,
+     "length": 12672,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 30576,
-     "length": 15288,
+     "offset": 25344,
+     "length": 12672,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 91728,
-     "length": 15288,
+     "offset": 76032,
+     "length": 12672,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 152880,
-     "length": 10192,
+     "offset": 126720,
+     "length": 8448,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 193648,
+     "offset": 160512,
      "length": 24696,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 243040,
+     "offset": 209904,
      "length": 917,
      "type": "Uint16Array"
     }
@@ -2225,7 +2225,7 @@
    "kind": "clothes",
    "slot": "top",
    "label": "Tank top",
-   "vertexCount": 823,
+   "vertexCount": 726,
    "scales": {
     "x": [
      3924,
@@ -2246,31 +2246,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 2469,
+     "length": 2178,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 4940,
-     "length": 2469,
+     "offset": 4356,
+     "length": 2178,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 14816,
-     "length": 2469,
+     "offset": 13068,
+     "length": 2178,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 24692,
-     "length": 1646,
+     "offset": 21780,
+     "length": 1452,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 31276,
+     "offset": 27588,
      "length": 4056,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 39388,
+     "offset": 35700,
      "length": 881,
      "type": "Uint16Array"
     }
@@ -2285,36 +2285,36 @@
    "kind": "clothes",
    "slot": "top",
    "label": "Shirt (untucked)",
-   "vertexCount": 5140,
+   "vertexCount": 4685,
    "scales": {},
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 15420,
+     "length": 14055,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 30840,
-     "length": 15420,
+     "offset": 28112,
+     "length": 14055,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 92520,
-     "length": 15420,
+     "offset": 84332,
+     "length": 14055,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 154200,
-     "length": 10280,
+     "offset": 140552,
+     "length": 9370,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 195320,
+     "offset": 178032,
      "length": 24168,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 243656,
+     "offset": 226368,
      "length": 2168,
      "type": "Uint16Array"
     }
@@ -2329,36 +2329,36 @@
    "kind": "clothes",
    "slot": "top",
    "label": "Shirt and tie",
-   "vertexCount": 2915,
+   "vertexCount": 2441,
    "scales": {},
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 8745,
+     "length": 7323,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 17492,
-     "length": 8745,
+     "offset": 14648,
+     "length": 7323,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 52472,
-     "length": 8745,
+     "offset": 43940,
+     "length": 7323,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 87452,
-     "length": 5830,
+     "offset": 73232,
+     "length": 4882,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 110772,
+     "offset": 92760,
      "length": 13998,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 138768,
+     "offset": 120756,
      "length": 2168,
      "type": "Uint16Array"
     }
@@ -2373,7 +2373,7 @@
    "kind": "clothes",
    "slot": "top",
    "label": "Striped shirt",
-   "vertexCount": 4701,
+   "vertexCount": 3936,
    "scales": {
     "x": [
      5399,
@@ -2394,31 +2394,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 14103,
+     "length": 11808,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 28208,
-     "length": 14103,
+     "offset": 23616,
+     "length": 11808,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 84620,
-     "length": 14103,
+     "offset": 70848,
+     "length": 11808,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 141032,
-     "length": 9402,
+     "offset": 118080,
+     "length": 7872,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 178640,
+     "offset": 149568,
      "length": 23640,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 225920,
+     "offset": 196848,
      "length": 1784,
      "type": "Uint16Array"
     }
@@ -2433,7 +2433,7 @@
    "kind": "clothes",
    "slot": "top",
    "label": "Knitted sweater",
-   "vertexCount": 1583,
+   "vertexCount": 1355,
    "scales": {
     "x": [
      3924,
@@ -2454,31 +2454,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 4749,
+     "length": 4065,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 9500,
-     "length": 4749,
+     "offset": 8132,
+     "length": 4065,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 28496,
-     "length": 4749,
+     "offset": 24392,
+     "length": 4065,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 47492,
-     "length": 3166,
+     "offset": 40652,
+     "length": 2710,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 60156,
+     "offset": 51492,
      "length": 7884,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 75924,
+     "offset": 67260,
      "length": 2240,
      "type": "Uint16Array"
     }
@@ -2493,7 +2493,7 @@
    "kind": "clothes",
    "slot": "top",
    "label": "Blouse",
-   "vertexCount": 2930,
+   "vertexCount": 2562,
    "scales": {
     "x": [
      5399,
@@ -2514,31 +2514,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 8790,
+     "length": 7686,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 17580,
-     "length": 8790,
+     "offset": 15372,
+     "length": 7686,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 52740,
-     "length": 8790,
+     "offset": 46116,
+     "length": 7686,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 87900,
-     "length": 5860,
+     "offset": 76860,
+     "length": 5124,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 111340,
+     "offset": 97356,
      "length": 14862,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 141064,
+     "offset": 127080,
      "length": 0,
      "type": "Uint16Array"
     }
@@ -2553,7 +2553,7 @@
    "kind": "clothes",
    "slot": "top",
    "label": "Sweater (older)",
-   "vertexCount": 1750,
+   "vertexCount": 1602,
    "scales": {
     "x": [
      3924,
@@ -2574,31 +2574,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 5250,
+     "length": 4806,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 10500,
-     "length": 5250,
+     "offset": 9612,
+     "length": 4806,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 31500,
-     "length": 5250,
+     "offset": 28836,
+     "length": 4806,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 52500,
-     "length": 3500,
+     "offset": 48060,
+     "length": 3204,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 66500,
+     "offset": 60876,
      "length": 9336,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 85172,
+     "offset": 79548,
      "length": 0,
      "type": "Uint16Array"
     }
@@ -2613,7 +2613,7 @@
    "kind": "clothes",
    "slot": "outer",
    "label": "Hooded jacket",
-   "vertexCount": 16615,
+   "vertexCount": 9935,
    "scales": {
     "x": [
      5399,
@@ -2634,31 +2634,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 49845,
+     "length": 29805,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 99692,
-     "length": 49845,
+     "offset": 59612,
+     "length": 29805,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 299072,
-     "length": 49845,
+     "offset": 178832,
+     "length": 29805,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 498452,
-     "length": 33230,
+     "offset": 298052,
+     "length": 19870,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 631372,
+     "offset": 377532,
      "length": 58722,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 748816,
+     "offset": 494976,
      "length": 0,
      "type": "Uint16Array"
     }
@@ -2673,7 +2673,7 @@
    "kind": "clothes",
    "slot": "outer",
    "label": "Long cardigan",
-   "vertexCount": 6030,
+   "vertexCount": 4569,
    "scales": {
     "x": [
      3924,
@@ -2694,31 +2694,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 18090,
+     "length": 13707,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 36180,
-     "length": 18090,
+     "offset": 27416,
+     "length": 13707,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 108540,
-     "length": 18090,
+     "offset": 82244,
+     "length": 13707,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 180900,
-     "length": 12060,
+     "offset": 137072,
+     "length": 9138,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 229140,
+     "offset": 173624,
      "length": 26952,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 283044,
+     "offset": 227528,
      "length": 0,
      "type": "Uint16Array"
     }
@@ -2733,7 +2733,7 @@
    "kind": "clothes",
    "slot": "bottom",
    "label": "Trousers",
-   "vertexCount": 1593,
+   "vertexCount": 1372,
    "scales": {
     "x": [
      5399,
@@ -2754,31 +2754,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 4779,
+     "length": 4116,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 9560,
-     "length": 4779,
+     "offset": 8232,
+     "length": 4116,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 28676,
-     "length": 4779,
+     "offset": 24696,
+     "length": 4116,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 47792,
-     "length": 3186,
+     "offset": 41160,
+     "length": 2744,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 60536,
+     "offset": 52136,
      "length": 8022,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 76580,
+     "offset": 68180,
      "length": 0,
      "type": "Uint16Array"
     }
@@ -2793,7 +2793,7 @@
    "kind": "clothes",
    "slot": "bottom",
    "label": "Cargo pants",
-   "vertexCount": 255,
+   "vertexCount": 211,
    "scales": {
     "x": [
      5399,
@@ -2814,31 +2814,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 765,
+     "length": 633,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 1532,
-     "length": 765,
+     "offset": 1268,
+     "length": 633,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 4592,
-     "length": 765,
+     "offset": 3800,
+     "length": 633,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 7652,
-     "length": 510,
+     "offset": 6332,
+     "length": 422,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 9692,
+     "offset": 8020,
      "length": 1176,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 12044,
+     "offset": 10372,
      "length": 0,
      "type": "Uint16Array"
     }
@@ -2853,7 +2853,7 @@
    "kind": "clothes",
    "slot": "bottom",
    "label": "Denim shorts",
-   "vertexCount": 342,
+   "vertexCount": 285,
    "scales": {
     "x": [
      5399,
@@ -2874,31 +2874,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 1026,
+     "length": 855,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 2052,
-     "length": 1026,
+     "offset": 1712,
+     "length": 855,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 6156,
-     "length": 1026,
+     "offset": 5132,
+     "length": 855,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 10260,
-     "length": 684,
+     "offset": 8552,
+     "length": 570,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 12996,
+     "offset": 10832,
      "length": 1500,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 15996,
+     "offset": 13832,
      "length": 277,
      "type": "Uint16Array"
     }
@@ -2909,11 +2909,71 @@
    "source": "https://static.makehumancommunity.org/assets/assetpacks/pants01.html (clothes/cortu_jeans_shorts)"
   },
   {
-   "id": "outfit-dress-shift",
+   "id": "bottom-shorts",
    "kind": "clothes",
-   "slot": "outfit",
-   "label": "Shift dress",
-   "vertexCount": 7814,
+   "slot": "bottom",
+   "label": "Shorts",
+   "vertexCount": 1372,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.434
+    ],
+    "z": [
+     962,
+     5320,
+     2.0001
+    ],
+    "y": [
+     791,
+     881,
+     2.4098
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 4116,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 8232,
+     "length": 4116,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 24696,
+     "length": 4116,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 41160,
+     "length": 2744,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 52136,
+     "length": 4350,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 60836,
+     "length": 0,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "author": null,
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/pants01.html (clothes/toigo_wool_pants)"
+  },
+  {
+   "id": "bottom-cargo-shorts",
+   "kind": "clothes",
+   "slot": "bottom",
+   "label": "Cargo shorts",
+   "vertexCount": 211,
    "scales": {
     "x": [
      5399,
@@ -2934,31 +2994,91 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 23442,
+     "length": 633,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 46884,
-     "length": 23442,
+     "offset": 1268,
+     "length": 633,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 140652,
-     "length": 23442,
+     "offset": 3800,
+     "length": 633,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 234420,
-     "length": 15628,
+     "offset": 6332,
+     "length": 422,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 296932,
+     "offset": 8020,
+     "length": 696,
+     "type": "Uint16Array"
+    },
+    "deleteVerts": {
+     "offset": 9412,
+     "length": 0,
+     "type": "Uint16Array"
+    }
+   },
+   "mask": null,
+   "license": "CC0",
+   "author": null,
+   "source": "https://static.makehumancommunity.org/assets/assetpacks/pants01.html (clothes/cortu_cargo_pants)"
+  },
+  {
+   "id": "outfit-dress-shift",
+   "kind": "clothes",
+   "slot": "outfit",
+   "label": "Shift dress",
+   "vertexCount": 6892,
+   "scales": {
+    "x": [
+     5399,
+     11998,
+     1.398
+    ],
+    "z": [
+     962,
+     5320,
+     1.8441
+    ],
+    "y": [
+     791,
+     881,
+     2.2028
+    ]
+   },
+   "sections": {
+    "refs": {
+     "offset": 0,
+     "length": 20676,
+     "type": "Uint16Array"
+    },
+    "weights": {
+     "offset": 41352,
+     "length": 20676,
+     "type": "Float32Array"
+    },
+    "offsets": {
+     "offset": 124056,
+     "length": 20676,
+     "type": "Float32Array"
+    },
+    "uv": {
+     "offset": 206760,
+     "length": 13784,
+     "type": "Float32Array"
+    },
+    "indices": {
+     "offset": 261896,
      "length": 40704,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 378340,
+     "offset": 343304,
      "length": 1513,
      "type": "Uint16Array"
     }
@@ -2973,7 +3093,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Dress (keyhole neck)",
-   "vertexCount": 9623,
+   "vertexCount": 9067,
    "scales": {
     "x": [
      3924,
@@ -2994,31 +3114,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 28869,
+     "length": 27201,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 57740,
-     "length": 28869,
+     "offset": 54404,
+     "length": 27201,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 173216,
-     "length": 28869,
+     "offset": 163208,
+     "length": 27201,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 288692,
-     "length": 19246,
+     "offset": 272012,
+     "length": 18134,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 365676,
+     "offset": 344548,
      "length": 53664,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 473004,
+     "offset": 451876,
      "length": 1436,
      "type": "Uint16Array"
     }
@@ -3033,7 +3153,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Halter dress",
-   "vertexCount": 2181,
+   "vertexCount": 2031,
    "scales": {
     "x": [
      5399,
@@ -3054,31 +3174,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 6543,
+     "length": 6093,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 13088,
-     "length": 6543,
+     "offset": 12188,
+     "length": 6093,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 39260,
-     "length": 6543,
+     "offset": 36560,
+     "length": 6093,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 65432,
-     "length": 4362,
+     "offset": 60932,
+     "length": 4062,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 82880,
+     "offset": 77180,
      "length": 11808,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 106496,
+     "offset": 100796,
      "length": 1123,
      "type": "Uint16Array"
     }
@@ -3093,7 +3213,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Dress (full skirt)",
-   "vertexCount": 6467,
+   "vertexCount": 5504,
    "scales": {
     "x": [
      5399,
@@ -3114,31 +3234,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 19401,
+     "length": 16512,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 38804,
-     "length": 19401,
+     "offset": 33024,
+     "length": 16512,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 116408,
-     "length": 19401,
+     "offset": 99072,
+     "length": 16512,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 194012,
-     "length": 12934,
+     "offset": 165120,
+     "length": 11008,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 245748,
+     "offset": 209152,
      "length": 32376,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 310500,
+     "offset": 273904,
      "length": 1768,
      "type": "Uint16Array"
     }
@@ -3153,7 +3273,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Dress (tiered skirt)",
-   "vertexCount": 12409,
+   "vertexCount": 9643,
    "scales": {
     "x": [
      5399,
@@ -3174,31 +3294,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 37227,
+     "length": 28929,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 74456,
-     "length": 37227,
+     "offset": 57860,
+     "length": 28929,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 223364,
-     "length": 37227,
+     "offset": 173576,
+     "length": 28929,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 372272,
-     "length": 24818,
+     "offset": 289292,
+     "length": 19286,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 471544,
+     "offset": 366436,
      "length": 56688,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 584920,
+     "offset": 479812,
      "length": 2151,
      "type": "Uint16Array"
     }
@@ -3213,7 +3333,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Kimono",
-   "vertexCount": 4092,
+   "vertexCount": 3546,
    "scales": {
     "x": [
      13868,
@@ -3234,31 +3354,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 12276,
+     "length": 10638,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 24552,
-     "length": 12276,
+     "offset": 21276,
+     "length": 10638,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 73656,
-     "length": 12276,
+     "offset": 63828,
+     "length": 10638,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 122760,
-     "length": 8184,
+     "offset": 106380,
+     "length": 7092,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 155496,
+     "offset": 134748,
      "length": 20766,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 197028,
+     "offset": 176280,
      "length": 2817,
      "type": "Uint16Array"
     }
@@ -3273,7 +3393,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Suit and tie",
-   "vertexCount": 10982,
+   "vertexCount": 9980,
    "scales": {
     "x": [
      13868,
@@ -3294,31 +3414,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 32946,
+     "length": 29940,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 65892,
-     "length": 32946,
+     "offset": 59880,
+     "length": 29940,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 197676,
-     "length": 32946,
+     "offset": 179640,
+     "length": 29940,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 329460,
-     "length": 21964,
+     "offset": 299400,
+     "length": 19960,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 417316,
+     "offset": 379240,
      "length": 57606,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 532528,
+     "offset": 494452,
      "length": 3552,
      "type": "Uint16Array"
     }
@@ -3333,7 +3453,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Suit (open collar)",
-   "vertexCount": 9795,
+   "vertexCount": 8527,
    "scales": {
     "x": [
      5399,
@@ -3354,31 +3474,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 29385,
+     "length": 25581,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 58772,
-     "length": 29385,
+     "offset": 51164,
+     "length": 25581,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 176312,
-     "length": 29385,
+     "offset": 153488,
+     "length": 25581,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 293852,
-     "length": 19590,
+     "offset": 255812,
+     "length": 17054,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 372212,
+     "offset": 324028,
      "length": 48750,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 469712,
+     "offset": 421528,
      "length": 3848,
      "type": "Uint16Array"
     }
@@ -3393,7 +3513,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Double-breasted suit",
-   "vertexCount": 6021,
+   "vertexCount": 5393,
    "scales": {
     "x": [
      5399,
@@ -3414,31 +3534,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 18063,
+     "length": 16179,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 36128,
-     "length": 18063,
+     "offset": 32360,
+     "length": 16179,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 108380,
-     "length": 18063,
+     "offset": 97076,
+     "length": 16179,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 180632,
-     "length": 12042,
+     "offset": 161792,
+     "length": 10786,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 228800,
+     "offset": 204936,
      "length": 30186,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 289172,
+     "offset": 265308,
      "length": 3596,
      "type": "Uint16Array"
     }
@@ -3453,7 +3573,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Dinner jacket",
-   "vertexCount": 9363,
+   "vertexCount": 8069,
    "scales": {
     "x": [
      5399,
@@ -3474,31 +3594,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 28089,
+     "length": 24207,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 56180,
-     "length": 28089,
+     "offset": 48416,
+     "length": 24207,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 168536,
-     "length": 28089,
+     "offset": 145244,
+     "length": 24207,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 280892,
-     "length": 18726,
+     "offset": 242072,
+     "length": 16138,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 355796,
+     "offset": 306624,
      "length": 45900,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 447596,
+     "offset": 398424,
      "length": 3550,
      "type": "Uint16Array"
     }
@@ -3513,36 +3633,36 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Women's suit 1",
-   "vertexCount": 15758,
+   "vertexCount": 14396,
    "scales": {},
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 47274,
+     "length": 43188,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 94548,
-     "length": 47274,
+     "offset": 86376,
+     "length": 43188,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 283644,
-     "length": 47274,
+     "offset": 259128,
+     "length": 43188,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 472740,
-     "length": 31516,
+     "offset": 431880,
+     "length": 28792,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 598804,
+     "offset": 547048,
      "length": 83814,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 766432,
+     "offset": 714676,
      "length": 2874,
      "type": "Uint16Array"
     }
@@ -3557,7 +3677,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Women's suit 2",
-   "vertexCount": 9781,
+   "vertexCount": 8509,
    "scales": {
     "x": [
      5399,
@@ -3578,31 +3698,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 29343,
+     "length": 25527,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 58688,
-     "length": 29343,
+     "offset": 51056,
+     "length": 25527,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 176060,
-     "length": 29343,
+     "offset": 153164,
+     "length": 25527,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 293432,
-     "length": 19562,
+     "offset": 255272,
+     "length": 17018,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 371680,
+     "offset": 323344,
      "length": 48642,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 468964,
+     "offset": 420628,
      "length": 3854,
      "type": "Uint16Array"
     }
@@ -3617,7 +3737,7 @@
    "kind": "clothes",
    "slot": "outfit",
    "label": "Women's double-breasted suit",
-   "vertexCount": 6021,
+   "vertexCount": 5393,
    "scales": {
     "x": [
      5399,
@@ -3638,31 +3758,31 @@
    "sections": {
     "refs": {
      "offset": 0,
-     "length": 18063,
+     "length": 16179,
      "type": "Uint16Array"
     },
     "weights": {
-     "offset": 36128,
-     "length": 18063,
+     "offset": 32360,
+     "length": 16179,
      "type": "Float32Array"
     },
     "offsets": {
-     "offset": 108380,
-     "length": 18063,
+     "offset": 97076,
+     "length": 16179,
      "type": "Float32Array"
     },
     "uv": {
-     "offset": 180632,
-     "length": 12042,
+     "offset": 161792,
+     "length": 10786,
      "type": "Float32Array"
     },
     "indices": {
-     "offset": 228800,
+     "offset": 204936,
      "length": 30186,
      "type": "Uint16Array"
     },
     "deleteVerts": {
-     "offset": 289172,
+     "offset": 265308,
      "length": 3608,
      "type": "Uint16Array"
     }

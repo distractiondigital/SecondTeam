@@ -91,7 +91,9 @@ interface Built {
 }
 
 const FINGER = /^(index|middle|ring|pinky)_0([123])_([lr])$/
-const THUMB = /^thumb_0([23])_([lr])$/
+const THUMB = /^thumb_0([123])_([lr])$/
+/** How the thumb's bend is spread over its three joints. */
+const THUMB_SHARE = [0.4, 0.6, 0.7]
 
 /** Bend axes for the fingers of both hands, from where the knuckles sit on this body. */
 function curlAxes(rest: HumanFit['rest']): Map<string, Vector3> {
@@ -103,14 +105,18 @@ function curlAxes(rest: HumanFit['rest']): Map<string, Vector3> {
     // A rotation axis mirrored to the other side must also flip to give the mirrored bend.
     if (side === 'r') across.negate()
     const handDir = at('middle_01').sub(at('hand')).normalize()
-    const palm = new Vector3().crossVectors(across, handDir).normalize()
     for (const finger of ['index', 'middle', 'ring', 'pinky']) for (const k of [1, 2, 3]) out.set(`${finger}_0${k}_${side}`, across)
-    // The thumb folds across the palm.
+    // The thumb: swing in toward the palm (around the palm's normal), roll around its own length,
+    // then bend. Values in HAND_CURL were found by searching for where a fist's thumb tip lands
+    // (over the index finger). Mirroring the left hand's rotations onto the right flips plain
+    // directions (thumbDir, bendAxis) but not the palm normal, which is a cross product of two of them.
+    const palmRaw = new Vector3().crossVectors(at('pinky_01').sub(at('index_01')).normalize(), handDir).normalize()
     const thumbDir = at('thumb_02').sub(at('thumb_01')).normalize()
-    const thumbAxis = new Vector3().crossVectors(thumbDir, palm).normalize()
-    if (side === 'r') thumbAxis.negate()
-    out.set(`thumb_02_${side}`, thumbAxis)
-    out.set(`thumb_03_${side}`, thumbAxis)
+    const bendAxis = new Vector3().crossVectors(thumbDir, palmRaw).normalize()
+    const flip = side === 'r' ? -1 : 1
+    out.set(`thumb_swing_${side}`, palmRaw)
+    out.set(`thumb_roll_${side}`, thumbDir.multiplyScalar(flip))
+    out.set(`thumb_bend_${side}`, bendAxis.multiplyScalar(flip))
   }
   return out
 }
@@ -122,8 +128,6 @@ function fingerBend(bone: string, hands: Hands): number {
     const curl = HAND_CURL[f[3] === 'l' ? hands.left : hands.right]
     return (f[1] === 'index' && curl.index ? curl.index : curl.fingers)[+f[2] - 1]
   }
-  const t = THUMB.exec(bone)
-  if (t) return HAND_CURL[t[2] === 'l' ? hands.left : hands.right].thumb[+t[1] - 2]
   return 0
 }
 
@@ -180,6 +184,18 @@ function applyPose(b: Built, body: BodyData, pose: Pose, height: number, hands: 
     // Fingers: bend each joint for the hand shape (rest-pose space, so it follows the hand).
     const bend = fingerBend(def.name, hands)
     const axis = b.curlAxes.get(def.name)
+    // The thumb: its base swings in and rolls, then each joint takes its share of the bend.
+    const thumb = THUMB.exec(def.name)
+    if (thumb) {
+      const t = HAND_CURL[thumb[2] === 'l' ? hands.left : hands.right].thumb
+      const turn = (k: string, deg: number) =>
+        w.multiply(new Quaternion().setFromAxisAngle(b.curlAxes.get(`thumb_${k}_${thumb[2]}`)!, MathUtils.degToRad(deg)))
+      if (thumb[1] === '1') {
+        turn('swing', t.swing)
+        turn('roll', t.roll)
+      }
+      turn('bend', t.bend * THUMB_SHARE[+thumb[1] - 1])
+    }
     if (bend && axis) w.multiply(new Quaternion().setFromAxisAngle(axis, MathUtils.degToRad(bend)))
     world.set(def.name, w)
   }

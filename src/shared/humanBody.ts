@@ -538,8 +538,8 @@ export interface FigureAppearance {
 /** A dressed starting look (one colour: everything follows the figure's colour until changed). */
 export function defaultAppearance(gender: number): FigureAppearance {
   return gender >= 0.5
-    ? { hair: 'hair-short02', eyebrows: 'eyebrows-1', garments: { outfit: 'outfit-male-casual-1', shoes: 'shoes-1' }, colors: {} }
-    : { hair: 'hair-ponytail01', eyebrows: 'eyebrows-1', garments: { outfit: 'outfit-female-casual-1', shoes: 'shoes-2' }, colors: {} }
+    ? { hair: 'hair-short02', eyebrows: 'eyebrows-1', garments: { outfit: 'outfit-male-casual-4', shoes: 'shoes-1' }, colors: {} }
+    : { hair: 'hair-ponytail01', eyebrows: 'eyebrows-1', garments: { outfit: 'outfit-female-casual-2', shoes: 'shoes-2' }, colors: {} }
 }
 
 const ID = /^[a-z0-9-]{1,60}$/
@@ -668,15 +668,21 @@ export type HandShape = 'relaxed' | 'fist' | 'open' | 'point' | 'grip'
 export const HAND_SHAPES: Record<HandShape, string> = { relaxed: 'Relaxed', fist: 'Fist', open: 'Open', point: 'Point', grip: 'Grip' }
 
 /**
- * Curl of each finger joint in degrees (base, middle, tip), and the thumb's two outer joints.
- * Pure data; HumanView turns it into bone rotations.
+ * Each hand shape: the curl of each finger joint in degrees (base, middle, tip), and the thumb as
+ * swing (in toward the palm), roll (around its own length) and total bend (spread 40/60/70% over
+ * its three joints). The fist's thumb was found by searching for where its tip lands over the
+ * curled index finger (within a few mm on MakeHuman's men and women). Pure data; HumanView turns
+ * it into bone rotations.
  */
-export const HAND_CURL: Record<HandShape, { fingers: [number, number, number]; index?: [number, number, number]; thumb: [number, number] }> = {
-  relaxed: { fingers: [15, 25, 15], thumb: [10, 10] },
-  fist: { fingers: [85, 100, 70], thumb: [35, 45] },
-  open: { fingers: [0, 0, 0], thumb: [0, 0] },
-  point: { fingers: [85, 100, 70], index: [0, 0, 0], thumb: [35, 45] },
-  grip: { fingers: [45, 60, 40], thumb: [25, 30] }
+export const HAND_CURL: Record<
+  HandShape,
+  { fingers: [number, number, number]; index?: [number, number, number]; thumb: { swing: number; roll: number; bend: number } }
+> = {
+  relaxed: { fingers: [12, 22, 12], thumb: { swing: 15, roll: 5, bend: 15 } },
+  fist: { fingers: [80, 95, 30], thumb: { swing: 65, roll: 30, bend: 110 } },
+  open: { fingers: [0, 0, 0], thumb: { swing: 0, roll: 0, bend: 0 } },
+  point: { fingers: [80, 95, 30], index: [0, 0, 0], thumb: { swing: 65, roll: 30, bend: 110 } },
+  grip: { fingers: [45, 60, 40], thumb: { swing: 35, roll: 15, bend: 55 } }
 }
 
 export interface Hands {

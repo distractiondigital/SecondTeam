@@ -87,6 +87,9 @@ const ITEMS = [
   pack('pants01', 'toigo_wool_pants', 'bottom-trousers', 'bottom', 'Trousers'),
   pack('pants01', 'cortu_cargo_pants', 'bottom-cargo', 'bottom', 'Cargo pants'),
   pack('pants01', 'cortu_jeans_shorts', 'bottom-denim-shorts', 'bottom', 'Denim shorts'),
+  // Shorts made from the long pants by cutting the legs (see `cut`).
+  { ...pack('pants01', 'toigo_wool_pants', 'bottom-shorts', 'bottom', 'Shorts'), cut: -3.0 },
+  { ...pack('pants01', 'cortu_cargo_pants', 'bottom-cargo-shorts', 'bottom', 'Cargo shorts'), cut: -3.55 },
   // Dresses (a whole outfit)
   pack('dress01', 'toigo_shift_dress', 'outfit-dress-shift', 'outfit', 'Shift dress'),
   pack('dress01', 'toigo_keyhole_neck_dress', 'outfit-dress-keyhole', 'outfit', 'Dress (keyhole neck)'),
@@ -153,8 +156,44 @@ function parseMhclo(text) {
   return { scales, refs, objFile, deleteVerts }
 }
 
-/** Parse an .obj into triangles over unique (vertex, uv) corners; `vertex` maps back to the obj vertex. */
-function parseObj(text) {
+/** The base mesh's vertex positions (decimetres, Y up), to know how high each part sits. */
+let baseVerts = null
+function basePositions() {
+  baseVerts ??= readFileSync(join(extract, 'mpfb', 'data', '3dobjs', 'base.obj'), 'utf-8')
+    .split(/\r?\n/)
+    .filter((l) => l.startsWith('v '))
+    .map((l) => l.trim().split(/\s+/).slice(1).map(Number))
+  return baseVerts
+}
+
+/**
+ * Cut a garment's legs off at a height on the base mesh (`cut`, decimetres; the crotch is about 0,
+ * the knee about -4.3): drops the triangles reaching below it, and keeps the skin below it showing.
+ */
+function cutBelow(obj, mhclo, y) {
+  const base = basePositions()
+  const height = (k) => {
+    const r = mhclo.refs[obj.vertex[k]]
+    return r.v.reduce((sum, v, i) => sum + r.w[i] * base[v][1], 0)
+  }
+  const tris = []
+  for (let i = 0; i < obj.tris.length; i += 3) {
+    const t = obj.tris.slice(i, i + 3)
+    // Whole triangles only, so the hem follows the garment's own edge ring just above the cut.
+    if (Math.min(height(t[0]), height(t[1]), height(t[2])) >= y) tris.push(...t)
+  }
+  obj.tris = tris
+  // Hide only skin well inside what's left, so no gap opens at the hem.
+  mhclo.deleteVerts = mhclo.deleteVerts.filter((v) => base[v][1] > y + 0.3)
+}
+
+/**
+ * Parse an .obj into triangles. With `keepUv` (cut-out cards: hair, eyebrows) vertices are split
+ * wherever the texture layout has a seam, so each corner keeps its uv; otherwise (untextured
+ * clothes) every obj vertex stays one vertex, so the surface shades smoothly across seams.
+ * `vertex` maps each output vertex back to its obj vertex.
+ */
+function parseObj(text, keepUv) {
   const uvs = []
   const corners = new Map() // "v/vt" -> new index
   const vertex = []
@@ -172,11 +211,12 @@ function parseObj(text) {
         .trim()
         .split(/\s+/)
         .map((c) => {
-          let k = corners.get(c)
+          const key = keepUv ? c : c.split('/')[0]
+          let k = corners.get(key)
           if (k === undefined) {
             const [v, t] = c.split('/')
             k = vertex.length
-            corners.set(c, k)
+            corners.set(key, k)
             vertex.push(+v - 1)
             const tv = t ? uvs[+t - 1] : [0, 0]
             uv.push(tv[0], tv[1])
@@ -201,8 +241,9 @@ function build() {
     const base = join(extract, item.pack, item.dir)
     const mhcloName = readdirSafe(base).find((f) => f.endsWith('.mhclo'))
     const mhclo = parseMhclo(readFileSync(join(base, mhcloName), 'utf-8'))
-    const obj = parseObj(readFileSync(join(base, mhclo.objFile), 'utf-8'))
+    const obj = parseObj(readFileSync(join(base, mhclo.objFile), 'utf-8'), Boolean(item.texture))
     if (obj.objVerts !== mhclo.refs.length) throw new Error(`${item.id}: ${obj.objVerts} obj vertices but ${mhclo.refs.length} refs`)
+    if (item.cut !== undefined) cutBelow(obj, mhclo, item.cut)
     // One entry per (vertex, uv) corner.
     const n = obj.vertex.length
     const refs = new Uint16Array(n * 3)
