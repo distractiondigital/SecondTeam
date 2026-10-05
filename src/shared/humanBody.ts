@@ -365,13 +365,13 @@ export function fitHuman(body: BodyData, sliders: BodySliders, height: number, e
   const m = (dm: number) => dm * scale
   const y = (name: string) => m(head(name)[1] - soles)
 
-  // Our skeleton stands straight (as the human does once posed): chain the bone lengths upward
-  // from the pelvis and down the legs, so each joint sits where the posed human's joint is.
+  // The spine keeps the body's natural posture, so its joints sit at the body's own heights; the
+  // limbs are straightened when posed, so the legs chain their bone lengths downward.
   const pelvisY = y('pelvis')
-  const spineY = pelvisY + m(dist(head('pelvis'), head('spine_01')))
-  const chestY = spineY + m(dist(head('spine_01'), head('spine_02')) + dist(head('spine_02'), head('spine_03')))
-  const neckY = chestY + m(dist(head('spine_03'), head('neck_01')))
-  const headY = neckY + m(dist(head('neck_01'), head('head')))
+  const spineY = y('spine_01')
+  const chestY = y('spine_03')
+  const neckY = y('neck_01')
+  const headY = y('head')
   const hipY = pelvisY + (y('thigh_l') - y('pelvis'))
   const thigh = m(dist(head('thigh_l'), head('calf_l')))
   const shin = m(dist(head('calf_l'), head('foot_l')))

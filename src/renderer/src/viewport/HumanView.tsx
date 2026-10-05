@@ -55,12 +55,14 @@ const BONE_JOINT: Record<string, JointName> = {
   foot_r: 'ankleR'
 }
 
-const UP = new Vector3(0, 1, 0)
 const DOWN = new Vector3(0, -1, 0)
-/** Where each mapped bone points in our rest pose (feet keep the rig's own direction). */
+/**
+ * Where each mapped bone points in our rest pose. Only the limbs are straightened (the rig's arms
+ * hang in an A-pose, its legs slightly apart); the spine, neck and head keep the body's natural
+ * posture: straightening them tipped the upper body forward, more so for men (stronger pelvis tilt).
+ */
 function restDirection(bone: string): Vector3 | null {
-  if (bone.startsWith('foot')) return null
-  if (/^(pelvis|spine|neck|head)/.test(bone)) return UP
+  if (bone.startsWith('foot') || /^(pelvis|spine|neck|head)/.test(bone)) return null
   return DOWN
 }
 
