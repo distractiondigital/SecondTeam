@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Eye, Layers, Plus, RefreshCw, Video } from 'lucide-react'
+import { Eye, Layers, Plus, Video } from 'lucide-react'
 import { compareShotNumbers } from '../../../shared/camera'
 import { sceneLabel, type CameraNode } from '../../../shared/project'
 import { activateShot, addShot, lookThrough } from '../state/actions'
@@ -142,16 +142,6 @@ export default function ShotList() {
             <div className="shot-number">{label}</div>
             <div className="shot-desc">The set every shot starts from</div>
           </div>
-          <button
-            className="icon-button shot-refresh"
-            title="Refresh every shot's Clay thumbnail in this scene"
-            onClick={(e) => {
-              e.stopPropagation()
-              useUi.getState().refreshThumbnails()
-            }}
-          >
-            <RefreshCw size={14} />
-          </button>
         </div>
         {cameras.map((c) => (
           <ShotRow

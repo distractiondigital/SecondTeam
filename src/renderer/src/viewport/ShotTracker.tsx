@@ -36,8 +36,8 @@ const BOARD_WIDTH = 640 // the storyboard's clay pictures
 // and rendered from its own hidden copy of the set (see ShotScenes), so it shows that shot's
 // version even while you edit Master or another shot.
 // Thumbnails (Clay stills), to keep things light: the shot being edited (or looked through)
-// re-renders live; leaving it renders it once more and keeps that still; the others keep theirs.
-// Changes to the scene's set (Master) touch every shot, so then they all re-render after a pause.
+// re-renders live; after a pause every shot is checked and only those whose picture could have
+// changed (see fingerprint) re-render.
 export default function ShotTracker() {
   const gl = useThree((s) => s.gl)
 
@@ -91,7 +91,7 @@ export default function ShotTracker() {
     }
 
     /** Re-render these shots' thumbnails (all = every shot); the rest keep their stills. */
-    const updateThumbnails = (only: Set<string> | 'all', forced = false) => {
+    const updateThumbnails = (only: Set<string> | 'all') => {
       const { cameras: list } = cameras()
       const previous = useUi.getState().thumbnails
       const thumbnails: Record<string, string> = {}
@@ -107,9 +107,9 @@ export default function ShotTracker() {
           if (previous[c.id]) thumbnails[c.id] = previous[c.id]
           continue
         }
-        // Nothing that shows has changed: keep the still (unless a refresh was asked for).
+        // Nothing that shows has changed: keep the still.
         const print = fingerprint(c.id)
-        if (!forced && previous[c.id] && lastPrint.get(c.id) === print) {
+        if (previous[c.id] && lastPrint.get(c.id) === print) {
           thumbnails[c.id] = previous[c.id]
           continue
         }
@@ -131,48 +131,32 @@ export default function ShotTracker() {
       ui.setBoardClay(renderBoardClay(gl, BOARD_WIDTH, 'image/jpeg'))
     }
 
-    // What to refresh at the next render: shot ids, or every shot.
-    let pending: Set<string> | 'all' = 'all'
-    let force = false
-    const schedule = (what: Set<string> | 'all', forced = false) => {
-      if (forced) force = true
+    // The shot being edited (or looked through) re-renders soon after each change; every shot is
+    // checked after a pause, and only those whose fingerprint changed re-render.
+    let liveTimer: ReturnType<typeof setTimeout> | undefined
+    const schedule = () => {
       clearTimeout(infoTimer)
       infoTimer = setTimeout(updateInfo, INFO_DELAY)
-      if (what === 'all' || pending === 'all') pending = 'all'
-      else for (const id of what) pending.add(id)
-      const live = pending !== 'all'
+      const active = useUi.getState().lookThroughId ?? useDocument.getState().activeShotId
+      clearTimeout(liveTimer)
+      if (active) liveTimer = setTimeout(() => updateThumbnails(new Set([active])), LIVE_DELAY)
       clearTimeout(thumbTimer)
-      thumbTimer = setTimeout(() => {
-        const what = pending
-        const forced = force
-        pending = new Set()
-        force = false
-        updateThumbnails(what, forced)
-      }, live ? LIVE_DELAY : THUMBNAIL_DELAY)
+      thumbTimer = setTimeout(() => updateThumbnails('all'), THUMBNAIL_DELAY)
     }
 
-    schedule('all')
+    schedule()
     const unsubscribe = useDocument.subscribe((state, previous) => {
-      if (state.sceneId !== previous.sceneId) return schedule('all')
-      // Switched shots (or back to Master): the one you left gets its final still, the new one a fresh one.
-      if (state.activeShotId !== previous.activeShotId) {
-        schedule(new Set([previous.activeShotId, state.activeShotId].filter((id): id is string => Boolean(id))))
-      }
-      if (state.project === previous.project) return
-      // Editing a shot only changes that shot; editing the set (Master) changes them all.
-      schedule(state.activeShotId ? new Set([state.activeShotId]) : 'all')
+      if (state.project !== previous.project || state.sceneId !== previous.sceneId || state.activeShotId !== previous.activeShotId) schedule()
     })
     const unsubscribeUi = useUi.subscribe((state, previous) => {
-      if (state.view !== previous.view || state.boardImage !== previous.boardImage) schedule('all')
-      if (state.thumbnailRefresh !== previous.thumbnailRefresh) schedule('all', true)
-      // Leaving camera view: that shot's final still.
-      if (state.lookThroughId !== previous.lookThroughId && previous.lookThroughId) schedule(new Set([previous.lookThroughId]))
+      if (state.view !== previous.view || state.boardImage !== previous.boardImage) schedule()
     })
     return () => {
       unsubscribe()
       unsubscribeUi()
       clearTimeout(infoTimer)
       clearTimeout(thumbTimer)
+      clearTimeout(liveTimer)
     }
   }, [gl])
 

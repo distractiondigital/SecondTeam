@@ -128,6 +128,7 @@ The AI engine (ComfyUI) lives in the `ComfyUI` folder and is set up by the in-ap
 - 2026-10-05: Spencer: Ctrl+W closed the app. Electron's default menu (Ctrl+W close, Ctrl+R reload) is replaced: the installed app has no menu at all (text-box copy/paste still works on Windows); development keeps a hidden Develop menu with Reload and DevTools. The Mac version will need an Edit menu for copy/paste.
 - 2026-10-05: Shot list thumbnails (Spencer): a circle take still shows first, otherwise the shot's Clay still. For speed only the shot being edited/looked through re-renders live; leaving it renders its final still; editing the set in Master refreshes all after a pause (`viewport/ShotTracker.tsx`).
 - 2026-10-05: Thumbnails skip shots whose picture can't have changed (a per-shot fingerprint of the set as it sees it, minus names/notes/descriptions/other cameras, plus sky, floor, camera body, cast colours); the refresh button forces all. Measured: 3-6 ms per shot thumbnail on Spencer's PC.
+- 2026-10-05: The Shot list refresh button is gone (Spencer agreed): every change now checks all shots after a pause and re-renders only those whose fingerprint changed (adding an object while in a shot updates every shot); the shot being edited still updates live.
 - 2026-09-30: The repo keeps LF line endings in the working copy (`.gitattributes`); mixed endings had been making some scripted edits silently miss.
 
 ## Mac version notes (now M12)

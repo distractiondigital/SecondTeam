@@ -61,8 +61,6 @@ interface UiState {
   renamingId: string | null
   /** Bumped to ask the viewport to frame the selection. */
   frameRequest: number
-  /** Bumped to re-render every shot's thumbnail in the scene (the Shot list's refresh button). */
-  thumbnailRefresh: number
   /** Shot camera the viewport is looking through, or null for the free view. */
   lookThroughId: string | null
   shading: Shading
@@ -95,7 +93,6 @@ interface UiState {
   dismissStart: () => void
   setRenamingId: (id: string | null) => void
   requestFrame: () => void
-  refreshThumbnails: () => void
   setLookThrough: (id: string | null) => void
   setShading: (shading: Shading) => void
   setFlySpeed: (speed: number) => void
@@ -145,7 +142,6 @@ export const useUi = create<UiState>()((set) => ({
   startDismissed: false,
   renamingId: null,
   frameRequest: 0,
-  thumbnailRefresh: 0,
   lookThroughId: null,
   shading: 'work',
   shadingAuto: false,
@@ -175,7 +171,6 @@ export const useUi = create<UiState>()((set) => ({
   dismissStart: () => set({ startDismissed: true }),
   setRenamingId: (renamingId) => set({ renamingId }),
   requestFrame: () => set((s) => ({ frameRequest: s.frameRequest + 1 })),
-  refreshThumbnails: () => set((s) => ({ thumbnailRefresh: s.thumbnailRefresh + 1 })),
   // Camera view shows the shot lit (Clay); leaving it goes back to Work if that's where you were.
   setLookThrough: (lookThroughId) =>
     set((s) => {
