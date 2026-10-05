@@ -3,6 +3,7 @@ import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { sceneLabel, type CastMember, type Prop, type SceneNode } from '../../../shared/project'
 import { activeScene, useDocument } from '../state/documentStore'
 import { useUi, type LeftTab } from '../state/uiStore'
+import AiFold from './AiFold'
 import Outliner from './Outliner'
 import ReferenceImages from './ReferenceImages'
 
@@ -200,36 +201,42 @@ export function EntityProperties({ kind, id }: { kind: 'cast' | 'prop'; id: stri
 
       <DescriptionSection kind={kind} entry={entry} onChange={(description) => update({ description })} />
 
-      <div className="prop-section">
-        <div className="prop-title" title="Photos or drawings of how this should look. They guide only this one's part of the frame.">
-          Reference images
-        </div>
-        <ReferenceImages
-          kind={kind === 'cast' ? 'cast' : 'props'}
-          ownerId={id}
-          images={entry.images}
-          onChange={(images) => update({ images })}
-          pasteShortcut
-        />
-        <p className="hint small">Add files, or paste an image (Ctrl+V) copied from a browser, a screenshot or Explorer.</p>
-        <div className="prop-title prop-title-spaced" title="How strongly the reference images shape the look. Lower it if the look leaks onto others.">
-          Reference strength
-        </div>
-        <div className="slider-row">
-          <input
-            type="range"
-            className="slider"
-            min={0}
-            max={1.5}
-            step={0.05}
-            value={entry.strength}
-            onPointerDown={() => doc.beginGesture('strength')}
-            onPointerUp={() => doc.endGesture('strength')}
-            onChange={(e) => update({ strength: Number(e.target.value) })}
+      <AiFold
+        fold="refs"
+        title={`AI references${entry.images.length ? ` (${entry.images.length})` : ''}`}
+        hint="Reference images that guide this one's look in AI frames, and how strongly"
+      >
+        <div className="prop-section">
+          <div className="prop-title" title="Photos or drawings of how this should look. They guide only this one's part of the frame.">
+            Reference images
+          </div>
+          <ReferenceImages
+            kind={kind === 'cast' ? 'cast' : 'props'}
+            ownerId={id}
+            images={entry.images}
+            onChange={(images) => update({ images })}
+            pasteShortcut
           />
-          <span className="slider-end">{entry.strength.toFixed(2)}</span>
+          <p className="hint small">Add files, or paste an image (Ctrl+V) copied from a browser, a screenshot or Explorer.</p>
+          <div className="prop-title prop-title-spaced" title="How strongly the reference images shape the look. Lower it if the look leaks onto others.">
+            Reference strength
+          </div>
+          <div className="slider-row">
+            <input
+              type="range"
+              className="slider"
+              min={0}
+              max={1.5}
+              step={0.05}
+              value={entry.strength}
+              onPointerDown={() => doc.beginGesture('strength')}
+              onPointerUp={() => doc.endGesture('strength')}
+              onChange={(e) => update({ strength: Number(e.target.value) })}
+            />
+            <span className="slider-end">{entry.strength.toFixed(2)}</span>
+          </div>
         </div>
-      </div>
+      </AiFold>
 
       {'color' in entry && (
         <div className="prop-section">

@@ -1,28 +1,21 @@
-import { Lock, Sparkles, Unlock } from 'lucide-react'
+import { Layers, Lock, SlidersHorizontal, Sparkles, Unlock } from 'lucide-react'
 import { DEFAULT_NEGATIVE, MAX_TAKES, strictnessToControl, type GenerationSettings } from '../../../shared/prompt'
 import type { CameraNode } from '../../../shared/project'
 import { useDocument } from '../state/documentStore'
 import { currentModel, generateBlocker, generateShot, shotPrompt, useGeneration } from '../state/generation'
+import { renderShotPasses, usePasses } from '../state/passes'
+import { openEngineSettings } from '../state/setup'
 import { useUi } from '../state/uiStore'
 import NumberField from './NumberField'
 import ReferenceImages from './ReferenceImages'
 import StylePresets from './StylePresets'
 
-// In a shot's Properties: what's in the frame, the prompt that will be sent, and Generate.
-// Below the camera body: the project-wide generation settings (model, style, strictness…).
+// In a shot's Properties: what's in the frame (always shown), and in the AI generation fold the
+// prompt that will be sent, Generate and the passes. The project-wide generation settings (model,
+// style, strictness…) are in the AI window's Generation tab.
 
-export function GenerateSection({ node }: { node: CameraNode }) {
-  // Re-render when anything that feeds the prompt or the blocker changes.
-  useDocument((s) => s.project)
-  useUi((s) => s.shotInfo[node.id])
-  useUi((s) => s.projectPath)
-  useGeneration((s) => s.status)
-  useGeneration((s) => s.job)
-  useGeneration((s) => s.models)
-  const prompt = shotPrompt(node.id)
-  const blocker = generateBlocker()
-  const running = useGeneration((s) => s.job?.shotId === node.id)
-
+/** What's in the frame: the AI prompt's start, and the storyboard caption's default. Always shown. */
+export function FrameDescription({ node }: { node: CameraNode }) {
   return (
     <div className="prop-section">
       <div className="prop-title">Frame description</div>
@@ -36,7 +29,27 @@ export function GenerateSection({ node }: { node: CameraNode }) {
           e.target.value !== node.description && useDocument.getState().updateNode(node.id, { description: e.target.value })
         }
       />
-      <div className="prop-title prop-title-spaced" title="Built from the description, shot size and angle, lens, lighting and the project style">
+    </div>
+  )
+}
+
+/** A shot's AI: its prompt, Generate, the passes and the whole-project settings (in the AI window). Lives in a fold. */
+export function GenerateSection({ node }: { node: CameraNode }) {
+  // Re-render when anything that feeds the prompt or the blocker changes.
+  useDocument((s) => s.project)
+  useUi((s) => s.shotInfo[node.id])
+  useUi((s) => s.projectPath)
+  useGeneration((s) => s.status)
+  useGeneration((s) => s.job)
+  useGeneration((s) => s.models)
+  const prompt = shotPrompt(node.id)
+  const blocker = generateBlocker()
+  const running = useGeneration((s) => s.job?.shotId === node.id)
+  const rendering = usePasses((s) => s.rendering)
+
+  return (
+    <div className="prop-section">
+      <div className="prop-title" title="Built from the description, shot size and angle, lens, lighting and the project style">
         Prompt
       </div>
       <p className="prompt-preview">{prompt || '—'}</p>
@@ -51,6 +64,20 @@ export function GenerateSection({ node }: { node: CameraNode }) {
         </button>
       </div>
       {blocker && !running && <p className="hint small">{blocker}</p>}
+      <div className="ai-links">
+        {/* Generate makes the passes itself, fresh every time; this only shows them. */}
+        <button
+          className="link-button"
+          disabled={rendering}
+          onClick={() => void renderShotPasses(node.id)}
+          title="See the depth, normals, object ID, pose and clay images the AI works from (Generate makes them fresh every time)"
+        >
+          <Layers size={13} /> {rendering ? 'Rendering…' : 'Check passes'}
+        </button>
+        <button className="link-button" onClick={() => openEngineSettings('generation')} title="Model, style, strictness, takes, seed… (the whole project)">
+          <SlidersHorizontal size={13} /> Generation settings…
+        </button>
+      </div>
     </div>
   )
 }

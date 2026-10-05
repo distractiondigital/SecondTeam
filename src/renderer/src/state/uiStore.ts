@@ -19,6 +19,21 @@ export type BoardImage = 'ai' | 'clay'
 /** A cast member or prop shown in Properties. */
 export type EntityRef = { kind: 'cast' | 'prop'; id: string }
 
+/** The folds that keep AI features out of the way: a shot's AI generation, cast/props' AI references, the takes strip. */
+export type AiFold = 'shot' | 'refs' | 'strip'
+const AI_FOLDS_KEY = 'secondteam.aiFolds'
+
+/** Which AI folds are open, remembered on this PC (all closed at first). */
+function loadAiFolds(): Record<AiFold, boolean> {
+  const closed = { shot: false, refs: false, strip: false }
+  try {
+    const raw = JSON.parse(localStorage.getItem(AI_FOLDS_KEY) ?? '{}') as Partial<Record<AiFold, unknown>>
+    return { shot: raw.shot === true, refs: raw.refs === true, strip: raw.strip === true }
+  } catch {
+    return closed
+  }
+}
+
 interface UiState {
   selection: string[]
   /** Joint being posed, when the selection is a single figure. Cleared whenever the selection changes. */
@@ -78,9 +93,22 @@ interface UiState {
   setBoardClay: (images: Record<string, string>) => void
   /** Show a cast member or prop in Properties (null = none). */
   selectEntity: (entity: EntityRef | null) => void
+  aiFolds: Record<AiFold, boolean>
+  setAiFold: (fold: AiFold, open: boolean) => void
 }
 
 export const useUi = create<UiState>()((set) => ({
+  aiFolds: loadAiFolds(),
+  setAiFold: (fold, open) =>
+    set((s) => {
+      const aiFolds = { ...s.aiFolds, [fold]: open }
+      try {
+        localStorage.setItem(AI_FOLDS_KEY, JSON.stringify(aiFolds))
+      } catch {
+        // Not remembered this time; still works.
+      }
+      return { aiFolds }
+    }),
   selection: [],
   selectedJoint: null,
   gizmoMode: 'translate',

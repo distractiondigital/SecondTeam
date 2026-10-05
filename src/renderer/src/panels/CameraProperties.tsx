@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Eye, Layers, Trash2 } from 'lucide-react'
+import { Eye, Trash2 } from 'lucide-react'
 import {
   GUIDE_PRESETS,
   guideLabel,
@@ -13,11 +13,11 @@ import {
 } from '../../../shared/camera'
 import type { CameraNode, Vec3 } from '../../../shared/project'
 import { deleteSelected, lookThrough } from '../state/actions'
-import { renderShotPasses, usePasses } from '../state/passes'
 import { activeScene, editedNodes, useDocument, type NodePatch } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import { formatLengthLabel } from '../units'
-import { GenerateSection, GenerationSettingsSection } from './GenerateSection'
+import AiFold from './AiFold'
+import { FrameDescription, GenerateSection } from './GenerateSection'
 import EnvironmentSection from './EnvironmentSection'
 import NumberField from './NumberField'
 
@@ -35,7 +35,6 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
   const disabled = node.locked
   const info = useUi((s) => s.shotInfo[node.id])
   const lookingThrough = useUi((s) => s.lookThroughId === node.id)
-  const rendering = usePasses((s) => s.rendering)
   const units = useUi((s) => s.units)
   const nodes = useDocument((s) => activeScene(s).nodes)
   const ptr = panTiltRoll(node.rotation)
@@ -60,18 +59,10 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
         </div>
       </div>
 
-      <GenerateSection node={node} />
-      {/* Generate makes the passes itself, fresh every time; this only shows them. */}
-      <div className="prop-section check-passes">
-        <button
-          className="link-button"
-          disabled={rendering}
-          onClick={() => void renderShotPasses(node.id)}
-          title="See the depth, normals, object ID, pose and clay images the AI works from (Generate makes them fresh every time)"
-        >
-          <Layers size={13} /> {rendering ? 'Rendering…' : 'Check passes'}
-        </button>
-      </div>
+      <FrameDescription node={node} />
+      <AiFold fold="shot" title="AI generation" hint="Prompt, Generate and the passes for this shot (the whole project's settings are in the AI window)">
+        <GenerateSection node={node} />
+      </AiFold>
 
       <div className="prop-section">
         <div className="prop-title">Position</div>
@@ -220,7 +211,6 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
       </div>
 
       <CameraBodySection />
-      <GenerationSettingsSection />
 
       <div className="prop-section prop-checks">
         <label>

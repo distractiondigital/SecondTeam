@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Sparkles, Star, Trash2, X } from 'lucide-react'
+import { ChevronDown, ChevronRight, Sparkles, Star, Trash2, X } from 'lucide-react'
 import { activeScene, useDocument } from '../state/documentStore'
 import {
   cancelGeneration,
@@ -64,11 +64,27 @@ export default function TakeStrip() {
   })
   // Always newest on the left, oldest on the right (the circle take keeps its place and its star).
   const blocker = generateBlocker()
+  // Folded down to its header bar when you're not using the AI; it opens while a take is being made.
+  const open = useUi((s) => s.aiFolds.strip)
+  const generating = Boolean(job)
+  useEffect(() => {
+    if (generating && !useUi.getState().aiFolds.strip) useUi.getState().setAiFold('strip', true)
+  }, [generating])
 
   return (
-    <div className="take-strip">
+    <div className={`take-strip${open ? '' : ' folded'}`}>
       <div className="take-strip-head">
-        <span className="take-strip-title">{shot ? `Shot ${shot.name} · takes` : 'Takes'}</span>
+        <button
+          className="icon-button take-strip-fold"
+          onClick={() => useUi.getState().setAiFold('strip', !open)}
+          title={open ? 'Fold the takes away' : 'Show the takes'}
+        >
+          {open ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+        </button>
+        <span className="take-strip-title">
+          {shot ? `Shot ${shot.name} · takes` : 'Takes'}
+          {!open && takes && takes.length > 0 && <span className="dim"> ({takes.length})</span>}
+        </span>
         {shot && (
           <button
             className="generate-button small"
@@ -83,62 +99,64 @@ export default function TakeStrip() {
         {!error && notice && <span className="take-notice" title={notice}>{notice}</span>}
         <BackendStatus />
       </div>
-      <div className="take-list">
-        {!shot && <p className="hint">Select a shot to see its takes.</p>}
-        {job && (
-          <div className="take-card running" title={`Shot ${job.shotName}, seed ${job.seed}`}>
-            {job.preview ? <img src={job.preview} alt="" /> : <div className="take-placeholder">Preparing…</div>}
-            <div className="take-progress">
-              <div style={{ width: `${Math.round((job.step / Math.max(1, job.steps)) * 100)}%` }} />
+      {open && (
+        <div className="take-list">
+          {!shot && <p className="hint">Select a shot to see its takes.</p>}
+          {job && (
+            <div className="take-card running" title={`Shot ${job.shotName}, seed ${job.seed}`}>
+              {job.preview ? <img src={job.preview} alt="" /> : <div className="take-placeholder">Preparing…</div>}
+              <div className="take-progress">
+                <div style={{ width: `${Math.round((job.step / Math.max(1, job.steps)) * 100)}%` }} />
+              </div>
+              <div className="take-caption">
+                {!jobHere && `${job.shotName} · `}Take {job.index + 1} of {job.total}
+                <button onClick={() => void cancelGeneration()} disabled={job.cancelling} title="Stop generating">
+                  <X size={12} /> {job.cancelling ? 'Stopping…' : 'Cancel'}
+                </button>
+              </div>
             </div>
-            <div className="take-caption">
-              {!jobHere && `${job.shotName} · `}Take {job.index + 1} of {job.total}
-              <button onClick={() => void cancelGeneration()} disabled={job.cancelling} title="Stop generating">
-                <X size={12} /> {job.cancelling ? 'Stopping…' : 'Cancel'}
-              </button>
-            </div>
-          </div>
-        )}
-        {shot &&
-          takes?.map((t) => (
-            <div
-              key={t.id}
-              role="button"
-              tabIndex={0}
-              className={`take-card${t.id === circle ? ' circled' : ''}`}
-              // Ctrl+click: compare with the take already open.
-              onClick={(e) => void (e.ctrlKey ? openCompare(shot.id, t.id) : openTake(shot.id, t.id))}
-              onKeyDown={(e) => e.key === 'Enter' && void openTake(shot.id, t.id)}
-              title={`Seed ${t.seed} · ${t.checkpoint} · ${new Date(t.createdAt).toLocaleString()} · Ctrl+click to compare with the open take`}
-            >
-              <img src={t.thumbnail} alt="" />
-              <div className="take-caption">Seed {t.seed}</div>
-              <button
-                className="circle-star"
-                title={t.id === circle ? 'Circle take (click to un-circle)' : 'Make this the circle take (used on the storyboard)'}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  toggleCircleTake(shot.id, t.id)
-                }}
+          )}
+          {shot &&
+            takes?.map((t) => (
+              <div
+                key={t.id}
+                role="button"
+                tabIndex={0}
+                className={`take-card${t.id === circle ? ' circled' : ''}`}
+                // Ctrl+click: compare with the take already open.
+                onClick={(e) => void (e.ctrlKey ? openCompare(shot.id, t.id) : openTake(shot.id, t.id))}
+                onKeyDown={(e) => e.key === 'Enter' && void openTake(shot.id, t.id)}
+                title={`Seed ${t.seed} · ${t.checkpoint} · ${new Date(t.createdAt).toLocaleString()} · Ctrl+click to compare with the open take`}
               >
-                <Star size={14} fill={t.id === circle ? 'currentColor' : 'none'} />
-              </button>
-              <button
-                className="delete-take"
-                title="Delete this take (moves it to the Recycle Bin)"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  void deleteTake(shot.id, t.id)
-                }}
-              >
-                <Trash2 size={13} />
-              </button>
-            </div>
-          ))}
-        {shot && takes?.length === 0 && !jobHere && (
-          <p className="hint">{projectPath ? 'No takes yet. Press Generate.' : 'Save the project to generate takes.'}</p>
-        )}
-      </div>
+                <img src={t.thumbnail} alt="" />
+                <div className="take-caption">Seed {t.seed}</div>
+                <button
+                  className="circle-star"
+                  title={t.id === circle ? 'Circle take (click to un-circle)' : 'Make this the circle take (used on the storyboard)'}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    toggleCircleTake(shot.id, t.id)
+                  }}
+                >
+                  <Star size={14} fill={t.id === circle ? 'currentColor' : 'none'} />
+                </button>
+                <button
+                  className="delete-take"
+                  title="Delete this take (moves it to the Recycle Bin)"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    void deleteTake(shot.id, t.id)
+                  }}
+                >
+                  <Trash2 size={13} />
+                </button>
+              </div>
+            ))}
+          {shot && takes?.length === 0 && !jobHere && (
+            <p className="hint">{projectPath ? 'No takes yet. Press Generate.' : 'Save the project to generate takes.'}</p>
+          )}
+        </div>
+      )}
     </div>
   )
 }

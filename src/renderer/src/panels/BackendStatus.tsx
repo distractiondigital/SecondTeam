@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { FileText, RotateCw, Settings, Wrench } from 'lucide-react'
+import { FileText, RotateCw, Settings, SlidersHorizontal, Wrench } from 'lucide-react'
 import { useGeneration } from '../state/generation'
 import { openEngineSettings, openWizard } from '../state/setup'
 
@@ -53,14 +53,25 @@ export default function BackendStatus() {
                 <Wrench size={13} /> Set up the AI engine…
               </button>
             ) : (
-              <button
-                onClick={() => {
-                  setOpen(false)
-                  openEngineSettings()
-                }}
-              >
-                <Settings size={13} /> Engine settings…
-              </button>
+              <>
+                <button
+                  onClick={() => {
+                    setOpen(false)
+                    openEngineSettings('generation')
+                  }}
+                  title="Model, style, style reference, strictness, takes, seed (the whole project)"
+                >
+                  <SlidersHorizontal size={13} /> Generation settings…
+                </button>
+                <button
+                  onClick={() => {
+                    setOpen(false)
+                    openEngineSettings('engine')
+                  }}
+                >
+                  <Settings size={13} /> Engine settings…
+                </button>
+              </>
             )}
           </div>
           <div className="prop-actions tight">

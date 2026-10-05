@@ -2741,13 +2741,6 @@ input {
   vertical-align: middle;
 }
 
-/* Shot properties: "Check passes" (Generate makes them itself). */
-.check-passes .link-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
 /* Take viewer: comparing two takes. */
 .compare-side {
   gap: 10px;
@@ -2830,4 +2823,62 @@ input {
   margin-left: -1px;
   background: var(--accent);
   pointer-events: none;
+}
+
+/* AI features that fold away (shot AI generation, cast/props AI references). */
+.ai-fold {
+  border-bottom: 1px solid var(--border);
+}
+
+.ai-fold-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 9px 12px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  text-align: left;
+}
+
+.ai-fold-head:hover,
+.ai-fold.open .ai-fold-head {
+  color: var(--text);
+}
+
+.ai-fold-body > .prop-section:first-child {
+  padding-top: 0;
+}
+
+/* Takes strip folded down to its header bar. */
+.take-strip.folded {
+  flex: 0 0 auto;
+}
+
+.take-strip-fold {
+  margin-left: -4px;
+}
+
+/* A shot's AI fold: Check passes and Generation settings links. */
+.ai-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 8px;
+}
+
+.ai-links .link-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ai-tabs {
+  margin-left: 12px;
 }

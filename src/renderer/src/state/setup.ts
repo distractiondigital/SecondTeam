@@ -16,6 +16,8 @@ interface SetupState {
   wizardOpen: boolean
   step: WizardStep
   settingsOpen: boolean
+  /** Which tab of the AI window is showing. */
+  settingsTab: 'generation' | 'engine'
   /** A Repair / Full check is checking files (before any re-download starts). */
   checking: boolean
   error: string | null
@@ -29,6 +31,7 @@ export const useSetup = create<SetupState>(() => ({
   wizardOpen: false,
   step: 'pc',
   settingsOpen: false,
+  settingsTab: 'engine',
   checking: false,
   error: null
 }))
@@ -121,7 +124,8 @@ export async function repair(full: boolean): Promise<void> {
   }
 }
 
-export function openEngineSettings(): void {
-  useSetup.setState({ settingsOpen: true, error: null })
+/** Open the AI window: the project's Generation settings, or the Engine (install, repair, log). */
+export function openEngineSettings(tab: 'generation' | 'engine' = 'engine'): void {
+  useSetup.setState({ settingsOpen: true, settingsTab: tab, error: null })
   void refreshInfo()
 }
