@@ -17,7 +17,7 @@ win:
   icon: build/icon.png
 nsis:
   oneClick: false
-  perMachine: false # with build/installer.nsh: always "only for me", no install-mode page
+  perMachine: true # install for all users into Program Files (one admin prompt at install/update); no install-mode page
   allowToChangeInstallationDirectory: true
   createStartMenuShortcut: true
   createDesktopShortcut: true
