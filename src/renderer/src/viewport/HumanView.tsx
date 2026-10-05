@@ -105,7 +105,15 @@ function curlAxes(rest: HumanFit['rest']): Map<string, Vector3> {
     // A rotation axis mirrored to the other side must also flip to give the mirrored bend.
     if (side === 'r') across.negate()
     const handDir = at('middle_01').sub(at('hand')).normalize()
-    for (const finger of ['index', 'middle', 'ring', 'pinky']) for (const k of [1, 2, 3]) out.set(`${finger}_0${k}_${side}`, across)
+    // The fingers fan out (the index sits ~20° off square to the knuckle line), so each bone
+    // hinges around the part of the knuckle line square to itself; otherwise curling swings
+    // the outer fingers sideways and they cross over their neighbours.
+    for (const finger of ['index', 'middle', 'ring', 'pinky'])
+      for (const k of [1, 2, 3]) {
+        const r = rest.get(`${finger}_0${k}_${side}`)!
+        const dir = new Vector3(...r.tail).sub(new Vector3(...r.head)).normalize()
+        out.set(`${finger}_0${k}_${side}`, across.clone().addScaledVector(dir, -across.dot(dir)).normalize())
+      }
     // The thumb: swing in toward the palm (around the palm's normal), roll around its own length,
     // then bend. Values in HAND_CURL were found by searching for where a fist's thumb tip lands
     // (over the index finger). Mirroring the left hand's rotations onto the right flips plain
