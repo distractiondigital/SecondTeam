@@ -99,7 +99,7 @@ In the Properties panel, **drag left/right on any number box** to change it (hol
 ## Lights & clay
 - **Lights** (toolbar): **Sun** (daylight from one direction; only its angle matters), **Point** (a bare bulb), **Spot** (a beam) and **Ambient** (soft even fill from the sky). Aim sun and spot with the rotate gizmo (E) or Pan/Tilt in Properties.
 - Light Properties: **intensity in stops** (0 = a standard key, +1 = twice as bright), **colour temperature** in Kelvin (with Candle / Tungsten / Daylight / Overcast / Shade presets), **softness** (hard to soft shadows), casts shadows, and for spots the cone angle and beam edge. Point and spot lights fall off with distance like real ones.
-- **Work / Clay** (toolbar): Work shows object colours under even light; **Clay** shows every surface in matte grey, lit only by your lights, with shadows. Looking through a camera switches to Clay automatically (and back when you leave, if you were in Work).
+- **Work / Clay** (toolbar): Work shows object colours under even light; **Clay** shows every surface in its **Material** colour (Properties), matte, lit only by your lights, with shadows; the floor is grey. Looking through a camera switches to Clay automatically (and back when you leave, if you were in Work).
 - Each shot gets an automatic **lighting description** (e.g. "Soft key light from camera left, rim light from behind, warm tungsten, high contrast"), shown in the camera HUD and the shot's Properties, where you can overwrite it. It will go into the AI prompt.
 - Lights work with per-shot changes, so you can cheat a light for one setup. Shot list thumbnails show each shot lit.
 
@@ -135,7 +135,7 @@ Keep characters and story objects looking the same from shot to shot.
 - The left column has three tabs: **Outliner | Cast | Props**. In **Cast** or **Props**, click **＋ New**, then fill it in on the right:
   - **Description**: how it looks, e.g. *young woman in her 20s, curly dark hair, olive raincoat*. It becomes that one's own prompt, applied only to its part of the frame. Describe the look, not the name.
   - **Reference images** (up to 4, PNG or JPEG): photos or drawings of how it should look. Add files with the image button, or **paste** (the clipboard button, or **Ctrl+V** while the cast member or prop is open): an image copied from a browser or a screenshot tool, or image files copied in Explorer. They're copied into the project (`assets\cast\…`, `assets\props\…`) and guide only its part of the frame.
-  - **Reference strength**, and for cast a **viewport colour** (linked figures wear it).
+  - **Reference strength**, and for cast a **Material** colour (linked figures wear it).
   - **Linked to** lists every figure or object that is this one, in every scene.
 - **Linking:** select a figure → Properties → **Cast** → pick one (or *New cast member…*). Select an object or a group → **Prop**. A whole group can be one prop (a car built from boxes). Something that isn't a cast member or prop can still get its own **Description** (e.g. *a rusty oil drum*).
 - The **Object ID** pass now has one colour per cast member, prop and described object (two figures of the same character share a colour).
@@ -152,7 +152,7 @@ Turn the circle takes into a board you can send to a client or crew.
 
 - Click **Board** in the **Set | Board** switch at the top. Every shot in the project appears as a panel: its circle take, the shot (1A) with its scene, and lens · shot size · angle. Shots without a circle take show a grey "No circle take yet" panel, so the board doubles as a shot plan. **Set** takes you back where you were.
 - Each panel has three boxes: **Description** (starts as the shot's Frame description; change it here and the AI prompt stays as it was), **Dialogue** (printed in quotes) and **Notes** (the shot's notes). They save when you click away; Ctrl+Z undoes them.
-- **AI | Clay** (top right of the board) switches every panel between its circle take and the shot's live clay render (the same lit grey view as the Shot list thumbnail, from every scene). Export… starts on the same choice.
+- **AI | Clay** (top right of the board) switches every panel between its circle take and the shot's live clay render (the same lit view as the Shot list thumbnail, in each object's Material colour, from every scene). Export… starts on the same choice.
 - **Drag** a panel by its grip (⋮⋮) to reorder. The board has its own order across all scenes (intercut freely), and shot names never change. New shots join the end.
 - **Double-click** a panel's picture to jump to that shot in the Set view, with its circle take open.
 - **Export…**:
@@ -164,7 +164,7 @@ Turn the circle takes into a board you can send to a client or crew.
 ## Render passes
 The images the AI will work from (Milestone 6), rendered from a shot's camera through its delivery frame:
 - Select a shot and click **Render passes** in its Properties. The **pass viewer** opens over the viewport:
-  - **Clay**: the lit grey set.
+  - **Clay**: the lit set, in each object's Material colour.
   - **Depth**: near is white, far is black.
   - **Normals**: which way each surface faces (blue/lilac faces the lens).
   - **Object ID**: a flat colour per object or figure, with a legend.

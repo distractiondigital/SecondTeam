@@ -6,7 +6,6 @@ import { proportions, type JointName, type Proportions } from '../../../shared/m
 import type { MannequinNode, Vec3 } from '../../../shared/project'
 import { useUi } from '../state/uiStore'
 import { useDocument } from '../state/documentStore'
-import { CLAY_COLOR } from './clay'
 import { CLICK_DRAG_TOLERANCE, handleNodeClick, handleNodeDoubleClick, noRaycast, SELECTION_COLOR, toRadians } from './selection'
 
 // A smooth artist's mannequin: nested joint groups (forward kinematics) with simple
@@ -104,7 +103,7 @@ export default function MannequinView({ node, selected, clickable, passive = fal
         onDoubleClick={clickable ? (e) => handleNodeDoubleClick(e, id) : undefined}
       >
         <meshStandardMaterial
-          color={clay ? CLAY_COLOR : ball ? ballColor : bodyColor}
+          color={ball ? ballColor : bodyColor}
           roughness={clay ? 0.92 : 0.7}
           metalness={0}
           emissive={highlighted || selected ? SELECTION_COLOR : '#000000'}

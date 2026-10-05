@@ -153,7 +153,7 @@ function NodeProperties({ node }: { node: SceneNode }) {
       {(node.type === 'primitive' || node.type === 'mannequin') && (
         <div className="prop-section">
           <label className="prop-inline">
-            <span className="prop-title">Viewport colour</span>
+            <span className="prop-title">Material</span>
             <input
               type="color"
               value={node.color}

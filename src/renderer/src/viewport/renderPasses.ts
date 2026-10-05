@@ -4,7 +4,6 @@ import {
   FloatType,
   FrontSide,
   HemisphereLight,
-  MeshStandardMaterial,
   Quaternion,
   ShaderMaterial,
   Vector3,
@@ -34,7 +33,6 @@ import {
 } from '../../../shared/passes'
 import type { CameraNode, CastMember, Prop, SceneNode } from '../../../shared/project'
 import { facingPhrase } from '../../../shared/prompt'
-import { CLAY_COLOR } from './clay'
 import { isHelper, pixelsToCanvas, renderToCanvas, shotCamera, withHidden } from './renderShot'
 import { hasLights } from './SceneNodes'
 
@@ -252,7 +250,7 @@ export function renderPasses(input: PassInput): PassResult | null {
   }
 }
 
-/** The lit clay render. A scene with no lights gets clay surfaces under the viewport's dim fill. */
+/** The lit clay render (each object in its material colour). A scene with no lights gets a dim fill instead of the work lights. */
 function renderClay(
   gl: WebGLRenderer,
   scene: ThreeScene,
@@ -267,16 +265,7 @@ function renderClay(
   const fill = new HemisphereLight('#ffffff', '#444444', 0.6)
   scene.add(fill)
   try {
-    return withHidden(
-      scene,
-      (o) => Boolean(o.userData.workLight),
-      () =>
-        withMaterials(
-          scene,
-          bySide((side) => track(new MeshStandardMaterial({ color: CLAY_COLOR, roughness: 0.92, metalness: 0, side }))),
-          render
-        )
-    )
+    return withHidden(scene, (o) => Boolean(o.userData.workLight), render)
   } finally {
     scene.remove(fill)
     fill.dispose()

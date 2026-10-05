@@ -62,7 +62,7 @@ interface NodeBase {
 export interface PrimitiveNode extends NodeBase {
   type: 'primitive'
   primitive: PrimitiveType
-  /** Viewport colour only; does not affect generation. */
+  /** Material (for now just a colour): seen in the viewport and clay renders; not sent to the AI. */
   color: string
   /** Origin point along the height. Planes are always 'center'. */
   anchor: Anchor
@@ -88,7 +88,7 @@ export interface MannequinNode extends NodeBase {
   height: number
   /** 0 = slim … 1 = broad. */
   build: number
-  /** Viewport colour (Milestone 7: taken from the linked cast member). */
+  /** Material colour (a linked cast member's Material wins). */
   color: string
   /** Link to a Cast entry. */
   castId: string | null
@@ -190,7 +190,7 @@ export interface CastMember {
   name: string
   /** For the prompt, e.g. 'woman in her 20s, curly dark hair, olive raincoat'. */
   description: string
-  /** Viewport colour of linked figures. */
+  /** Material colour of linked figures. */
   color: string
   /** Reference image file names in assets/cast/<id>/. */
   images: string[]

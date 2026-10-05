@@ -5,7 +5,6 @@ import type { SceneNode } from '../../../shared/project'
 import { sceneForShot, sceneOfShot, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import CameraView from './CameraView'
-import { CLAY_COLOR } from './clay'
 import { getGeometry } from './geometries'
 import LightView from './LightView'
 import MannequinView from './MannequinView'
@@ -95,7 +94,7 @@ const NodeView = memo(function NodeView({ id, inSelection, inLocked }: NodeViewP
       onDoubleClick={clickable ? (e) => handleNodeDoubleClick(e, id) : undefined}
     >
       <meshStandardMaterial
-        color={clay ? CLAY_COLOR : node.color}
+        color={node.color}
         roughness={clay ? 0.92 : 0.85}
         metalness={0}
         side={node.primitive === 'plane' ? DoubleSide : FrontSide}

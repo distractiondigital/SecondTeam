@@ -168,7 +168,7 @@ export function EntityProperties({ kind, id }: { kind: 'cast' | 'prop'; id: stri
       {'color' in entry && (
         <div className="prop-section">
           <label className="prop-inline">
-            <span className="prop-title">Viewport colour</span>
+            <span className="prop-title">Material</span>
             <input
               type="color"
               value={(entry as CastMember).color}
