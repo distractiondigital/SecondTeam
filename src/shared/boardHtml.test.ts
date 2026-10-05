@@ -21,6 +21,7 @@ const spec = (over: Partial<BoardExportSpec> = {}): BoardExportSpec => ({
   title: 'Zermatt Ep3',
   footer: '',
   includeMissing: true,
+  source: 'ai',
   ratio: 2.39,
   panels: [panel(1, 't1'), panel(2, null), panel(3, 't3'), panel(4, 't4')],
   ...over
@@ -61,6 +62,16 @@ describe('storyboard PDF pages', () => {
     expect(pageInches('a4', 'rows')).toEqual({ w: 8.27, h: 11.69 })
     expect(boardHtml(spec({ layout: 'rows', perPage: 4 }), {})).toContain('size: 8.5in 11in')
     expect(boardHtml(spec({ layout: 'grid', perPage: 6 }), {})).toContain('repeat(3,')
+  })
+
+  it('shows clay renders by shot, for every shot', () => {
+    const s = spec({ source: 'clay', includeMissing: false })
+    expect(printedPanels(s)).toHaveLength(4)
+    const html = boardHtml(s, { shot1: 'data:clay1', shot2: 'data:clay2', shot3: 'data:clay3' })
+    expect(html).toContain('<img src="data:clay2"')
+    expect(html).not.toContain('data:a')
+    expect(html).toContain('Clay render not available') // shot4
+    expect(html).not.toContain('No circle take yet')
   })
 
   it('adds the footer on every page when given', () => {

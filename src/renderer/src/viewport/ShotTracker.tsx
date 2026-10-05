@@ -5,6 +5,7 @@ import { useUi } from '../state/uiStore'
 import { renderShot } from './renderShot'
 import { computeShotInfo, type ShotInfo } from './shotInfo'
 import { shotScenes } from './ShotScenes'
+import { renderBoardClay } from './boardClay'
 
 const INFO_DELAY = 80 // ms after a change, so the 3D scenes have caught up
 const THUMBNAIL_DELAY = 450 // ms of quiet before re-rendering thumbnails
@@ -62,16 +63,7 @@ export default function ShotTracker() {
     const updateBoardClay = () => {
       const ui = useUi.getState()
       if (ui.view !== 'board' || ui.boardImage !== 'clay') return
-      const { project } = useDocument.getState()
-      const images: Record<string, string> = {}
-      for (const c of project.scenes.flatMap((s) => Object.values(s.nodes))) {
-        const scene = shotScenes.get(c.id)
-        if (c.type !== 'camera' || !scene) continue
-        scene.updateMatrixWorld(true)
-        const canvas = renderShot(gl, scene, c, project.camera, BOARD_WIDTH)
-        if (canvas) images[c.id] = canvas.toDataURL('image/jpeg', 0.85)
-      }
-      ui.setBoardClay(images)
+      ui.setBoardClay(renderBoardClay(gl, BOARD_WIDTH, 'image/jpeg'))
     }
 
     const schedule = () => {

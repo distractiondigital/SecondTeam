@@ -68,8 +68,8 @@ function ShotScene({ shotId }: { shotId: string }) {
 }
 
 export default function ShotScenes() {
-  // The active scene's shots; on the board in Clay mode, every scene's (for its clay pictures).
-  const allScenes = useUi((s) => s.view === 'board' && s.boardImage === 'clay')
+  // The active scene's shots; on the board, every scene's (for clay pictures and clay exports).
+  const allScenes = useUi((s) => s.view === 'board')
   const cameraIds = useDocument((s) =>
     (allScenes ? s.project.scenes : [activeScene(s)])
       .flatMap((scene) => Object.values(scene.nodes))

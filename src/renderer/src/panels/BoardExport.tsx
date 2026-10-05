@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { FileDown, FolderOpen, Images, X } from 'lucide-react'
 import { LAYOUT_COUNTS, panelDescription, sceneTag, type BoardLayout, type BoardShot } from '../../../shared/board'
-import { pageInches, type BoardExportSpec, type PageSize } from '../../../shared/boardHtml'
+import { pageInches, type BoardExportSpec, type BoardSource, type PageSize } from '../../../shared/boardHtml'
 import { deliveryFrame, opticsFor } from '../../../shared/camera'
 import { useDocument } from '../state/documentStore'
 import { useGeneration } from '../state/generation'
 import { projectDisplayName } from '../state/projectIO'
 import { useUi } from '../state/uiStore'
+import { renderBoardClay } from '../viewport/boardClay'
+import { getRenderer } from '../viewport/RendererHandle'
 
 // Export the storyboard: a PDF (grid or rows, page size, title, footer) or a PNG sequence of the
 // circle takes in board order. Both go into the project's exports folder.
@@ -18,6 +20,8 @@ interface Options {
   footer: string
   includeMissing: boolean
 }
+
+const CLAY_EXPORT_WIDTH = 1920 // px: clay renders for the PNG sequence (the PDF downsizes them)
 
 /** A tiny sketch of one page in the chosen layout: grey boxes for frames, bars for captions. */
 function PagePreview({ layout, perPage, pageSize, ratio, footer }: Options & { ratio: number }) {
@@ -78,6 +82,8 @@ export default function BoardExport({ shots, onClose }: { shots: BoardShot[]; on
   const kit = useDocument((s) => s.project.camera)
   const takes = useGeneration((s) => s.takes)
   const [opts, setOpts] = useState<Options>(last)
+  // Starts as whatever the board is showing.
+  const [source, setSource] = useState<BoardSource>(() => useUi.getState().boardImage)
   const [title, setTitle] = useState(projectDisplayName(projectPath))
   const [busy, setBusy] = useState(false)
   const [result, setResult] = useState<{ path: string; kind: 'pdf' | 'pngs' } | null>(null)
@@ -92,6 +98,7 @@ export default function BoardExport({ shots, onClose }: { shots: BoardShot[]; on
   const ratio = deliveryFrame(opticsFor(kit, 50)).ratio
   const spec = (): BoardExportSpec => ({
     ...opts,
+    source,
     title: title.trim() || 'Storyboard',
     ratio,
     panels: shots.map(({ scene, shot }) => {
@@ -115,7 +122,17 @@ export default function BoardExport({ shots, onClose }: { shots: BoardShot[]; on
     setBusy(true)
     setError(null)
     setResult(null)
-    const r = kind === 'pdf' ? await window.secondTeam.exportBoardPdf(projectPath, spec()) : await window.secondTeam.exportBoardPngs(projectPath, spec())
+    const s = spec()
+    if (source === 'clay') {
+      const gl = getRenderer()
+      if (!gl) {
+        setBusy(false)
+        setError("The 3D view isn't ready; try again in a moment.")
+        return
+      }
+      s.clayImages = renderBoardClay(gl, CLAY_EXPORT_WIDTH, 'image/png')
+    }
+    const r = kind === 'pdf' ? await window.secondTeam.exportBoardPdf(projectPath, s) : await window.secondTeam.exportBoardPngs(projectPath, s)
     setBusy(false)
     if ('error' in r) setError(r.error)
     else setResult({ path: r.path, kind })
@@ -131,7 +148,17 @@ export default function BoardExport({ shots, onClose }: { shots: BoardShot[]; on
           </button>
         </div>
 
-        <div className="prop-title">Layout</div>
+        <div className="prop-title">Pictures</div>
+        <div className="segmented">
+          <button className={source === 'ai' ? 'active' : ''} onClick={() => setSource('ai')} title="Each shot's circle take">
+            AI
+          </button>
+          <button className={source === 'clay' ? 'active' : ''} onClick={() => setSource('clay')} title="Each shot's clay render">
+            Clay
+          </button>
+        </div>
+
+        <div className="prop-title prop-title-spaced">Layout</div>
         <div className="segmented wide">
           {(['grid', 'rows'] as const).flatMap((layout) =>
             LAYOUT_COUNTS[layout].map((n) => (
@@ -169,7 +196,7 @@ export default function BoardExport({ shots, onClose }: { shots: BoardShot[]; on
           onChange={(e) => set({ footer: e.target.value })}
         />
         <label className="prop-check spaced">
-          <input type="checkbox" checked={opts.includeMissing} onChange={(e) => set({ includeMissing: e.target.checked })} />
+          <input type="checkbox" checked={opts.includeMissing || source === 'clay'} disabled={source === 'clay'} onChange={(e) => set({ includeMissing: e.target.checked })} />
           Include shots without a circle take (as empty frames)
         </label>
 
@@ -177,7 +204,11 @@ export default function BoardExport({ shots, onClose }: { shots: BoardShot[]; on
           <button className="generate-button" disabled={busy || !projectPath} onClick={() => void run('pdf')}>
             <FileDown size={14} /> {busy ? 'Exporting…' : 'Export PDF'}
           </button>
-          <button disabled={busy || !projectPath} onClick={() => void run('pngs')} title="The full-resolution circle takes, numbered in board order">
+          <button
+            disabled={busy || !projectPath}
+            onClick={() => void run('pngs')}
+            title={source === 'clay' ? 'Clay renders of every shot, numbered in board order' : 'The full-resolution circle takes, numbered in board order'}
+          >
             <Images size={14} /> Export PNGs
           </button>
         </div>

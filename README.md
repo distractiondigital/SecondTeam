@@ -152,13 +152,13 @@ Turn the circle takes into a board you can send to a client or crew.
 
 - Click **Board** in the **Set | Board** switch at the top. Every shot in the project appears as a panel: its circle take, the shot (1A) with its scene, and lens · shot size · angle. Shots without a circle take show a grey "No circle take yet" panel, so the board doubles as a shot plan. **Set** takes you back where you were.
 - Each panel has three boxes: **Description** (starts as the shot's Frame description; change it here and the AI prompt stays as it was), **Dialogue** (printed in quotes) and **Notes** (the shot's notes). They save when you click away; Ctrl+Z undoes them.
-- **AI | Clay** (top right of the board) switches every panel between its circle take and the shot's live clay render (the same lit grey view as the Shot list thumbnail, from every scene). Exports always use the circle takes.
+- **AI | Clay** (top right of the board) switches every panel between its circle take and the shot's live clay render (the same lit grey view as the Shot list thumbnail, from every scene). Export… starts on the same choice.
 - **Drag** a panel by its grip (⋮⋮) to reorder. The board has its own order across all scenes (intercut freely), and shot names never change. New shots join the end.
 - **Double-click** a panel's picture to jump to that shot in the Set view, with its circle take open.
 - **Export…**:
   - **Layout:** Grid 2 / 3 / 6 (landscape pages, captions under each frame) or Rows 2 / 3 / 4 (portrait pages, picture left, captions right). A small sketch of one page under the buttons shows how the chosen layout will look.
   - **Page size** (Letter or A4), **Title** (the project name), an optional **Footer** (e.g. *Distraction Digital · v1 · not for distribution*), and whether to include shots without a circle take.
-  - **Export PDF** makes `exports\Storyboard <date time> Grid 3.pdf` in the project folder; **Export PNGs** copies the full-size circle takes into `exports\Storyboard <date time> PNGs\001 - 1A.png …` in board order. **Open** / **Show in folder** afterwards. Exporting twice never overwrites: the second gets "(2)".
+  - **Export PDF** makes `exports\Storyboard <date time> Grid 3.pdf` in the project folder; **Export PNGs** copies the full-size circle takes into `exports\Storyboard <date time> PNGs\001 - 1A.png …` in board order. **Open** / **Show in folder** afterwards. Exporting twice never overwrites: the second gets "(2)". Under **Pictures**, **AI** uses the circle takes and **Clay** the clay renders of every shot (names end in "Clay", e.g. `… Grid 3 Clay.pdf`, `… Clay PNGs\`).
   - Very long captions are trimmed with "…" in the PDF so they never run into the next panel.
 
 ## Render passes

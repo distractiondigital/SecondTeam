@@ -1,9 +1,9 @@
-import { BrowserWindow, ipcMain, nativeImage, shell } from 'electron'
+import { BrowserWindow, ipcMain, nativeImage, shell, type NativeImage } from 'electron'
 import { existsSync } from 'fs'
 import { copyFile, mkdir, rm, writeFile } from 'fs/promises'
 import { join, resolve } from 'path'
 import { exportStamp, freeName, layoutLabel, sequenceFileName } from '../shared/board'
-import { boardHtml, printedPanels, type BoardExportSpec } from '../shared/boardHtml'
+import { boardHtml, imageKey, printedPanels, type BoardExportSpec, type BoardPanelData } from '../shared/boardHtml'
 import { isSafeId } from '../shared/passes'
 import { takesFolder } from './backend/takeFiles'
 import { isApproved } from './projectFiles'
@@ -12,6 +12,7 @@ import { safeRename } from './safeRename'
 // Storyboard exports, into the project's exports\ folder:
 //   Storyboard <date time> Grid 3.pdf  (Electron prints our HTML pages to PDF; no extra libraries)
 //   Storyboard <date time> PNGs\001 - 1A.png  (the full-resolution circle takes, in board order)
+// In Clay mode the UI renders each shot's clay picture and sends it along ("… Clay.pdf", "… Clay PNGs").
 // Only into a folder picked through Save/Open; takes are read only from the project's own takes.
 
 const PRINT_WIDTH = 1600 // px: plenty for a printed frame, keeps the PDF small
@@ -35,18 +36,33 @@ function tempFolder(): string {
   return join(base, 'SecondTeam', 'tmp')
 }
 
+/** A clay render the UI sent: only a PNG data URL, decoded by Electron (never written as given). */
+function clayImage(spec: BoardExportSpec, shotId: string): NativeImage | null {
+  const url = spec.clayImages?.[shotId]
+  if (typeof url !== 'string' || !url.startsWith('data:image/png;base64,')) return null
+  const image = nativeImage.createFromDataURL(url)
+  return image.isEmpty() ? null : image
+}
+
+/** A panel's picture: its circle take from the project, or its clay render. */
+function panelImage(folder: string, spec: BoardExportSpec, p: BoardPanelData): NativeImage | null {
+  if (spec.source === 'clay') return clayImage(spec, p.shotId)
+  const file = p.takeId ? takePath(folder, p.sceneId, p.shotId, p.takeId) : null
+  if (!file) return null
+  const image = nativeImage.createFromPath(file)
+  return image.isEmpty() ? null : image
+}
+
 async function exportPdf(folder: string, spec: BoardExportSpec): Promise<Result> {
   const out = exportsFolder(folder)
-  // Downscaled JPEGs of the circle takes, embedded in the page.
+  // Downscaled JPEGs of the pictures, embedded in the page.
   const images: Record<string, string> = {}
   for (const p of printedPanels(spec)) {
-    if (!p.takeId) continue
-    const file = takePath(folder, p.sceneId, p.shotId, p.takeId)
-    if (!file) continue
-    const image = nativeImage.createFromPath(file)
-    if (image.isEmpty()) continue
+    const key = imageKey(spec, p)
+    const image = key ? panelImage(folder, spec, p) : null
+    if (!key || !image) continue
     const scaled = image.getSize().width > PRINT_WIDTH ? image.resize({ width: PRINT_WIDTH, quality: 'best' }) : image
-    images[p.takeId] = `data:image/jpeg;base64,${scaled.toJPEG(88).toString('base64')}`
+    images[key] = `data:image/jpeg;base64,${scaled.toJPEG(88).toString('base64')}`
   }
 
   const tmp = tempFolder()
@@ -58,7 +74,8 @@ async function exportPdf(folder: string, spec: BoardExportSpec): Promise<Result>
     await win.loadFile(htmlFile)
     const pdf = await win.webContents.printToPDF({ printBackground: true, preferCSSPageSize: true })
     await mkdir(out, { recursive: true })
-    const name = freeName(`${exportStamp()} ${layoutLabel(spec.layout, spec.perPage)}`, (n) => existsSync(join(out, `${n}.pdf`)))
+    const label = `${exportStamp()} ${layoutLabel(spec.layout, spec.perPage)}${spec.source === 'clay' ? ' Clay' : ''}`
+    const name = freeName(label, (n) => existsSync(join(out, `${n}.pdf`)))
     const target = join(out, `${name}.pdf`)
     await writeFile(`${target}.tmp`, pdf)
     await safeRename(`${target}.tmp`, target)
@@ -70,9 +87,19 @@ async function exportPdf(folder: string, spec: BoardExportSpec): Promise<Result>
 }
 
 async function exportPngs(folder: string, spec: BoardExportSpec): Promise<Result> {
+  const out = exportsFolder(folder)
+  if (spec.source === 'clay') {
+    const dir = join(out, freeName(`${exportStamp()} Clay PNGs`, (n) => existsSync(join(out, n))))
+    await mkdir(dir, { recursive: true })
+    let n = 0
+    for (const p of spec.panels) {
+      const image = clayImage(spec, p.shotId)
+      if (image) await writeFile(join(dir, sequenceFileName(n++, p.shotName)), image.toPNG())
+    }
+    return { ok: true, path: dir }
+  }
   const panels = spec.panels.filter((p) => p.takeId)
   if (!panels.length) return { error: 'No shot has a circle take yet.' }
-  const out = exportsFolder(folder)
   const dir = join(out, freeName(`${exportStamp()} PNGs`, (n) => existsSync(join(out, n))))
   await mkdir(dir, { recursive: true })
   let n = 0
