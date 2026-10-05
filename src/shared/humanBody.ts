@@ -425,6 +425,8 @@ export interface ProxyInfo {
   /** Transparency mask file (hair, eyebrows), or null. */
   mask: string | null
   license: string
+  /** Who to credit (CC-BY items). */
+  author: string | null
   source: string
 }
 
@@ -579,7 +581,7 @@ export function wornIds(a: FigureAppearance): string[] {
  * How dark each part is by default compared with the figure's colour, so clothes read as clothes
  * while the figure stays one colour family. Any part can be given its own colour instead.
  */
-const DEFAULT_SHADE: Record<AppearancePart, number> = { hair: 0.45, eyes: 0.4, outfit: 0.78, top: 0.78, bottom: 0.66, outer: 0.68, shoes: 0.4, hat: 0.55 }
+const DEFAULT_SHADE: Record<AppearancePart, number> = { hair: 0.4, eyes: 0.4, outfit: 0.6, top: 0.62, bottom: 0.5, outer: 0.55, shoes: 0.35, hat: 0.5 }
 
 /** The colour a part shows: its own, or a shade of the figure's colour. */
 export function partColor(appearance: FigureAppearance, part: AppearancePart, figureColor: string): string {

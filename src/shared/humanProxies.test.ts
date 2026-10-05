@@ -41,6 +41,7 @@ describe('eyes, hair and clothes', () => {
     for (const item of catalogue) {
       expect(['CC0', 'CC-BY'], item.id).toContain(item.license)
       expect(item.source, item.id).toMatch(/^https:\/\//)
+      if (item.license === 'CC-BY') expect(item.author, `${item.id} needs a credited author`).toBeTruthy()
       readFileSync(`figures/proxies/${item.id}.bin`)
       if (item.mask) readFileSync(`figures/proxies/${item.mask}`)
     }

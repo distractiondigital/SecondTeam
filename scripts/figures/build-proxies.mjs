@@ -25,8 +25,19 @@ const PACKS = {
     zip: 'makehuman_system_assets_cc0.zip',
     license: 'CC0',
     url: 'https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html'
-  }
+  },
+  shirts01: { zip: 'shirts01_cc0.zip', license: 'CC0', url: 'https://static.makehumancommunity.org/assets/assetpacks/shirts01.html' },
+  shirts02: { zip: 'shirts02_ccby.zip', license: 'CC-BY', url: 'https://static.makehumancommunity.org/assets/assetpacks/shirts02.html' },
+  pants01: { zip: 'pants01_cc0.zip', license: 'CC0', url: 'https://static.makehumancommunity.org/assets/assetpacks/pants01.html' },
+  dress01: { zip: 'dress01_cc0.zip', license: 'CC0', url: 'https://static.makehumancommunity.org/assets/assetpacks/dress01.html' },
+  suits01: { zip: 'suits01_cc0.zip', license: 'CC0', url: 'https://static.makehumancommunity.org/assets/assetpacks/suits01.html' }
 }
+
+/** Authors to credit for CC-BY items (by the asset's name prefix). */
+const AUTHORS = { elvs: 'Elvaerwyn', mindfront: 'Mindfront', ews: 'EWS', punkduck: 'punkduck', janexx: 'janexx' }
+
+/** An item from one of the community packs: clothes/<name>. */
+const pack = (packName, name, id, slot, label) => ({ id, pack: packName, dir: `clothes/${name}`, kind: 'clothes', slot, label, author: AUTHORS[name.split('_')[0]] ?? null })
 
 /**
  * The catalogue: what the app offers. kind = eyes | eyebrows | hair | clothes;
@@ -54,7 +65,43 @@ const ITEMS = [
   { id: 'outfit-female-suit', pack: 'sys', dir: 'clothes/female_elegantsuit01', kind: 'clothes', slot: 'outfit', label: "Suit (women's)" },
   { id: 'outfit-sport', pack: 'sys', dir: 'clothes/female_sportsuit01', kind: 'clothes', slot: 'outfit', label: 'Sportswear' },
   ...[1, 2, 3, 4, 5, 6].map((n) => ({ id: `shoes-${n}`, pack: 'sys', dir: `clothes/shoes0${n}`, kind: 'clothes', slot: 'shoes', label: `Shoes ${n}` })),
-  { id: 'hat-fedora', pack: 'sys', dir: 'clothes/fedora01', kind: 'clothes', slot: 'hat', label: 'Fedora' }
+  { id: 'hat-fedora', pack: 'sys', dir: 'clothes/fedora01', kind: 'clothes', slot: 'hat', label: 'Fedora' },
+  // Tops
+  pack('shirts01', 'toigo_basic_tucked_t-shirt', 'top-tshirt-tucked', 'top', 'T-shirt (tucked)'),
+  pack('shirts01', 'elvs_crude_t-shirt_male', 'top-tshirt-men', 'top', "T-shirt (men's)"),
+  pack('shirts01', 'joepal_crude_t-shirt_female', 'top-tshirt-women', 'top', "T-shirt (women's)"),
+  pack('shirts01', 'namuhekam_male_polo_shirt', 'top-polo', 'top', 'Polo shirt'),
+  pack('shirts01', 'toigo_fisherman_sweater', 'top-fisherman-sweater', 'top', 'Fisherman sweater'),
+  pack('shirts01', 'toigo_camisole_top', 'top-camisole', 'top', 'Camisole'),
+  pack('shirts01', 'toigo_keyhole_tank_top', 'top-tank', 'top', 'Tank top'),
+  pack('shirts02', 'elvs_male_shirt_untucked_bd1', 'top-shirt-untucked', 'top', 'Shirt (untucked)'),
+  pack('shirts02', 'elvs_male_shirt_tie_tucked1', 'top-shirt-tie', 'top', 'Shirt and tie'),
+  pack('shirts02', 'ews_striped_shirt', 'top-striped-shirt', 'top', 'Striped shirt'),
+  pack('shirts02', 'mindfront_knitted_sweater_01', 'top-knit-sweater', 'top', 'Knitted sweater'),
+  pack('shirts02', 'punkduck_lace_up_blouse', 'top-blouse', 'top', 'Blouse'),
+  pack('shirts02', 'janexx_old_female_sweater', 'top-cardigan-sweater', 'top', 'Sweater (older)'),
+  // Outerwear
+  pack('shirts02', 'elvs_hooded_sweat_jacket1', 'outer-hoodie', 'outer', 'Hooded jacket'),
+  pack('shirts02', 'mindfront_cardigan_long_open_front', 'outer-long-cardigan', 'outer', 'Long cardigan'),
+  // Bottoms
+  pack('pants01', 'toigo_wool_pants', 'bottom-trousers', 'bottom', 'Trousers'),
+  pack('pants01', 'cortu_cargo_pants', 'bottom-cargo', 'bottom', 'Cargo pants'),
+  pack('pants01', 'cortu_jeans_shorts', 'bottom-denim-shorts', 'bottom', 'Denim shorts'),
+  // Dresses (a whole outfit)
+  pack('dress01', 'toigo_shift_dress', 'outfit-dress-shift', 'outfit', 'Shift dress'),
+  pack('dress01', 'toigo_keyhole_neck_dress', 'outfit-dress-keyhole', 'outfit', 'Dress (keyhole neck)'),
+  pack('dress01', 'toigo_halter_dress_knee_length', 'outfit-dress-halter', 'outfit', 'Halter dress'),
+  pack('dress01', 'toigo_camisole_dress_with_full_skirt', 'outfit-dress-full-skirt', 'outfit', 'Dress (full skirt)'),
+  pack('dress01', 'toigo_dress_with_tiered_skirt', 'outfit-dress-tiered', 'outfit', 'Dress (tiered skirt)'),
+  pack('dress01', 'mindfront_kimono', 'outfit-kimono', 'outfit', 'Kimono'),
+  // Suits
+  pack('suits01', 'toigo_male_suit_tie_and_jacket', 'outfit-suit-tie', 'outfit', 'Suit and tie'),
+  pack('suits01', 'toigo_male_suit_3', 'outfit-suit-3', 'outfit', 'Suit (open collar)'),
+  pack('suits01', 'toigo_male_double-breasted_suit', 'outfit-suit-double', 'outfit', 'Double-breasted suit'),
+  pack('suits01', 'toigo_suit_with_dinner_jacket', 'outfit-dinner-jacket', 'outfit', 'Dinner jacket'),
+  pack('suits01', 'toigo_female_suit', 'outfit-womens-suit-1', 'outfit', "Women's suit 1"),
+  pack('suits01', 'toigo_female_suit_2', 'outfit-womens-suit-2', 'outfit', "Women's suit 2"),
+  pack('suits01', 'toigo_female_double-breasted_suit', 'outfit-womens-suit-double', 'outfit', "Women's double-breasted suit")
 ]
 
 function unpackPacks() {
@@ -208,6 +255,7 @@ function build() {
       sections: Object.fromEntries(sections.map((s) => [s.name, { offset: s.offset, length: s.length, type: s.type }])),
       mask,
       license: pack.license,
+      author: item.author ?? null,
       source: `${pack.url} (${item.dir})`
     })
   }
