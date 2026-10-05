@@ -18,6 +18,8 @@ const FIELD_LABELS: Record<OverridableField, string> = {
   limits: 'joint limits',
   body: 'body',
   appearance: 'clothes and hair',
+  expression: 'expression',
+  hands: 'hands',
   stops: 'brightness',
   kelvin: 'colour temperature',
   softness: 'softness',

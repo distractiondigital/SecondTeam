@@ -64,7 +64,15 @@ import {
   type LightKind
 } from '../../../shared/lighting'
 import { clampTime, DEFAULT_ENVIRONMENT, type Environment } from '../../../shared/environment'
-import { AVERAGE_BODY, defaultAppearance, sanitizeAppearance, sanitizeBody } from '../../../shared/humanBody'
+import {
+  AVERAGE_BODY,
+  DEFAULT_HANDS,
+  defaultAppearance,
+  sanitizeAppearance,
+  sanitizeBody,
+  sanitizeExpression,
+  sanitizeHands
+} from '../../../shared/humanBody'
 import { repairGeneration, type GenerationSettings } from '../../../shared/prompt'
 
 // The document store holds the project: everything that is saved to disk and can be undone.
@@ -93,7 +101,7 @@ const LIGHT_FIELDS: LightField[] = ['stops', 'kelvin', 'softness', 'shadows', 'c
 
 export type NodePatch = Partial<
   Pick<PrimitiveNode, 'name' | 'position' | 'rotation' | 'scale' | 'color' | 'hidden' | 'locked'> &
-    Pick<MannequinNode, 'height' | 'build' | 'limits' | 'castId' | 'style' | 'body' | 'appearance'> &
+    Pick<MannequinNode, 'height' | 'build' | 'limits' | 'castId' | 'style' | 'body' | 'appearance' | 'expression' | 'hands'> &
     Pick<PrimitiveNode, 'propId'> &
     Pick<CameraNode, CameraField> &
     Pick<LightNode, LightField>
@@ -124,6 +132,8 @@ const FIELD_TYPES: Partial<Record<keyof NodePatch, SceneNode['type'][]>> = {
   style: ['mannequin'],
   body: ['mannequin'],
   appearance: ['mannequin'],
+  expression: ['mannequin'],
+  hands: ['mannequin'],
   propId: ['primitive', 'group'],
   scale: ['primitive', 'group'], // a figure's size comes from its height; cameras don't scale
   ...Object.fromEntries(CAMERA_FIELDS.map((f) => [f, ['camera']])),
@@ -146,6 +156,8 @@ function normalizeField(key: keyof NodePatch, value: unknown): unknown {
   if (key === 'build') return clampBuild(value as number)
   if (key === 'body') return sanitizeBody(value)
   if (key === 'appearance') return sanitizeAppearance(value, 0.5)
+  if (key === 'expression') return sanitizeExpression(value)
+  if (key === 'hands') return sanitizeHands(value)
   if (key === 'style') return value === 'mannequin' ? 'mannequin' : 'human'
   if (key === 'stops') return clampStops(value as number)
   if (key === 'kelvin') return clampKelvin(value as number)
@@ -705,6 +717,8 @@ export const useDocument = create<DocumentState>()((set, get) => {
           style: 'human',
           body: { ...AVERAGE_BODY, gender: male ? 1 : 0 },
           appearance: defaultAppearance(male ? 1 : 0),
+          expression: 'neutral',
+          hands: { ...DEFAULT_HANDS },
           color: FIGURE_COLORS[figureCount % FIGURE_COLORS.length],
           castId: null,
           description: '',

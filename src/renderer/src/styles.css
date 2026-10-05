@@ -2551,3 +2551,6 @@ input {
   opacity: 0.25;
   cursor: default;
 }
+.look-row.two {
+  grid-template-columns: 70px 1fr;
+}

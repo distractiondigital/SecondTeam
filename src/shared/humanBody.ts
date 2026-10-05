@@ -308,9 +308,10 @@ function modestyArea(body: BodyData): Map<number, number> {
   return area
 }
 
-/** The body for these sliders, with modesty applied (no nipples): decimetres. */
-export function bodyPositions(body: BodyData, sliders: BodySliders): Float32Array {
+/** The body for these sliders (and facial expression), with modesty applied (no nipples): decimetres. */
+export function bodyPositions(body: BodyData, sliders: BodySliders, expression = 'neutral'): Float32Array {
   const weights = targetWeights(sliders)
+  for (const [unit, w] of Object.entries(EXPRESSIONS[expression]?.units ?? {})) weights.set(`expression-${unit}`, w)
   weights.set('modesty-nipple-size-decr', 1)
   weights.set('modesty-nipple-point-decr', 1)
   weights.set('modesty-breast-point-decr', 0.6)
@@ -354,8 +355,8 @@ export interface HumanFit {
 
 const dist = (a: number[], b: number[]) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2])
 
-export function fitHuman(body: BodyData, sliders: BodySliders, height: number): HumanFit {
-  const positions = bodyPositions(body, sliders)
+export function fitHuman(body: BodyData, sliders: BodySliders, height: number, expression = 'neutral'): HumanFit {
+  const positions = bodyPositions(body, sliders, expression)
   const rest = boneRest(body, positions)
   const { soles, crown } = bodyExtent(body, positions)
   const scale = clampHeight(height) / (crown - soles)
@@ -604,4 +605,93 @@ export function partColor(appearance: FigureAppearance, part: AppearancePart, fi
 /** Which appearance part an item belongs to (eyebrows go with the hair). */
 export function partOf(info: ProxyInfo): AppearancePart | null {
   return info.kind === 'hair' || info.kind === 'eyebrows' ? 'hair' : info.kind === 'eyes' ? 'eyes' : info.slot
+}
+
+// ---------- Expressions and hands ----------
+
+/** Facial expressions as blends of MakeHuman's face units (each 0-1). */
+export const EXPRESSIONS: Record<string, { label: string; units: Record<string, number> }> = {
+  neutral: { label: 'Neutral', units: {} },
+  smile: { label: 'Smile', units: { 'mouth-corner-puller': 0.75, 'eye-left-slit': 0.25, 'eye-right-slit': 0.25 } },
+  laugh: {
+    label: 'Laugh',
+    units: { 'mouth-corner-puller': 1, 'mouth-open': 0.55, 'eye-left-slit': 0.55, 'eye-right-slit': 0.55, 'eyebrows-left-up': 0.2, 'eyebrows-right-up': 0.2 }
+  },
+  sad: {
+    label: 'Sad',
+    units: { 'mouth-depression': 0.7, 'eyebrows-left-inner-up': 0.8, 'eyebrows-right-inner-up': 0.8, 'eye-left-slit': 0.2, 'eye-right-slit': 0.2 }
+  },
+  angry: {
+    label: 'Angry',
+    units: { 'eyebrows-left-down': 1, 'eyebrows-right-down': 1, 'mouth-compression': 0.5, 'nose-left-elevation': 0.3, 'nose-right-elevation': 0.3, 'eye-left-slit': 0.3, 'eye-right-slit': 0.3 }
+  },
+  surprised: {
+    label: 'Surprised',
+    units: { 'eyebrows-left-up': 1, 'eyebrows-right-up': 1, 'eye-left-opened-up': 0.8, 'eye-right-opened-up': 0.8, 'mouth-open': 0.6 }
+  },
+  scared: {
+    label: 'Scared',
+    units: {
+      'eyebrows-left-inner-up': 0.8,
+      'eyebrows-right-inner-up': 0.8,
+      'eyebrows-left-up': 0.4,
+      'eyebrows-right-up': 0.4,
+      'eye-left-opened-up': 0.7,
+      'eye-right-opened-up': 0.7,
+      'mouth-retraction': 0.6,
+      'mouth-open': 0.3
+    }
+  },
+  talking: { label: 'Talking', units: { 'mouth-open': 0.35, 'mouth-parling': 0.3 } },
+  disgusted: {
+    label: 'Disgusted',
+    units: { 'nose-left-elevation': 0.8, 'nose-right-elevation': 0.8, 'mouth-upward-retraction': 0.6, 'eyebrows-left-down': 0.4, 'eyebrows-right-down': 0.4 }
+  }
+}
+
+/** Words for the prompt ('' for neutral). */
+export function expressionPhrase(expression: string): string {
+  const words: Record<string, string> = {
+    smile: 'smiling',
+    laugh: 'laughing',
+    sad: 'sad expression',
+    angry: 'angry expression',
+    surprised: 'surprised expression',
+    scared: 'scared expression',
+    talking: 'talking',
+    disgusted: 'disgusted expression'
+  }
+  return words[expression] ?? ''
+}
+
+export type HandShape = 'relaxed' | 'fist' | 'open' | 'point' | 'grip'
+export const HAND_SHAPES: Record<HandShape, string> = { relaxed: 'Relaxed', fist: 'Fist', open: 'Open', point: 'Point', grip: 'Grip' }
+
+/**
+ * Curl of each finger joint in degrees (base, middle, tip), and the thumb's two outer joints.
+ * Pure data; HumanView turns it into bone rotations.
+ */
+export const HAND_CURL: Record<HandShape, { fingers: [number, number, number]; index?: [number, number, number]; thumb: [number, number] }> = {
+  relaxed: { fingers: [15, 25, 15], thumb: [10, 10] },
+  fist: { fingers: [85, 100, 70], thumb: [35, 45] },
+  open: { fingers: [0, 0, 0], thumb: [0, 0] },
+  point: { fingers: [85, 100, 70], index: [0, 0, 0], thumb: [35, 45] },
+  grip: { fingers: [45, 60, 40], thumb: [25, 30] }
+}
+
+export interface Hands {
+  left: HandShape
+  right: HandShape
+}
+
+export const DEFAULT_HANDS: Hands = { left: 'relaxed', right: 'relaxed' }
+
+export function sanitizeHands(raw: unknown): Hands {
+  const r = (raw && typeof raw === 'object' ? raw : {}) as Partial<Record<'left' | 'right', unknown>>
+  const one = (v: unknown): HandShape => (typeof v === 'string' && v in HAND_SHAPES ? (v as HandShape) : 'relaxed')
+  return { left: one(r.left), right: one(r.right) }
+}
+
+export function sanitizeExpression(raw: unknown): string {
+  return typeof raw === 'string' && raw in EXPRESSIONS ? raw : 'neutral'
 }

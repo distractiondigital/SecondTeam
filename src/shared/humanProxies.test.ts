@@ -6,6 +6,7 @@ import {
   bodyExtent,
   bodyPositions,
   centroid,
+  EXPRESSIONS,
   fitProxy,
   parseBody,
   parseProxy,
@@ -67,6 +68,17 @@ describe('eyes, hair and clothes', () => {
       expect(Math.hypot(eyeCentre[0] - sockets[0], eyeCentre[1] - sockets[1], eyeCentre[2] - sockets[2])).toBeLessThan(0.1)
     })
   }
+
+  it('builds every expression from face units that exist', () => {
+    for (const [name, e] of Object.entries(EXPRESSIONS)) {
+      for (const unit of Object.keys(e.units)) expect(body.targets.has(`expression-${unit}`), `${name}: ${unit}`).toBe(true)
+    }
+    const neutral = bodyPositions(body, AVERAGE_BODY)
+    const smile = bodyPositions(body, AVERAGE_BODY, 'smile')
+    let moved = 0
+    for (let i = 0; i < neutral.length; i++) moved = Math.max(moved, Math.abs(neutral[i] - smile[i]))
+    expect(moved).toBeGreaterThan(0.02) // decimetres: the mouth corners move a few millimetres
+  })
 
   it('skins items to the body and hides the skin under clothes', () => {
     const suit = proxy('outfit-male-suit')

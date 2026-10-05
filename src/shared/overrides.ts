@@ -1,5 +1,5 @@
 import type { Anchor, SceneNode, Vec3 } from './project'
-import { sanitizeAppearance, sanitizeBody, type BodySliders, type FigureAppearance } from './humanBody'
+import { sanitizeAppearance, sanitizeBody, sanitizeExpression, sanitizeHands, type BodySliders, type FigureAppearance, type Hands } from './humanBody'
 import { sanitizePose, type Pose } from './mannequin'
 
 // Master scene + per-shot changes.
@@ -21,6 +21,8 @@ export const OVERRIDABLE_FIELDS = [
   'limits',
   'body',
   'appearance',
+  'expression',
+  'hands',
   'stops',
   'kelvin',
   'softness',
@@ -43,6 +45,8 @@ export interface NodeOverride {
   limits?: boolean
   body?: BodySliders
   appearance?: FigureAppearance
+  expression?: string
+  hands?: Hands
   stops?: number
   kelvin?: number
   softness?: number
@@ -61,7 +65,7 @@ export function overridableFor(node: SceneNode): OverridableField[] {
     case 'group':
       return ['position', 'rotation', 'scale', 'hidden']
     case 'mannequin':
-      return ['position', 'rotation', 'hidden', 'color', 'pose', 'height', 'build', 'limits', 'body', 'appearance']
+      return ['position', 'rotation', 'hidden', 'color', 'pose', 'height', 'build', 'limits', 'body', 'appearance', 'expression', 'hands']
     case 'light':
       return ['position', 'rotation', 'hidden', 'stops', 'kelvin', 'softness', 'shadows', 'coneAngle', 'falloff']
     case 'camera':
@@ -149,6 +153,8 @@ export function sanitizeOverrides(raw: unknown, nodes: Record<string, SceneNode>
       else if (NUMBER_FIELDS.includes(f) && typeof x === 'number' && Number.isFinite(x)) o[f as NumberField] = x
       else if (f === 'body' && x && typeof x === 'object') o.body = sanitizeBody(x)
       else if (f === 'appearance' && x && typeof x === 'object') o.appearance = sanitizeAppearance(x, 0.5)
+      else if (f === 'expression' && typeof x === 'string') o.expression = sanitizeExpression(x)
+      else if (f === 'hands' && x && typeof x === 'object') o.hands = sanitizeHands(x)
       else if (f === 'pose') {
         const pose = sanitizePose(x)
         if (pose) o.pose = pose

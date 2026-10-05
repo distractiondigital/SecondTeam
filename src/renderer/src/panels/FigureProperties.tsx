@@ -15,8 +15,11 @@ import {
 import {
   ageSlider,
   ageYears,
+  EXPRESSIONS,
+  HAND_SHAPES,
   partColor,
   type AppearancePart,
+  type HandShape,
   type BodySliders,
   type FigureAppearance,
   type GarmentSlot,
@@ -119,6 +122,36 @@ function LookSection({ node, disabled }: { node: MannequinNode; disabled: boolea
   }
   return (
     <>
+      <div className="prop-title prop-title-spaced">Face & hands</div>
+      <div className="look-rows">
+        <div className="look-row two">
+          <span className="look-label">Expression</span>
+          <select className="name-input plain" value={node.expression} disabled={disabled} onChange={(e) => doc.updateNode(node.id, { expression: e.target.value })}>
+            {Object.entries(EXPRESSIONS).map(([key, e]) => (
+              <option key={key} value={key}>
+                {e.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        {(['left', 'right'] as const).map((side) => (
+          <div key={side} className="look-row two">
+            <span className="look-label">{side === 'left' ? 'Left hand' : 'Right hand'}</span>
+            <select
+              className="name-input plain"
+              value={node.hands[side]}
+              disabled={disabled}
+              onChange={(e) => doc.updateNode(node.id, { hands: { ...node.hands, [side]: e.target.value as HandShape } })}
+            >
+              {Object.entries(HAND_SHAPES).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+        ))}
+      </div>
       <div className="prop-title prop-title-spaced">Look</div>
       <div className="look-rows">
         {LOOK_ROWS.map((row) => {

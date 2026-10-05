@@ -21,6 +21,8 @@ import {
   wornIds,
   type BodyData,
   type FigureAppearance,
+  type Hands,
+  HAND_CURL,
   type HumanFit
 } from '../../../shared/humanBody'
 import { JOINTS, JOINT_NAMES, type JointName, type Pose } from '../../../shared/mannequin'
@@ -82,6 +84,45 @@ interface Built {
   /** Decimetres → metres at the requested height. */
   scale: number
   ground: number
+  /** Axis each finger bone bends around (rest-pose space): across the knuckles, or for the thumb across its base. */
+  curlAxes: Map<string, Vector3>
+}
+
+const FINGER = /^(index|middle|ring|pinky)_0([123])_([lr])$/
+const THUMB = /^thumb_0([23])_([lr])$/
+
+/** Bend axes for the fingers of both hands, from where the knuckles sit on this body. */
+function curlAxes(rest: HumanFit['rest']): Map<string, Vector3> {
+  const out = new Map<string, Vector3>()
+  for (const side of ['l', 'r'] as const) {
+    const at = (name: string) => new Vector3(...rest.get(`${name}_${side}`)!.head)
+    // Across the knuckles, index → little finger; bending around it curls the fingers into the palm.
+    const across = at('pinky_01').sub(at('index_01')).normalize()
+    // A rotation axis mirrored to the other side must also flip to give the mirrored bend.
+    if (side === 'r') across.negate()
+    const handDir = at('middle_01').sub(at('hand')).normalize()
+    const palm = new Vector3().crossVectors(across, handDir).normalize()
+    for (const finger of ['index', 'middle', 'ring', 'pinky']) for (const k of [1, 2, 3]) out.set(`${finger}_0${k}_${side}`, across)
+    // The thumb folds across the palm.
+    const thumbDir = at('thumb_02').sub(at('thumb_01')).normalize()
+    const thumbAxis = new Vector3().crossVectors(thumbDir, palm).normalize()
+    if (side === 'r') thumbAxis.negate()
+    out.set(`thumb_02_${side}`, thumbAxis)
+    out.set(`thumb_03_${side}`, thumbAxis)
+  }
+  return out
+}
+
+/** A finger bone's bend for this hand shape (degrees), or 0. */
+function fingerBend(bone: string, hands: Hands): number {
+  const f = FINGER.exec(bone)
+  if (f) {
+    const curl = HAND_CURL[f[3] === 'l' ? hands.left : hands.right]
+    return (f[1] === 'index' && curl.index ? curl.index : curl.fingers)[+f[2] - 1]
+  }
+  const t = THUMB.exec(bone)
+  if (t) return HAND_CURL[t[2] === 'l' ? hands.left : hands.right].thumb[+t[1] - 2]
+  return 0
 }
 
 /** Mesh + skeleton for one body shape (decimetre units, as in the data). */
@@ -120,11 +161,11 @@ function build(body: BodyData, fit: HumanFit): Built {
   mesh.receiveShadow = true
   mesh.frustumCulled = false // its bounds are the rest pose; a posed arm could be culled
 
-  return { mesh, bones, corrections, scale: fit.scale, ground: fit.ground }
+  return { mesh, bones, corrections, scale: fit.scale, ground: fit.ground, curlAxes: curlAxes(rest) }
 }
 
 /** Put the rig into our pose. */
-function applyPose(b: Built, body: BodyData, pose: Pose, height: number): void {
+function applyPose(b: Built, body: BodyData, pose: Pose, height: number, hands: Hands): void {
   const joints = jointWorld(pose)
   const world = new Map<string, Quaternion>()
   for (const def of body.bones) {
@@ -134,6 +175,10 @@ function applyPose(b: Built, body: BodyData, pose: Pose, height: number): void {
     // The middle of the spine shares the bend between lower back and chest.
     else if (def.name === 'spine_02') w = joints.spine.clone().slerp(joints.chest, 0.5).multiply(b.corrections.get(def.name)!)
     else w = def.parent ? world.get(def.parent)!.clone() : new Quaternion()
+    // Fingers: bend each joint for the hand shape (rest-pose space, so it follows the hand).
+    const bend = fingerBend(def.name, hands)
+    const axis = b.curlAxes.get(def.name)
+    if (bend && axis) w.multiply(new Quaternion().setFromAxisAngle(axis, MathUtils.degToRad(bend)))
     world.set(def.name, w)
   }
 
@@ -193,6 +238,7 @@ function ProxyMesh({ body, fit, built, item, color, selected }: { body: BodyData
 interface Props {
   fit: HumanFit
   pose: Pose
+  hands: Hands
   /** The figure's colour: skin, and every part without its own colour. */
   color: string
   appearance: FigureAppearance
@@ -205,7 +251,7 @@ function itemColor(item: LoadedProxy, appearance: FigureAppearance, color: strin
   return part ? partColor(appearance, part, color) : color
 }
 
-export default function HumanView({ fit, pose, color, appearance, selected }: Props) {
+export default function HumanView({ fit, pose, hands, color, appearance, selected }: Props) {
   const body = useBodyData()
   const built = useMemo(() => (body ? build(body, fit) : null), [body, fit])
   useEffect(() => () => built?.mesh.geometry.dispose(), [built])
@@ -218,8 +264,8 @@ export default function HumanView({ fit, pose, color, appearance, selected }: Pr
   }, [built, body, items])
   const height = fit.proportions.height
   useEffect(() => {
-    if (built && body) applyPose(built, body, pose, height)
-  }, [built, body, pose, height])
+    if (built && body) applyPose(built, body, pose, height, hands)
+  }, [built, body, pose, height, hands])
   if (!built || !body) return null
   const s = built.scale
   return (
