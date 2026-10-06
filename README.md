@@ -31,12 +31,11 @@ When you want more than clay, Second Team can bring your boards to life with AI 
 
 Turn any shot into a finished-looking frame, in the style you choose: photoreal film still, pencil sketch, painted concept art.
 
+- **Optional.** Skip the AI setup and everything else works without it. Every AI control folds away.
 - **Guided by your set, not guesswork.** Each frame follows your blocking's depth, your figures' poses and your camera's exact framing and lens. What you staged is what you get.
 - **Continuity.** Give cast members and props a description and reference photos, and they look the same from shot to shot. A project style and style references keep the whole board consistent.
-- **Takes like on set.** Generate several takes, compare them side by side and circle the best one. Every take keeps its seed and settings, so you can change one thing and try again.
 - **Entirely local.** The AI engine ([ComfyUI](https://github.com/Comfy-Org/ComfyUI)) is installed and run by the app on your own NVIDIA graphics card. Nothing is uploaded and nothing is generated in a datacenter: your projects, reference photos and frames stay on your computer. The only internet use is the one-time download of the engine and models, from pinned sources with verified checksums.
 - **Safe for paid work.** Every model it uses allows commercial use of its output, and each take records the model and licence it was made with.
-- **Optional.** Skip the AI setup and everything else works without it. Every AI control folds away.
 
 ## Download
 
