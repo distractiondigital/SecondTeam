@@ -51,6 +51,8 @@ interface SubjectPoint {
   size: number
   /** Eye height for the camera angle (figures only). */
   eyeY: number | null
+  /** Where auto focus focuses: the eyes for a figure (the nearer one wins), else the middle. */
+  focusPoints: Vector3[]
 }
 
 function subjectPoint(scene: Scene, id: string, three: Object3D): SubjectPoint | null {
@@ -62,7 +64,8 @@ function subjectPoint(scene: Scene, id: string, three: Object3D): SubjectPoint |
     const eyeR = three.getObjectByName(`${id}:kp:eyeR`)
     if (!eyeL || !eyeR) return null
     const point = eyeL.getWorldPosition(new Vector3()).add(eyeR.getWorldPosition(new Vector3())).multiplyScalar(0.5)
-    return { id, name: node.name, point, size: node.height, eyeY: point.y }
+    const eyes = [eyeL.getWorldPosition(new Vector3()), eyeR.getWorldPosition(new Vector3())]
+    return { id, name: node.name, point, size: node.height, eyeY: point.y, focusPoints: eyes }
   }
   const box = new Box3()
   object.traverseVisible((o) => {
@@ -70,7 +73,7 @@ function subjectPoint(scene: Scene, id: string, three: Object3D): SubjectPoint |
   })
   if (box.isEmpty()) return null
   const point = box.getCenter(new Vector3())
-  return { id, name: node.name, point, size: box.max.y - box.min.y, eyeY: null }
+  return { id, name: node.name, point, size: box.max.y - box.min.y, eyeY: null, focusPoints: [point] }
 }
 
 export function computeShotInfo(scene: Scene, camera: CameraNode, kit: CameraKit, three: Object3D): ShotInfo | null {
@@ -108,7 +111,8 @@ export function computeShotInfo(scene: Scene, camera: CameraNode, kit: CameraKit
   if (subject) {
     distance = subject.point.distanceTo(pose.position)
     const depth = Math.max(0.05, -subject.point.clone().applyMatrix4(toCamera).z)
-    subjectDepth = depth
+    // Focus on the eye nearest the lens, like a focus puller would.
+    subjectDepth = Math.max(0.05, Math.min(...subject.focusPoints.map((p) => -p.clone().applyMatrix4(toCamera).z)))
     size = shotSize(2 * depth * tanV, subject.size)
   }
 

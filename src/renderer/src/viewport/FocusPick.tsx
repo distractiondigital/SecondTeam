@@ -8,7 +8,10 @@ import { viewportBridge } from './viewportBridge'
 
 // Click to focus: while the focus pick is on (camera view), the next left click in the viewport
 // sets the shot's focus distance to whatever is under the cursor (its distance along the lens axis,
-// like a focus puller's tape). Esc cancels; the click never selects anything.
+// like a focus puller's tape). Esc cancels; the click never selects anything. Holding Shift in camera
+// view turns the pick on until Shift is let go, so you can pull focus click after click.
+
+let shiftHeld = false
 
 function shown(o: Object3D): boolean {
   for (let p: Object3D | null = o; p; p = p.parent) if (!p.visible || isHelper(p)) return false
@@ -17,6 +20,7 @@ function shown(o: Object3D): boolean {
 
 export default function FocusPick() {
   const picking = useUi((s) => s.focusPicking && s.lookThroughId !== null)
+  const looking = useUi((s) => s.lookThroughId !== null)
   const gl = useThree((s) => s.gl)
   const camera = useThree((s) => s.camera)
   const scene = useThree((s) => s.scene)
@@ -39,7 +43,7 @@ export default function FocusPick() {
       raycaster.setFromCamera(ndc, camera)
       const hit = raycaster.intersectObject(scene, true).find((h) => (h.object as { isMesh?: boolean }).isMesh && shown(h.object))
       const ui = useUi.getState()
-      ui.setFocusPicking(false)
+      ui.setFocusPicking(shiftHeld)
       if (!hit || !ui.lookThroughId) return
       // Distance along the lens axis (the focus plane is square to the lens).
       const depth = -hit.point.clone().applyMatrix4(camera.matrixWorldInverse).z
@@ -59,6 +63,36 @@ export default function FocusPick() {
       window.removeEventListener('keydown', onKey, true)
     }
   }, [picking, gl, camera, scene])
+
+  // Hold Shift: pick focus until it's let go (not while flying or typing).
+  useEffect(() => {
+    if (!looking) return
+    const typing = (e: KeyboardEvent) => e.target instanceof HTMLElement && e.target.closest('input, textarea, select, [contenteditable]') !== null
+    const onDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Shift' || e.repeat || typing(e) || viewportBridge.flying || e.ctrlKey || e.metaKey || e.altKey) return
+      shiftHeld = true
+      useUi.getState().setFocusPicking(true)
+    }
+    const onUp = (e: KeyboardEvent) => {
+      if (e.key !== 'Shift' || !shiftHeld) return
+      shiftHeld = false
+      useUi.getState().setFocusPicking(false)
+    }
+    const onBlur = () => {
+      if (!shiftHeld) return
+      shiftHeld = false
+      useUi.getState().setFocusPicking(false)
+    }
+    window.addEventListener('keydown', onDown)
+    window.addEventListener('keyup', onUp)
+    window.addEventListener('blur', onBlur)
+    return () => {
+      window.removeEventListener('keydown', onDown)
+      window.removeEventListener('keyup', onUp)
+      window.removeEventListener('blur', onBlur)
+      shiftHeld = false
+    }
+  }, [looking])
 
   return null
 }

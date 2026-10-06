@@ -56,7 +56,7 @@ export function FocusPickButton({ node, disabled, label }: { node: CameraNode; d
     <button
       className={`${label ? 'look-button' : 'icon-button'}${picking ? ' active' : ''}`}
       disabled={disabled}
-      title="Click to focus: click anything in the frame (Esc cancels)"
+      title="Click to focus: click anything in the frame (or hold Shift in camera view; Esc cancels)"
       onClick={() => {
         if (useUi.getState().lookThroughId !== node.id) lookThrough(node.id)
         useUi.getState().setFocusPicking(!picking)
