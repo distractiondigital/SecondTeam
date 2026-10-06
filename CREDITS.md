@@ -4,7 +4,7 @@ Second Team is © 2026 Distraction Digital, free and open source under the GPL-3
 
 ## Human figures
 
-**[MakeHuman](https://www.makehumancommunity.org)** by the MakeHuman Community, CC0. The base mesh, body and face targets, skeleton weights, eyes, eyebrows, hair and most clothes. Data files only, taken from the [MPFB](https://extensions.blender.org/add-ons/mpfb/) add-on and the [MakeHuman community asset packs](https://static.makehumancommunity.org/assets/assetpacks.html). No MakeHuman or MPFB program code is included. Details: [figures/README.md](figures/README.md).
+**[MakeHuman](https://static.makehumancommunity.org/)** by the MakeHuman Community, CC0. The base mesh, body and face targets, skeleton weights, eyes, eyebrows, hair and most clothes. Data files only, taken from the [MPFB](https://extensions.blender.org/add-ons/mpfb/) add-on and the [MakeHuman community asset packs](https://static.makehumancommunity.org/assets/assetpacks.html). No MakeHuman or MPFB program code is included. Details: [figures/README.md](figures/README.md).
 
 These garments are CC-BY ([Creative Commons Attribution](https://creativecommons.org/licenses/by/4.0/)), from the MakeHuman community asset pack [shirts02](https://static.makehumancommunity.org/assets/assetpacks/shirts02.html):
 

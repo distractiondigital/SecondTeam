@@ -57,7 +57,7 @@ Installers are on the [Releases](https://github.com/distractiondigital/SecondTea
 
 ## Credits
 
-Second Team builds on open work, most of all [MakeHuman](https://www.makehumancommunity.org) (human figures, CC0), [ComfyUI](https://github.com/Comfy-Org/ComfyUI) (the AI engine), [Electron](https://www.electronjs.org), [React](https://react.dev) and [three.js](https://threejs.org). Some clothing is CC-BY by MakeHuman community artists Elvaerwyn, EWS, Mindfront, punkduck and janexx.
+Second Team builds on open work, most of all [MakeHuman](https://static.makehumancommunity.org/) (human figures, CC0), [ComfyUI](https://github.com/Comfy-Org/ComfyUI) (the AI engine), [Electron](https://www.electronjs.org), [React](https://react.dev) and [three.js](https://threejs.org). Some clothing is CC-BY by MakeHuman community artists Elvaerwyn, EWS, Mindfront, punkduck and janexx.
 
 The full list, with licences, is in [CREDITS.md](CREDITS.md) and under **Credits** on the app's start screen. Every AI model the app downloads allows commercial use of its output; each one's licence is recorded in [backend/manifest.json](backend/manifest.json).
 

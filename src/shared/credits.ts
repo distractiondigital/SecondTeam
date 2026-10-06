@@ -29,7 +29,7 @@ export const CREDITS: CreditSection[] = [
         name: 'MakeHuman',
         by: 'the MakeHuman Community',
         license: 'CC0',
-        url: 'https://www.makehumancommunity.org',
+        url: 'https://static.makehumancommunity.org/',
         note: 'Base mesh, body and face targets, skeleton weights, eyes, eyebrows, hair and most clothes (data only, via the MPFB add-on and the community asset packs).'
       },
       { name: 'Shirt (untucked)', by: 'Elvaerwyn', license: 'CC-BY', url: 'https://static.makehumancommunity.org/assets/assetpacks/shirts02.html' },
