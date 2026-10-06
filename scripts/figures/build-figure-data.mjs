@@ -121,7 +121,7 @@ for (const unit of readdirSync(join(unitsDir, 'caucasian')).map((f) => f.replace
 // Breasts, as MakeHuman shapes them: size (cup) and firmness, each min / average / max, blended by
 // gender, age, muscle and weight like the body (female-<age>-<muscle>-<weight>-<cup>-<firmness>;
 // average cup with average firmness is the body as it is, so there's no file for it). Applied by
-// the Body > Chest sliders, never forced. Nipples stay as modelled.
+// the Body > Chest sliders, never forced.
 const breastDir = join(data, 'targets', 'breast')
 for (const file of readdirSync(breastDir).filter((f) => f.endsWith('.target.gz'))) {
   const name = file.replace('.target.gz', '')

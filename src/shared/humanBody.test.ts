@@ -51,7 +51,7 @@ describe('human body data', () => {
   })
 
   it('shapes breasts with the MakeHuman targets, only when asked', () => {
-    // As modelled: no breast or nipple shapes at all.
+    // As modelled: no chest shapes at all.
     expect([...targetWeights({ ...AVERAGE_BODY, gender: 0 }).keys()].some((k) => k.startsWith('breast-'))).toBe(false)
     const w = targetWeights({ ...AVERAGE_BODY, gender: 0, breastSize: 1, breastFirmness: 0.25 })
     // Female, young, average muscle and weight, max cup, between min and average firmness.
