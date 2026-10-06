@@ -10,6 +10,8 @@ import type { SetupProgress } from '../../shared/setup'
 import { findExistingInstall, gpuAdvice, install, installStates, isReady, parseNvidiaSmi, partialBytes, verify } from './installer'
 
 // A tiny backend served from localhost: a fake engine (.7z), two models and an add-on (.zip).
+// The installer (and these tests) use Windows' own tar.exe, so they only run on Windows.
+const onWindows = process.platform === 'win32'
 
 const tar = join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32', 'tar.exe')
 const sha = (b: Buffer) => createHash('sha256').update(b).digest('hex')
@@ -34,6 +36,7 @@ function archive(kind: '7z' | 'zip', folder: string, contents: Record<string, st
 }
 
 beforeAll(async () => {
+  if (!onWindows) return
   root = mkdtempSync(join(tmpdir(), 'st-installer-'))
   files = {
     '/engine.7z': archive('7z', 'ComfyUI_windows_portable', {
@@ -82,13 +85,14 @@ beforeAll(async () => {
 })
 
 afterAll(() => {
+  if (!onWindows) return
   server.close()
   rmSync(root, { recursive: true, force: true })
 })
 
 const all = () => ['comfyui', 'model-a', 'model-b', 'addon']
 
-describe('installer', () => {
+describe.skipIf(!onWindows)('installer', () => {
   it('downloads, checks and unpacks everything into place', async () => {
     const dir = join(root, 'backend one')
     const events: SetupProgress[] = []

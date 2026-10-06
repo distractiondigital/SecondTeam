@@ -1,12 +1,13 @@
+import { join } from 'path'
 import { describe, expect, it } from 'vitest'
 import { cleanComfyUrl, defaultBackendDir, parseSettings } from './settings'
 
 describe('app settings', () => {
   it('keeps the engine in AppData when installed, and in the repo in development', () => {
-    expect(defaultBackendDir(true, 'C:\\Program Files\\Second Team\\resources\\app.asar', 'C:\\Users\\Me\\AppData\\Local\\SecondTeam')).toBe(
-      'C:\\Users\\Me\\AppData\\Local\\SecondTeam\\backend'
-    )
-    expect(defaultBackendDir(false, 'C:\\Dev\\Second Team')).toBe('C:\\Dev\\Second Team\\ComfyUI')
+    // (built with join, so it reads the same with Windows or Mac folder separators)
+    const appData = join('C:', 'Users', 'Me', 'AppData', 'Local', 'SecondTeam')
+    expect(defaultBackendDir(true, join('C:', 'Program Files', 'Second Team', 'resources', 'app.asar'), appData)).toBe(join(appData, 'backend'))
+    expect(defaultBackendDir(false, join('C:', 'Dev', 'Second Team'))).toBe(join('C:', 'Dev', 'Second Team', 'ComfyUI'))
   })
 
   it('repairs a missing or damaged settings file', () => {
