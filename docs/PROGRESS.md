@@ -40,6 +40,7 @@ Current version: **0.1.0 beta** (October 2026), the first public beta. The plan 
 
 - **Figures:** a fresh look for the human figures, better shapes when sitting, smoother close-ups, more outerwear, an expression strength slider.
 - **AI:** AI on Mac (starting with ComfyUI's own Mac app), face-consistent cast references, a pose pass that skips hidden joints, passes for a whole scene at once.
+- **Lenses:** anamorphic lens character (horizontal streak flares, edge falloff and distortion).
 - **Lighting:** light colours (gels), practical lamps, soft boxes, flags and bounce.
 - **Shots:** a shoot order separate from shot names, custom shot names, other cameras shown in the camera view.
 - **Figures and sets:** more pose presets (running, kneeling, leaning, crouching); new objects placed so they don't overlap.
