@@ -7,6 +7,10 @@ import {
   bodyPositions,
   centroid,
   EXPRESSIONS,
+  figureSkin,
+  partColor,
+  sanitizeAppearance,
+  skinColor,
   fitProxy,
   parseBody,
   parseProxy,
@@ -92,5 +96,27 @@ describe('eyes, hair and clothes', () => {
     expect(dressed).toBeLessThan(all * 0.85)
     expect(dressed).toBeGreaterThan(0)
     expect(visibleBody(body, [proxy('eyes')]).length).toBe(all)
+  })
+})
+
+describe('figure colours', () => {
+  const look = { hair: 'hair-short02', eyebrows: null, garments: { top: 'top-polo' }, colors: {}, skinTone: 0 }
+  it('goes from fair to dark skin', () => {
+    expect(skinColor(0)).toBe('#f5d6c1')
+    expect(skinColor(1)).toBe('#352217')
+    const lum = (hex: string) => [1, 3, 5].reduce((s, i) => s + parseInt(hex.slice(i, i + 2), 16), 0)
+    expect(lum(skinColor(0.3))).toBeGreaterThan(lum(skinColor(0.7)))
+  })
+  it('natural colours by default, the figure colour with the overlay, a picked colour always', () => {
+    expect(figureSkin(look, '#c98f6f', 'natural')).toBe(skinColor(0))
+    expect(figureSkin(look, '#c98f6f', 'overlay')).toBe('#c98f6f')
+    expect(partColor(look, 'top', '#c98f6f', 'natural', 'top-polo')).toBe('#2f3d5c')
+    expect(partColor(look, 'top', '#c98f6f', 'overlay', 'top-polo')).not.toBe('#2f3d5c')
+    const picked = { ...look, colors: { top: '#ff0000' } }
+    expect(partColor(picked, 'top', '#c98f6f', 'natural', 'top-polo')).toBe('#ff0000')
+    expect(partColor(picked, 'top', '#c98f6f', 'overlay', 'top-polo')).toBe('#ff0000')
+  })
+  it('older files get a default skin tone', () => {
+    expect(sanitizeAppearance({ hair: null, garments: {}, colors: {} }, 0).skinTone).toBe(0.3)
   })
 })

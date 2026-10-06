@@ -468,13 +468,97 @@ export interface FigureAppearance {
   eyebrows: string | null
   garments: Partial<Record<GarmentSlot, string>>
   colors: Partial<Record<AppearancePart, string>>
+  /** 0 very fair … 1 very dark (see `skinColor`). */
+  skinTone: number
 }
 
-/** A dressed starting look (one colour: everything follows the figure's colour until changed). */
+export const DEFAULT_SKIN_TONE = 0.3
+
+/** Skin colours from very fair to very dark; `skinColor` blends between them. */
+const SKIN_STOPS = ['#f5d6c1', '#e9bc9b', '#d6a07a', '#bb8259', '#98643f', '#734a2d', '#4f321f', '#352217']
+
+const mixHex = (a: string, b: string, t: number) =>
+  '#' +
+  [1, 3, 5]
+    .map((i) =>
+      Math.round(parseInt(a.slice(i, i + 2), 16) * (1 - t) + parseInt(b.slice(i, i + 2), 16) * t)
+        .toString(16)
+        .padStart(2, '0')
+    )
+    .join('')
+
+/** The skin colour for a tone (0 very fair … 1 very dark). */
+export function skinColor(tone: number): string {
+  const t = (Number.isFinite(tone) ? Math.min(1, Math.max(0, tone)) : DEFAULT_SKIN_TONE) * (SKIN_STOPS.length - 1)
+  const i = Math.min(SKIN_STOPS.length - 2, Math.floor(t))
+  return mixHex(SKIN_STOPS[i], SKIN_STOPS[i + 1], t - i)
+}
+
+/** Plain, believable colours for each garment (the natural look); anything not listed goes by its slot. */
+const NATURAL_ITEM: Record<string, string> = {
+  'outfit-male-casual-1': '#55606e',
+  'outfit-male-casual-2': '#6b5d4c',
+  'outfit-male-casual-3': '#4e5a4a',
+  'outfit-male-casual-4': '#3f5272',
+  'outfit-male-casual-5': '#7a6f62',
+  'outfit-male-casual-6': '#5a4a42',
+  'outfit-male-suit': '#33363c',
+  'outfit-work': '#4f5d73',
+  'outfit-female-casual-1': '#6d5a6b',
+  'outfit-female-casual-2': '#4c6276',
+  'outfit-female-suit': '#3a3d44',
+  'outfit-sport': '#2f3a52',
+  'outfit-dress-shift': '#2e3f5c',
+  'outfit-dress-keyhole': '#6e2f36',
+  'outfit-dress-halter': '#2f4a45',
+  'outfit-dress-full-skirt': '#7a5a3a',
+  'outfit-dress-tiered': '#b39b7a',
+  'outfit-kimono': '#5d3b4f',
+  'outfit-suit-tie': '#2c2f35',
+  'outfit-suit-3': '#4a4f58',
+  'outfit-suit-double': '#2a3140',
+  'outfit-dinner-jacket': '#1f2024',
+  'outfit-womens-suit-1': '#3b3f47',
+  'outfit-womens-suit-2': '#5b5650',
+  'outfit-womens-suit-double': '#2b3242',
+  'top-tshirt-tucked': '#d9d6cf',
+  'top-tshirt-men': '#8a8f96',
+  'top-tshirt-women': '#c9ccd2',
+  'top-polo': '#2f3d5c',
+  'top-fisherman-sweater': '#cfc6b3',
+  'top-camisole': '#d8c8bd',
+  'top-tank': '#e2e0dc',
+  'top-shirt-untucked': '#b9c7d8',
+  'top-shirt-tie': '#e6e8ec',
+  'top-striped-shirt': '#8fa3bd',
+  'top-knit-sweater': '#4c5e4a',
+  'top-blouse': '#e6dccb',
+  'top-cardigan-sweater': '#8a6f5a',
+  'outer-hoodie': '#7a7d82',
+  'outer-long-cardigan': '#b8a98f',
+  'bottom-trousers': '#3d4047',
+  'bottom-cargo': '#7d7458',
+  'bottom-denim-shorts': '#4a6a8f',
+  'bottom-shorts': '#a39a82',
+  'bottom-cargo-shorts': '#6f6a52',
+  'hat-fedora': '#4a4440'
+}
+const NATURAL_PART: Record<AppearancePart, string> = {
+  hair: '#3a2a1f',
+  eyes: '#2b211b',
+  outfit: '#4f5866',
+  top: '#c9ccd2',
+  bottom: '#3d4047',
+  outer: '#5a5e54',
+  shoes: '#3b2b22',
+  hat: '#4a4440'
+}
+
+/** A dressed starting look (natural colours until a part gets its own). */
 export function defaultAppearance(gender: number): FigureAppearance {
   return gender >= 0.5
-    ? { hair: 'hair-short02', eyebrows: 'eyebrows-1', garments: { outfit: 'outfit-male-casual-4', shoes: 'shoes-1' }, colors: {} }
-    : { hair: 'hair-ponytail01', eyebrows: 'eyebrows-1', garments: { outfit: 'outfit-female-casual-2', shoes: 'shoes-2' }, colors: {} }
+    ? { hair: 'hair-short02', eyebrows: 'eyebrows-1', garments: { outfit: 'outfit-male-casual-4', shoes: 'shoes-1' }, colors: {}, skinTone: DEFAULT_SKIN_TONE }
+    : { hair: 'hair-ponytail01', eyebrows: 'eyebrows-1', garments: { outfit: 'outfit-female-casual-2', shoes: 'shoes-2' }, colors: {}, skinTone: DEFAULT_SKIN_TONE }
 }
 
 const ID = /^[a-z0-9-]{1,60}$/
@@ -497,7 +581,8 @@ export function sanitizeAppearance(raw: unknown, gender: number): FigureAppearan
     const v = c[part]
     if (typeof v === 'string' && HEX.test(v)) colors[part] = v.toLowerCase()
   }
-  return { hair: id(r.hair), eyebrows: id(r.eyebrows), garments, colors }
+  const tone = typeof r.skinTone === 'number' && Number.isFinite(r.skinTone) ? Math.min(1, Math.max(0, r.skinTone)) : DEFAULT_SKIN_TONE
+  return { hair: id(r.hair), eyebrows: id(r.eyebrows), garments, colors, skinTone: tone }
 }
 
 /** Everything a figure shows besides its body, in drawing order. */
@@ -519,10 +604,30 @@ export function wornIds(a: FigureAppearance): string[] {
  */
 const DEFAULT_SHADE: Record<AppearancePart, number> = { hair: 0.4, eyes: 0.4, outfit: 0.6, top: 0.62, bottom: 0.5, outer: 0.55, shoes: 0.35, hat: 0.5 }
 
-/** The colour a part shows: its own, or a shade of the figure's colour. */
-export function partColor(appearance: FigureAppearance, part: AppearancePart, figureColor: string): string {
+/**
+ * How figures are coloured. 'natural' (the default, and always in renders): skin from Skin tone,
+ * each garment its own plain colour. 'overlay' (the viewport's Figure colours switch): skin in
+ * the figure's colour and each part a shade of it, so figures are easy to tell apart. A colour
+ * picked for a part wins in both.
+ */
+export type FigureColoring = 'natural' | 'overlay'
+
+/** The skin colour a figure shows. */
+export function figureSkin(appearance: FigureAppearance, figureColor: string, coloring: FigureColoring): string {
+  return coloring === 'overlay' ? figureColor : skinColor(appearance.skinTone)
+}
+
+/** The colour a part shows: its own pick, else its natural colour (or, with the overlay, a shade of the figure's colour). */
+export function partColor(
+  appearance: FigureAppearance,
+  part: AppearancePart,
+  figureColor: string,
+  coloring: FigureColoring = 'overlay',
+  itemId?: string
+): string {
   const own = appearance.colors[part]
   if (own) return own
+  if (coloring === 'natural') return (itemId && NATURAL_ITEM[itemId]) || NATURAL_PART[part]
   const k = DEFAULT_SHADE[part]
   const hex = HEX.test(figureColor) ? figureColor : '#999999'
   return (

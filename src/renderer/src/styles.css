@@ -117,7 +117,7 @@ input {
   align-items: center;
   gap: 5px;
   height: 28px;
-  padding: 0 7px;
+  padding: 0 5px;
   background: transparent;
   border: 1px solid transparent;
   border-radius: 4px;
@@ -2890,4 +2890,14 @@ input {
 .export-warning {
   margin-top: 10px;
   color: #e0b25a;
+}
+
+/* Figure properties: the skin tone's colour beside its slider. */
+.skin-chip {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-left: 6px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
 }

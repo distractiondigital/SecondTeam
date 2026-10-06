@@ -12,19 +12,7 @@ import {
   SkinnedMesh,
   Vector3
 } from 'three'
-import {
-  fitProxy,
-  partColor,
-  partOf,
-  proxySkin,
-  visibleBody,
-  wornIds,
-  type BodyData,
-  type FigureAppearance,
-  type Hands,
-  HAND_CURL,
-  type HumanFit
-} from '../../../shared/humanBody'
+import { fitProxy, partColor, partOf, proxySkin, visibleBody, wornIds, type BodyData, type FigureAppearance, type Hands, HAND_CURL, type HumanFit, figureSkin, type FigureColoring } from '../../../shared/humanBody'
 import { JOINTS, JOINT_NAMES, type JointName, type Pose } from '../../../shared/mannequin'
 import { SELECTION_COLOR } from './selection'
 import { useBodyData, useProxies, type LoadedProxy } from './humanData'
@@ -265,19 +253,21 @@ interface Props {
   fit: HumanFit
   pose: Pose
   hands: Hands
-  /** The figure's colour: skin, and every part without its own colour. */
+  /** The figure's own (unique) colour, used when `coloring` is the overlay. */
   color: string
+  /** Natural colours (skin tone, plain garments) or the figure-colour overlay. */
+  coloring: FigureColoring
   appearance: FigureAppearance
   selected: boolean
 }
 
 /** Which colour a worn item takes. */
-function itemColor(item: LoadedProxy, appearance: FigureAppearance, color: string): string {
+function itemColor(item: LoadedProxy, appearance: FigureAppearance, color: string, coloring: FigureColoring): string {
   const part = partOf(item.data.info)
-  return part ? partColor(appearance, part, color) : color
+  return part ? partColor(appearance, part, color, coloring, item.data.info.id) : color
 }
 
-export default function HumanView({ fit, pose, hands, color, appearance, selected }: Props) {
+export default function HumanView({ fit, pose, hands, color, coloring, appearance, selected }: Props) {
   const body = useBodyData()
   const built = useMemo(() => (body ? build(body, fit) : null), [body, fit])
   useEffect(() => () => built?.mesh.geometry.dispose(), [built])
@@ -299,7 +289,7 @@ export default function HumanView({ fit, pose, hands, color, appearance, selecte
       <primitive object={built.mesh}>
         <meshStandardMaterial
           attach="material"
-          color={color}
+          color={figureSkin(appearance, color, coloring)}
           roughness={0.75}
           metalness={0}
           emissive={selected ? SELECTION_COLOR : '#000000'}
@@ -307,7 +297,7 @@ export default function HumanView({ fit, pose, hands, color, appearance, selecte
         />
       </primitive>
       {(items ?? []).map((item) => (
-        <ProxyMesh key={item.data.info.id} body={body} fit={fit} built={built} item={item} color={itemColor(item, appearance, color)} selected={selected} />
+        <ProxyMesh key={item.data.info.id} body={body} fit={fit} built={built} item={item} color={itemColor(item, appearance, color, coloring)} selected={selected} />
       ))}
     </group>
   )

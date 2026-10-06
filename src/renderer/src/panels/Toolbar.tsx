@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import {
   Mouse,
+  Palette,
   Touchpad,
   Box,
   Cone,
@@ -113,6 +114,7 @@ export default function Toolbar({ boardOnly = false }: { boardOnly?: boolean }) 
   const shading = useUi((s) => s.shading)
   const units = useUi((s) => s.units)
   const navMode = useUi((s) => s.navMode)
+  const figureColors = useUi((s) => s.figureColors)
   const canUndo = useDocument((s) => s.past.length > 0)
   const canRedo = useDocument((s) => s.future.length > 0)
   const ui = useUi.getState
@@ -176,6 +178,18 @@ export default function Toolbar({ boardOnly = false }: { boardOnly?: boolean }) 
                 Clay
               </button>
             </div>
+            <ToolButton
+              icon={Palette}
+              label="Figure colours"
+              title={
+                figureColors
+                  ? 'Figure colours on: each person in their own colour (viewport only). Click for natural colours.'
+                  : 'Show each person in their own colour, to tell them apart while blocking (viewport only; renders stay natural)'
+              }
+              active={figureColors}
+              onClick={() => ui().setFigureColors(!figureColors)}
+              showLabel={false}
+            />
             <ToolButton
               icon={Eye}
               label="Camera view"

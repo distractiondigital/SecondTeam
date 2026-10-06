@@ -18,6 +18,7 @@ import {
   EXPRESSIONS,
   HAND_SHAPES,
   partColor,
+  skinColor,
   type AppearancePart,
   type HandShape,
   type BodySliders,
@@ -156,6 +157,13 @@ function LookSection({ node, disabled }: { node: MannequinNode; disabled: boolea
           </div>
         ))}
       </div>
+      <div className="prop-title prop-title-spaced">Skin tone</div>
+      <div className="slider-row">
+        <span className="slider-end">Fair</span>
+        <GestureSlider value={a.skinTone} min={0} max={1} step={0.005} disabled={disabled} onChange={(skinTone) => set({ skinTone })} />
+        <span className="slider-end">Dark</span>
+        <i className="skin-chip" style={{ background: skinColor(a.skinTone) }} />
+      </div>
       <div className="prop-title prop-title-spaced">Look</div>
       <div className="look-rows">
         {LOOK_ROWS.map((row) => {
@@ -176,9 +184,9 @@ function LookSection({ node, disabled }: { node: MannequinNode; disabled: boolea
               </select>
               <input
                 type="color"
-                value={partColor(a, row.part, figureColor)}
+                value={partColor(a, row.part, figureColor, 'natural', value || undefined)}
                 disabled={disabled}
-                title={own ? 'Its own colour' : 'Following the figure’s colour (a shade of it); pick to set its own'}
+                title={own ? 'Its own colour' : 'Its natural colour; pick to set its own'}
                 onFocus={() => doc.beginGesture('lookColor')}
                 onBlur={() => doc.endGesture('lookColor')}
                 onChange={(e) => recolor(row.part, e.target.value)}
@@ -186,7 +194,7 @@ function LookSection({ node, disabled }: { node: MannequinNode; disabled: boolea
               <button
                 className="look-reset"
                 disabled={disabled || !own}
-                title="Back to a shade of the figure’s colour"
+                title="Back to its natural colour"
                 onClick={() => recolor(row.part, null)}
               >
                 ×

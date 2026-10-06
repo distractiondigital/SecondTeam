@@ -23,6 +23,7 @@ export type EntityRef = { kind: 'cast' | 'prop'; id: string }
 /** How the viewport reads scrolling: a mouse wheel zooms; a trackpad's two-finger swipe orbits (pinch zooms). */
 export type NavMode = 'mouse' | 'trackpad'
 const NAV_MODE_KEY = 'secondteam.navMode'
+const FIGURE_COLORS_KEY = 'secondteam.figureColors'
 
 function loadNavMode(): NavMode {
   try {
@@ -112,12 +113,30 @@ interface UiState {
   selectEntity: (entity: EntityRef | null) => void
   aiFolds: Record<AiFold, boolean>
   setAiFold: (fold: AiFold, open: boolean) => void
+  /** Viewport only: show each human figure in its own colour (easy to tell apart) instead of natural colours. Remembered on this PC. */
+  figureColors: boolean
+  setFigureColors: (on: boolean) => void
   /** Mouse or trackpad navigation, remembered on this PC. */
   navMode: NavMode
   setNavMode: (mode: NavMode) => void
 }
 
 export const useUi = create<UiState>()((set) => ({
+  figureColors: (() => {
+    try {
+      return localStorage.getItem(FIGURE_COLORS_KEY) === 'on'
+    } catch {
+      return false
+    }
+  })(),
+  setFigureColors: (figureColors) => {
+    try {
+      localStorage.setItem(FIGURE_COLORS_KEY, figureColors ? 'on' : 'off')
+    } catch {
+      // Not remembered this time; still works.
+    }
+    set({ figureColors })
+  },
   navMode: loadNavMode(),
   setNavMode: (navMode) => {
     try {
