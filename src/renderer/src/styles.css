@@ -1930,20 +1930,6 @@ input {
   display: block;
 }
 
-/* In AI mode, a shot without a circle take shows its clay render, marked like this. */
-.board-clay-tag {
-  position: absolute;
-  top: 5px;
-  left: 5px;
-  padding: 1px 6px;
-  border-radius: 3px;
-  background: rgba(0, 0, 0, 0.6);
-  color: var(--text);
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
 .board-missing {
   height: 100%;
   display: flex;
@@ -2898,4 +2884,10 @@ input {
 
 .ai-tabs {
   margin-left: 12px;
+}
+
+/* Export: a word when some shots are AI and some clay. */
+.export-warning {
+  margin-top: 10px;
+  color: #e0b25a;
 }

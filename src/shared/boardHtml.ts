@@ -30,9 +30,8 @@ export interface BoardExportSpec {
   pageSize: PageSize
   title: string
   footer: string
-  includeMissing: boolean
   source: BoardSource
-  /** Clay renders (PNG data URLs) by shot id, sent by the UI when source is 'clay'. */
+  /** Clay renders (PNG data URLs) by shot id: every shot in Clay, and the fill-in for shots without a circle take in AI. */
   clayImages?: Record<string, string>
   /** Frame shape (width / height) for the image boxes. */
   ratio: number
@@ -49,14 +48,22 @@ export function escapeHtml(text: string): string {
   return text.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!)
 }
 
-/** The panels that make it onto the board (in AI mode, shots without a circle take only if asked for). */
+/** Every shot makes it onto the board, always with a picture (its circle take in AI, else its clay render). */
 export function printedPanels(spec: BoardExportSpec): BoardPanelData[] {
-  return spec.includeMissing || spec.source === 'clay' ? spec.panels : spec.panels.filter((p) => p.takeId)
+  return spec.panels
 }
 
-/** The key a panel's picture is stored under in `images`: its circle take, or (clay) its shot. */
-export function imageKey(spec: BoardExportSpec, p: BoardPanelData): string | null {
-  return spec.source === 'clay' ? p.shotId : p.takeId
+/** The key a panel's picture is stored under in `images`: its shot (main picks the take or the clay render). */
+export function imageKey(_spec: BoardExportSpec, p: BoardPanelData): string {
+  return p.shotId
+}
+
+/** In AI mode: whether only some shots have a circle take (the rest show clay), worth a word before exporting. */
+export function mixedPictures(spec: Pick<BoardExportSpec, 'source' | 'panels'>): { ai: number; clay: number } | null {
+  if (spec.source !== 'ai') return null
+  const ai = spec.panels.filter((p) => p.takeId).length
+  const clay = spec.panels.length - ai
+  return ai > 0 && clay > 0 ? { ai, clay } : null
 }
 
 const MARGIN = 0.45 // inches
@@ -84,11 +91,9 @@ export function boardHtml(spec: BoardExportSpec, images: Record<string, string>)
     return `<div class="caption">${parts.join('')}</div>`
   }
   const frame = (p: BoardPanelData) => {
-    const key = imageKey(spec, p)
-    const src = key ? images[key] : undefined
+    const src = images[imageKey(spec, p)]
     if (src) return `<div class="frame"><img src="${src}" alt=""></div>`
-    const why = spec.source === 'clay' ? 'Clay render not available' : p.takeId ? 'Circle take image not found' : 'No circle take yet'
-    return `<div class="frame missing"><span>${why}</span></div>`
+    return `<div class="frame missing"><span>Picture not available</span></div>`
   }
 
   // Panel geometry, in inches, so frames keep the shot's shape and captions get what's left.

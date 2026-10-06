@@ -73,14 +73,7 @@ function Panel({ b, onDragStart, onDrop, dropHere, aspect }: { b: BoardShot; onD
       <div className="board-image" style={{ aspectRatio: aspect }} onDoubleClick={goToShot} title="Double-click to go to this shot">
         {showClay ? (
           clay ? (
-            <>
-              <img src={clay} alt={shot.shotNumber} draggable={false} />
-              {mode === 'ai' && (
-                <span className="board-clay-tag" title="No circle take yet: this is the clay render">
-                  Clay
-                </span>
-              )}
-            </>
+            <img src={clay} alt={shot.shotNumber} draggable={false} />
           ) : (
             <div className="board-missing">Rendering…</div>
           )

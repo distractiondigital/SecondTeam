@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { FileDown, FolderOpen, Images, X } from 'lucide-react'
 import { defaultBoardImage, LAYOUT_COUNTS, panelDescription, sceneTag, type BoardLayout, type BoardShot } from '../../../shared/board'
-import { pageInches, type BoardExportSpec, type BoardSource, type PageSize } from '../../../shared/boardHtml'
+import { mixedPictures, pageInches, type BoardExportSpec, type BoardPanelData, type BoardSource, type PageSize } from '../../../shared/boardHtml'
 import { deliveryFrame, opticsFor } from '../../../shared/camera'
 import { useDocument } from '../state/documentStore'
 import { useGeneration } from '../state/generation'
@@ -18,7 +18,6 @@ interface Options {
   perPage: number
   pageSize: PageSize
   footer: string
-  includeMissing: boolean
 }
 
 const CLAY_EXPORT_WIDTH = 1920 // px: clay renders for the PNG sequence (the PDF downsizes them)
@@ -75,7 +74,7 @@ function PagePreview({ layout, perPage, pageSize, ratio, footer }: Options & { r
 }
 
 // Remembered for this session.
-let last: Options = { layout: 'grid', perPage: 3, pageSize: 'letter', footer: '', includeMissing: true }
+let last: Options = { layout: 'grid', perPage: 3, pageSize: 'letter', footer: '' }
 
 export default function BoardExport({ shots, onClose }: { shots: BoardShot[]; onClose: () => void }) {
   const projectPath = useUi((s) => s.projectPath)
@@ -117,21 +116,23 @@ export default function BoardExport({ shots, onClose }: { shots: BoardShot[]; on
     })
   })
 
+  // Some shots AI and some clay: say so (not when they're all one or the other).
+  const mixed = mixedPictures({ source, panels: shots.map(({ shot }) => ({ takeId: shot.circleTake }) as BoardPanelData) })
+
   const run = async (kind: 'pdf' | 'pngs') => {
     if (!projectPath) return
     setBusy(true)
     setError(null)
     setResult(null)
     const s = spec()
-    if (source === 'clay') {
-      const gl = getRenderer()
-      if (!gl) {
-        setBusy(false)
-        setError("The 3D view isn't ready; try again in a moment.")
-        return
-      }
-      s.clayImages = renderBoardClay(gl, CLAY_EXPORT_WIDTH, 'image/png')
+    // Clay renders for every shot: the pictures in Clay, the fill-in for shots without a circle take in AI.
+    const gl = getRenderer()
+    if (!gl) {
+      setBusy(false)
+      setError("The 3D view isn't ready; try again in a moment.")
+      return
     }
+    s.clayImages = renderBoardClay(gl, CLAY_EXPORT_WIDTH, 'image/png')
     const r = kind === 'pdf' ? await window.secondTeam.exportBoardPdf(projectPath, s) : await window.secondTeam.exportBoardPngs(projectPath, s)
     setBusy(false)
     if ('error' in r) setError(r.error)
@@ -195,10 +196,11 @@ export default function BoardExport({ shots, onClose }: { shots: BoardShot[]; on
           placeholder="e.g. Distraction Digital · v1 · not for distribution"
           onChange={(e) => set({ footer: e.target.value })}
         />
-        <label className="prop-check spaced">
-          <input type="checkbox" checked={opts.includeMissing || source === 'clay'} disabled={source === 'clay'} onChange={(e) => set({ includeMissing: e.target.checked })} />
-          Include shots without a circle take (as empty frames)
-        </label>
+        {mixed && (
+          <p className="hint small export-warning">
+            {mixed.clay} of {mixed.ai + mixed.clay} shots have no circle take yet: they'll show their clay render.
+          </p>
+        )}
 
         <div className="prop-actions">
           <button className="generate-button" disabled={busy || !projectPath} onClick={() => void run('pdf')}>
@@ -207,7 +209,7 @@ export default function BoardExport({ shots, onClose }: { shots: BoardShot[]; on
           <button
             disabled={busy || !projectPath}
             onClick={() => void run('pngs')}
-            title={source === 'clay' ? 'Clay renders of every shot, numbered in board order' : 'The full-resolution circle takes, numbered in board order'}
+            title={source === 'clay' ? 'Clay renders of every shot, numbered in board order' : 'Every shot in board order: its full-resolution circle take, or its clay render'}
           >
             <Images size={14} /> Export PNGs
           </button>

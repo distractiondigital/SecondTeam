@@ -44,13 +44,14 @@ function clayImage(spec: BoardExportSpec, shotId: string): NativeImage | null {
   return image.isEmpty() ? null : image
 }
 
-/** A panel's picture: its circle take from the project, or its clay render. */
+/** A panel's picture: in AI, its circle take from the project, else (no take, or Clay) its clay render. */
 function panelImage(folder: string, spec: BoardExportSpec, p: BoardPanelData): NativeImage | null {
-  if (spec.source === 'clay') return clayImage(spec, p.shotId)
-  const file = p.takeId ? takePath(folder, p.sceneId, p.shotId, p.takeId) : null
-  if (!file) return null
-  const image = nativeImage.createFromPath(file)
-  return image.isEmpty() ? null : image
+  if (spec.source === 'ai') {
+    const file = p.takeId ? takePath(folder, p.sceneId, p.shotId, p.takeId) : null
+    const image = file ? nativeImage.createFromPath(file) : null
+    if (image && !image.isEmpty()) return image
+  }
+  return clayImage(spec, p.shotId)
 }
 
 async function exportPdf(folder: string, spec: BoardExportSpec): Promise<Result> {
@@ -59,8 +60,8 @@ async function exportPdf(folder: string, spec: BoardExportSpec): Promise<Result>
   const images: Record<string, string> = {}
   for (const p of printedPanels(spec)) {
     const key = imageKey(spec, p)
-    const image = key ? panelImage(folder, spec, p) : null
-    if (!key || !image) continue
+    const image = panelImage(folder, spec, p)
+    if (!image) continue
     const scaled = image.getSize().width > PRINT_WIDTH ? image.resize({ width: PRINT_WIDTH, quality: 'best' }) : image
     images[key] = `data:image/jpeg;base64,${scaled.toJPEG(88).toString('base64')}`
   }
@@ -88,27 +89,22 @@ async function exportPdf(folder: string, spec: BoardExportSpec): Promise<Result>
 
 async function exportPngs(folder: string, spec: BoardExportSpec): Promise<Result> {
   const out = exportsFolder(folder)
-  if (spec.source === 'clay') {
-    const dir = join(out, freeName(`${exportStamp()} Clay PNGs`, (n) => existsSync(join(out, n))))
-    await mkdir(dir, { recursive: true })
-    let n = 0
-    for (const p of spec.panels) {
-      const image = clayImage(spec, p.shotId)
-      if (image) await writeFile(join(dir, sequenceFileName(n++, p.shotName)), image.toPNG())
-    }
-    return { ok: true, path: dir }
-  }
-  const panels = spec.panels.filter((p) => p.takeId)
-  if (!panels.length) return { error: 'No shot has a circle take yet.' }
-  const dir = join(out, freeName(`${exportStamp()} PNGs`, (n) => existsSync(join(out, n))))
+  const dir = join(out, freeName(`${exportStamp()} ${spec.source === 'clay' ? 'Clay PNGs' : 'PNGs'}`, (n) => existsSync(join(out, n))))
   await mkdir(dir, { recursive: true })
   let n = 0
-  for (const p of panels) {
-    const file = takePath(folder, p.sceneId, p.shotId, p.takeId!)
-    if (!file) continue
-    await copyFile(file, join(dir, sequenceFileName(n++, p.shotName)))
+  // Every shot: its full-resolution circle take (AI), else its clay render.
+  for (const p of spec.panels) {
+    const name = join(dir, sequenceFileName(n, p.shotName))
+    const take = spec.source === 'ai' && p.takeId ? takePath(folder, p.sceneId, p.shotId, p.takeId) : null
+    if (take) await copyFile(take, name)
+    else {
+      const image = clayImage(spec, p.shotId)
+      if (!image) continue
+      await writeFile(name, image.toPNG())
+    }
+    n++
   }
-  return { ok: true, path: dir }
+  return n ? { ok: true, path: dir } : { error: 'No pictures to export yet.' }
 }
 
 export function registerBoardIpc(): void {
