@@ -20,6 +20,8 @@ export interface ViewFit {
   image: Rect
   delivery: Rect
   guides: { id: string; label: string; rect: Rect }[]
+  /** Screen pixels per millimetre of sensor height. */
+  pxPerMm: number
 }
 
 export function viewFit(camera: CameraOptics & { guides: string[] }, width: number, height: number): ViewFit {
@@ -42,6 +44,7 @@ export function viewFit(camera: CameraOptics & { guides: string[] }, width: numb
 
   return {
     verticalFov,
+    pxPerMm,
     image: rectFor(null),
     delivery: rectFor(camera.delivery === 'sensor' ? null : guideRatio(camera.delivery)),
     guides: camera.guides

@@ -18,6 +18,8 @@ export interface ShotInfo {
   subjectName: string | null
   /** Straight-line distance from the lens to the subject (metres). */
   distance: number | null
+  /** The subject's distance along the lens axis (metres): where auto focus focuses. */
+  subjectDepth: number | null
   size: ShotSize | null
   angle: string
   /** e.g. 'Soft key light from camera left, warm tungsten' ('' when the scene has no lights). */
@@ -101,10 +103,12 @@ export function computeShotInfo(scene: Scene, camera: CameraNode, kit: CameraKit
   }
 
   let distance: number | null = null
+  let subjectDepth: number | null = null
   let size: ShotSize | null = null
   if (subject) {
     distance = subject.point.distanceTo(pose.position)
     const depth = Math.max(0.05, -subject.point.clone().applyMatrix4(toCamera).z)
+    subjectDepth = depth
     size = shotSize(2 * depth * tanV, subject.size)
   }
 
@@ -153,6 +157,7 @@ export function computeShotInfo(scene: Scene, camera: CameraNode, kit: CameraKit
     subjectId: subject?.id ?? null,
     subjectName: subject?.name ?? null,
     distance,
+    subjectDepth,
     size,
     angle: cameraAngle(pose.tilt, pose.position.y, subject?.eyeY ?? null, pose.roll)
   }

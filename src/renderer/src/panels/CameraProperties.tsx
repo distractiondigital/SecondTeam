@@ -20,6 +20,8 @@ import AiFold from './AiFold'
 import { FrameDescription, GenerateSection } from './GenerateSection'
 import EnvironmentSection from './EnvironmentSection'
 import NumberField from './NumberField'
+import { FocusPickButton, StopSelect, useFocusSummary } from './FocusControls'
+import { rangeLabel } from '../../../shared/depthOfField'
 
 // Properties for a shot: its name, camera placement (pan/tilt/roll), lens, subject, the shot-size /
 // angle readouts and notes. Below that, the project-wide camera body: sensor, squeeze, frame guides,
@@ -36,6 +38,7 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
   const info = useUi((s) => s.shotInfo[node.id])
   const lookingThrough = useUi((s) => s.lookThroughId === node.id)
   const units = useUi((s) => s.units)
+  const focus = useFocusSummary(node)
   const nodes = useDocument((s) => activeScene(s).nodes)
   const ptr = panTiltRoll(node.rotation)
 
@@ -115,12 +118,28 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
           />
           <NumberField
             label="Focus"
-            value={node.focusDistance ?? 0}
+            value={node.focusDistance ?? (Number.isFinite(focus.focus) ? focus.focus : 0)}
             kind="length"
             disabled={disabled}
             onCommit={(v) => update({ focusDistance: v > 0 ? v : null })}
           />
         </div>
+        <div className="lens-row">
+          <StopSelect node={node} disabled={disabled} className="preset-select lens-stop" />
+          <FocusPickButton node={node} disabled={disabled} label />
+          {focus.auto ? (
+            <span className="hint small">Focus follows the subject</span>
+          ) : (
+            <button className="look-button" disabled={disabled} title="Focus on the shot's subject again" onClick={() => update({ focusDistance: null })}>
+              Auto
+            </button>
+          )}
+        </div>
+        <p className="hint small lens-dof">
+          {Number.isFinite(focus.focus)
+            ? `In focus ${rangeLabel(focus.range, (m) => formatLengthLabel(m, units))} · hyperfocal ${formatLengthLabel(focus.range.hyperfocal, units)}`
+            : `Focused at infinity · hyperfocal ${formatLengthLabel(focus.range.hyperfocal, units)}`}
+        </p>
       </div>
       <div className="prop-section">
         <div className="prop-title">Subject & shot</div>

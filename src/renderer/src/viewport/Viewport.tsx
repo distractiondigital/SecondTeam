@@ -13,6 +13,8 @@ import FrameController from './FrameController'
 import GroundGrid from './GroundGrid'
 import JointGizmo from './JointGizmo'
 import LookThrough from './LookThrough'
+import LiveDepthOfField from './LiveDepthOfField'
+import FocusPick from './FocusPick'
 import SceneNodes, { hasLights } from './SceneNodes'
 import SelectionGizmo from './SelectionGizmo'
 import EnvironmentView from './EnvironmentView'
@@ -77,6 +79,8 @@ export default function Viewport() {
         <OrbitControls makeDefault mouseButtons={MOUSE_BUTTONS} />
         <FrameController />
         <LookThrough />
+        <LiveDepthOfField />
+        <FocusPick />
         <FreeFly />
         <ViewNav />
         <ShotTracker />

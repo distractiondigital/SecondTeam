@@ -21,6 +21,7 @@ import {
   repairKit,
   type CameraKit
 } from './camera'
+import { clampStop, DEFAULT_STOP } from './depthOfField'
 import { sanitizeOverrides, type ShotOverrides } from './overrides'
 import { clampCone, clampKelvin, clampStops, clampUnit, LIGHT_KINDS, type LightKind } from './lighting'
 import { DEFAULT_GENERATION, repairGeneration, type GenerationSettings } from './prompt'
@@ -37,7 +38,8 @@ import { sanitizeLookAt, sanitizePlants, type LookAt, type Plants } from './posi
 // v12: human figures (figure style + MakeHuman body sliders).
 // v13: Posing 2 (planted hands/feet, head look-at).
 // v14: materials on objects; per-scene / per-shot cast and prop descriptions.
-export const SCHEMA_VERSION = 14
+// v15: each shot's lens stop (depth of field); older shots get T2.8.
+export const SCHEMA_VERSION = 15
 
 export type Vec3 = [number, number, number]
 
@@ -139,8 +141,10 @@ export interface CameraNode extends NodeBase {
   shotNumber: string
   /** Millimetres. */
   focalLength: number
-  /** Metres, or null if not set. */
+  /** Metres, or null = focus on the shot's subject. */
   focusDistance: number | null
+  /** The lens stop (T-stop, used as the f-number for depth of field). */
+  aperture: number
   /** The object or figure the shot is about; null = the nearest figure in frame. */
   subjectId: string | null
   sizeOverride: string | null
@@ -452,6 +456,7 @@ export function repairCamera(c: CameraNode): void {
   for (const legacy of ['sensor', 'squeeze', 'guides', 'delivery', 'thirds']) delete (c as Loose)[legacy]
   c.focusDistance =
     typeof c.focusDistance === 'number' && Number.isFinite(c.focusDistance) ? Math.max(0.1, c.focusDistance) : null
+  c.aperture = typeof c.aperture === 'number' ? clampStop(c.aperture) : DEFAULT_STOP
   c.subjectId = typeof c.subjectId === 'string' ? c.subjectId : null
   c.sizeOverride = typeof c.sizeOverride === 'string' && c.sizeOverride ? c.sizeOverride : null
   c.angleOverride = typeof c.angleOverride === 'string' && c.angleOverride ? c.angleOverride : null

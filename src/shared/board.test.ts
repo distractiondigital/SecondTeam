@@ -15,7 +15,7 @@ function shot(id: string, shotNumber: string, extra: Partial<CameraNode> = {}): 
     locked: false,
     shotNumber,
     focalLength: 35,
-    focusDistance: null,
+    focusDistance: null, aperture: 2.8,
     subjectId: null,
     sizeOverride: null,
     angleOverride: null,

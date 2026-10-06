@@ -132,18 +132,20 @@ export interface PromptParts {
   focalLength: number
   /** Anamorphic squeeze of the camera body. */
   squeeze: number
+  /** Depth-of-field words, e.g. 'shallow depth of field, soft out-of-focus background' ('' = none). */
+  focus?: string
   lighting: string
   style: string
 }
 
-/** The positive prompt: description, shot size and angle, lens, lighting, style. Empty parts are skipped. */
+/** The positive prompt: description, shot size and angle, lens, focus, lighting, style. Empty parts are skipped. */
 export function buildPrompt(p: PromptParts): string {
   const lens = `${Math.round(p.focalLength)}mm ${p.squeeze >= 1.3 ? 'anamorphic ' : ''}lens`
   const shot = [p.size, p.angle]
     .filter(Boolean)
     .map((s) => s!.toLowerCase())
     .join(', ')
-  return [p.description, p.facing, shot, lens, p.lighting.toLowerCase(), p.style]
+  return [p.description, p.facing, shot, lens, p.focus, p.lighting.toLowerCase(), p.style]
     .map((s) => (s ?? '').trim().replace(/[\s,]+$/, ''))
     .filter(Boolean)
     .join(', ')

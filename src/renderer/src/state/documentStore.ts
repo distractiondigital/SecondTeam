@@ -69,6 +69,7 @@ import {
   type LightKind
 } from '../../../shared/lighting'
 import { clampTime, DEFAULT_ENVIRONMENT, type Environment } from '../../../shared/environment'
+import { DEFAULT_STOP } from '../../../shared/depthOfField'
 import {
   AVERAGE_BODY,
   DEFAULT_HANDS,
@@ -91,6 +92,7 @@ export type CameraField =
   | 'shotNumber'
   | 'focalLength'
   | 'focusDistance'
+  | 'aperture'
   | 'subjectId'
   | 'sizeOverride'
   | 'angleOverride'
@@ -117,6 +119,7 @@ const CAMERA_FIELDS: CameraField[] = [
   'shotNumber',
   'focalLength',
   'focusDistance',
+  'aperture',
   'subjectId',
   'sizeOverride',
   'angleOverride',
@@ -466,6 +469,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
           shotNumber,
           focalLength: spawn.focalLength ?? shot?.focalLength ?? 35,
           focusDistance: null,
+          aperture: shot?.aperture ?? DEFAULT_STOP,
           subjectId: null,
           sizeOverride: null,
           angleOverride: null,

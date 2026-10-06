@@ -19,6 +19,7 @@ Current version: **0.1.0 beta** (October 2026), the first public beta. The plan 
 | 10 | Figures 2 | ✅ Done | Realistic human figures with body, face, hands, hair and clothing |
 | 11 | Polish | ✅ Done | Box select and multi-selection, Outliner drag and drop, recent projects, free-view flying, light aiming, reach-and-plant posing with Look at, per-scene and per-shot cast texts, take comparison, materials |
 | 12 | Mac version | 🟡 Built, awaiting the collaborator's test | Apple Silicon app (AI coming later on Mac); see [MAC.md](MAC.md) |
+| 13 | Depth of field | 🟡 Built, awaiting Spencer's test | Optically accurate depth of field in every clay picture (sensor, lens, stop, focus), click to focus, focus readout and planes |
 
 ## Since the milestones
 

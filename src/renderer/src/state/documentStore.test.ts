@@ -827,6 +827,8 @@ describe('older project files', () => {
     expect(p.scenes[0].name).toBe('')
     expect(p.scenes[0].floor).toBe(true)
     expect(p.generation.steps).toBe(30)
+    // Shots from before the lens stop get T2.8.
+    expect(Object.values(p.scenes[0].nodes).every((n) => n.type === 'camera' && n.aperture === 2.8)).toBe(true)
     const shot = Object.values(p.scenes[0].nodes)[0]
     expect(shot.type === 'camera' && shot.description).toBe('')
     const shots = Object.values(p.scenes[0].nodes).map((n) => (n.type === 'camera' ? [n.shotNumber, n.name] : null))

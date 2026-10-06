@@ -1,11 +1,13 @@
 import { useEffect, useState, type RefObject } from 'react'
-import { X } from 'lucide-react'
+import { Aperture, X } from 'lucide-react'
 import { guideLabel, opticsFor, sensorLabel } from '../../../shared/camera'
 import { activeScene, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import { formatLengthLabel } from '../units'
 import { viewFit, type Rect } from '../viewport/viewFit'
 import NumberField from './NumberField'
+import { FocusPickButton, sharpLabel, StopSelect, useFocusSummary } from './FocusControls'
+import type { CameraNode } from '../../../shared/project'
 import { ALT, CTRL } from '../platform'
 
 // Drawn over the viewport while looking through a shot camera: the delivery frame (everything
@@ -25,6 +27,31 @@ function useSize(ref: RefObject<HTMLElement | null>) {
     return () => observer.disconnect()
   }, [ref])
   return size
+}
+
+/** Top right in camera view: the stop, where it's focused, what's sharp, click to focus, live blur on/off. */
+function LensHud({ node }: { node: CameraNode }) {
+  const units = useUi((s) => s.units)
+  const live = useUi((s) => s.dofPreview)
+  const focus = useFocusSummary(node)
+  return (
+    <div className="hud hud-lens">
+      <StopSelect node={node} className="hud-stop" />
+      <span>
+        Focus {Number.isFinite(focus.focus) ? formatLengthLabel(focus.focus, units) : '∞'}
+        {focus.auto ? ' (subject)' : ''}
+      </span>
+      <span>{sharpLabel(focus, units)}</span>
+      <FocusPickButton node={node} />
+      <button
+        className={`icon-button${live ? ' active' : ''}`}
+        title={live ? 'Depth of field shown live (click to turn off here; pictures keep it)' : 'Show depth of field live'}
+        onClick={() => useUi.getState().setDofPreview(!live)}
+      >
+        <Aperture size={14} />
+      </button>
+    </div>
+  )
 }
 
 export default function FrameOverlay({ container }: { container: RefObject<HTMLElement | null> }) {
@@ -88,6 +115,8 @@ export default function FrameOverlay({ container }: { container: RefObject<HTMLE
       <button className="hud-exit" onClick={() => useUi.getState().setLookThrough(null)} title="Back to the free view (Esc, ` or Numpad 0)">
         <X size={14} /> Exit camera view
       </button>
+
+      <LensHud node={node} />
 
       <div className="hud hud-bottom">
         {info && (

@@ -24,6 +24,7 @@ export type EntityRef = { kind: 'cast' | 'prop'; id: string }
 export type NavMode = 'mouse' | 'trackpad'
 const NAV_MODE_KEY = 'secondteam.navMode'
 const FIGURE_COLORS_KEY = 'secondteam.figureColors'
+const DOF_PREVIEW_KEY = 'secondteam.dofPreview'
 
 function loadNavMode(): NavMode {
   try {
@@ -119,9 +120,32 @@ interface UiState {
   /** Mouse or trackpad navigation, remembered on this PC. */
   navMode: NavMode
   setNavMode: (mode: NavMode) => void
+  /** Depth of field in the live camera view (pictures always have it). Remembered on this PC. */
+  dofPreview: boolean
+  setDofPreview: (on: boolean) => void
+  /** Click-to-focus: the next click in camera view sets the shot's focus distance. */
+  focusPicking: boolean
+  setFocusPicking: (on: boolean) => void
 }
 
 export const useUi = create<UiState>()((set) => ({
+  dofPreview: (() => {
+    try {
+      return localStorage.getItem(DOF_PREVIEW_KEY) !== 'off'
+    } catch {
+      return true
+    }
+  })(),
+  setDofPreview: (dofPreview) => {
+    try {
+      localStorage.setItem(DOF_PREVIEW_KEY, dofPreview ? 'on' : 'off')
+    } catch {
+      // Not remembered this time; still works.
+    }
+    set({ dofPreview })
+  },
+  focusPicking: false,
+  setFocusPicking: (focusPicking) => set({ focusPicking }),
   figureColors: (() => {
     try {
       return localStorage.getItem(FIGURE_COLORS_KEY) === 'on'
@@ -202,9 +226,9 @@ export const useUi = create<UiState>()((set) => ({
         return { lookThroughId, shading: 'clay', shadingAuto: true }
       }
       if (!lookThroughId && s.lookThroughId && s.shadingAuto) {
-        return { lookThroughId, shading: 'work', shadingAuto: false }
+        return { lookThroughId, shading: 'work', shadingAuto: false, focusPicking: false }
       }
-      return { lookThroughId }
+      return lookThroughId ? { lookThroughId } : { lookThroughId, focusPicking: false }
     }),
   setShading: (shading) => set({ shading, shadingAuto: false }),
   setFlySpeed: (flySpeed) => set({ flySpeed: Math.min(20, Math.max(0.1, flySpeed)) }),

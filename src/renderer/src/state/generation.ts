@@ -2,7 +2,10 @@ import { create } from 'zustand'
 import { expressionPhrase } from '../../../shared/humanBody'
 import { buildPrompt, materialWords, randomSeed, regionPrompt, takeSeeds } from '../../../shared/prompt'
 import type { IdEntry } from '../../../shared/passes'
-import { descriptionFor, type SceneNode } from '../../../shared/project'
+import { descriptionFor, type CameraNode, type SceneNode } from '../../../shared/project'
+import { opticsFor, type CameraKit } from '../../../shared/camera'
+import { focusWords, shotFocus } from '../../../shared/depthOfField'
+import type { ShotInfo } from '../viewport/shotInfo'
 import type { BackendStatus, GenerationEvent, InstalledModel, JobEntity, TakeInfo, TakeMeta } from '../../../shared/takes'
 import { activeScene, sceneForShot, sceneOfShot, useDocument } from './documentStore'
 import { renderAndSavePasses } from './passes'
@@ -120,6 +123,11 @@ export function currentModel(): InstalledModel | null {
   return models.find((m) => m.file === wanted) ?? models[0] ?? null
 }
 
+/** 'shallow depth of field, …' when only a thin slice around the focus is sharp. */
+function shotFocusWords(shot: CameraNode, kit: CameraKit, info: ShotInfo | undefined): string {
+  return focusWords(opticsFor(kit, shot.focalLength), shot.aperture, shotFocus(shot.focusDistance, info?.subjectDepth))
+}
+
 /** The positive prompt for a shot, as it will be sent. */
 export function shotPrompt(shotId: string): string {
   const state = useDocument.getState()
@@ -134,6 +142,7 @@ export function shotPrompt(shotId: string): string {
     angle: shot.angleOverride ?? info?.angle ?? null,
     focalLength: shot.focalLength,
     squeeze: state.project.camera.squeeze,
+    focus: shotFocusWords(shot, state.project.camera, info),
     lighting: shot.lightingOverride ?? info?.lighting ?? '',
     style: state.project.styleText
   })
@@ -241,6 +250,7 @@ function jobEntities(legend: IdEntry[], shotId: string, facings: Record<string, 
     angle: shot?.type === 'camera' ? (shot.angleOverride ?? info?.angle ?? null) : null,
     focalLength: shot?.type === 'camera' ? shot.focalLength : 35,
     squeeze: project.camera.squeeze,
+    focus: shot?.type === 'camera' ? shotFocusWords(shot, project.camera, info) : '',
     lighting: shot?.type === 'camera' ? (shot.lightingOverride ?? info?.lighting ?? '') : '',
     style: project.styleText
   }

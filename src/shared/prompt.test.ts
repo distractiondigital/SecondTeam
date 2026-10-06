@@ -36,6 +36,12 @@ describe('prompt', () => {
       buildPrompt({ ...parts, description: '  a street, ', facing: null, size: null, angle: null, lighting: '', style: '', squeeze: 2, focalLength: 49.6 })
     ).toBe('a street, 50mm anamorphic lens')
   })
+
+  it('puts the depth-of-field words right after the lens', () => {
+    expect(buildPrompt({ ...parts, focus: 'shallow depth of field, soft out-of-focus background' })).toContain(
+      '35mm lens, shallow depth of field, soft out-of-focus background, hard key light'
+    )
+  })
 })
 
 describe('region prompts', () => {

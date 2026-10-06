@@ -8,6 +8,7 @@ import {
 } from 'three'
 import { deliveryFrame, fieldOfView, opticsFor, type CameraKit } from '../../../shared/camera'
 import type { CameraNode } from '../../../shared/project'
+import { DepthOfField } from './depthOfField'
 import { cameraPose } from './shotInfo'
 
 // Render the set through a shot camera's delivery frame, without any helpers (gizmos,
@@ -94,17 +95,46 @@ export function renderToCanvas(
   }
 }
 
-/** Renders one frame and returns it as a canvas, `width` pixels wide. */
+const dofFor = new WeakMap<WebGLRenderer, DepthOfField>()
+
+/**
+ * Renders one frame and returns it as a canvas, `width` pixels wide. With `focus` (metres along the
+ * lens axis, Infinity allowed) it has the lens's depth of field at the shot's stop.
+ */
 export function renderShot(
   gl: WebGLRenderer,
   scene: ThreeScene,
   node: CameraNode,
   kit: CameraKit,
-  width: number
+  width: number,
+  focus?: number
 ): HTMLCanvasElement | null {
   const camera = shotCamera(scene, node, kit)
   if (!camera) return null
   const w = Math.round(width)
   const h = Math.max(1, Math.round(width / camera.aspect))
-  return withHidden(scene, isHelper, () => renderToCanvas(gl, scene, camera, w, h, { srgb: true, samples: 4 }))
+  if (focus === undefined) return withHidden(scene, isHelper, () => renderToCanvas(gl, scene, camera, w, h, { srgb: true, samples: 4 }))
+
+  let dof = dofFor.get(gl)
+  if (!dof) {
+    dof = new DepthOfField()
+    dofFor.set(gl, dof)
+  }
+  dof.setSize(w, h)
+  const optics = opticsFor(kit, node.focalLength)
+  const output = new WebGLRenderTarget(w, h)
+  output.texture.colorSpace = SRGBColorSpace
+  const previous = gl.getRenderTarget()
+  try {
+    withHidden(scene, isHelper, () => {
+      gl.setRenderTarget(dof.target)
+      gl.clear()
+      gl.render(scene, camera)
+    })
+    dof.render(gl, camera, { focalLength: node.focalLength, stop: node.aperture, focus, squeeze: kit.squeeze, pxPerMm: h / deliveryFrame(optics).height }, output)
+    return targetToCanvas(gl, output, w, h)
+  } finally {
+    gl.setRenderTarget(previous)
+    output.dispose()
+  }
 }

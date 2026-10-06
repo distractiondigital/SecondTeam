@@ -5,7 +5,7 @@ import { useUi } from '../state/uiStore'
 import { renderShot } from './renderShot'
 import { computeShotInfo, type ShotInfo } from './shotInfo'
 import { shotScenes } from './ShotScenes'
-import { renderBoardClay } from './boardClay'
+import { focusOf, renderBoardClay } from './boardClay'
 
 const INFO_DELAY = 80 // ms after a change, so the 3D scenes have caught up
 const THUMBNAIL_DELAY = 450 // ms of quiet before re-rendering every shot's thumbnail
@@ -114,7 +114,7 @@ export default function ShotTracker() {
           continue
         }
         scene.updateMatrixWorld(true)
-        const canvas = renderShot(gl, scene, c, useDocument.getState().project.camera, THUMBNAIL_WIDTH)
+        const canvas = renderShot(gl, scene, c, useDocument.getState().project.camera, THUMBNAIL_WIDTH, focusOf(c, scene))
         if (canvas) {
           thumbnails[c.id] = canvas.toDataURL('image/jpeg', 0.82)
           lastPrint.set(c.id, print)

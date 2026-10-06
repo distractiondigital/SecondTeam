@@ -7,6 +7,7 @@ import type { CameraNode } from '../../../shared/project'
 import { lookThrough } from '../state/actions'
 import { useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
+import { useFocusSummary } from '../panels/FocusControls'
 import { handleNodeClick, handleNodeDoubleClick, noRaycast, SELECTION_COLOR } from './selection'
 
 // How a shot camera looks in the set: a small body and lens, a frustum drawn to the delivery
@@ -16,7 +17,27 @@ import { handleNodeClick, handleNodeDoubleClick, noRaycast, SELECTION_COLOR } fr
 const FRUSTUM_LENGTH = 1.2 // metres, when no focus distance is set
 const BODY_COLOR = '#3b3e45'
 const LINE_COLOR = '#9aa0ab'
+const FOCUS_COLOR = '#7fd3ff' // near / far limits of sharpness
 const HELPER = { helper: true }
+
+/** A rectangle square to the lens at `depth`, covering the frame there. */
+function planeGeometry(frameW: number, frameH: number, focal: number, depth: number): BufferGeometry {
+  const w = (frameW / 2 / focal) * depth
+  const h = (frameH / 2 / focal) * depth
+  const c = [
+    [-w, -h, -depth],
+    [w, -h, -depth],
+    [w, h, -depth],
+    [-w, h, -depth]
+  ]
+  const lines: number[] = []
+  for (let i = 0; i < 4; i++) lines.push(...c[i], ...c[(i + 1) % 4])
+  const g = new BufferGeometry()
+  g.setAttribute('position', new Float32BufferAttribute(lines, 3))
+  return g
+}
+
+const MAX_PLANE = 60 // metres: a far limit beyond this (or infinite) isn't drawn
 
 function frustumGeometry(halfW: number, halfH: number, depth: number): BufferGeometry {
   const c = [
@@ -48,7 +69,15 @@ export default function CameraView({ node, selected, clickable }: Props) {
   const lookingThrough = useUi((s) => s.lookThroughId !== null)
   const kit = useDocument((s) => s.project.camera)
   const frame = deliveryFrame(opticsFor(kit, node.focalLength))
-  const depth = node.focusDistance ?? FRUSTUM_LENGTH
+  // Selected, the frustum reaches the focus plane (its subject's when focus is automatic), with
+  // the near and far limits of sharpness drawn faintly.
+  const focus = useFocusSummary(node)
+  const focusDepth = Number.isFinite(focus.focus) && focus.focus < MAX_PLANE ? focus.focus : null
+  const depth = (selected ? focusDepth : node.focusDistance) ?? FRUSTUM_LENGTH
+  const nearDepth = selected && focusDepth !== null ? focus.range.near : null
+  const farDepth = selected && focusDepth !== null && focus.range.far < MAX_PLANE ? focus.range.far : null
+  const near = useMemo(() => (nearDepth ? planeGeometry(frame.width, frame.height, node.focalLength, nearDepth) : null), [nearDepth, frame.width, frame.height, node.focalLength])
+  const far = useMemo(() => (farDepth ? planeGeometry(frame.width, frame.height, node.focalLength, farDepth) : null), [farDepth, frame.width, frame.height, node.focalLength])
   const halfW = (frame.width / 2 / node.focalLength) * depth
   const halfH = (frame.height / 2 / node.focalLength) * depth
   const geometry = useMemo(() => frustumGeometry(halfW, halfH, depth), [halfW, halfH, depth])
@@ -86,6 +115,16 @@ export default function CameraView({ node, selected, clickable }: Props) {
       <lineSegments geometry={geometry}>
         <lineBasicMaterial color={color} transparent opacity={selected ? 1 : 0.7} />
       </lineSegments>
+      {near && (
+        <lineSegments geometry={near}>
+          <lineBasicMaterial color={FOCUS_COLOR} transparent opacity={0.45} />
+        </lineSegments>
+      )}
+      {far && (
+        <lineSegments geometry={far}>
+          <lineBasicMaterial color={FOCUS_COLOR} transparent opacity={0.45} />
+        </lineSegments>
+      )}
       <Html position={[0, 0.12, 0.13]} center zIndexRange={[10, 0]} style={{ pointerEvents: 'none' }}>
         <div className={`camera-label${selected ? ' selected' : ''}`}>
           {node.shotNumber} · {Math.round(node.focalLength)}mm
