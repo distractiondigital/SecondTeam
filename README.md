@@ -5,7 +5,7 @@
 <h1 align="center">Second Team</h1>
 
 <p align="center">
-  Film previs on your own machine: block the set, shoot it with real lenses, board it.<br>
+  Film previs on your own machine: block the set, frame up for real sensors and lenses, and export storyboards in one click.<br>
   <sub>Windows · Mac (Apple Silicon) · by Distraction Digital</sub>
 </p>
 
