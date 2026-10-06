@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 import { useThree } from '@react-three/fiber'
-import { Raycaster, Vector2, type Object3D } from 'three'
+import { Raycaster, Vector2 } from 'three'
 import { useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
-import { isHelper } from './renderShot'
+import { rendered } from './shotInfo'
 import { viewportBridge } from './viewportBridge'
 
 // Click to focus: while the focus pick is on (camera view), the next left click in the viewport
@@ -12,11 +12,6 @@ import { viewportBridge } from './viewportBridge'
 // view turns the pick on until Shift is let go, so you can pull focus click after click.
 
 let shiftHeld = false
-
-function shown(o: Object3D): boolean {
-  for (let p: Object3D | null = o; p; p = p.parent) if (!p.visible || isHelper(p)) return false
-  return true
-}
 
 export default function FocusPick() {
   const picking = useUi((s) => s.focusPicking && s.lookThroughId !== null)
@@ -41,7 +36,7 @@ export default function FocusPick() {
       const rect = canvas.getBoundingClientRect()
       const ndc = new Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1)
       raycaster.setFromCamera(ndc, camera)
-      const hit = raycaster.intersectObject(scene, true).find((h) => (h.object as { isMesh?: boolean }).isMesh && shown(h.object))
+      const hit = raycaster.intersectObject(scene, true).find((h) => (h.object as { isMesh?: boolean }).isMesh && rendered(h.object))
       const ui = useUi.getState()
       ui.setFocusPicking(shiftHeld)
       if (!hit || !ui.lookThroughId) return

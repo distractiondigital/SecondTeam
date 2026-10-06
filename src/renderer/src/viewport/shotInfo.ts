@@ -1,4 +1,4 @@
-import { Box3, Euler, MathUtils, Matrix4, Mesh, Quaternion, Vector3, type Object3D } from 'three'
+import { Box3, Euler, MathUtils, Matrix4, Mesh, Quaternion, Raycaster, Vector3, type Object3D } from 'three'
 import { cameraAngle, fieldOfView, opticsFor, shotSize, type CameraKit, type ShotSize } from '../../../shared/camera'
 import type { CameraNode, Scene, Vec3 } from '../../../shared/project'
 import { DEFAULT_ENVIRONMENT, fogPhrase, timePhrase } from '../../../shared/environment'
@@ -18,7 +18,7 @@ export interface ShotInfo {
   subjectName: string | null
   /** Straight-line distance from the lens to the subject (metres). */
   distance: number | null
-  /** The subject's distance along the lens axis (metres): where auto focus focuses. */
+  /** Where auto focus focuses (metres along the lens axis): the subject's nearer eye if it's clearly in frame, else the middle of the frame; null = infinity. */
   subjectDepth: number | null
   size: ShotSize | null
   angle: string
@@ -76,6 +76,53 @@ function subjectPoint(scene: Scene, id: string, three: Object3D): SubjectPoint |
   return { id, name: node.name, point, size: box.max.y - box.min.y, eyeY: null, focusPoints: [point] }
 }
 
+/** Shows in renders: it and everything it sits in are visible, and none of them is a viewport helper. */
+export function rendered(o: Object3D): boolean {
+  for (let p: Object3D | null = o; p; p = p.parent) {
+    if (!p.visible || p.userData.helper || (p as { isTransformControls?: boolean }).isTransformControls) return false
+  }
+  return true
+}
+
+/** Auto focus only trusts an eye inside this central part of the frame (each way). */
+const FOCUS_SAFE_AREA = 0.75
+/** An eye counts as hidden when something is this much closer than it along the line of sight (m). */
+const EYE_HIDDEN_MARGIN = 0.1
+
+/** The first surface a ray meets in what renders (no helpers, nothing hidden), or null. */
+function firstHit(three: Object3D, from: Vector3, direction: Vector3): number | null {
+  const ray = new Raycaster(from, direction.clone().normalize(), 0.05, 1000)
+  const hit = ray.intersectObject(three, true).find((h) => (h as { object: { isMesh?: boolean } }).object.isMesh && rendered(h.object))
+  return hit ? hit.distance : null
+}
+
+/**
+ * Where auto focus lands (metres along the lens axis): the nearer of the subject's focus points
+ * (a figure's eyes) that sits inside the safe area of the frame and isn't hidden; otherwise whatever
+ * is under the centre of the frame; null (infinity) if that's empty sky.
+ */
+function autoFocusDepth(
+  three: Object3D,
+  points: Vector3[],
+  pose: { position: Vector3; quaternion: Quaternion },
+  toCamera: Matrix4,
+  tanH: number,
+  tanV: number
+): number | null {
+  let best: number | null = null
+  for (const point of points) {
+    const p = point.clone().applyMatrix4(toCamera)
+    const depth = -p.z
+    if (depth <= 0.05 || Math.abs(p.x) > depth * tanH * FOCUS_SAFE_AREA || Math.abs(p.y) > depth * tanV * FOCUS_SAFE_AREA) continue
+    const toward = point.clone().sub(pose.position)
+    const hit = firstHit(three, pose.position, toward)
+    if (hit !== null && hit < toward.length() - EYE_HIDDEN_MARGIN) continue
+    if (best === null || depth < best) best = depth
+  }
+  if (best !== null) return best
+  return firstHit(three, pose.position, new Vector3(0, 0, -1).applyQuaternion(pose.quaternion))
+}
+
 export function computeShotInfo(scene: Scene, camera: CameraNode, kit: CameraKit, three: Object3D): ShotInfo | null {
   const object = three.getObjectByName(camera.id)
   if (!object) return null
@@ -111,10 +158,12 @@ export function computeShotInfo(scene: Scene, camera: CameraNode, kit: CameraKit
   if (subject) {
     distance = subject.point.distanceTo(pose.position)
     const depth = Math.max(0.05, -subject.point.clone().applyMatrix4(toCamera).z)
-    // Focus on the eye nearest the lens, like a focus puller would.
-    subjectDepth = Math.max(0.05, Math.min(...subject.focusPoints.map((p) => -p.clone().applyMatrix4(toCamera).z)))
     size = shotSize(2 * depth * tanV, subject.size)
   }
+
+  // Auto focus: the eye nearest the lens, like a focus puller would, when it's clearly in frame;
+  // else whatever is in the middle of the frame.
+  subjectDepth = autoFocusDepth(three, subject?.focusPoints ?? [], pose, toCamera, tanH, tanV)
 
   // Lighting, measured at the subject (or 3 m in front of the lens) as seen from this camera.
   const forward = new Vector3(0, 0, -1).applyQuaternion(pose.quaternion)

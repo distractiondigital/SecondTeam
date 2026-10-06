@@ -128,9 +128,9 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
           <StopSelect node={node} disabled={disabled} className="preset-select lens-stop" />
           <FocusPickButton node={node} disabled={disabled} label />
           {focus.auto ? (
-            <span className="hint small">Focus follows the subject</span>
+            <span className="hint small" title="The subject's nearer eye when it's well inside the frame, otherwise whatever is in the middle of the frame">Auto focus</span>
           ) : (
-            <button className="look-button" disabled={disabled} title="Focus on the shot's subject again" onClick={() => update({ focusDistance: null })}>
+            <button className="look-button" disabled={disabled} title="Auto focus again: the subject's nearer eye, or the middle of the frame" onClick={() => update({ focusDistance: null })}>
               Auto
             </button>
           )}

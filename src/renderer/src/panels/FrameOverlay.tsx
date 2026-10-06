@@ -39,7 +39,7 @@ function LensHud({ node }: { node: CameraNode }) {
       <StopSelect node={node} className="hud-stop" />
       <span>
         Focus {Number.isFinite(focus.focus) ? formatLengthLabel(focus.focus, units) : '∞'}
-        {focus.auto ? ' (subject)' : ''}
+        {focus.auto ? ' (auto)' : ''}
       </span>
       <span>{sharpLabel(focus, units)}</span>
       <FocusPickButton node={node} />
