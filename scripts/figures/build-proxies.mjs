@@ -44,8 +44,9 @@ const pack = (packName, name, id, slot, label) => ({ id, pack: packName, dir: `c
  * slot (clothes) = outfit (top + bottom) | top | bottom | outer | shoes | hat.
  */
 const ITEMS = [
-  // The eyes wear MakeHuman's brown eye texture (white, iris, pupil) in its own colours.
-  { id: 'eyes', pack: 'sys', dir: 'eyes/low-poly', kind: 'eyes', label: 'Eyes', colorTexture: '../materials/brown_eye.png' },
+  // The eyes wear one of MakeHuman's eye textures (white, iris, pupil) in its own colours: all of
+  // them are made (eyes-<colour>.png, see EYE_COLORS), brown is the default.
+  { id: 'eyes', pack: 'sys', dir: 'eyes/low-poly', kind: 'eyes', label: 'Eyes', colorTexture: '../materials/brown_eye.png', eyeColors: ['brown', 'brownlight', 'blue', 'bluegreen', 'deepblue', 'green', 'grey', 'ice', 'lightblue'] },
   { id: 'eyebrows-1', pack: 'sys', dir: 'eyebrows/eyebrow001', kind: 'eyebrows', label: 'Eyebrows', texture: 'eyebrow001.png' },
   ...[
     ['short01', 'Short (cropped)'],
@@ -288,14 +289,20 @@ function build() {
       if (r.status !== 0) throw new Error(`Couldn't make the mask for ${item.id}`)
     }
     let map = null
-    if (item.colorTexture) {
-      map = `${item.id}-color.png`
+    const colorTexture = (input, output) => {
       const r = spawnSync(
         'powershell',
-        ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', join(root, 'scripts', 'figures', 'alpha-mask.ps1'), '-In', join(base, item.colorTexture), '-Out', join(dir, map), '-Size', '256', '-Color'],
+        ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', join(root, 'scripts', 'figures', 'alpha-mask.ps1'), '-In', input, '-Out', join(dir, output), '-Size', '256', '-Color'],
         { stdio: 'inherit' }
       )
-      if (r.status !== 0) throw new Error(`Couldn't make the texture for ${item.id}`)
+      if (r.status !== 0) throw new Error(`Couldn't make the texture ${output}`)
+    }
+    if (item.eyeColors) {
+      for (const c of item.eyeColors) colorTexture(join(base, '..', 'materials', `${c}_eye.png`), `eyes-${c}.png`)
+      map = 'eyes-brown.png'
+    } else if (item.colorTexture) {
+      map = `${item.id}-color.png`
+      colorTexture(join(base, item.colorTexture), map)
     }
     catalogue.push({
       id: item.id,

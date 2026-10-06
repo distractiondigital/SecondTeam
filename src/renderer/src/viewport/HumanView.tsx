@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Bone,
   BufferAttribute,
@@ -10,12 +10,13 @@ import {
   Quaternion,
   Skeleton,
   SkinnedMesh,
-  Vector3
+  Vector3,
+  type Texture
 } from 'three'
 import { fitProxy, partColor, partOf, proxySkin, visibleBody, wornIds, type BodyData, type FigureAppearance, type Hands, HAND_CURL, type HumanFit, figureSkin, type FigureColoring } from '../../../shared/humanBody'
 import { JOINTS, JOINT_NAMES, type JointName, type Pose } from '../../../shared/mannequin'
 import { SELECTION_COLOR } from './selection'
-import { useBodyData, useProxies, type LoadedProxy } from './humanData'
+import { loadEyeTexture, useBodyData, useProxies, type LoadedProxy } from './humanData'
 
 // A realistic human (MakeHuman CC0 body) posed by the same 17-joint skeleton as the mannequin.
 // The body is built for the figure's sliders; each rig bone that matches one of our joints takes
@@ -212,7 +213,7 @@ function applyPose(b: Built, body: BodyData, pose: Pose, height: number, hands: 
 }
 
 /** One worn item (eyes, eyebrows, hair, a garment), fitted to this body and bent by its skeleton. */
-function ProxyMesh({ body, fit, built, item, color, selected }: { body: BodyData; fit: HumanFit; built: Built; item: LoadedProxy; color: string; selected: boolean }) {
+function ProxyMesh({ body, fit, built, item, color, selected, map }: { body: BodyData; fit: HumanFit; built: Built; item: LoadedProxy; color: string; selected: boolean; map?: Texture | null }) {
   const mesh = useMemo(() => {
     const geometry = new BufferGeometry()
     geometry.setAttribute('position', new BufferAttribute(fitProxy(item.data, fit.positions), 3))
@@ -240,7 +241,7 @@ function ProxyMesh({ body, fit, built, item, color, selected }: { body: BodyData
         roughness={item.data.info.kind === 'eyes' ? 0.35 : 0.8}
         metalness={0}
         alphaMap={item.mask}
-        map={item.map}
+        map={map ?? item.map}
         alphaTest={masked ? 0.5 : 0}
         side={masked ? DoubleSide : FrontSide}
         emissive={selected ? SELECTION_COLOR : '#000000'}
@@ -275,6 +276,15 @@ export default function HumanView({ fit, pose, hands, color, coloring, appearanc
   const built = useMemo(() => (body ? build(body, fit) : null), [body, fit])
   useEffect(() => () => built?.mesh.geometry.dispose(), [built])
   const items = useProxies(wornIds(appearance))
+  // The eyes' colour (its texture loads the first time it's used).
+  const [eyeMap, setEyeMap] = useState<Texture | null>(null)
+  useEffect(() => {
+    let live = true
+    void loadEyeTexture(appearance.eyeColor).then((t) => live && setEyeMap(t))
+    return () => {
+      live = false
+    }
+  }, [appearance.eyeColor])
   // Hide the skin under the clothes being worn (so it can't poke through).
   useEffect(() => {
     if (!built || !body) return
@@ -300,7 +310,7 @@ export default function HumanView({ fit, pose, hands, color, coloring, appearanc
         />
       </primitive>
       {(items ?? []).map((item) => (
-        <ProxyMesh key={item.data.info.id} body={body} fit={fit} built={built} item={item} color={itemColor(item, appearance, color, coloring)} selected={selected} />
+        <ProxyMesh key={item.data.info.id} body={body} fit={fit} built={built} item={item} color={itemColor(item, appearance, color, coloring)} selected={selected} map={item.data.info.kind === 'eyes' ? eyeMap : null} />
       ))}
     </group>
   )

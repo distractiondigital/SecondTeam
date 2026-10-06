@@ -75,6 +75,18 @@ async function maskTexture(file: string): Promise<Texture> {
   }
 }
 
+const eyeTextures = new Map<string, Promise<Texture>>()
+
+/** An eye colour's texture (loaded once). */
+export function loadEyeTexture(color: string): Promise<Texture> {
+  let t = eyeTextures.get(color)
+  if (!t) {
+    t = maskTexture(`eyes-${color}.png`)
+    eyeTextures.set(color, t)
+  }
+  return t
+}
+
 /** One item, or null if it's not in the catalogue (e.g. a project from a newer version). */
 export function loadProxy(id: string): Promise<LoadedProxy | null> {
   let p = proxies.get(id)

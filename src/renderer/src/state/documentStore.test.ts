@@ -715,7 +715,7 @@ describe('cast looks', () => {
     const fig = (id: string) => scene().nodes[id] as MannequinNode
     expect(fig(b).body.age).toBe(0.6)
     // Changing either one changes both (one undo step).
-    doc().updateNode(b, { appearance: { hair: 'hair-bob01', eyebrows: null, garments: { outfit: 'outfit-dress-shift' }, colors: {}, skinTone: 0.3 } })
+    doc().updateNode(b, { appearance: { hair: 'hair-bob01', eyebrows: null, garments: { outfit: 'outfit-dress-shift' }, colors: {}, skinTone: 0.3, eyeColor: 'brown' } })
     expect(fig(a).appearance.hair).toBe('hair-bob01')
     expect(doc().project.cast[0].look?.appearance.garments.outfit).toBe('outfit-dress-shift')
     doc().undo()

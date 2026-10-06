@@ -16,6 +16,7 @@ import {
   ageSlider,
   ageYears,
   EXPRESSIONS,
+  EYE_COLORS,
   HAND_SHAPES,
   partColor,
   skinColor,
@@ -135,6 +136,16 @@ function LookSection({ node, disabled }: { node: MannequinNode; disabled: boolea
             {Object.entries(EXPRESSIONS).map(([key, e]) => (
               <option key={key} value={key}>
                 {e.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="look-row two">
+          <span className="look-label">Eyes</span>
+          <select className="name-input plain" value={a.eyeColor} disabled={disabled} onChange={(e) => set({ eyeColor: e.target.value })}>
+            {Object.entries(EYE_COLORS).map(([key, label]) => (
+              <option key={key} value={key}>
+                {label}
               </option>
             ))}
           </select>

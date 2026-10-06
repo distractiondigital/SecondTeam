@@ -472,7 +472,23 @@ export interface FigureAppearance {
   colors: Partial<Record<AppearancePart, string>>
   /** 0 very fair … 1 very dark (see `skinColor`). */
   skinTone: number
+  /** A key of EYE_COLORS. */
+  eyeColor: string
 }
+
+/** MakeHuman's eye textures (figures/proxies/eyes-<key>.png), in picker order. */
+export const EYE_COLORS: Record<string, string> = {
+  brown: 'Brown',
+  brownlight: 'Light brown',
+  green: 'Green',
+  bluegreen: 'Blue-green',
+  grey: 'Grey',
+  lightblue: 'Light blue',
+  blue: 'Blue',
+  deepblue: 'Deep blue',
+  ice: 'Ice'
+}
+export const DEFAULT_EYE_COLOR = 'brown'
 
 export const DEFAULT_SKIN_TONE = 0.3
 
@@ -559,8 +575,8 @@ const NATURAL_PART: Record<AppearancePart, string> = {
 /** A dressed starting look (natural colours until a part gets its own). */
 export function defaultAppearance(gender: number): FigureAppearance {
   return gender >= 0.5
-    ? { hair: 'hair-short02', eyebrows: 'eyebrows-1', garments: { outfit: 'outfit-male-casual-4', shoes: 'shoes-1' }, colors: {}, skinTone: DEFAULT_SKIN_TONE }
-    : { hair: 'hair-ponytail01', eyebrows: 'eyebrows-1', garments: { outfit: 'outfit-female-casual-2', shoes: 'shoes-2' }, colors: {}, skinTone: DEFAULT_SKIN_TONE }
+    ? { hair: 'hair-short02', eyebrows: 'eyebrows-1', garments: { outfit: 'outfit-male-casual-4', shoes: 'shoes-1' }, colors: {}, skinTone: DEFAULT_SKIN_TONE, eyeColor: DEFAULT_EYE_COLOR }
+    : { hair: 'hair-ponytail01', eyebrows: 'eyebrows-1', garments: { outfit: 'outfit-female-casual-2', shoes: 'shoes-2' }, colors: {}, skinTone: DEFAULT_SKIN_TONE, eyeColor: DEFAULT_EYE_COLOR }
 }
 
 const ID = /^[a-z0-9-]{1,60}$/
@@ -584,7 +600,8 @@ export function sanitizeAppearance(raw: unknown, gender: number): FigureAppearan
     if (typeof v === 'string' && HEX.test(v)) colors[part] = v.toLowerCase()
   }
   const tone = typeof r.skinTone === 'number' && Number.isFinite(r.skinTone) ? Math.min(1, Math.max(0, r.skinTone)) : DEFAULT_SKIN_TONE
-  return { hair: id(r.hair), eyebrows: id(r.eyebrows), garments, colors, skinTone: tone }
+  const eyeColor = typeof r.eyeColor === 'string' && r.eyeColor in EYE_COLORS ? r.eyeColor : DEFAULT_EYE_COLOR
+  return { hair: id(r.hair), eyebrows: id(r.eyebrows), garments, colors, skinTone: tone, eyeColor }
 }
 
 /** Everything a figure shows besides its body, in drawing order. */

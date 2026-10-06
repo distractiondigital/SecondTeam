@@ -100,7 +100,7 @@ describe('eyes, hair and clothes', () => {
 })
 
 describe('figure colours', () => {
-  const look = { hair: 'hair-short02', eyebrows: null, garments: { top: 'top-polo' }, colors: {}, skinTone: 0 }
+  const look = { hair: 'hair-short02', eyebrows: null, garments: { top: 'top-polo' }, colors: {}, skinTone: 0, eyeColor: 'brown' }
   it('goes from fair to dark skin', () => {
     expect(skinColor(0)).toBe('#f5d6c1')
     expect(skinColor(1)).toBe('#352217')
