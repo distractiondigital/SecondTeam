@@ -26,6 +26,8 @@ Electron + React + TypeScript + Vite · three.js via react-three-fiber + drei ·
 - **Local only.** No cloud AI APIs and no telemetry. The only network calls allowed are downloading the backend and models from the pinned manifest.
 - **Model licences matter.** He uses outputs for paying clients. Every model in `backend/manifest.json` records its licence. Never add a non-commercial model (e.g. FLUX.2 klein 9B, FLUX.1 dev) without flagging it clearly.
 - Don't copy GPL code (e.g. from Krita AI Diffusion) into the project without asking first. Studying it for ideas is fine.
+- **Credit everything.** Any new third-party library, model, dataset or asset goes into `src/shared/credits.ts` (the in-app Credits) and `CREDITS.md`, with its licence.
+- Commit messages have no `Co-Authored-By` (or other AI attribution) lines.
 - Windows paths, and handle spaces in paths.
 - Never write outside the project folder, the chosen backend install folder, or the app's folder (`appDataFolder()` in `src/main/settings.ts`: `%LOCALAPPDATA%\SecondTeam` on Windows, `~/Library/Application Support/SecondTeam` on a Mac).
 

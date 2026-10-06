@@ -3,7 +3,8 @@
   "productName": "Second Team",
   "version": "0.12.2",
   "description": "Local film previs: greybox a set, place real cameras, generate AI frames, build a storyboard.",
-  "author": "spencer",
+  "author": "Distraction Digital",
+  "license": "UNLICENSED",
   "private": true,
   "main": "./out/main/index.js",
   "scripts": {

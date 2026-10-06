@@ -2901,3 +2901,91 @@ input {
   border-radius: 50%;
   border: 1px solid var(--border);
 }
+
+.start-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.start-brand img {
+  width: 48px;
+  height: 48px;
+}
+
+.start-brand h2 {
+  margin: 0;
+}
+
+.start-version {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.start-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 18px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.start-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px;
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.start-link:hover {
+  color: var(--text);
+}
+
+.start-credits ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.start-credits li {
+  padding: 4px 0;
+  font-size: 12px;
+}
+
+.credit-name {
+  font-weight: 600;
+}
+
+.credit-by {
+  color: var(--text-dim);
+}
+
+.credit-license {
+  margin-left: 6px;
+  padding: 0 4px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.credit-note {
+  margin-top: 2px;
+  color: var(--text-dim);
+}
+
+.credit-url {
+  font-size: 10px;
+  color: var(--text-dim);
+  user-select: text;
+}

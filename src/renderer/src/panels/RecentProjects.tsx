@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, FilePlus, FolderOpen, X } from 'lucide-react'
+import { ArrowLeft, ChevronDown, FilePlus, FolderOpen, X } from 'lucide-react'
+import logo from '../../../../build/icon.png'
+import { COPYRIGHT, CREDITS } from '../../../shared/credits'
 import { useDocument } from '../state/documentStore'
 import { newProject, openProject, openRecentProject } from '../state/projectIO'
 import { useUi } from '../state/uiStore'
@@ -47,40 +49,88 @@ function RecentList({ list, onOpen, onForget }: { list: Recent[]; onOpen: (r: Re
   )
 }
 
+/** Who made what the app is built on (src/shared/credits.ts), in place of the start screen's list. */
+function Credits({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="start-credits">
+      <button className="start-link" onClick={onBack}>
+        <ArrowLeft size={13} /> Back
+      </button>
+      {CREDITS.map((section) => (
+        <section key={section.title}>
+          <h3>{section.title}</h3>
+          <ul>
+            {section.items.map((c) => (
+              <li key={c.name}>
+                <span className="credit-name">{c.name}</span>
+                {c.by && <span className="credit-by"> by {c.by}</span>}
+                <span className="credit-license">{c.license}</span>
+                {c.note && <div className="credit-note">{c.note}</div>}
+                <div className="credit-url">{c.url}</div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  )
+}
+
 /** Over the empty viewport when the app starts; goes away once you open, start or add anything. */
 export function StartScreen() {
   const dismissed = useUi((s) => s.startDismissed)
   const projectPath = useUi((s) => s.projectPath)
   const edited = useDocument((s) => s.past.length > 0)
   const [list, reload] = useRecent(null)
+  const [credits, setCredits] = useState(false)
   if (dismissed || projectPath || edited) return null
   const close = () => useUi.getState().dismissStart()
   return (
     <div className="start-screen">
-      <h2>Second Team</h2>
-      <div className="start-actions">
-        <button
-          className="generate-button"
-          onClick={async () => {
-            await newProject()
-            close()
-          }}
-        >
-          <FilePlus size={15} /> New project
-        </button>
-        <button className="generate-button" onClick={() => void openProject()}>
-          <FolderOpen size={15} /> Open…
-        </button>
+      <div className="start-brand">
+        <img src={logo} alt="" draggable={false} />
+        <div>
+          <h2>Second Team</h2>
+          <div className="start-version">Version {__APP_VERSION__}</div>
+        </div>
       </div>
-      <h3>Recent projects</h3>
-      <RecentList
-        list={list}
-        onOpen={(r) => void openRecentProject(r.path)}
-        onForget={async (r) => {
-          await window.secondTeam.forgetRecentProject(r.path)
-          reload()
-        }}
-      />
+      {credits ? (
+        <Credits onBack={() => setCredits(false)} />
+      ) : (
+        <>
+          <div className="start-actions">
+            <button
+              className="generate-button"
+              onClick={async () => {
+                await newProject()
+                close()
+              }}
+            >
+              <FilePlus size={15} /> New project
+            </button>
+            <button className="generate-button" onClick={() => void openProject()}>
+              <FolderOpen size={15} /> Open…
+            </button>
+          </div>
+          <h3>Recent projects</h3>
+          <RecentList
+            list={list}
+            onOpen={(r) => void openRecentProject(r.path)}
+            onForget={async (r) => {
+              await window.secondTeam.forgetRecentProject(r.path)
+              reload()
+            }}
+          />
+        </>
+      )}
+      <div className="start-footer">
+        <span>{COPYRIGHT}</span>
+        {!credits && (
+          <button className="start-link" onClick={() => setCredits(true)}>
+            Credits
+          </button>
+        )}
+      </div>
     </div>
   )
 }

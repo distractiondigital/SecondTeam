@@ -5,6 +5,7 @@
 # updating or uninstalling the app never deletes them.
 appId: com.secondteam.app
 productName: Second Team
+copyright: Copyright © 2026 Distraction Digital
 directories:
   output: release
   buildResources: build

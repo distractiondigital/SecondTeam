@@ -18,5 +18,5 @@ The app's own code that blends targets, fits the skeleton and poses the body is 
 `proxies.json` + `proxies/<id>.bin|png` are made by `scripts/figures/build-proxies.mjs` from the
 MakeHuman community asset packs (makehuman_system_assets, shirts01, pants01, dress01, suits01: CC0;
 shirts02: CC-BY). Every item records its licence, source and (for CC-BY) author in `proxies.json`;
-the README's Credits section lists the CC-BY authors. Hair/eyebrow textures are reduced to
+[CREDITS.md](../CREDITS.md) (and Credits in the app) lists the CC-BY authors. Hair/eyebrow textures are reduced to
 black-and-white transparency masks.
