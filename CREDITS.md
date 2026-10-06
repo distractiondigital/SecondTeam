@@ -1,6 +1,6 @@
 # Credits
 
-Second Team is © 2026 Distraction Digital. It is built on the work of others; thank you to all of them. The same list is in the app (**Credits** on the start screen).
+Second Team is © 2026 Distraction Digital, free and open source under the GPL-3.0. It is built on the work of others; thank you to all of them. The same list is in the app (**Credits** on the start screen).
 
 ## Human figures
 
@@ -44,3 +44,7 @@ These aren't part of the app. The setup wizard downloads them on Windows from th
 | [Lucide](https://lucide.dev) icons | Lucide contributors | ISC |
 
 Build tools (not shipped in the app): Vite, electron-vite, electron-builder, TypeScript, Vitest (MIT / Apache-2.0).
+
+---
+
+Second Team was designed by a filmmaker, not a software developer. It was realized with AI as a tool to assist filmmakers to create, communicate and collaborate on their art, and that's why it will always be open and free.

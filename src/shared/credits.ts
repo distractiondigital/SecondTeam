@@ -2,7 +2,11 @@
 // the start screen) and mirrored in CREDITS.md. A test checks that every CC-BY figure item in
 // figures/proxies.json and every download in backend/manifest.json is credited here.
 
-export const COPYRIGHT = '© 2026 Distraction Digital. All rights reserved.'
+export const COPYRIGHT = '© 2026 Distraction Digital. Free and open source (GPL-3.0).'
+
+/** The closing line of every credits list (app, README, CREDITS.md). */
+export const ABOUT =
+  "Second Team was designed by a filmmaker, not a software developer. It was realized with AI as a tool to assist filmmakers to create, communicate and collaborate on their art, and that's why it will always be open and free."
 
 export interface Credit {
   name: string

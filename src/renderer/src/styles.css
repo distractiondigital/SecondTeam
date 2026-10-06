@@ -2989,3 +2989,9 @@ input {
   color: var(--text-dim);
   user-select: text;
 }
+
+.credit-about {
+  margin: 16px 0 0;
+  font-size: 12px;
+  color: var(--text-dim);
+}

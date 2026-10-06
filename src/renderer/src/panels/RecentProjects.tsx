@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, ChevronDown, FilePlus, FolderOpen, X } from 'lucide-react'
 import logo from '../../../../build/icon.png'
-import { COPYRIGHT, CREDITS } from '../../../shared/credits'
+import { ABOUT, COPYRIGHT, CREDITS } from '../../../shared/credits'
 import { useDocument } from '../state/documentStore'
 import { newProject, openProject, openRecentProject } from '../state/projectIO'
 import { useUi } from '../state/uiStore'
@@ -72,6 +72,7 @@ function Credits({ onBack }: { onBack: () => void }) {
           </ul>
         </section>
       ))}
+      <p className="credit-about">{ABOUT}</p>
     </div>
   )
 }

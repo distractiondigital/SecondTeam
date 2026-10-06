@@ -61,6 +61,8 @@ Second Team builds on open work, most of all [MakeHuman](https://www.makehumanco
 
 The full list, with licences, is in [CREDITS.md](CREDITS.md) and under **Credits** on the app's start screen. Every AI model the app downloads allows commercial use of its output; each one's licence is recorded in [backend/manifest.json](backend/manifest.json).
 
+Second Team was designed by a filmmaker, not a software developer. It was realized with AI as a tool to assist filmmakers to create, communicate and collaborate on their art, and that's why it will always be open and free.
+
 ## Licence
 
-© 2026 Distraction Digital. All rights reserved. See [LICENSE](LICENSE).
+© 2026 Distraction Digital. Second Team is free and open source software under the [GNU General Public License v3.0](LICENSE).
