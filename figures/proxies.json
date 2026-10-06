@@ -56,6 +56,7 @@
     }
    },
    "mask": null,
+   "map": "eyes-color.png",
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (eyes/low-poly)"
@@ -116,6 +117,7 @@
     }
    },
    "mask": "eyebrows-1.png",
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (eyebrows/eyebrow001)"
@@ -176,6 +178,7 @@
     }
    },
    "mask": "hair-short01.png",
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (hair/short01)"
@@ -236,6 +239,7 @@
     }
    },
    "mask": "hair-short02.png",
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (hair/short02)"
@@ -296,6 +300,7 @@
     }
    },
    "mask": "hair-short03.png",
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (hair/short03)"
@@ -356,6 +361,7 @@
     }
    },
    "mask": "hair-short04.png",
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (hair/short04)"
@@ -416,6 +422,7 @@
     }
    },
    "mask": "hair-bob01.png",
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (hair/bob01)"
@@ -476,6 +483,7 @@
     }
    },
    "mask": "hair-bob02.png",
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (hair/bob02)"
@@ -536,6 +544,7 @@
     }
    },
    "mask": "hair-long01.png",
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (hair/long01)"
@@ -596,6 +605,7 @@
     }
    },
    "mask": "hair-ponytail01.png",
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (hair/ponytail01)"
@@ -656,6 +666,7 @@
     }
    },
    "mask": "hair-braid01.png",
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (hair/braid01)"
@@ -716,6 +727,7 @@
     }
    },
    "mask": "hair-afro01.png",
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (hair/afro01)"
@@ -776,6 +788,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/male_casualsuit01)"
@@ -836,6 +849,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/male_casualsuit02)"
@@ -896,6 +910,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/male_casualsuit03)"
@@ -956,6 +971,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/male_casualsuit04)"
@@ -1016,6 +1032,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/male_casualsuit05)"
@@ -1076,6 +1093,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/male_casualsuit06)"
@@ -1136,6 +1154,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/male_elegantsuit01)"
@@ -1196,6 +1215,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/male_worksuit01)"
@@ -1256,6 +1276,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/female_casualsuit01)"
@@ -1316,6 +1337,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/female_casualsuit02)"
@@ -1376,6 +1398,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/female_elegantsuit01)"
@@ -1436,6 +1459,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/female_sportsuit01)"
@@ -1496,6 +1520,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/shoes01)"
@@ -1556,6 +1581,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/shoes02)"
@@ -1616,6 +1642,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/shoes03)"
@@ -1676,6 +1703,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/shoes04)"
@@ -1736,6 +1764,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/shoes05)"
@@ -1796,6 +1825,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/shoes06)"
@@ -1856,6 +1886,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html (clothes/fedora01)"
@@ -1916,6 +1947,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/shirts01.html (clothes/toigo_basic_tucked_t-shirt)"
@@ -1976,6 +2008,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": "Elvaerwyn",
    "source": "https://static.makehumancommunity.org/assets/assetpacks/shirts01.html (clothes/elvs_crude_t-shirt_male)"
@@ -2036,6 +2069,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/shirts01.html (clothes/joepal_crude_t-shirt_female)"
@@ -2096,6 +2130,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/shirts01.html (clothes/namuhekam_male_polo_shirt)"
@@ -2156,6 +2191,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/shirts01.html (clothes/toigo_fisherman_sweater)"
@@ -2216,6 +2252,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/shirts01.html (clothes/toigo_camisole_top)"
@@ -2276,6 +2313,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/shirts01.html (clothes/toigo_keyhole_tank_top)"
@@ -2320,6 +2358,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC-BY",
    "author": "Elvaerwyn",
    "source": "https://static.makehumancommunity.org/assets/assetpacks/shirts02.html (clothes/elvs_male_shirt_untucked_bd1)"
@@ -2364,6 +2403,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC-BY",
    "author": "Elvaerwyn",
    "source": "https://static.makehumancommunity.org/assets/assetpacks/shirts02.html (clothes/elvs_male_shirt_tie_tucked1)"
@@ -2424,6 +2464,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC-BY",
    "author": "EWS",
    "source": "https://static.makehumancommunity.org/assets/assetpacks/shirts02.html (clothes/ews_striped_shirt)"
@@ -2484,6 +2525,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC-BY",
    "author": "Mindfront",
    "source": "https://static.makehumancommunity.org/assets/assetpacks/shirts02.html (clothes/mindfront_knitted_sweater_01)"
@@ -2544,6 +2586,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC-BY",
    "author": "punkduck",
    "source": "https://static.makehumancommunity.org/assets/assetpacks/shirts02.html (clothes/punkduck_lace_up_blouse)"
@@ -2604,6 +2647,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC-BY",
    "author": "janexx",
    "source": "https://static.makehumancommunity.org/assets/assetpacks/shirts02.html (clothes/janexx_old_female_sweater)"
@@ -2664,6 +2708,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC-BY",
    "author": "Elvaerwyn",
    "source": "https://static.makehumancommunity.org/assets/assetpacks/shirts02.html (clothes/elvs_hooded_sweat_jacket1)"
@@ -2724,6 +2769,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC-BY",
    "author": "Mindfront",
    "source": "https://static.makehumancommunity.org/assets/assetpacks/shirts02.html (clothes/mindfront_cardigan_long_open_front)"
@@ -2784,6 +2830,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/pants01.html (clothes/toigo_wool_pants)"
@@ -2844,6 +2891,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/pants01.html (clothes/cortu_cargo_pants)"
@@ -2904,6 +2952,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/pants01.html (clothes/cortu_jeans_shorts)"
@@ -2964,6 +3013,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/pants01.html (clothes/toigo_wool_pants)"
@@ -3024,6 +3074,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/pants01.html (clothes/cortu_cargo_pants)"
@@ -3084,6 +3135,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/dress01.html (clothes/toigo_shift_dress)"
@@ -3144,6 +3196,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/dress01.html (clothes/toigo_keyhole_neck_dress)"
@@ -3204,6 +3257,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/dress01.html (clothes/toigo_halter_dress_knee_length)"
@@ -3264,6 +3318,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/dress01.html (clothes/toigo_camisole_dress_with_full_skirt)"
@@ -3324,6 +3379,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/dress01.html (clothes/toigo_dress_with_tiered_skirt)"
@@ -3384,6 +3440,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": "Mindfront",
    "source": "https://static.makehumancommunity.org/assets/assetpacks/dress01.html (clothes/mindfront_kimono)"
@@ -3444,6 +3501,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/suits01.html (clothes/toigo_male_suit_tie_and_jacket)"
@@ -3504,6 +3562,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/suits01.html (clothes/toigo_male_suit_3)"
@@ -3564,6 +3623,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/suits01.html (clothes/toigo_male_double-breasted_suit)"
@@ -3624,6 +3684,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/suits01.html (clothes/toigo_suit_with_dinner_jacket)"
@@ -3668,6 +3729,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/suits01.html (clothes/toigo_female_suit)"
@@ -3728,6 +3790,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/suits01.html (clothes/toigo_female_suit_2)"
@@ -3788,6 +3851,7 @@
     }
    },
    "mask": null,
+   "map": null,
    "license": "CC0",
    "author": null,
    "source": "https://static.makehumancommunity.org/assets/assetpacks/suits01.html (clothes/toigo_female_double-breasted_suit)"

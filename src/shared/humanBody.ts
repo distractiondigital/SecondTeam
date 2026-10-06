@@ -360,6 +360,8 @@ export interface ProxyInfo {
   sections: Record<string, Section>
   /** Transparency mask file (hair, eyebrows), or null. */
   mask: string | null
+  /** Colour texture shown in its own colours (the eyes), or null. */
+  map?: string | null
   license: string
   /** Who to credit (CC-BY items). */
   author: string | null

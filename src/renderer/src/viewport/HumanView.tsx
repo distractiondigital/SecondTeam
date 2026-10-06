@@ -240,6 +240,7 @@ function ProxyMesh({ body, fit, built, item, color, selected }: { body: BodyData
         roughness={item.data.info.kind === 'eyes' ? 0.35 : 0.8}
         metalness={0}
         alphaMap={item.mask}
+        map={item.map}
         alphaTest={masked ? 0.5 : 0}
         side={masked ? DoubleSide : FrontSide}
         emissive={selected ? SELECTION_COLOR : '#000000'}
@@ -263,6 +264,8 @@ interface Props {
 
 /** Which colour a worn item takes. */
 function itemColor(item: LoadedProxy, appearance: FigureAppearance, color: string, coloring: FigureColoring): string {
+  // A textured item (the eyes) shows its picture's own colours, even with the Figure colours overlay.
+  if (item.map) return '#ffffff'
   const part = partOf(item.data.info)
   return part ? partColor(appearance, part, color, coloring, item.data.info.id) : color
 }

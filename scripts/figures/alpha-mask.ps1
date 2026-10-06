@@ -1,7 +1,8 @@
 # Makes a small black-and-white transparency mask from a MakeHuman hair/eyebrow texture:
 # white where the texture is opaque, black where it's see-through. Used by build-proxies.mjs.
 #   powershell -ExecutionPolicy Bypass -File scripts\figures\alpha-mask.ps1 -In in.png -Out out.png -Size 512
-param([string]$In, [string]$Out, [int]$Size = 512)
+# With -Color it keeps the picture's colours (just resized), e.g. the eyes' iris texture.
+param([string]$In, [string]$Out, [int]$Size = 512, [switch]$Color)
 
 Add-Type -AssemblyName System.Drawing
 Add-Type -ReferencedAssemblies System.Drawing -TypeDefinition @'
@@ -11,7 +12,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 public static class AlphaMask {
-  public static void Make(string input, string output, int size) {
+  public static void Make(string input, string output, int size, bool color) {
     using (var src = new Bitmap(input))
     using (var small = new Bitmap(size, size, PixelFormat.Format32bppArgb)) {
       using (var g = Graphics.FromImage(small)) {
@@ -19,6 +20,7 @@ public static class AlphaMask {
         g.CompositingMode = CompositingMode.SourceCopy;
         g.DrawImage(src, 0, 0, size, size);
       }
+      if (color) { small.Save(output, ImageFormat.Png); return; }
       var rect = new Rectangle(0, 0, size, size);
       var data = small.LockBits(rect, ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
       var bytes = new byte[data.Stride * size];
@@ -34,4 +36,4 @@ public static class AlphaMask {
   }
 }
 '@
-[AlphaMask]::Make((Resolve-Path $In).Path, $Out, $Size)
+[AlphaMask]::Make((Resolve-Path $In).Path, $Out, $Size, $Color.IsPresent)

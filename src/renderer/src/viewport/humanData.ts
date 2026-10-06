@@ -57,6 +57,8 @@ export interface LoadedProxy {
   data: ProxyData
   /** Cut-out mask for hair and eyebrows. */
   mask: Texture | null
+  /** Colour texture (the eyes: white, iris, pupil), shown untinted. */
+  map: Texture | null
 }
 
 const proxies = new Map<string, Promise<LoadedProxy | null>>()
@@ -80,8 +82,12 @@ export function loadProxy(id: string): Promise<LoadedProxy | null> {
     p = (async () => {
       const info = (await loadCatalogue()).find((i) => i.id === id)
       if (!info) return null
-      const [bin, mask] = await Promise.all([api().readFigureFile(`proxies/${id}.bin`), info.mask ? maskTexture(info.mask) : null])
-      return { data: parseProxy(info, asBuffer(bin)), mask }
+      const [bin, mask, map] = await Promise.all([
+        api().readFigureFile(`proxies/${id}.bin`),
+        info.mask ? maskTexture(info.mask) : null,
+        info.map ? maskTexture(info.map) : null
+      ])
+      return { data: parseProxy(info, asBuffer(bin)), mask, map }
     })()
     proxies.set(id, p)
   }

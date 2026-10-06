@@ -44,7 +44,8 @@ const pack = (packName, name, id, slot, label) => ({ id, pack: packName, dir: `c
  * slot (clothes) = outfit (top + bottom) | top | bottom | outer | shoes | hat.
  */
 const ITEMS = [
-  { id: 'eyes', pack: 'sys', dir: 'eyes/low-poly', kind: 'eyes', label: 'Eyes' },
+  // The eyes wear MakeHuman's brown eye texture (white, iris, pupil) in its own colours.
+  { id: 'eyes', pack: 'sys', dir: 'eyes/low-poly', kind: 'eyes', label: 'Eyes', colorTexture: '../materials/brown_eye.png' },
   { id: 'eyebrows-1', pack: 'sys', dir: 'eyebrows/eyebrow001', kind: 'eyebrows', label: 'Eyebrows', texture: 'eyebrow001.png' },
   ...[
     ['short01', 'Short (cropped)'],
@@ -241,7 +242,7 @@ function build() {
     const base = join(extract, item.pack, item.dir)
     const mhcloName = readdirSafe(base).find((f) => f.endsWith('.mhclo'))
     const mhclo = parseMhclo(readFileSync(join(base, mhcloName), 'utf-8'))
-    const obj = parseObj(readFileSync(join(base, mhclo.objFile), 'utf-8'), Boolean(item.texture))
+    const obj = parseObj(readFileSync(join(base, mhclo.objFile), 'utf-8'), Boolean(item.texture || item.colorTexture))
     if (obj.objVerts !== mhclo.refs.length) throw new Error(`${item.id}: ${obj.objVerts} obj vertices but ${mhclo.refs.length} refs`)
     if (item.cut !== undefined) cutBelow(obj, mhclo, item.cut)
     // One entry per (vertex, uv) corner.
@@ -286,6 +287,16 @@ function build() {
       )
       if (r.status !== 0) throw new Error(`Couldn't make the mask for ${item.id}`)
     }
+    let map = null
+    if (item.colorTexture) {
+      map = `${item.id}-color.png`
+      const r = spawnSync(
+        'powershell',
+        ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', join(root, 'scripts', 'figures', 'alpha-mask.ps1'), '-In', join(base, item.colorTexture), '-Out', join(dir, map), '-Size', '256', '-Color'],
+        { stdio: 'inherit' }
+      )
+      if (r.status !== 0) throw new Error(`Couldn't make the texture for ${item.id}`)
+    }
     catalogue.push({
       id: item.id,
       kind: item.kind,
@@ -295,6 +306,7 @@ function build() {
       scales: mhclo.scales,
       sections: Object.fromEntries(sections.map((s) => [s.name, { offset: s.offset, length: s.length, type: s.type }])),
       mask,
+      map,
       license: pack.license,
       author: item.author ?? null,
       source: `${pack.url} (${item.dir})`
