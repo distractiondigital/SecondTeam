@@ -47,6 +47,8 @@ async function confirmLeave(): Promise<boolean> {
 export async function newProject(): Promise<void> {
   if (!(await confirmLeave())) return
   useDocument.getState().newProject()
+  // The board goes back to choosing AI or Clay by itself for each project.
+  useUi.getState().setBoardImage(null)
   useUi.getState().setProjectPath(null)
   useUi.getState().select([])
 }
@@ -71,6 +73,7 @@ async function load(result: Awaited<ReturnType<Window['secondTeam']['openProject
   try {
     const project = parseProject(result.json)
     useDocument.getState().loadProject(project)
+    useUi.getState().setBoardImage(null)
     useUi.getState().setProjectPath(result.path)
     useUi.getState().select([])
     useUi.getState().requestFrame()

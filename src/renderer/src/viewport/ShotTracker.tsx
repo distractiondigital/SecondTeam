@@ -127,7 +127,8 @@ export default function ShotTracker() {
     // Storyboard in Clay mode: every shot in every scene (ShotScenes builds their copies then).
     const updateBoardClay = () => {
       const ui = useUi.getState()
-      if (ui.view !== 'board' || ui.boardImage !== 'clay') return
+      // (In AI mode too: shots without a circle take show their clay render.)
+      if (ui.view !== 'board') return
       ui.setBoardClay(renderBoardClay(gl, BOARD_WIDTH, 'image/jpeg'))
     }
 

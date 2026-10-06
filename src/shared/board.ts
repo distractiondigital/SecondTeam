@@ -89,3 +89,11 @@ export function freeName(name: string, taken: (candidate: string) => boolean): s
   if (!taken(name)) return name
   for (let n = 2; ; n++) if (!taken(`${name} (${n})`)) return `${name} (${n})`
 }
+
+/**
+ * What the board shows unless you pick: AI (circle takes) once any shot in the project has a
+ * circle take, otherwise Clay (a project that never used the AI shows its clay renders).
+ */
+export function defaultBoardImage(project: Project): 'ai' | 'clay' {
+  return project.scenes.some((sc) => Object.values(sc.nodes).some((n) => n.type === 'camera' && n.circleTake)) ? 'ai' : 'clay'
+}

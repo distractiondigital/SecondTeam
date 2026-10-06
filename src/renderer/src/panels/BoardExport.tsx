@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { FileDown, FolderOpen, Images, X } from 'lucide-react'
-import { LAYOUT_COUNTS, panelDescription, sceneTag, type BoardLayout, type BoardShot } from '../../../shared/board'
+import { defaultBoardImage, LAYOUT_COUNTS, panelDescription, sceneTag, type BoardLayout, type BoardShot } from '../../../shared/board'
 import { pageInches, type BoardExportSpec, type BoardSource, type PageSize } from '../../../shared/boardHtml'
 import { deliveryFrame, opticsFor } from '../../../shared/camera'
 import { useDocument } from '../state/documentStore'
@@ -83,7 +83,7 @@ export default function BoardExport({ shots, onClose }: { shots: BoardShot[]; on
   const takes = useGeneration((s) => s.takes)
   const [opts, setOpts] = useState<Options>(last)
   // Starts as whatever the board is showing.
-  const [source, setSource] = useState<BoardSource>(() => useUi.getState().boardImage)
+  const [source, setSource] = useState<BoardSource>(() => useUi.getState().boardImage ?? defaultBoardImage(useDocument.getState().project))
   const [title, setTitle] = useState(projectDisplayName(projectPath))
   const [busy, setBusy] = useState(false)
   const [result, setResult] = useState<{ path: string; kind: 'pdf' | 'pngs' } | null>(null)

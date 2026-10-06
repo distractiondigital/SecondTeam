@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { FileDown, GripVertical, ImageOff } from 'lucide-react'
-import { boardShots, moveOnBoard, panelDescription, sceneTag, type BoardShot } from '../../../shared/board'
+import { boardShots, defaultBoardImage, moveOnBoard, panelDescription, sceneTag, type BoardShot } from '../../../shared/board'
+import { deliveryFrame, opticsFor } from '../../../shared/camera'
 import { activateShot } from '../state/actions'
 import { useDocument } from '../state/documentStore'
 import { loadTakes, openTake, useGeneration } from '../state/generation'
@@ -26,7 +27,14 @@ function Caption(props: { value: string; placeholder: string; className?: string
   )
 }
 
-function Panel({ b, onDragStart, onDrop, dropHere }: { b: BoardShot; onDragStart: () => void; onDrop: () => void; dropHere: boolean }) {
+/** AI or Clay as the board shows it now: picked, or automatic (Clay until the project has circle takes). */
+export function useBoardImage(): 'ai' | 'clay' {
+  const picked = useUi((s) => s.boardImage)
+  const auto = useDocument((s) => defaultBoardImage(s.project))
+  return picked ?? auto
+}
+
+function Panel({ b, onDragStart, onDrop, dropHere, aspect }: { b: BoardShot; onDragStart: () => void; onDrop: () => void; dropHere: boolean; aspect: number }) {
   const { scene, shot } = b
   const takes = useGeneration((s) => s.takes[shot.id])
   const projectPath = useUi((s) => s.projectPath)
@@ -34,7 +42,9 @@ function Panel({ b, onDragStart, onDrop, dropHere }: { b: BoardShot; onDragStart
     if (projectPath && takes === undefined) void loadTakes(shot.id, scene.id)
   }, [projectPath, takes, shot.id, scene.id])
   const take = shot.circleTake ? takes?.find((t) => t.id === shot.circleTake) : undefined
-  const showClay = useUi((s) => s.boardImage === 'clay')
+  // In AI mode a shot without a circle take shows its clay render (marked as such).
+  const mode = useBoardImage()
+  const showClay = mode === 'clay' || (takes !== undefined && !take)
   const clay = useUi((s) => s.boardClay[shot.id])
   const update = useDocument.getState().updatePanel
   const description = panelDescription(shot)
@@ -60,10 +70,17 @@ function Panel({ b, onDragStart, onDrop, dropHere }: { b: BoardShot; onDragStart
         onDrop()
       }}
     >
-      <div className="board-image" onDoubleClick={goToShot} title="Double-click to go to this shot">
+      <div className="board-image" style={{ aspectRatio: aspect }} onDoubleClick={goToShot} title="Double-click to go to this shot">
         {showClay ? (
           clay ? (
-            <img src={clay} alt={shot.shotNumber} draggable={false} />
+            <>
+              <img src={clay} alt={shot.shotNumber} draggable={false} />
+              {mode === 'ai' && (
+                <span className="board-clay-tag" title="No circle take yet: this is the clay render">
+                  Clay
+                </span>
+              )}
+            </>
           ) : (
             <div className="board-missing">Rendering…</div>
           )
@@ -110,7 +127,9 @@ export default function BoardView() {
   const [overId, setOverId] = useState<string | null>(null)
   const [exporting, setExporting] = useState(false)
   const circled = shots.filter((b) => b.shot.circleTake).length
-  const boardImage = useUi((s) => s.boardImage)
+  const boardImage = useBoardImage()
+  // Every frame on the board in the shots' own shape (the delivery frame), shown whole.
+  const aspect = useDocument((s) => deliveryFrame(opticsFor(s.project.camera, 35)).ratio)
 
   const drop = (beforeId: string | null) => {
     if (dragId && dragId !== beforeId) {
@@ -150,7 +169,7 @@ export default function BoardView() {
               onDragEnter={() => dragId && setOverId(b.shot.id)}
               className={dragId === b.shot.id ? 'board-dragging' : undefined}
             >
-              <Panel b={b} onDragStart={() => setDragId(b.shot.id)} onDrop={() => drop(b.shot.id)} dropHere={overId === b.shot.id && dragId !== b.shot.id} />
+              <Panel b={b} onDragStart={() => setDragId(b.shot.id)} onDrop={() => drop(b.shot.id)} dropHere={overId === b.shot.id && dragId !== b.shot.id} aspect={aspect} />
             </div>
           ))}
           <div

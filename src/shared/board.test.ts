@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boardShots, exportStamp, freeName, layoutLabel, moveOnBoard, paginate, panelDescription, sceneTag, sequenceFileName } from './board'
+import { boardShots, defaultBoardImage, exportStamp, freeName, layoutLabel, moveOnBoard, paginate, panelDescription, sceneTag, sequenceFileName } from './board'
 import { createEmptyProject, type CameraNode, type Project, type Scene } from './project'
 
 function shot(id: string, shotNumber: string, extra: Partial<CameraNode> = {}): CameraNode {
@@ -97,5 +97,14 @@ describe('export names', () => {
     const existing = new Set(['A.pdf', 'A (2).pdf'])
     expect(freeName('B', (n) => existing.has(`${n}.pdf`))).toBe('B')
     expect(freeName('A', (n) => existing.has(`${n}.pdf`))).toBe('A (3)')
+  })
+})
+
+describe('board picture default', () => {
+  it('is Clay until a shot has a circle take, then AI', () => {
+    const project = { scenes: [{ nodes: { a: { type: 'camera', circleTake: null }, b: { type: 'primitive' } } }] } as unknown as Parameters<typeof defaultBoardImage>[0]
+    expect(defaultBoardImage(project)).toBe('clay')
+    ;(project.scenes[0].nodes.a as unknown as { circleTake: string }).circleTake = 'take-1'
+    expect(defaultBoardImage(project)).toBe('ai')
   })
 })

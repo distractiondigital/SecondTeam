@@ -80,7 +80,8 @@ interface UiState {
   shotInfo: Record<string, ShotInfo>
   leftTab: LeftTab
   view: MainView
-  boardImage: BoardImage
+  /** AI or Clay on the board, as picked; null = automatic (`defaultBoardImage`). Reset per project. */
+  boardImage: BoardImage | null
   /** Clay renders for the board (larger than the Shot list's), by camera id, across all scenes. */
   boardClay: Record<string, string>
   /** The cast member or prop being edited in Properties (clears when something in the set is selected). */
@@ -105,7 +106,7 @@ interface UiState {
   setShotInfo: (shotInfo: Record<string, ShotInfo>) => void
   setLeftTab: (tab: LeftTab) => void
   setView: (view: MainView) => void
-  setBoardImage: (image: BoardImage) => void
+  setBoardImage: (image: BoardImage | null) => void
   setBoardClay: (images: Record<string, string>) => void
   /** Show a cast member or prop in Properties (null = none). */
   selectEntity: (entity: EntityRef | null) => void
@@ -155,7 +156,7 @@ export const useUi = create<UiState>()((set) => ({
   shotInfo: {},
   leftTab: 'outliner',
   view: 'set',
-  boardImage: 'ai',
+  boardImage: null,
   boardClay: {},
   entity: null,
 
