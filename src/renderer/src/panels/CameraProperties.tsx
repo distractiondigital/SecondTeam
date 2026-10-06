@@ -6,10 +6,10 @@ import {
   guideRatio,
   panTiltRoll,
   rotationFromPanTiltRoll,
-  SENSOR_PRESET_IDS,
-  SENSOR_PRESETS,
+  SENSOR_CAMERAS,
+  sensorFormat,
   type CameraKit,
-  type SensorPreset
+  type SensorFormat
 } from '../../../shared/camera'
 import type { CameraNode, Vec3 } from '../../../shared/project'
 import { deleteSelected, lookThrough } from '../state/actions'
@@ -241,6 +241,10 @@ function CameraBodySection() {
     updateKit({ guides, delivery: !on && kit.delivery === id ? 'sensor' : kit.delivery })
   }
   const customGuides = kit.guides.filter((g) => g.startsWith('custom:'))
+  const format = sensorFormat(kit.sensor.preset)
+  const camera = format && SENSOR_CAMERAS.find((c) => c.formats.includes(format))
+  const brands = [...new Set(SENSOR_CAMERAS.map((c) => c.brand))]
+  const pickFormat = (f: SensorFormat) => updateKit({ sensor: { preset: f.id, width: f.width, height: f.height } })
 
   return (
     <div className="camera-body">
@@ -248,22 +252,47 @@ function CameraBodySection() {
         Camera body <span>whole project · shared by every shot</span>
       </div>
         <div className="prop-section">
+          <div className="prop-title">Camera</div>
           <select
             className="preset-select"
-            value={kit.sensor.preset}
+            value={camera ? `${camera.brand}|${camera.camera}` : 'custom'}
             onChange={(e) => {
-              const preset = e.target.value as SensorPreset
-              const size = preset === 'custom' ? kit.sensor : SENSOR_PRESETS[preset]
-              updateKit({ sensor: { preset, width: size.width, height: size.height } })
+              if (e.target.value === 'custom') return updateKit({ sensor: { ...kit.sensor, preset: 'custom' } })
+              const next = SENSOR_CAMERAS.find((c) => `${c.brand}|${c.camera}` === e.target.value)
+              if (next) pickFormat(next.formats[0])
             }}
           >
-            {SENSOR_PRESET_IDS.map((id) => (
-              <option key={id} value={id}>
-                {SENSOR_PRESETS[id].label}
-                {id !== 'custom' ? ` (${SENSOR_PRESETS[id].width} × ${SENSOR_PRESETS[id].height} mm)` : ''}
-              </option>
+            {brands.map((brand) => (
+              <optgroup key={brand} label={brand === 'Film' ? 'Film formats' : brand}>
+                {SENSOR_CAMERAS.filter((c) => c.brand === brand).map((c) => (
+                  <option key={c.camera} value={`${c.brand}|${c.camera}`}>
+                    {c.camera}
+                    {c.formats.length === 1 ? ` (${c.formats[0].width} × ${c.formats[0].height} mm)` : ''}
+                  </option>
+                ))}
+              </optgroup>
             ))}
+            <option value="custom">Custom size…</option>
           </select>
+          {camera && camera.formats.length > 1 && (
+            <>
+              <div className="prop-title prop-title-spaced">Format</div>
+              <select
+                className="preset-select"
+                value={kit.sensor.preset}
+                onChange={(e) => {
+                  const f = sensorFormat(e.target.value)
+                  if (f) pickFormat(f)
+                }}
+              >
+                {camera.formats.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.format} ({f.width} × {f.height} mm)
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
           {kit.sensor.preset === 'custom' && (
             <div className="vec3-row spaced">
               {(['width', 'height'] as const).map((k) => (

@@ -80,7 +80,7 @@ exports/
 
 ### 5.3 Cameras & shots
 - Multiple cameras per scene, listed in a **Shot List** panel (shot number, lens, size, thumbnail).
-- Sensor presets: Super 35, Full Frame, Blackmagic PYXIS 12K (full-frame 36×24mm-class; verify exact dimensions), ARRI Alexa 35, plus Custom.
+- Sensor presets: a camera + recording format list (`SENSOR_FORMATS` in `src/shared/camera.ts`: film formats, ARRI, RED, Sony, Canon, Blackmagic, Nikon), plus Custom.
 - Focal length in mm; FOV is derived from sensor + focal length.
 - Aspect ratios: 16:9, 1.85, 2.39, 4:3, 1:1, 9:16, custom. Draw frame lines in the viewport.
 - **Look through camera** mode, with rule-of-thirds overlay.

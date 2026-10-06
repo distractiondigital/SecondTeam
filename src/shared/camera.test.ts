@@ -12,13 +12,16 @@ import {
   shotLetters,
   panTiltRoll,
   rotationFromPanTiltRoll,
-  SENSOR_PRESETS,
+  repairKit,
+  SENSOR_CAMERAS,
+  SENSOR_FORMATS,
+  sensorLabel,
   shotSize,
   type CameraOptics
 } from './camera'
 
 const ff = (over: Partial<CameraOptics> = {}): CameraOptics => ({
-  sensor: { preset: 'ff', ...SENSOR_PRESETS.ff },
+  sensor: { preset: 'ff', width: 36, height: 24 },
   focalLength: 35,
   squeeze: 1,
   delivery: 'sensor',
@@ -48,6 +51,32 @@ describe('field of view', () => {
     expect(tall.width).toBeCloseTo(24 * (9 / 16))
     expect(guideRatio('custom:2.2')).toBe(2.2)
     expect(guideRatio('nonsense')).toBeNull()
+  })
+})
+
+describe('camera bodies', () => {
+  it('has one entry per id, including the ids older projects saved', () => {
+    const ids = SENSOR_FORMATS.map((f) => f.id)
+    expect(new Set(ids).size).toBe(ids.length)
+    for (const old of ['s35', 'ff', 'pyxis12k', 'alexa35']) expect(ids).toContain(old)
+    for (const f of SENSOR_FORMATS) expect(f.width / f.height, f.id).toBeGreaterThan(1)
+  })
+  it('lists each camera once, with its formats together', () => {
+    const names = SENSOR_CAMERAS.map((c) => `${c.brand} ${c.camera}`)
+    expect(new Set(names).size).toBe(names.length)
+    expect(SENSOR_CAMERAS.find((c) => c.camera === 'ALEXA 35')!.formats).toHaveLength(5)
+  })
+  it('a Speed Booster widens the Pocket 4K like a bigger sensor', () => {
+    const pocket = SENSOR_FORMATS.find((f) => f.id === 'bm-pocket4k')!
+    const booster = SENSOR_FORMATS.find((f) => f.id === 'bm-pocket4k-sb071')!
+    expect(booster.width).toBeCloseTo(pocket.width / 0.71, 1)
+  })
+  it('names the camera and format, and keeps unknown presets usable', () => {
+    expect(sensorLabel({ preset: 'alexa35-4k-169', width: 24.88, height: 14 })).toBe('ARRI ALEXA 35 · 4K 16:9')
+    expect(sensorLabel({ preset: 's16', width: 12.52, height: 7.41 })).toBe('Super 16')
+    expect(sensorLabel({ preset: 'custom', width: 30, height: 20 })).toBe('30×20 mm')
+    expect(repairKit({ sensor: { preset: 'nonsense', width: 10, height: 5 } }).sensor.preset).toBe('ff')
+    expect(repairKit({ sensor: { preset: 'nikon-zr', width: 35.9, height: 20.2 } }).sensor.preset).toBe('nikon-zr')
   })
 })
 

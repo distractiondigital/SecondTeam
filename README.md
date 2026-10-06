@@ -22,7 +22,7 @@ When you want more than clay, Second Team can bring your boards to life with AI 
   - Pose them joint by joint, or by dragging hands, feet and hips.
   - Plant hands and feet on surfaces, and aim heads with Look at.
   - Use pose presets and a pose library.
-- **Cameras:** real sensor formats (Super 35, Full Frame, ALEXA 35, PYXIS 12K, anamorphic), focal length and focus, frame guides, and the delivery frame. A camera HUD shows height, tilt, distance, shot size and angle.
+- **Cameras:** 45+ real camera bodies and recording formats (ARRI, RED, Sony, Canon, Blackmagic, Nikon, plus Super 16, Super 35 and Full Frame), anamorphic squeeze, focal length and focus, frame guides, and the delivery frame. A camera HUD shows height, tilt, distance, shot size and angle.
 - **Scenes and shots:** each scene has its own set, and each shot can cheat anything (placement, pose, lighting) without touching the others. Shots are slated automatically (1A, 1B, 1C…).
 - **Lighting:** sun, point, spot and ambient lights with intensity in stops, colour temperature and softness. Time of day and atmosphere set the sky. Clay shading previews the light.
 - **Storyboard:** every shot in the board order you choose, with descriptions, dialogue and notes, shown as its lit clay render (or its chosen AI frame). Export to PDF (grid or rows, Letter or A4) or numbered PNGs.

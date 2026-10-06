@@ -1,6 +1,6 @@
 import { useEffect, useState, type RefObject } from 'react'
 import { X } from 'lucide-react'
-import { guideLabel, opticsFor, SENSOR_PRESETS } from '../../../shared/camera'
+import { guideLabel, opticsFor, sensorLabel } from '../../../shared/camera'
 import { activeScene, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import { formatLengthLabel } from '../units'
@@ -40,8 +40,7 @@ export default function FrameOverlay({ container }: { container: RefObject<HTMLE
 
   const fit = viewFit(opticsFor(kit, node.focalLength), width, height)
   const d = fit.delivery
-  const sensorName =
-    kit.sensor.preset === 'custom' ? `${kit.sensor.width}×${kit.sensor.height} mm` : SENSOR_PRESETS[kit.sensor.preset].label
+  const sensorName = sensorLabel(kit.sensor)
   const size = node.sizeOverride ?? info?.size?.label
   const angle = node.angleOverride ?? info?.angle
   const lighting = node.lightingOverride ?? info?.lighting
