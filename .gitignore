@@ -16,3 +16,6 @@ Thumbs.db
 /tools/blender-user/
 # MakeHuman CC0 source data for scripts/figures/build-figure-data.mjs (downloaded, not committed)
 /tools/makehuman/
+
+# Private working notes (decisions log, detailed history); docs/PROGRESS.md is the public summary
+/notes/

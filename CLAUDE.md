@@ -3,7 +3,8 @@
 A local Windows desktop app for film previs. You greybox a set (primitives, posable mannequins, lights), place real cameras, link objects and characters to reference images, then generate AI frames through a managed local ComfyUI backend and assemble a storyboard.
 
 **Full spec: `docs/SPEC.md`. Read it before planning any milestone.**
-**Progress tracker: `docs/PROGRESS.md`.** Update it at the end of every milestone.
+**Progress tracker: `docs/PROGRESS.md`** (public, milestone level: big features only). Update it at the end of every milestone.
+**Working notes: `notes/DEV-NOTES.md`** (git-ignored, private): the detailed decisions log, per-change history and things to know. Log decisions there, not in PROGRESS.
 
 ## Stack
 Electron + React + TypeScript + Vite · three.js via react-three-fiber + drei · Zustand · ComfyUI (Windows portable) over its HTTP/WebSocket API · electron-builder.
@@ -18,7 +19,7 @@ Electron + React + TypeScript + Vite · three.js via react-three-fiber + drei ·
 1. **One milestone at a time** (see the table in SPEC §6). Don't start the next one until he confirms the current one works.
 2. Start each milestone in plan mode: propose the approach, list the files you'll create, and flag any decision he needs to make.
 3. **Don't add features that aren't in the spec** without asking. Put ideas in the "Ideas / later" section of PROGRESS.md instead.
-4. Commit to Git at the end of each working milestone, with a clear message.
+4. Commit to Git at the end of each working milestone, with a clear, professional message (what changed for the user; no anecdotes or back-and-forth about Spencer's requests).
 5. If something in the spec seems wrong or there's a clearly better approach, say so and explain why before changing course.
 6. Keep the app runnable. Never leave it in a broken state at the end of a session.
 
