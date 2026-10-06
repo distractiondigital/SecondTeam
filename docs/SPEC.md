@@ -1,6 +1,6 @@
 # Second Team — Product Spec
 
-> "Second team" is what ADs call the stand-ins. The actual actors are "first team." In this app, grey boxes and mannequins are the stand-ins, and the AI render is first team stepping in.
+> "Second team" is what ADs call the stand-ins. The actual actors are "first team." In this app, grey boxes and mannequins are the stand-ins.
 
 ## 1. What it is
 
