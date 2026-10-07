@@ -102,10 +102,11 @@ export default function LightView({ node, selected, clickable, lit, passive }: P
   const shadow = {
     userData: source,
     castShadow: node.shadows,
-    // Shadows are cast by front faces (castFromFrontFaces); the receiver-plane bias in
-    // softShadows.ts keeps flat surfaces clean, this small offset curved ones.
+    // Shadows are cast by front faces (castFromFrontFaces), so a lit surface is its own caster: a
+    // small offset along its (smooth) normal keeps it from shadowing itself, without opening gaps
+    // where objects meet the floor.
     'shadow-bias': node.kind === 'sun' ? -0.00008 : -0.00015,
-    'shadow-normalBias': 0,
+    'shadow-normalBias': node.kind === 'sun' ? 0.015 : 0.01,
     'shadow-radius': shadowRadius
   }
 

@@ -18,7 +18,7 @@ export const SPOT_SHADOW_FAR = 60
 
 const SEARCH = 32
 const FILTER = 128 // most samples, for the widest blurs (narrow ones use fewer)
-const MAX_UV = 0.03 // the widest blur, as a fraction of the shadow map
+const MAX_UV = 0.05 // the widest blur, as a fraction of the shadow map
 const MAX_ANGLE = 0.25 // radians, for point lights
 
 const HELPERS = /* glsl */ `
@@ -30,17 +30,6 @@ const HELPERS = /* glsl */ `
 		float t = float( i ) * 2.399963229728653 + phi;
 		return vec2( cos( t ), sin( t ) ) * r;
 	}
-	// How depth changes across the shadow map on this surface (receiver plane depth bias, Isidoro
-	// 2006): samples spread over a sloped surface compare against where the surface itself would be,
-	// so a wide soft-shadow filter doesn't shadow the surface onto itself.
-	vec2 stDepthSlope( vec3 c ) {
-		vec3 dx = dFdx( c );
-		vec3 dy = dFdy( c );
-		float det = dx.x * dy.y - dx.y * dy.x;
-		if ( abs( det ) < 1e-12 ) return vec2( 0.0 );
-		vec2 b = vec2( dy.y * dx.z - dx.y * dy.z, dx.x * dy.z - dy.x * dx.z ) / det;
-		return clamp( b, vec2( -2.0 ), vec2( 2.0 ) );
-	}
 	float stSpotLinear( float d ) {
 		return ST_SPOT_NEAR * ST_SPOT_FAR / ( ST_SPOT_FAR - d * ( ST_SPOT_FAR - ST_SPOT_NEAR ) );
 	}
@@ -50,7 +39,6 @@ const GET_SHADOW = /* glsl */ `
 	float getShadow( sampler2D shadowMap, vec2 shadowMapSize, float shadowIntensity, float shadowBias, float shadowRadius, vec4 shadowCoord ) {
 
 		shadowCoord.xyz /= shadowCoord.w;
-		vec2 slope = stDepthSlope( shadowCoord.xyz ); // before any branching (derivatives)
 		shadowCoord.z += shadowBias;
 		bool inFrustum = shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0;
 		if ( ! ( inFrustum && shadowCoord.z <= 1.0 ) ) return 1.0;
@@ -62,16 +50,14 @@ const GET_SHADOW = /* glsl */ `
 		float receiver = perspective ? stSpotLinear( shadowCoord.z ) : shadowCoord.z;
 
 		// 1. Blockers: anything nearer the light within the widest penumbra this point could have.
-		float search = perspective
-			? k * ( receiver - ST_SPOT_NEAR ) / ( receiver * ST_SPOT_NEAR ) * 0.5
-			: k * shadowCoord.z * 0.5;
+		// (spot: the penumbra of a blocker halfway to the light)
+		float search = perspective ? 0.5 * k / receiver : k * shadowCoord.z * 0.5;
 		search = clamp( search, 2.0 * texel, ${MAX_UV.toFixed(3)} );
 		float blockerSum = 0.0;
 		float blockers = 0.0;
 		for ( int i = 0; i < ${SEARCH}; i ++ ) {
-			vec2 o = stDisc( i, ${SEARCH}, phi ) * search;
-			float d = texture2D( shadowMap, shadowCoord.xy + o ).r;
-			if ( d < shadowCoord.z + dot( o, slope ) - 0.5 * texel * length( slope ) ) {
+			float d = texture2D( shadowMap, shadowCoord.xy + stDisc( i, ${SEARCH}, phi ) * search ).r;
+			if ( d < shadowCoord.z ) {
 				blockerSum += perspective ? stSpotLinear( d ) : d;
 				blockers += 1.0;
 			}
@@ -82,17 +68,18 @@ const GET_SHADOW = /* glsl */ `
 		// 2. Penumbra from the source size and the blocker-to-receiver gap.
 		float penumbra = perspective ? k * ( receiver - blocker ) / ( blocker * receiver ) : k * ( receiver - blocker );
 		float radius = clamp( penumbra * 0.5, 1.5 * texel, ${MAX_UV.toFixed(3)} );
+		// A source far bigger than the gap to the blocker leaves only a faint shadow (the blocker hides
+		// a small part of it): past the widest blur, fade the shadow instead of chopping it.
+		float faint = 1.0 - min( 1.0, ${MAX_UV.toFixed(3)} / max( penumbra * 0.5, 1e-6 ) );
 
 		// 3. Filter that wide (more samples for wider blurs, so soft edges stay smooth).
 		int n = int( clamp( radius / texel * 2.0, 16.0, ${FILTER.toFixed(1)} ) );
 		float lit = 0.0;
 		for ( int i = 0; i < ${FILTER}; i ++ ) {
 			if ( i >= n ) break;
-			vec2 o = stDisc( i, n, phi + 1.3 ) * radius;
-			float d = texture2D( shadowMap, shadowCoord.xy + o ).r;
-			lit += step( shadowCoord.z + dot( o, slope ) - 0.5 * texel * length( slope ), d );
+			lit += step( shadowCoord.z, texture2D( shadowMap, shadowCoord.xy + stDisc( i, n, phi + 1.3 ) * radius ).r );
 		}
-		return mix( 1.0, lit / float( n ), shadowIntensity );
+		return mix( 1.0, mix( lit / float( n ), 1.0, faint ), shadowIntensity );
 
 	}
 `
@@ -117,7 +104,7 @@ const GET_POINT_SHADOW = /* glsl */ `
 		float minAngle = 2.5 / shadowMapSize.x;
 
 		// 1. Blockers.
-		float search = clamp( halfSize * ( viewSpaceZ - near ) / ( viewSpaceZ * near ), minAngle, ${MAX_ANGLE.toFixed(3)} );
+		float search = clamp( halfSize / viewSpaceZ, minAngle, ${MAX_ANGLE.toFixed(3)} );
 		float blockerSum = 0.0;
 		float blockers = 0.0;
 		for ( int i = 0; i < ${SEARCH}; i ++ ) {
@@ -132,7 +119,9 @@ const GET_POINT_SHADOW = /* glsl */ `
 		float blocker = blockerSum / blockers;
 
 		// 2–3. Penumbra (as an angle seen from the light) and filter.
-		float angle = clamp( halfSize * ( viewSpaceZ - blocker ) / ( blocker * viewSpaceZ ), minAngle, ${MAX_ANGLE.toFixed(3)} );
+		float wide = halfSize * ( viewSpaceZ - blocker ) / ( blocker * viewSpaceZ );
+		float angle = clamp( wide, minAngle, ${MAX_ANGLE.toFixed(3)} );
+		float faint = 1.0 - min( 1.0, ${MAX_ANGLE.toFixed(3)} / max( wide, 1e-6 ) );
 		int n = int( clamp( angle / minAngle * 2.0, 16.0, ${FILTER.toFixed(1)} ) );
 		float lit = 0.0;
 		for ( int i = 0; i < ${FILTER}; i ++ ) {
@@ -140,7 +129,7 @@ const GET_POINT_SHADOW = /* glsl */ `
 			vec2 o = stDisc( i, n, phi + 1.3 ) * angle;
 			lit += step( dp, textureCube( shadowMap, normalize( dir + t1 * o.x + t2 * o.y ) ).r );
 		}
-		return mix( 1.0, lit / float( n ), shadowIntensity );
+		return mix( 1.0, mix( lit / float( n ), 1.0, faint ), shadowIntensity );
 
 	}
 `
@@ -160,7 +149,7 @@ function replaceFunction(source: string, signature: string, from: number, replac
 
 /**
  * Shadows are cast by surfaces facing the light (three's default is the back faces). Then where an
- * object meets the floor, or two faces of a box meet, nothing leaks; the receiver-plane bias above
+ * object meets the floor, or two faces of a box meet, nothing leaks; a small normal offset (LightView)
  * keeps lit surfaces from shadowing themselves. Call on a scene before rendering it (cheap).
  */
 export function castFromFrontFaces(scene: Object3D): void {
