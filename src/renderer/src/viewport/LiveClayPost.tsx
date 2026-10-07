@@ -5,14 +5,16 @@ import { opticsFor } from '../../../shared/camera'
 import { shotFocus } from '../../../shared/depthOfField'
 import { activeScene, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
-import { DepthOfField } from './depthOfField'
+import { ClayPost, type DofParams } from './clayPost'
+import { castFromFrontFaces } from './softShadows'
 import { isHelper, withHidden } from './renderShot'
 import { viewFit } from './viewFit'
 
-// The live camera view with the lens's depth of field. While looking through a shot (and the HUD's
-// DoF switch is on) this takes over drawing the viewport: the set renders into an offscreen
-// picture, gets blurred like the real lens would (DepthOfField), and the helpers (gizmos, grab
-// balls, aim lines) are drawn on top, sharp, still hidden by the set where they're behind it.
+// The live viewport with the Clay finishing passes (clayPost.ts): ambient occlusion in Clay
+// shading, and the lens's depth of field while looking through a shot (with the HUD's DoF switch
+// on). While active this takes over drawing: the set renders into an offscreen picture, gets
+// finished, and the helpers (gizmos, grab balls, aim lines, camera bodies) are drawn on top, sharp,
+// still hidden by the set where they're behind it. Work shading draws as before.
 
 const RENDERABLE = (o: Object3D) =>
   Boolean((o as { isMesh?: boolean }).isMesh || (o as { isLine?: boolean }).isLine || (o as { isPoints?: boolean }).isPoints || (o as { isSprite?: boolean }).isSprite)
@@ -23,16 +25,16 @@ function inHelper(o: Object3D): boolean {
   return false
 }
 
-export default function LiveDepthOfField() {
-  const lookId = useUi((s) => s.lookThroughId)
-  const on = useUi((s) => s.dofPreview)
-  return lookId && on ? <LiveBlur /> : null
+export default function LiveClayPost() {
+  const clay = useUi((s) => s.shading === 'clay')
+  const lookingWithDof = useUi((s) => s.lookThroughId !== null && s.dofPreview)
+  return clay || lookingWithDof ? <LivePost /> : null
 }
 
-function LiveBlur() {
+function LivePost() {
   const gl = useThree((s) => s.gl)
-  const dof = useMemo(() => new DepthOfField(), [])
-  useEffect(() => () => dof.dispose(), [dof])
+  const post = useMemo(() => new ClayPost(), [])
+  useEffect(() => () => post.dispose(), [post])
 
   // Priority 1: R3F stops drawing the frame itself while this is mounted.
   useFrame((state) => {
@@ -40,35 +42,31 @@ function LiveBlur() {
     const camera = state.camera as PerspectiveCamera
     const doc = useDocument.getState()
     const ui = useUi.getState()
-    const id = ui.lookThroughId
-    const node = id ? activeScene(doc).nodes[id] : undefined
-    if (node?.type !== 'camera') {
-      gl.render(scene, camera)
-      return
-    }
     const dpr = gl.getPixelRatio()
-    dof.setSize(size.width * dpr, size.height * dpr)
-    const kit = doc.project.camera
-    const fit = viewFit(opticsFor(kit, node.focalLength), size.width, size.height)
+    post.setSize(size.width * dpr, size.height * dpr)
 
-    withHidden(scene, isHelper, () => {
-      gl.setRenderTarget(dof.target)
-      gl.clear()
-      gl.render(scene, camera)
-    })
-    gl.setRenderTarget(null)
-    dof.render(
-      gl,
-      camera,
-      {
+    // Depth of field: only through a shot's lens.
+    let dof: DofParams | null = null
+    const node = ui.lookThroughId ? activeScene(doc).nodes[ui.lookThroughId] : undefined
+    if (node?.type === 'camera' && ui.dofPreview) {
+      const kit = doc.project.camera
+      dof = {
         focalLength: node.focalLength,
         stop: node.aperture,
         focus: shotFocus(node.focusDistance, ui.shotInfo[node.id]?.subjectDepth),
         squeeze: kit.squeeze,
-        pxPerMm: fit.pxPerMm * dpr
-      },
-      null
-    )
+        pxPerMm: viewFit(opticsFor(kit, node.focalLength), size.width, size.height).pxPerMm * dpr
+      }
+    }
+
+    castFromFrontFaces(scene)
+    withHidden(scene, isHelper, () => {
+      gl.setRenderTarget(post.target)
+      gl.clear()
+      gl.render(scene, camera)
+    })
+    gl.setRenderTarget(null)
+    post.render(gl, camera, { dof, ao: ui.shading === 'clay' }, null)
 
     // Helpers on top, against the set's depth. Nothing else draws again (no sky, no shadows).
     const background = scene.background

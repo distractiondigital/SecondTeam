@@ -4,6 +4,7 @@ import type { ThreeEvent } from '@react-three/fiber'
 import { kelvinToRgb, threeIntensity } from '../../../shared/lighting'
 import type { LightNode } from '../../../shared/project'
 import { useUi } from '../state/uiStore'
+import { SPOT_SHADOW_FAR, SPOT_SHADOW_NEAR } from './softShadows'
 import { handleNodeClick, handleNodeDoubleClick, noRaycast, SELECTION_COLOR } from './selection'
 
 // A light in the set: the actual three.js light (only switched on in Clay shading) and a small
@@ -12,6 +13,8 @@ import { handleNodeClick, handleNodeDoubleClick, noRaycast, SELECTION_COLOR } fr
 
 const SUN_DISTANCE = 25 // the sun's shadow camera sits this far "behind" the node
 const SUN_SHADOW_HALF = 12 // metres of set covered by the sun's shadows, each way
+const SUN_NEAR = 1
+const SUN_FAR = SUN_DISTANCE * 2.5
 const HELPER = { helper: true }
 
 function lines(points: number[]): BufferGeometry {
@@ -37,6 +40,23 @@ function coneOutline(angle: number, length: number): BufferGeometry {
   return lines(pts)
 }
 
+/** A circle of `radius` in the plane square to `axis` ('z': facing down -Z, like a spot's lens). */
+function circle(radius: number, axis: 'x' | 'y' | 'z'): BufferGeometry {
+  const pts: number[] = []
+  const n = 48
+  for (let i = 0; i < n; i++) {
+    const a0 = (i / n) * Math.PI * 2
+    const a1 = ((i + 1) / n) * Math.PI * 2
+    const p = (a: number) => {
+      const c = Math.cos(a) * radius
+      const s = Math.sin(a) * radius
+      return axis === 'z' ? [c, s, 0] : axis === 'y' ? [c, 0, s] : [0, c, s]
+    }
+    pts.push(...p(a0), ...p(a1))
+  }
+  return lines(pts)
+}
+
 const SUN_ARROW = lines([0, 0, 0, 0, 0, -0.7, 0, 0, -0.7, 0.06, 0, -0.58, 0, 0, -0.7, -0.06, 0, -0.58])
 
 interface Props {
@@ -56,9 +76,21 @@ export default function LightView({ node, selected, clickable, lit, passive }: P
   const color = useMemo(() => new Color(...kelvinToRgb(node.kelvin)), [node.kelvin])
   const iconColor = selected ? SELECTION_COLOR : '#' + color.getHexString()
   const intensity = threeIntensity(node.kind, node.stops)
-  // Variance shadow maps: radius blurs the edge (hard 1 … soft 12).
-  const shadowRadius = 1 + node.softness * 11
+  // Soft shadows from the light's real size (softShadows.ts reads it from shadow.radius).
+  const halfCone = MathUtils.degToRad(node.coneAngle / 2)
+  const shadowRadius =
+    node.kind === 'sun'
+      ? ((SUN_FAR - SUN_NEAR) * Math.tan(MathUtils.degToRad(node.size))) / (2 * SUN_SHADOW_HALF)
+      : node.kind === 'spot'
+        ? -node.size / (2 * Math.tan(Math.min(halfCone, MathUtils.degToRad(80))))
+        : node.size
   const cone = useMemo(() => coneOutline(node.coneAngle, 0.8), [node.coneAngle])
+  // The source's real size, shown while selected: a disc for a spot, a sphere outline for a bulb.
+  const sizeOutline = useMemo(() => {
+    if (node.kind !== 'point' && node.kind !== 'spot') return []
+    const r = node.size / 2
+    return node.kind === 'spot' ? [circle(r, 'z')] : [circle(r, 'x'), circle(r, 'y'), circle(r, 'z')]
+  }, [node.kind, node.size])
 
   const pick = {
     raycast: clickable ? undefined : noRaycast,
@@ -67,10 +99,11 @@ export default function LightView({ node, selected, clickable, lit, passive }: P
   }
   const shadow = {
     castShadow: node.shadows,
-    'shadow-bias': -0.0002,
-    'shadow-normalBias': 0.01,
-    'shadow-radius': shadowRadius,
-    'shadow-blurSamples': 16
+    // Shadows are cast by front faces (castFromFrontFaces); the receiver-plane bias in
+    // softShadows.ts keeps flat surfaces clean, this small offset curved ones.
+    'shadow-bias': node.kind === 'sun' ? -0.00008 : -0.00015,
+    'shadow-normalBias': 0,
+    'shadow-radius': shadowRadius
   }
 
   return (
@@ -84,14 +117,14 @@ export default function LightView({ node, selected, clickable, lit, passive }: P
             color={color}
             intensity={intensity}
             {...shadow}
-            shadow-mapSize-width={2048}
-            shadow-mapSize-height={2048}
+            shadow-mapSize-width={4096}
+            shadow-mapSize-height={4096}
             shadow-camera-left={-SUN_SHADOW_HALF}
             shadow-camera-right={SUN_SHADOW_HALF}
             shadow-camera-top={SUN_SHADOW_HALF}
             shadow-camera-bottom={-SUN_SHADOW_HALF}
-            shadow-camera-near={1}
-            shadow-camera-far={SUN_DISTANCE * 2.5}
+            shadow-camera-near={SUN_NEAR}
+            shadow-camera-far={SUN_FAR}
           />
         </>
       )}
@@ -107,13 +140,25 @@ export default function LightView({ node, selected, clickable, lit, passive }: P
             decay={2}
             distance={0}
             {...shadow}
-            shadow-mapSize-width={1024}
-            shadow-mapSize-height={1024}
+            shadow-mapSize-width={2048}
+            shadow-mapSize-height={2048}
+            shadow-camera-near={SPOT_SHADOW_NEAR}
+            shadow-camera-far={SPOT_SHADOW_FAR}
           />
         </>
       )}
       {lit && node.kind === 'point' && (
-        <pointLight color={color} intensity={intensity} decay={2} distance={0} {...shadow} />
+        <pointLight
+          color={color}
+          intensity={intensity}
+          decay={2}
+          distance={0}
+          {...shadow}
+          shadow-mapSize-width={1024}
+          shadow-mapSize-height={1024}
+          shadow-camera-near={0.05}
+          shadow-camera-far={60}
+        />
       )}
       {lit && node.kind === 'ambient' && <hemisphereLight args={[color, '#3a3a3a', intensity]} />}
 
@@ -135,6 +180,12 @@ export default function LightView({ node, selected, clickable, lit, passive }: P
               </lineSegments>
             </>
           )}
+          {selected &&
+            sizeOutline.map((g, i) => (
+              <lineSegments key={i} geometry={g}>
+                <lineBasicMaterial color={iconColor} transparent opacity={0.45} />
+              </lineSegments>
+            ))}
           {node.kind === 'spot' && (
             <lineSegments geometry={cone}>
               <lineBasicMaterial color={iconColor} transparent opacity={0.8} />

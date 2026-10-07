@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { clockText, DEFAULT_ENVIRONMENT, fogDensity, fogPhrase, repairEnvironment, skyAt, timeLabel, timePhrase } from './environment'
+import { bounceScale, clockText, DEFAULT_ENVIRONMENT, fogDensity, fogPhrase, repairEnvironment, skyAt, timeLabel, timePhrase } from './environment'
 
 describe('environment', () => {
   it('names the time of day round the clock', () => {
@@ -40,5 +40,15 @@ describe('environment', () => {
     expect(repairEnvironment({ time: 6, ground: '#AABBCC' })).toEqual({ time: 6, ground: '#aabbcc', fog: 0 })
     expect(clockText(18.5)).toBe('18:30')
     expect(clockText(24)).toBe('00:00')
+  })
+})
+
+describe('bounce light', () => {
+  it('adds nothing without sun on the ground, more with more sun, within reason', () => {
+    expect(bounceScale(0, 0.6)).toBe(1)
+    expect(bounceScale(2, 0.6)).toBeGreaterThan(bounceScale(1, 0.6))
+    // A dim sky makes the same bounce count for more of the fill.
+    expect(bounceScale(1, 0.2)).toBeGreaterThan(bounceScale(1, 0.6))
+    expect(bounceScale(1000, 0.6)).toBe(4)
   })
 })

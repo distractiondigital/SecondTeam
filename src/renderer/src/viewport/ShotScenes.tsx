@@ -4,7 +4,7 @@ import { createPortal } from '@react-three/fiber'
 import { activeScene, environmentFor, sceneForShot, sceneOfShot, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import GroundGrid from './GroundGrid'
-import EnvironmentView from './EnvironmentView'
+import EnvironmentView, { sunOnGround } from './EnvironmentView'
 import SceneNodes, { hasLights } from './SceneNodes'
 
 // A hidden copy of the set for every shot, each showing that shot's version (Master plus the
@@ -45,6 +45,7 @@ function ShotScene({ shotId }: { shotId: string }) {
   const clay = useDocument((s) => hasLights(sceneForShot(s, shotId)))
   const floor = useDocument((s) => sceneOfShot(s, shotId).floor)
   const env = useDocument((s) => environmentFor(s, shotId))
+  const sunLight = useDocument((s) => sunOnGround(sceneForShot(s, shotId)))
   const scene = useMemo(() => {
     const s = new Scene()
     s.background = new Color(BACKGROUND)
@@ -59,7 +60,7 @@ function ShotScene({ shotId }: { shotId: string }) {
 
   return createPortal(
     <>
-      {clay ? <EnvironmentView env={env} /> : <WorkLights />}
+      {clay ? <EnvironmentView env={env} sunOnGround={sunLight} /> : <WorkLights />}
       {/* The floor replaces the grid (they'd flicker against each other in the distance). */}
       {floor ? <RenderFloor clay={clay} ground={env.ground} /> : <GroundGrid />}
       <SceneNodes shotId={shotId} passive clay={clay} />

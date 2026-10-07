@@ -548,6 +548,29 @@ describe('lights', () => {
     return n
   }
 
+  it('turns the old 0–1 softness into a real size, in the set and in shots (format 16)', () => {
+    const sun = doc().addLight('sun')
+    const spot = doc().addLight('spot')
+    const shot = doc().addCamera({ position: [0, 1.6, 4], rotation: [0, 0, 0] })
+    const raw = JSON.parse(serializeProject(doc().project))
+    raw.schemaVersion = 15
+    const nodes = raw.scenes[0].nodes
+    for (const id of [sun, spot]) {
+      delete nodes[id].size
+      nodes[id].softness = 0.4
+    }
+    nodes[shot].overrides = { [spot]: { softness: 1 } }
+    const loaded = parseProject(JSON.stringify(raw)).scenes[0].nodes
+    const s = loaded[sun]
+    const p = loaded[spot]
+    if (s.type !== 'light' || p.type !== 'light') throw new Error('not lights')
+    expect(s.size).toBeCloseTo(0.53 + 0.16 * 30, 3) // degrees
+    expect(p.size).toBeCloseTo(0.05 + 0.16 * 3.5, 3) // metres
+    expect('softness' in s).toBe(false)
+    const cam = loaded[shot]
+    expect(cam.type === 'camera' && cam.overrides[spot]).toEqual({ size: 3.55 })
+  })
+
   it('adds lights aimed down and forward, with sensible defaults', () => {
     const sun = doc().addLight('sun', [1, 2])
     expect(lamp(sun).name).toBe('Sun 1')
@@ -560,8 +583,8 @@ describe('lights', () => {
 
   it('keeps values in range and never scales lights', () => {
     const spot = doc().addLight('spot')
-    doc().updateNode(spot, { stops: 12, kelvin: 500, softness: 3, coneAngle: 400, scale: [2, 2, 2] })
-    expect([lamp(spot).stops, lamp(spot).kelvin, lamp(spot).softness, lamp(spot).coneAngle]).toEqual([6, 1800, 1, 120])
+    doc().updateNode(spot, { stops: 12, kelvin: 500, size: 300, coneAngle: 400, scale: [2, 2, 2] })
+    expect([lamp(spot).stops, lamp(spot).kelvin, lamp(spot).size, lamp(spot).coneAngle]).toEqual([6, 1800, 20, 120])
     expect(lamp(spot).scale).toEqual([1, 1, 1])
   })
 

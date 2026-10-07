@@ -147,6 +147,7 @@ Build **one milestone at a time**. Each ends with the app running and a short "h
 | 11 | **Polish** | Fix pain points found by using it on a real project. |
 | 12 | **Mac version** | A collaborator on an Apple Silicon Mac installs a `.dmg` and can build sets, shots and storyboards (AI engine on Mac comes later). Added 2026-10-04. Built by GitHub Actions; see docs/MAC.md. |
 | 13 | **Depth of field** | Clay pictures (camera view, thumbnails, board, exports) have optically accurate depth of field from the sensor, focal length, stop and focus; focus follows the subject or is set by clicking; the HUD shows what's sharp. Added 2026-10-06. |
+| 14 | **Clay lighting** | Lights have a real size; Clay shadows soften with distance like real sources (sharp at contact), with ambient occlusion and ground bounce, in every clay picture. Added 2026-10-06. |
 
 ## 7. Known risks (think about these early)
 - **Reference bleed.** Masked IP-Adapters can leak one character's look onto another. Plan for per-reference weight and mask feathering controls.

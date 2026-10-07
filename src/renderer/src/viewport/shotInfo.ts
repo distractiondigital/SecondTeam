@@ -185,7 +185,7 @@ export function computeShotInfo(scene: Scene, camera: CameraNode, kit: CameraKit
       direction: new Vector3(0, 0, -1).applyQuaternion(q).toArray() as Vec3,
       stops: n.stops,
       kelvin: n.kelvin,
-      softness: n.softness,
+      size: n.size,
       coneAngle: n.coneAngle,
       falloff: n.falloff
     })

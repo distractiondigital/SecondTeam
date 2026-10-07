@@ -13,11 +13,12 @@ import FrameController from './FrameController'
 import GroundGrid from './GroundGrid'
 import JointGizmo from './JointGizmo'
 import LookThrough from './LookThrough'
-import LiveDepthOfField from './LiveDepthOfField'
+import { installSoftShadows } from './softShadows'
+import LiveClayPost from './LiveClayPost'
 import FocusPick from './FocusPick'
 import SceneNodes, { hasLights } from './SceneNodes'
 import SelectionGizmo from './SelectionGizmo'
-import EnvironmentView from './EnvironmentView'
+import EnvironmentView, { sunOnGround } from './EnvironmentView'
 import BoxSelect from './BoxSelect'
 import FreeFly from './FreeFly'
 import ViewNav from './ViewNav'
@@ -37,19 +38,23 @@ const NO_ACTION = -1 as MOUSE
 const MOUSE_BUTTONS = { LEFT: NO_ACTION, MIDDLE: MOUSE.ROTATE, RIGHT: NO_ACTION }
 
 // Scene units: 1 three.js unit = 1 metre. Y is up.
+// Light-size soft shadows replace three's plain shadow filtering (before anything compiles).
+installSoftShadows()
+
 export default function Viewport() {
   const container = useRef<HTMLDivElement>(null)
   const lookingThrough = useUi((s) => s.lookThroughId !== null)
   const activeShotId = useDocument((s) => s.activeShotId)
   const clay = useUi((s) => s.shading === 'clay')
   const lit = useDocument((s) => hasLights(editedNodes(s)))
+  const sunLight = useDocument((s) => sunOnGround(editedNodes(s)))
   const env = useDocument((s) => environmentFor(s, s.activeShotId))
   const floor = useDocument((s) => activeScene(s).floor)
 
   return (
     <div className={`viewport-wrap${activeShotId ? ' in-shot' : ''}`} ref={container}>
       <Canvas
-        shadows="variance"
+        shadows="basic"
         camera={{ position: [6, 4, 8], fov: 40, near: 0.05, far: 1000 }}
         onPointerMissed={(e) => {
           // Clicking empty space steps back out of joint posing, then clears the selection.
@@ -63,7 +68,7 @@ export default function Viewport() {
         {/* Work shading: even work light. Clay: the scene's lights plus the environment's sky and
             fill (a dim fill if there are no lights), standing on the ground colour. */}
         {!clay && <WorkLights />}
-        {clay && lit && <EnvironmentView env={env} />}
+        {clay && lit && <EnvironmentView env={env} sunOnGround={sunLight} />}
         {clay && !lit && <hemisphereLight args={['#ffffff', '#444444', 0.6]} />}
 
         {clay && lit && floor ? <RenderFloor clay ground={env.ground} /> : <GroundGrid />}
@@ -79,7 +84,7 @@ export default function Viewport() {
         <OrbitControls makeDefault mouseButtons={MOUSE_BUTTONS} />
         <FrameController />
         <LookThrough />
-        <LiveDepthOfField />
+        <LiveClayPost />
         <FocusPick />
         <FreeFly />
         <ViewNav />

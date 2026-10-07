@@ -22,7 +22,7 @@ const light = (over: Partial<LightSample>): LightSample => ({
   direction: [0, 0, -1],
   stops: 0,
   kelvin: 5600,
-  softness: 0.5,
+  size: 0.6,
   coneAngle: 40,
   falloff: 0.3,
   ...over
@@ -77,11 +77,11 @@ describe('lighting description', () => {
   })
 
   it('describes quality, colour and contrast', () => {
-    const hardWarm = light({ position: [-2, 1.6, 0], softness: 0.1, kelvin: 3200 })
+    const hardWarm = light({ position: [-2, 1.6, 0], size: 0.05, kelvin: 3200 })
     expect(describeLighting([hardWarm], subject, camera)).toBe(
       'Hard key light from camera left, warm tungsten, high contrast'
     )
-    const soft = light({ position: [-2, 1.6, 0], softness: 0.9, kelvin: 8000 })
+    const soft = light({ position: [-2, 1.6, 0], size: 2.4, kelvin: 8000 })
     const fill = light({ kind: 'ambient', stops: 2 })
     expect(describeLighting([soft, fill], subject, camera)).toBe(
       'Soft key light from camera left, cool daylight, flat, low contrast'

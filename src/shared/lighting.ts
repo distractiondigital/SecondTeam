@@ -35,6 +35,52 @@ const clamp = (v: number, lo: number, hi: number, fallback: number) =>
 export const clampStops = (s: number) => Math.round(clamp(s, MIN_STOPS, MAX_STOPS, 0) * 100) / 100
 export const clampKelvin = (k: number) => Math.round(clamp(k, MIN_KELVIN, MAX_KELVIN, 5600))
 export const clampUnit = (v: number) => clamp(v, 0, 1, 0.5)
+
+// Light size: how big the source is, which sets how soft its shadows are. Point and spot lights:
+// the diameter of the source in metres (a bare bulb … a 20×20 frame). The sun: its angular diameter
+// in degrees (the clear sun is 0.53°; haze and thin cloud spread it out). Ambient has none.
+export const SIZE_PRESETS: Record<'sun' | 'lamp', { label: string; size: number }[]> = {
+  lamp: [
+    { label: 'Bare bulb', size: 0.05 },
+    { label: 'Fresnel', size: 0.2 },
+    { label: 'China ball', size: 0.6 },
+    { label: '4×4 frame', size: 1.2 },
+    { label: '8×8 frame', size: 2.4 },
+    { label: '12×12 frame', size: 3.6 },
+    { label: '20×20 frame', size: 6 }
+  ],
+  sun: [
+    { label: 'Clear sun', size: 0.53 },
+    { label: 'Hazy', size: 2 },
+    { label: 'Thin cloud', size: 8 },
+    { label: 'Overcast', size: 30 }
+  ]
+}
+export const SIZE_RANGE: Record<'sun' | 'lamp', [number, number]> = { lamp: [0.01, 20], sun: [0.1, 90] }
+
+const sizeGroup = (kind: LightKind) => (kind === 'sun' ? 'sun' : 'lamp')
+
+export function defaultLightSize(kind: LightKind): number {
+  return kind === 'sun' ? 0.53 : kind === 'ambient' ? 0 : 0.6
+}
+
+export function clampLightSize(kind: LightKind, v: number): number {
+  if (kind === 'ambient') return 0
+  const [lo, hi] = SIZE_RANGE[sizeGroup(kind)]
+  return clamp(v, lo, hi, defaultLightSize(kind))
+}
+
+/** Size for a light saved with the old 0–1 softness (schema 15 and before). */
+export function sizeFromSoftness(kind: LightKind, softness: number): number {
+  const s = clampUnit(softness)
+  if (kind === 'ambient') return 0
+  return kind === 'sun' ? 0.53 + s * s * 30 : 0.05 + s * s * 3.5
+}
+
+/** "0.6 m", "0.53°". */
+export function sizeLabel(kind: LightKind, size: number): string {
+  return kind === 'sun' ? `${Number(size.toFixed(2))}°` : `${Number(size.toFixed(2))} m`
+}
 export const clampCone = (deg: number) => clamp(deg, MIN_CONE, MAX_CONE, 40)
 
 /**
@@ -83,7 +129,8 @@ export interface LightSample {
   direction: Vec3
   stops: number
   kelvin: number
-  softness: number
+  /** Source size: metres (point, spot) or degrees (sun). */
+  size: number
   coneAngle: number
   falloff: number
 }
@@ -114,6 +161,13 @@ export function illuminanceAt(light: LightSample, point: Vec3): number {
     if (cos < inner) e *= (cos - outer) / Math.max(1e-6, inner - outer)
   }
   return e
+}
+
+/** How big a light looks from a point, in degrees: what decides hard or soft light. */
+export function apparentSize(light: LightSample, point: Vec3): number {
+  if (light.kind === 'sun') return light.size
+  const d = Math.max(0.05, len(sub(point, light.position)))
+  return (2 * Math.atan(light.size / 2 / d) * 180) / Math.PI
 }
 
 /** Direction from a point toward a light (for the sun: against the way its light travels). */
@@ -165,7 +219,9 @@ export function describeLighting(lights: LightSample[], subject: Vec3, camera: C
   const { azimuth, elevation } = lightAngles(key.light, subject, camera)
   const parts: string[] = []
 
-  const quality = key.light.softness < 0.35 ? 'hard' : key.light.softness > 0.65 ? 'soft' : ''
+  // Hard or soft from how big the source looks from the subject.
+  const apparent = apparentSize(key.light, subject)
+  const quality = apparent < 6 ? 'hard' : apparent > 20 ? 'soft' : ''
   const height = elevation > 60 ? 'top' : elevation > 30 ? 'high' : elevation < -10 ? 'low' : ''
   if (Math.abs(azimuth) >= 115) {
     parts.push([quality, 'backlight'].filter(Boolean).join(' ') + (height === 'top' ? ' from above' : ''))

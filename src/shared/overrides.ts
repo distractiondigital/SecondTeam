@@ -29,7 +29,7 @@ export const OVERRIDABLE_FIELDS = [
   'lookAt',
   'stops',
   'kelvin',
-  'softness',
+  'size',
   'shadows',
   'coneAngle',
   'falloff'
@@ -56,7 +56,7 @@ export interface NodeOverride {
   lookAt?: LookAt | null
   stops?: number
   kelvin?: number
-  softness?: number
+  size?: number
   shadows?: boolean
   coneAngle?: number
   falloff?: number
@@ -74,7 +74,7 @@ export function overridableFor(node: SceneNode): OverridableField[] {
     case 'mannequin':
       return ['position', 'rotation', 'hidden', 'color', 'pose', 'height', 'build', 'limits', 'body', 'appearance', 'expression', 'hands', 'plants', 'lookAt']
     case 'light':
-      return ['position', 'rotation', 'hidden', 'stops', 'kelvin', 'softness', 'shadows', 'coneAngle', 'falloff']
+      return ['position', 'rotation', 'hidden', 'stops', 'kelvin', 'size', 'shadows', 'coneAngle', 'falloff']
     case 'camera':
       return []
   }
@@ -135,8 +135,8 @@ export function overriddenFields(overrides: ShotOverrides | undefined, id: strin
   return o ? (OVERRIDABLE_FIELDS.filter((f) => o[f] !== undefined) as OverridableField[]) : []
 }
 
-type NumberField = 'height' | 'build' | 'stops' | 'kelvin' | 'softness' | 'coneAngle' | 'falloff'
-const NUMBER_FIELDS: string[] = ['height', 'build', 'stops', 'kelvin', 'softness', 'coneAngle', 'falloff']
+type NumberField = 'height' | 'build' | 'stops' | 'kelvin' | 'size' | 'coneAngle' | 'falloff'
+const NUMBER_FIELDS: string[] = ['height', 'build', 'stops', 'kelvin', 'size', 'coneAngle', 'falloff']
 
 const isVec3 = (v: unknown): v is Vec3 =>
   Array.isArray(v) && v.length === 3 && v.every((n) => typeof n === 'number' && Number.isFinite(n))

@@ -24,7 +24,7 @@ When you want more than clay, Second Team can bring your boards to life with AI 
   - Use pose presets and a pose library.
 - **Cameras:** 45+ real camera bodies and recording formats (ARRI, RED, Sony, Canon, Blackmagic, Nikon, plus Super 16, Super 35 and Full Frame), anamorphic squeeze, focal length, stop and focus, frame guides, and the delivery frame. Clay pictures have optically accurate depth of field, with click-to-focus. A camera HUD shows height, tilt, distance, shot size and angle.
 - **Scenes and shots:** each scene has its own set, and each shot can cheat anything (placement, pose, lighting) without touching the others. Shots are slated automatically (1A, 1B, 1C…).
-- **Lighting:** sun, point, spot and ambient lights with intensity in stops, colour temperature and softness. Time of day and atmosphere set the sky. Clay shading previews the light.
+- **Lighting:** sun, point, spot and ambient lights with intensity in stops, colour temperature and real source sizes. Clay shading previews the light with soft shadows that harden at contact, ambient occlusion and bounce light from the ground; time of day and atmosphere set the sky.
 - **Storyboard:** every shot in the board order you choose, with descriptions, dialogue and notes, shown as its lit clay render (or its chosen AI frame). Export to PDF (grid or rows, Letter or A4) or numbered PNGs.
 
 ## AI frames: bring your boards to life

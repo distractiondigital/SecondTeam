@@ -103,6 +103,16 @@ export function timePhrase(time: number): string {
 }
 
 /**
+ * Bounce light from a sunlit floor: the ground lights the shadow sides and undersides of things
+ * from below. The hemisphere fill's ground colour (the floor's own colour, its albedo) is scaled by
+ * this. `sunOnGround` is the sun's light falling on the floor (illuminance, sun brightness × sine of
+ * its elevation); a matte floor sends 1/π of it back up per unit of colour, on top of the sky fill.
+ */
+export function bounceScale(sunOnGround: number, fillIntensity: number): number {
+  return Math.min(4, 1 + Math.max(0, sunOnGround) / (Math.PI * Math.max(0.05, fillIntensity)))
+}
+
+/**
  * Fog density for three.js FogExp2 (per metre). Eased so the low end is a subtle haze:
  * 0.25 is a faint haze far off (~10% at 100 m), 0.5 hides 60% at 40 m, 1 limits you to ~10 m.
  */

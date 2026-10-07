@@ -63,8 +63,10 @@ import { applyOverride, effectiveNodes, isOverridable } from '../../../shared/ov
 import {
   clampCone,
   clampKelvin,
+  clampLightSize,
   clampStops,
   clampUnit,
+  defaultLightSize,
   LIGHT_LABELS,
   type LightKind
 } from '../../../shared/lighting'
@@ -103,8 +105,8 @@ export type CameraField =
   | 'boardText'
   | 'dialogue'
 
-export type LightField = 'stops' | 'kelvin' | 'softness' | 'shadows' | 'coneAngle' | 'falloff'
-const LIGHT_FIELDS: LightField[] = ['stops', 'kelvin', 'softness', 'shadows', 'coneAngle', 'falloff']
+export type LightField = 'stops' | 'kelvin' | 'size' | 'shadows' | 'coneAngle' | 'falloff'
+const LIGHT_FIELDS: LightField[] = ['stops', 'kelvin', 'size', 'shadows', 'coneAngle', 'falloff']
 
 export type NodePatch = Partial<
   Pick<PrimitiveNode, 'name' | 'position' | 'rotation' | 'scale' | 'color' | 'hidden' | 'locked'> &
@@ -162,7 +164,7 @@ export interface CameraSpawn {
   focalLength?: number
 }
 
-function normalizeField(key: keyof NodePatch, value: unknown): unknown {
+function normalizeField(key: keyof NodePatch, value: unknown, node: SceneNode): unknown {
   if (key === 'scale') return clampScale(value as Vec3)
   if (key === 'height') return clampHeight(value as number)
   if (key === 'build') return clampBuild(value as number)
@@ -176,7 +178,8 @@ function normalizeField(key: keyof NodePatch, value: unknown): unknown {
   if (key === 'style') return value === 'mannequin' ? 'mannequin' : 'human'
   if (key === 'stops') return clampStops(value as number)
   if (key === 'kelvin') return clampKelvin(value as number)
-  if (key === 'softness' || key === 'falloff') return clampUnit(value as number)
+  if (key === 'size' && node.type === 'light') return clampLightSize(node.kind, value as number)
+  if (key === 'falloff') return clampUnit(value as number)
   if (key === 'coneAngle') return clampCone(value as number)
   return value
 }
@@ -420,7 +423,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
           for (const [key, value] of Object.entries(patch) as [keyof NodePatch, unknown][]) {
             const types = FIELD_TYPES[key]
             if (types && !types.includes(node.type)) continue
-            const next = normalizeField(key, value)
+            const next = normalizeField(key, value, node)
             if (key === 'shotNumber' && node.type === 'camera' && node.name === `Shot ${node.shotNumber}`) {
               node.name = `Shot ${String(next).trim()}` // keep the default name in step
             }
@@ -751,7 +754,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
           locked: false,
           stops: kind === 'ambient' ? -2 : 0,
           kelvin: kind === 'sun' ? 5600 : kind === 'ambient' ? 7000 : 3200,
-          softness: kind === 'ambient' ? 1 : 0.4,
+          size: defaultLightSize(kind),
           shadows: kind !== 'ambient',
           coneAngle: 40,
           falloff: 0.3

@@ -9,7 +9,11 @@ import {
   MAX_STOPS,
   MIN_CONE,
   MIN_KELVIN,
-  MIN_STOPS
+  MIN_STOPS,
+  SIZE_PRESETS,
+  SIZE_RANGE,
+  sizeLabel,
+  type LightKind
 } from '../../../shared/lighting'
 import type { LightNode, Vec3 } from '../../../shared/project'
 import { deleteSelected } from '../state/actions'
@@ -18,13 +22,24 @@ import { GestureSlider } from './FigureProperties'
 import NumberField from './NumberField'
 
 // Properties for a light: where it is and where it points, brightness in stops, colour
-// temperature, softness, shadows, and (spots) the beam.
+// temperature, size (how soft its shadows are), shadows, and (spots) the beam.
 
 const HINTS = {
   sun: 'Daylight from one direction. Only its angle matters, not where it sits.',
   point: 'A bare bulb: shines every way and falls off with distance.',
   spot: 'A beam: aim it with the rotate gizmo (E) or Pan/Tilt below.',
   ambient: 'Soft, even fill from the sky. It has no direction and casts no shadows.'
+}
+
+/** The size slider is logarithmic: a bulb and a 20×20 frame both get room. */
+function sizeToSlider(kind: LightKind, size: number): number {
+  const [lo, hi] = SIZE_RANGE[kind === 'sun' ? 'sun' : 'lamp']
+  return Math.log(size / lo) / Math.log(hi / lo)
+}
+function sliderToSize(kind: LightKind, t: number): number {
+  const [lo, hi] = SIZE_RANGE[kind === 'sun' ? 'sun' : 'lamp']
+  const v = lo * Math.pow(hi / lo, t)
+  return Math.round(v * (v < 1 ? 1000 : 100)) / (v < 1 ? 1000 : 100)
 }
 
 export default function LightProperties({ node }: { node: LightNode }) {
@@ -165,20 +180,46 @@ export default function LightProperties({ node }: { node: LightNode }) {
 
         {node.kind !== 'ambient' && (
           <>
-            <div className="prop-title prop-title-spaced" title="Soft light gives blurred shadow edges">
-              Softness
+            <div
+              className="prop-title prop-title-spaced"
+              title={node.kind === 'sun' ? 'How big the sun looks: the clear sun is 0.53°; haze and thin cloud spread it out' : 'How big the source is: a bigger source gives softer shadows and softer light'}
+            >
+              Size · {sizeLabel(node.kind, node.size)}
             </div>
             <div className="slider-row">
-              <span className="slider-end">Hard</span>
+              <span className="slider-end">{node.kind === 'sun' ? 'Sharp' : 'Small'}</span>
               <GestureSlider
-                value={node.softness}
+                value={sizeToSlider(node.kind, node.size)}
                 min={0}
                 max={1}
-                step={0.01}
+                step={0.001}
                 disabled={disabled}
-                onChange={(softness) => update({ softness })}
+                onChange={(t) => update({ size: sliderToSize(node.kind, t) })}
               />
-              <span className="slider-end">Soft</span>
+              <span className="slider-end">{node.kind === 'sun' ? 'Hazy' : 'Large'}</span>
+              <NumberField
+                label={node.kind === 'sun' ? '°' : 'm'}
+                value={node.size}
+                kind="factor"
+                step={0.01}
+                min={SIZE_RANGE[node.kind === 'sun' ? 'sun' : 'lamp'][0]}
+                max={SIZE_RANGE[node.kind === 'sun' ? 'sun' : 'lamp'][1]}
+                disabled={disabled}
+                onCommit={(size) => update({ size })}
+              />
+            </div>
+            <div className="kelvin-presets">
+              {SIZE_PRESETS[node.kind === 'sun' ? 'sun' : 'lamp'].map((p) => (
+                <button
+                  key={p.label}
+                  className={Math.abs(node.size - p.size) < 0.005 ? 'active' : ''}
+                  disabled={disabled}
+                  onClick={() => update({ size: p.size })}
+                  title={sizeLabel(node.kind, p.size)}
+                >
+                  {p.label}
+                </button>
+              ))}
             </div>
             <label className="prop-check">
               <input

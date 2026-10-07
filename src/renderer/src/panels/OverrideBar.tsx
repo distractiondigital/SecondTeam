@@ -25,7 +25,7 @@ const FIELD_LABELS: Record<OverridableField, string> = {
   lookAt: 'look at',
   stops: 'brightness',
   kelvin: 'colour temperature',
-  softness: 'softness',
+  size: 'size',
   shadows: 'shadows',
   coneAngle: 'cone angle',
   falloff: 'beam edge'

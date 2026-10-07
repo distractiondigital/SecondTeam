@@ -1,10 +1,24 @@
 import { useEffect, useMemo } from 'react'
-import { CanvasTexture, EquirectangularReflectionMapping, SRGBColorSpace } from 'three'
-import { fogDensity, skyAt, type Environment } from '../../../shared/environment'
+import { CanvasTexture, Color, EquirectangularReflectionMapping, Euler, MathUtils, SRGBColorSpace, Vector3 } from 'three'
+import { bounceScale, fogDensity, skyAt, type Environment } from '../../../shared/environment'
+import { threeIntensity } from '../../../shared/lighting'
+import type { SceneNode } from '../../../shared/project'
 
 // The Clay look's surroundings: a sky gradient for the time of day (scene background, so it never
-// gets in the way of clicks, shadows or the depth/ID passes) and a soft fill light in the sky's
-// colour. The scene's own lights stay the key.
+// gets in the way of clicks, shadows or the depth/ID passes) and a soft fill: the sky's colour from
+// above, and from below the ground's colour brightened by the sun bouncing off it (bounceScale).
+// The scene's own lights stay the key.
+
+/** The suns' light falling on the floor (same units as the light intensities). */
+export function sunOnGround(nodes: Record<string, SceneNode>): number {
+  let e = 0
+  for (const n of Object.values(nodes)) {
+    if (n.type !== 'light' || n.kind !== 'sun' || n.hidden) continue
+    const down = new Vector3(0, 0, -1).applyEuler(new Euler(...n.rotation.map((d) => MathUtils.degToRad(d)) as [number, number, number]))
+    e += threeIntensity('sun', n.stops) * Math.max(0, -down.y)
+  }
+  return e
+}
 
 /** A tall strip mapped round the camera: zenith at the top, horizon in the middle, ground haze below. */
 function skyTexture(env: Environment): CanvasTexture {
@@ -38,16 +52,17 @@ function mix(a: string, b: string, t: number): string {
   return '#' + pa.map((v, i) => Math.round(v + (pb[i] - v) * t).toString(16).padStart(2, '0')).join('')
 }
 
-export default function EnvironmentView({ env }: { env: Environment }) {
+export default function EnvironmentView({ env, sunOnGround = 0 }: { env: Environment; sunOnGround?: number }) {
   const texture = useMemo(() => skyTexture(env), [env])
   useEffect(() => () => texture.dispose(), [texture])
   const sky = skyAt(env.time)
+  const ground = useMemo(() => new Color(env.ground).multiplyScalar(bounceScale(sunOnGround, sky.fillIntensity)), [env.ground, sunOnGround, sky.fillIntensity])
   return (
     <>
       <primitive attach="background" object={texture} />
       {/* Distance fog in the horizon's colour, so far things melt into the sky. */}
       {env.fog > 0 && <fogExp2 attach="fog" args={[sky.horizon, fogDensity(env.fog)]} />}
-      <hemisphereLight args={[sky.fill, env.ground, sky.fillIntensity]} userData={{ envLight: true }} />
+      <hemisphereLight args={[sky.fill, ground, sky.fillIntensity]} userData={{ envLight: true }} />
     </>
   )
 }

@@ -23,7 +23,7 @@ import {
 } from './camera'
 import { clampStop, DEFAULT_STOP } from './depthOfField'
 import { sanitizeOverrides, type ShotOverrides } from './overrides'
-import { clampCone, clampKelvin, clampStops, clampUnit, LIGHT_KINDS, type LightKind } from './lighting'
+import { clampCone, clampKelvin, clampLightSize, clampStops, clampUnit, defaultLightSize, LIGHT_KINDS, sizeFromSoftness, type LightKind } from './lighting'
 import { DEFAULT_GENERATION, repairGeneration, type GenerationSettings } from './prompt'
 import { DEFAULT_ENVIRONMENT, repairEnvironment, type Environment } from './environment'
 import { sanitizeAppearance, sanitizeBody, sanitizeExpression, sanitizeHands, type BodySliders, type FigureAppearance, type Hands } from './humanBody'
@@ -39,7 +39,8 @@ import { sanitizeLookAt, sanitizePlants, type LookAt, type Plants } from './posi
 // v13: Posing 2 (planted hands/feet, head look-at).
 // v14: materials on objects; per-scene / per-shot cast and prop descriptions.
 // v15: each shot's lens stop (depth of field); older shots get T2.8.
-export const SCHEMA_VERSION = 15
+// v16: lights have a real size (metres, or degrees for the sun) instead of 0-1 softness.
+export const SCHEMA_VERSION = 16
 
 export type Vec3 = [number, number, number]
 
@@ -176,8 +177,8 @@ export interface LightNode extends NodeBase {
   stops: number
   /** Colour temperature. */
   kelvin: number
-  /** 0 = hard shadows, 1 = very soft. */
-  softness: number
+  /** Source size, which sets shadow softness: metres for point and spot, degrees for the sun. */
+  size: number
   shadows: boolean
   /** Spot: full cone angle in degrees. */
   coneAngle: number
@@ -354,6 +355,7 @@ export function migrateProject(raw: Record<string, unknown>): Record<string, unk
     )
   }
   if (version < 5 && Array.isArray(raw.scenes)) migrateToV5(raw)
+  if (version < 16 && Array.isArray(raw.scenes)) migrateToV16(raw)
   return raw
 }
 
@@ -388,6 +390,28 @@ function migrateToV5(raw: Loose): void {
     }
   })
   raw.camera = kit ?? raw.camera
+}
+
+/** v15 -> v16: light softness (0-1) becomes a real source size, in the master set and in every shot's cheats. */
+function migrateToV16(raw: Loose): void {
+  for (const scene of raw.scenes as Loose[]) {
+    const nodes = (scene?.nodes ?? {}) as Loose
+    for (const n of Object.values(nodes) as Loose[]) {
+      if (n?.type === 'light' && typeof n.softness === 'number') {
+        if (typeof n.size !== 'number') n.size = sizeFromSoftness(n.kind, n.softness)
+        delete n.softness
+      }
+    }
+    for (const c of Object.values(nodes) as Loose[]) {
+      if (c?.type !== 'camera' || !c.overrides || typeof c.overrides !== 'object') continue
+      for (const [id, o] of Object.entries(c.overrides as Loose) as [string, Loose][]) {
+        if (!o || typeof o.softness !== 'number') continue
+        const kind = (nodes[id] as Loose | undefined)?.kind
+        if (kind) o.size = sizeFromSoftness(kind, o.softness)
+        delete o.softness
+      }
+    }
+  }
 }
 
 function isVec3(v: unknown): v is Vec3 {
@@ -491,7 +515,7 @@ function repairNode(node: SceneNode, scene: Scene): void {
     node.scale = [1, 1, 1]
     node.stops = clampStops(node.stops ?? 0)
     node.kelvin = clampKelvin(node.kelvin ?? 5600)
-    node.softness = clampUnit(node.softness ?? 0.5)
+    node.size = clampLightSize(node.kind, node.size ?? defaultLightSize(node.kind))
     node.shadows = node.shadows !== false
     node.coneAngle = clampCone(node.coneAngle ?? 40)
     node.falloff = clampUnit(node.falloff ?? 0.3)
