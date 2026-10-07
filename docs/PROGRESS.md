@@ -40,7 +40,7 @@ Current version: **0.2.0 beta** (October 2026). The plan is in [SPEC.md](SPEC.md
 - Takes are stored in the project folder, so a project must be saved before generating.
 
 ## Ideas / later
-- **Render:** Atmosphere (fog) in the Render; lens character (blade count, anamorphic flares); a sharper sun shadow map for extreme close-ups in Clay; moving to the WebGPU path tracer when it matures.
+- **Render:** Atmosphere (fog) in the Render; lens character (blade count, anamorphic flares; measured lens profiles from a test shoot, e.g. DZOFilm Arcana, with flare, distortion and vignetting); a sharper sun shadow map for extreme close-ups in Clay; moving to the WebGPU path tracer when it matures.
 
 - **Figures:** a fresh look for the human figures, better shapes when sitting, smoother close-ups, more outerwear, an expression strength slider.
 - **AI:** AI on Mac (starting with ComfyUI's own Mac app), face-consistent cast references, a pose pass that skips hidden joints, passes for a whole scene at once.
