@@ -19,6 +19,7 @@ import LiveClayPost from './LiveClayPost'
 import PipRender from './PipRender'
 import LiveRender from './LiveRender'
 import RenderQueue from './RenderQueue'
+import PathTraceWarmup from './PathTraceWarmup'
 import FocusPick from './FocusPick'
 import SceneNodes, { hasLights } from './SceneNodes'
 import SelectionGizmo from './SelectionGizmo'
@@ -92,6 +93,7 @@ export default function Viewport() {
         <LiveClayPost />
         <LiveRender />
         <RenderQueue />
+        <PathTraceWarmup />
         <FocusPick />
         <FreeFly />
         <ViewNav />

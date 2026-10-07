@@ -4,12 +4,13 @@ import { opticsFor } from '../../../shared/camera'
 import { activeScene, useDocument } from '../state/documentStore'
 import { keepRender, useRenders } from '../state/renders'
 import { useUi } from '../state/uiStore'
-import { focusOf } from './boardClay'
-import { PathTrace } from './pathTrace'
+import { shotFocus } from '../../../shared/depthOfField'
+import { canvasToPng, PathTrace } from './pathTrace'
 import { setFingerprint, shotFingerprint } from './shotFingerprint'
 import { shotScenes } from './ShotScenes'
 import { viewFit } from './viewFit'
 import { viewportBridge } from './viewportBridge'
+import { figuresLoading } from './humanData'
 
 // Camera view with Render on: the shot path-traced into its delivery frame, refining from grainy
 // to clean. It draws over the Clay picture (LiveClayPost), and only once you've let go: while any
@@ -44,7 +45,7 @@ function Tracing() {
     },
     [pt]
   )
-  const st = useRef({ setPrint: '', shotPrint: '', sizeKey: '', changedAt: 0, prepared: false, kept: false, shown: -1 })
+  const st = useRef({ setPrint: '', shotPrint: '', sizeKey: '', changedAt: 0, prepared: false, cameraMoved: false, kept: false, shown: -1 })
 
   // Priority 2: after the Clay picture (LiveClayPost, 1).
   useFrame((state) => {
@@ -76,26 +77,33 @@ function Tracing() {
       s.prepared = false
       s.changedAt = now
     } else if (shotPrint !== s.shotPrint) {
+      // The camera moved: catch up once you've let go (not on every frame of the move).
       s.changedAt = now
-      if (s.prepared) {
-        scene.updateMatrixWorld(true)
-        pt.moveCamera(scene, node, kit, focusOf(node, scene))
-      }
+      s.cameraMoved = true
     }
     if (shotPrint !== s.shotPrint) s.kept = false
     s.shotPrint = shotPrint
     // Hands on: Clay only, and the wait starts again from when you let go.
-    if (handsOn()) s.changedAt = now
+    if (handsOn() || figuresLoading()) s.changedAt = now
+    // (A figure still loading its hair or clothes counts as a change: rebuild once it's done.)
+    if (figuresLoading()) s.prepared = false
     if (now - s.changedAt < SETTLE) {
       if (s.shown !== 0) useRenders.setState({ liveSamples: 0, liveTarget: pt.target })
       s.shown = 0
       return
     }
+    // Focus as the HUD shows it (auto focus is already measured for the readouts).
+    const focus = shotFocus(node.focusDistance, ui.shotInfo[id]?.subjectDepth)
     if (!s.prepared) {
       scene.updateMatrixWorld(true)
-      pt.prepare(scene, node, kit, focusOf(node, scene), w, h, quality)
+      pt.prepare(scene, node, kit, focus, w, h, quality)
       s.prepared = true
+      s.cameraMoved = false
       s.kept = false
+    } else if (s.cameraMoved) {
+      scene.updateMatrixWorld(true)
+      pt.moveCamera(scene, node, kit, focus)
+      s.cameraMoved = false
     }
 
     pt.step()
@@ -122,8 +130,8 @@ function Tracing() {
     // Finished: keep it as the shot's Render.
     if (pt.done && !s.kept) {
       s.kept = true
-      const url = pt.toCanvas().toDataURL('image/png')
-      void keepRender(id, quality, { url, print: shotPrint, width: w, height: h, samples: pt.target })
+      const samples = pt.target
+      void canvasToPng(pt.toCanvas()).then((url) => keepRender(id, quality, { url, print: shotPrint, width: w, height: h, samples }))
     }
   }, 2)
 

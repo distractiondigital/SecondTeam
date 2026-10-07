@@ -8,6 +8,7 @@ import { shotScenes } from './ShotScenes'
 import { focusOf, renderBoardClay } from './boardClay'
 import { shotFingerprint } from './shotFingerprint'
 import { renderFor, useRenders } from '../state/renders'
+import { figuresLoading, onFiguresLoading } from './humanData'
 
 const INFO_DELAY = 80 // ms after a change, so the 3D scenes have caught up
 const THUMBNAIL_DELAY = 450 // ms of quiet before re-rendering every shot's thumbnail
@@ -56,6 +57,8 @@ export default function ShotTracker() {
 
     /** Re-render these shots' thumbnails (all = every shot); the rest keep their stills. */
     const updateThumbnails = (only: Set<string> | 'all') => {
+      // A figure is still putting on its hair and clothes: wait (it calls back when done).
+      if (figuresLoading()) return
       const { cameras: list } = cameras()
       const previous = useUi.getState().thumbnails
       const thumbnails: Record<string, string> = {}
@@ -124,6 +127,14 @@ export default function ShotTracker() {
     const unsubscribeUi = useUi.subscribe((state, previous) => {
       if (state.view !== previous.view || state.boardImage !== previous.boardImage) schedule()
     })
+    // Figures finished loading: every picture again (the project didn't change, so nothing else
+    // would take them; until now they were waiting).
+    const unsubscribeFigures = onFiguresLoading(() => {
+      if (figuresLoading()) return
+      lastPrint.clear()
+      clearTimeout(thumbTimer)
+      thumbTimer = setTimeout(() => updateThumbnails('all'), 100)
+    })
     // A Render finished (or was loaded): it becomes that shot's thumbnail.
     const unsubscribeRenders = useRenders.subscribe((state, previous) => {
       if (state.byShot !== previous.byShot) {
@@ -135,6 +146,7 @@ export default function ShotTracker() {
       unsubscribe()
       unsubscribeUi()
       unsubscribeRenders()
+      unsubscribeFigures()
       clearTimeout(infoTimer)
       clearTimeout(thumbTimer)
       clearTimeout(liveTimer)

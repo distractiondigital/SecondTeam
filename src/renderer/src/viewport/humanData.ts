@@ -108,9 +108,10 @@ export function loadProxy(id: string): Promise<LoadedProxy | null> {
 
 /**
  * The listed items once they're all loaded (unknown ids are left out). While a changed list
- * loads, the previous items stay (no flicker); null only before anything has loaded.
+ * loads, the previous items stay (no flicker); null only before anything has loaded. `ready`:
+ * the items shown are the ones asked for.
  */
-export function useProxies(ids: string[]): LoadedProxy[] | null {
+export function useProxies(ids: string[]): { items: LoadedProxy[] | null; ready: boolean } {
   const key = ids.join('|')
   const [state, setState] = useState<{ key: string; items: LoadedProxy[] } | null>(null)
   useEffect(() => {
@@ -122,5 +123,42 @@ export function useProxies(ids: string[]): LoadedProxy[] | null {
       live = false
     }
   }, [key])
-  return state ? state.items : null
+  return { items: state ? state.items : null, ready: state?.key === key }
+}
+
+// ---------- Is every figure finished? ----------
+//
+// A figure's body, hair, clothes and eye texture load in the background the first time they're
+// needed. Pictures (shot thumbnails, Renders) must wait for them, or they catch a bare body; and
+// once the last piece arrives they're taken again (nothing in the project changes then).
+
+const loading = new Set<object>()
+const listeners = new Set<() => void>()
+
+/** True while any figure (in the viewport or a shot's hidden copy of the set) is still loading. */
+export function figuresLoading(): boolean {
+  return loading.size > 0
+}
+
+/** Called whenever figures start or finish loading. Returns an unsubscribe function. */
+export function onFiguresLoading(listener: () => void): () => void {
+  listeners.add(listener)
+  return () => listeners.delete(listener)
+}
+
+function setLoading(key: object, on: boolean): void {
+  const had = loading.has(key)
+  if (on === had) return
+  if (on) loading.add(key)
+  else loading.delete(key)
+  for (const l of listeners) l()
+}
+
+/** Report this figure (part) as loading while `on`. */
+export function useFigureLoading(on: boolean): void {
+  const [key] = useState(() => ({}))
+  useEffect(() => {
+    setLoading(key, on)
+  }, [key, on])
+  useEffect(() => () => setLoading(key, false), [key])
 }

@@ -6,9 +6,10 @@ import { useDocument } from '../state/documentStore'
 import { keepRender, renderFor, useRenders } from '../state/renders'
 import { useUi } from '../state/uiStore'
 import { focusOf } from './boardClay'
-import { PathTrace } from './pathTrace'
+import { canvasToPng, PathTrace } from './pathTrace'
 import { shotFingerprint } from './shotFingerprint'
 import { shotScenes } from './ShotScenes'
+import { figuresLoading } from './humanData'
 
 // While the Board shows Renders: every shot without an up-to-date Render is rendered (Draft, at
 // board size), one at a time in board order, a little each frame so the app stays responsive.
@@ -35,6 +36,11 @@ function Queue() {
   )
 
   useFrame(() => {
+    // Figures still putting on hair and clothes: wait, and start that shot again once they're done.
+    if (figuresLoading()) {
+      job.current = null
+      return
+    }
     const doc = useDocument.getState()
     const shots = boardShots(doc.project)
     const missing = shots.filter((b) => !renderFor(b.shot.id, shotFingerprint(b.shot.id)))
@@ -67,7 +73,8 @@ function Queue() {
       const { shotId, print } = job.current
       job.current = null
       const canvas = pt.toCanvas()
-      void keepRender(shotId, 'draft', { url: canvas.toDataURL('image/png'), print, width: canvas.width, height: canvas.height, samples: pt.target })
+      const samples = pt.target
+      void canvasToPng(canvas).then((url) => keepRender(shotId, 'draft', { url, print, width: canvas.width, height: canvas.height, samples }))
     }
   })
 

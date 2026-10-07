@@ -4,9 +4,10 @@ import { deliveryFrame, opticsFor } from '../../../shared/camera'
 import { useDocument } from '../state/documentStore'
 import { keepRender, useRenders } from '../state/renders'
 import { focusOf } from './boardClay'
-import { PathTrace } from './pathTrace'
+import { canvasToPng, PathTrace } from './pathTrace'
 import { shotFingerprint } from './shotFingerprint'
 import { shotScenes } from './ShotScenes'
+import { figuresLoading } from './humanData'
 
 /**
  * Every shot's Final Render for an export (PNG data URLs by shot id, `width` px wide): an
@@ -31,6 +32,12 @@ export async function exportRenders(
     return true
   })
   if (!todo.length) return images
+  // Figures still loading their hair and clothes: wait for them (or a cancel).
+  while (figuresLoading()) {
+    if (cancelled()) return null
+    progress('Waiting for the figures to load…')
+    await new Promise((r) => setTimeout(r, 100))
+  }
   const pt = new PathTrace(gl)
   try {
     for (let i = 0; i < todo.length; i++) {
@@ -45,7 +52,7 @@ export async function exportRenders(
       pt.prepare(scene, shot, kit, focusOf(shot, scene), width, height, 'final')
       const finished = await pt.run((samples) => progress(`${label}… ${Math.round((100 * samples) / pt.target)}%`), cancelled)
       if (!finished) return null
-      const url = pt.toCanvas().toDataURL('image/png')
+      const url = await canvasToPng(pt.toCanvas())
       images[shot.id] = url
       void keepRender(shot.id, 'final', { url, print, width, height, samples: pt.target })
     }

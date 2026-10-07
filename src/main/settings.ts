@@ -8,15 +8,19 @@ import { safeRename } from './safeRename'
 //   externalComfyUrl  use a ComfyUI that's already running instead (advanced; null = manage our own)
 //   setupSkipped      "Set up later" was chosen, so the wizard doesn't open by itself
 //   checkForUpdates   look for a newer Second Team on GitHub when the app starts (main/updates.ts)
+//   gpuVendor         the graphics card's maker, noted on each start ('nvidia', 'amd', 'intel', other)
+//   openGlFailed      the graphics process crashed on the OpenGL backend once: stay on Direct3D
 
 export interface AppSettings {
   backendDir: string | null
   externalComfyUrl: string | null
   setupSkipped: boolean
   checkForUpdates: boolean
+  gpuVendor: string | null
+  openGlFailed: boolean
 }
 
-export const DEFAULT_SETTINGS: AppSettings = { backendDir: null, externalComfyUrl: null, setupSkipped: false, checkForUpdates: true }
+export const DEFAULT_SETTINGS: AppSettings = { backendDir: null, externalComfyUrl: null, setupSkipped: false, checkForUpdates: true, gpuVendor: null, openGlFailed: false }
 
 /**
  * Where the app keeps its own files (settings, libraries, logs, the AI engine by default):
@@ -63,7 +67,9 @@ export function parseSettings(text: string | null): AppSettings {
     backendDir: typeof raw.backendDir === 'string' && raw.backendDir.trim() ? raw.backendDir : null,
     externalComfyUrl: cleanComfyUrl(raw.externalComfyUrl),
     setupSkipped: raw.setupSkipped === true,
-    checkForUpdates: raw.checkForUpdates !== false
+    checkForUpdates: raw.checkForUpdates !== false,
+    gpuVendor: typeof raw.gpuVendor === 'string' && /^[a-z]{1,16}$/.test(raw.gpuVendor) ? raw.gpuVendor : null,
+    openGlFailed: raw.openGlFailed === true
   }
 }
 
@@ -92,3 +98,22 @@ export async function updateSettings(patch: Partial<AppSettings>): Promise<AppSe
   await saveSettings(next)
   return next
 }
+
+/** The graphics card maker for a PCI vendor id (Chromium's GPU info). */
+export function gpuVendorName(vendorId: number): string {
+  if (vendorId === 0x10de) return 'nvidia'
+  if (vendorId === 0x1002 || vendorId === 0x1022) return 'amd'
+  if (vendorId === 0x8086) return 'intel'
+  return 'other'
+}
+
+/**
+ * Use the OpenGL graphics backend instead of Direct3D (Windows only)? On NVIDIA cards it compiles
+ * the Render's very large shader about 5x faster (and freezes the app far less while it does);
+ * other makers' OpenGL drivers are less dependable, so they keep Direct3D, as does any PC where
+ * OpenGL once crashed.
+ */
+export function prefersOpenGl(settings: Pick<AppSettings, 'gpuVendor' | 'openGlFailed'>, platform: string): boolean {
+  return platform === 'win32' && settings.gpuVendor === 'nvidia' && !settings.openGlFailed
+}
+

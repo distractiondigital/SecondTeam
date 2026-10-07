@@ -49,6 +49,8 @@ function compute(state: ReturnType<typeof useDocument.getState>, shotId: string,
   return hashText(
     JSON.stringify(
       {
+        // Bumped when pictures made before were unreliable (2: Renders before figures waited to load).
+        version: 2,
         nodes,
         env: environmentFor(state, shotId),
         floor: sceneOfShot(state, shotId).floor,

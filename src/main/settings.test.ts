@@ -1,6 +1,6 @@
 import { join } from 'path'
 import { describe, expect, it } from 'vitest'
-import { cleanComfyUrl, defaultBackendDir, parseSettings } from './settings'
+import { cleanComfyUrl, gpuVendorName, prefersOpenGl, defaultBackendDir, parseSettings } from './settings'
 
 describe('app settings', () => {
   it('keeps the engine in AppData when installed, and in the repo in development', () => {
@@ -11,14 +11,17 @@ describe('app settings', () => {
   })
 
   it('repairs a missing or damaged settings file', () => {
-    expect(parseSettings(null)).toEqual({ backendDir: null, externalComfyUrl: null, setupSkipped: false, checkForUpdates: true })
-    expect(parseSettings('{not json')).toEqual({ backendDir: null, externalComfyUrl: null, setupSkipped: false, checkForUpdates: true })
+    const defaults = { backendDir: null, externalComfyUrl: null, setupSkipped: false, checkForUpdates: true, gpuVendor: null, openGlFailed: false }
+    expect(parseSettings(null)).toEqual(defaults)
+    expect(parseSettings('{not json')).toEqual(defaults)
     expect(parseSettings('[1]').backendDir).toBeNull()
     expect(parseSettings(JSON.stringify({ backendDir: 'D:\\AI\\Second Team', setupSkipped: true }))).toEqual({
       backendDir: 'D:\\AI\\Second Team',
       externalComfyUrl: null,
       setupSkipped: true,
-      checkForUpdates: true
+      checkForUpdates: true,
+      gpuVendor: null,
+      openGlFailed: false
     })
   })
 
@@ -33,5 +36,16 @@ describe('app settings', () => {
     expect(cleanComfyUrl('https://example.com:8188')).toBeNull()
     expect(cleanComfyUrl('file:///C:/x')).toBeNull()
     expect(cleanComfyUrl('')).toBeNull()
+  })
+
+  it('uses OpenGL only on NVIDIA cards on Windows, and never again after it crashed', () => {
+    expect(gpuVendorName(0x10de)).toBe('nvidia')
+    expect(gpuVendorName(0x8086)).toBe('intel')
+    expect(prefersOpenGl({ gpuVendor: 'nvidia', openGlFailed: false }, 'win32')).toBe(true)
+    expect(prefersOpenGl({ gpuVendor: 'nvidia', openGlFailed: true }, 'win32')).toBe(false)
+    expect(prefersOpenGl({ gpuVendor: 'amd', openGlFailed: false }, 'win32')).toBe(false)
+    expect(prefersOpenGl({ gpuVendor: null, openGlFailed: false }, 'win32')).toBe(false)
+    expect(prefersOpenGl({ gpuVendor: 'nvidia', openGlFailed: false }, 'darwin')).toBe(false)
+    expect(parseSettings(JSON.stringify({ gpuVendor: '../x' })).gpuVendor).toBeNull()
   })
 })

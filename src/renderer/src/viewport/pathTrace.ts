@@ -1,5 +1,12 @@
 import {
+  BoxGeometry,
   Color,
+  DataTexture,
+  EquirectangularReflectionMapping,
+  HemisphereLight,
+  Mesh,
+  MeshStandardMaterial,
+  Scene,
   HalfFloatType,
   LinearFilter,
   Object3D,
@@ -11,17 +18,15 @@ import {
   Vector3,
   WebGLRenderTarget,
   type DirectionalLight,
-  type HemisphereLight,
   type Light,
   type Material,
   type PointLight,
-  type Scene,
   type Texture,
   type WebGLRenderer
 } from 'three'
 import { FullScreenQuad } from 'three/examples/jsm/postprocessing/Pass.js'
 import { DenoiseMaterial, PhysicalCamera, ProceduralEquirectTexture, ShapedAreaLight, WebGLPathTracer } from 'three-gpu-pathtracer'
-import { fieldOfView, opticsFor, type CameraKit } from '../../../shared/camera'
+import { DEFAULT_KIT, fieldOfView, opticsFor, type CameraKit } from '../../../shared/camera'
 import { anamorphicRatio, filmGaugeFor, pointAsSpots, skyRadianceScale, spotDiscSetback, SUN_DISC_DISTANCE, sunDisc } from '../../../shared/pathLights'
 import type { CameraNode } from '../../../shared/project'
 import { TONE_MAP_FUNCTIONS } from './clayPost'
@@ -172,7 +177,9 @@ export class PathTrace {
     // each crossing counts, and a ray that runs out ends black. Plenty of crossings.
     t.transmissiveBounces = 64
     t.filterGlossyFactor = 0.5 // fewer fireflies, at the cost of sharp caustics
-    t.tiles.set(2, 2)
+    // Whole frames at a time (a sample of a full frame is a millisecond or two on a modern card);
+    // step() still spreads the work over frames.
+    t.tiles.set(1, 1)
     const material = (t as unknown as { _pathTracer: { material: ShaderMaterial } })._pathTracer.material
     material.fragmentShader = patchTerminator(material.fragmentShader)
     material.needsUpdate = true
@@ -321,26 +328,37 @@ export class PathTrace {
     this.tracer.reset()
   }
 
-  /** Tiles traced per frame; adapted to keep the app responsive (the GPU works behind the CPU, so time it by frames). */
-  private perFrame = 4
-  private lastFrame = 0
+  /** Samples traced per frame: grows while the graphics card keeps up, shrinks when it doesn't. */
+  private perFrame = 1
+  /** Markers after the batches still queued: the card has finished a batch once its marker is passed. */
+  private fences: WebGLSync[] = []
 
   /**
-   * Trace some more, once per frame. `frameMs`: the frame time to stay under (the GPU's queue shows
-   * up as longer gaps between frames): more tiles while frames come quickly, fewer when they don't.
+   * Trace some more, once per frame, never queuing more work on the graphics card than it can
+   * finish in about a frame (so the app stays smooth while it traces). The card works behind the
+   * app: timing the app's frames can't tell how far behind it is, and a deep queue freezes
+   * everything (seconds, measured), so ask the card itself through a fence. (Two batches in flight
+   * was ~10% faster but brought hitches back.)
    */
-  step(frameMs = 33): void {
-    const now = performance.now()
-    if (this.lastFrame) {
-      const gap = now - this.lastFrame
-      if (gap > frameMs * 1.25) this.perFrame = Math.max(1, Math.floor(this.perFrame * 0.7))
-      else if (gap < frameMs) this.perFrame = Math.min(256, this.perFrame + 1)
+  step(): void {
+    const ctx = this.gl.getContext() as WebGL2RenderingContext
+    // Forget the batches the card has finished.
+    while (this.fences.length && ctx.clientWaitSync(this.fences[0], 0, 0) !== ctx.TIMEOUT_EXPIRED) {
+      ctx.deleteSync(this.fences.shift()!)
     }
-    this.lastFrame = now
+    if (this.fences.length >= 1) {
+      // Still busy with the last batch: send nothing this frame, and less next time.
+      this.perFrame = Math.max(1, Math.floor(this.perFrame * 0.75))
+      return
+    }
+    this.perFrame = Math.min(64, this.perFrame + 1)
+    if (this.done) return
     for (let i = 0; i < this.perFrame && !this.done; i++) {
       this.tracer.renderSample()
       if (this.compiling) break
     }
+    this.fences.push(ctx.fenceSync(ctx.SYNC_GPU_COMMANDS_COMPLETE, 0)!)
+    ctx.flush()
   }
 
   /** Trace until done, without regard for frames (exports; the app waits). Calls `progress` now and then. */
@@ -410,6 +428,7 @@ export class PathTrace {
   }
 
   dispose(): void {
+    for (const f of this.fences) (this.gl.getContext() as WebGL2RenderingContext).deleteSync(f)
     this.tracer.dispose()
     this.toneTarget.dispose()
     this.toneMaterial.dispose()
@@ -451,3 +470,60 @@ export class PathTrace {
     cam.updateMatrixWorld()
   }
 }
+
+// ---------- Getting ready in the background ----------
+//
+// The path tracer's shader is very large: compiling it takes seconds (much longer on Direct3D than
+// OpenGL) and briefly stalls the app. So it's compiled once, a little after the app opens, on a
+// tiny stand-in scene with the same settings every real Render uses (perspective lens with blur,
+// light sampling, a sky picture, no fog volumes), and that copy is kept: every Render after it
+// starts at once. (Later path tracers reuse the compiled program.)
+
+let warm: PathTrace | null = null
+let warming: Promise<void> | null = null
+
+/** Compile the path tracer now, quietly (once per session). */
+export function warmUpPathTracer(gl: WebGLRenderer): Promise<void> {
+  warming ??= (async () => {
+    const scene = new Scene()
+    const sky = new DataTexture(new Uint8Array([200, 210, 230, 255, 200, 210, 230, 255, 120, 120, 120, 255, 120, 120, 120, 255]), 2, 2)
+    sky.mapping = EquirectangularReflectionMapping
+    sky.needsUpdate = true
+    scene.background = sky
+    scene.add(new HemisphereLight('#dce9f5', '#9a9a96', 0.5))
+    const box = new Mesh(new BoxGeometry(1, 1, 1), new MeshStandardMaterial({ color: '#888888' }))
+    box.position.set(0, 0.5, -3)
+    scene.add(box)
+    const lamp = new SpotLight('#ffffff', 10, 0, Math.PI / 6, 0.3, 2)
+    lamp.userData.sourceSize = 0.2
+    lamp.position.set(0, 3, 0)
+    lamp.target.position.set(0, 0, -3)
+    scene.add(lamp, lamp.target)
+    const node = { id: '', focalLength: 35, aperture: 2.8 } as CameraNode
+    const pose = { position: new Vector3(0, 1.5, 0), quaternion: new Quaternion() }
+    warm = new PathTrace(gl)
+    warm.prepare(scene, node, DEFAULT_KIT, 3, 16, 16, 'draft', pose)
+    warm.target = 1
+    await warm.run()
+  })()
+  return warming
+}
+
+/** The path tracer has been compiled this session (a Render starts at once). */
+export function pathTracerWarm(): boolean {
+  return Boolean(warm?.done)
+}
+
+/** A canvas as a PNG data URL, encoded in the background (toDataURL would stall the app for a large picture). */
+export function canvasToPng(canvas: HTMLCanvasElement): Promise<string> {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (!blob) return reject(new Error("Couldn't encode the picture"))
+      const reader = new FileReader()
+      reader.onload = () => resolve(String(reader.result))
+      reader.onerror = () => reject(reader.error)
+      reader.readAsDataURL(blob)
+    }, 'image/png')
+  })
+}
+

@@ -8,13 +8,24 @@ import { registerPassIpc } from './passFiles'
 import { registerRenderIpc } from './renderFiles'
 import { registerPoseLibraryIpc } from './poseLibrary'
 import { askToSave, registerProjectIpc } from './projectFiles'
-import { appDataFolder } from './settings'
+import { appDataFolder, gpuVendorName, loadSettings, prefersOpenGl, updateSettings } from './settings'
 import { isMac, onRealMac } from './platform'
 import { cancelUpdateInstall, installUpdateNow, registerUpdates, updateWaitingToInstall } from './updates'
 
 // Keep Electron's own cache and settings in the app's folder (Windows %LOCALAPPDATA%\SecondTeam,
 // not the default %APPDATA%; Mac ~/Library/Application Support/SecondTeam). Must run before ready.
 app.setPath('userData', join(appDataFolder(), 'app-data'))
+
+// Graphics backend. On Windows with an NVIDIA card, OpenGL instead of Direct3D: it compiles the
+// Render's path tracer about 5x faster (seconds instead of half a minute or more) and freezes the
+// app far less while it does. The card is noted on each start, so this applies from the next one;
+// if the graphics process ever crashes on OpenGL, the PC goes back to Direct3D for good.
+// (Development only: SECONDTEAM_ANGLE=gl|d3d11 forces one, to compare.)
+const startupSettings = loadSettings()
+const forcedBackend = !app.isPackaged ? process.env['SECONDTEAM_ANGLE'] : undefined
+const openGl = forcedBackend ? forcedBackend === 'gl' : prefersOpenGl(startupSettings, process.platform)
+if (forcedBackend) app.commandLine.appendSwitch('use-angle', forcedBackend)
+else if (openGl) app.commandLine.appendSwitch('use-angle', 'gl')
 
 // Only one copy of the app at a time. A second launch just focuses the existing window.
 if (!app.requestSingleInstanceLock()) {
@@ -124,6 +135,20 @@ app.whenReady().then(() => {
   // Start the AI engine (ComfyUI) in the background; the UI shows its status.
   registerBackendIpc(() => mainWindow)
   registerUpdates(() => mainWindow)
+  // Note the graphics card for the next start (see the graphics backend above).
+  void app.getGPUInfo('basic').then((info) => {
+    const devices = (info as { gpuDevice?: { vendorId?: number; active?: boolean }[] }).gpuDevice ?? []
+    const id = (devices.find((d) => d.active) ?? devices[0])?.vendorId
+    if (typeof id !== 'number') return
+    const vendor = gpuVendorName(id)
+    if (vendor !== loadSettings().gpuVendor) void updateSettings({ gpuVendor: vendor })
+  })
+})
+
+app.on('child-process-gone', (_e, details) => {
+  if (details.type === 'GPU' && openGl && ['crashed', 'oom', 'launch-failed', 'integrity-failure', 'abnormal-exit'].includes(details.reason)) {
+    void updateSettings({ openGlFailed: true })
+  }
 })
 
 app.on('window-all-closed', () => {

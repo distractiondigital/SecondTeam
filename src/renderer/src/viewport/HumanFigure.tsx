@@ -4,7 +4,7 @@ import type { MannequinNode } from '../../../shared/project'
 import { useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import HumanView from './HumanView'
-import { useBodyData } from './humanData'
+import { useBodyData, useFigureLoading } from './humanData'
 import MannequinView from './MannequinView'
 import { fitFor, useEffectivePose } from './figurePose'
 
@@ -34,6 +34,8 @@ export default function HumanFigure({ node, selected, clickable, passive = false
   // The Figure colours switch is for the viewport only: thumbnails, the board and exports stay natural.
   const overlay = useUi((s) => s.figureColors)
   const castColor = useDocument((s) => (node.castId ? s.project.cast.find((c) => c.id === node.castId)?.color : undefined))
+  // (Until the body has loaded, the figure isn't there yet: pictures wait.)
+  useFigureLoading(!fit)
   if (!fit) return null
   return (
     <>

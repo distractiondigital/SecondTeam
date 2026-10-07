@@ -17,7 +17,7 @@ import {
 import { corneaPoints, fitProxy, partColor, partOf, proxySkin, visibleBody, wornIds, type BodyData, type FigureAppearance, type Hands, HAND_CURL, type HumanFit, figureSkin, type FigureColoring } from '../../../shared/humanBody'
 import { JOINTS, JOINT_NAMES, type JointName, type Pose } from '../../../shared/mannequin'
 import { SELECTION_COLOR } from './selection'
-import { loadEyeTexture, useBodyData, useProxies, type LoadedProxy } from './humanData'
+import { loadEyeTexture, useBodyData, useFigureLoading, useProxies, type LoadedProxy } from './humanData'
 
 // A realistic human (MakeHuman CC0 body) posed by the same 17-joint skeleton as the mannequin.
 // The body is built for the figure's sliders; each rig bone that matches one of our joints takes
@@ -293,12 +293,17 @@ export default function HumanView({ fit, pose, hands, color, coloring, appearanc
   const body = useBodyData()
   const built = useMemo(() => (body ? build(body, fit) : null), [body, fit])
   useEffect(() => () => built?.mesh.geometry.dispose(), [built])
-  const items = useProxies(wornIds(appearance))
+  const { items, ready } = useProxies(wornIds(appearance))
   // The eyes' colour (its texture loads the first time it's used).
   const [eyeMap, setEyeMap] = useState<Texture | null>(null)
+  const [eyesFor, setEyesFor] = useState<string | null>(null)
   useEffect(() => {
     let live = true
-    void loadEyeTexture(appearance.eyeColor).then((t) => live && setEyeMap(t))
+    void loadEyeTexture(appearance.eyeColor).then((t) => {
+      if (!live) return
+      setEyeMap(t)
+      setEyesFor(appearance.eyeColor)
+    })
     return () => {
       live = false
     }
@@ -309,6 +314,8 @@ export default function HumanView({ fit, pose, hands, color, coloring, appearanc
     const worn = (items ?? []).filter((i) => i.data.info.kind === 'clothes').map((i) => i.data)
     built.mesh.geometry.setIndex(new BufferAttribute(visibleBody(body, worn), 1))
   }, [built, body, items])
+  // Pictures wait until everything this figure wears has arrived (humanData.ts).
+  useFigureLoading(!built || !ready || eyesFor !== appearance.eyeColor)
   const height = fit.proportions.height
   useEffect(() => {
     if (built && body) applyPose(built, body, pose, height, hands)
