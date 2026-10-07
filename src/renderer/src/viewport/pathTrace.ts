@@ -13,6 +13,7 @@ import {
   type DirectionalLight,
   type HemisphereLight,
   type Light,
+  type Material,
   type PointLight,
   type Scene,
   type Texture,
@@ -82,20 +83,25 @@ const TERMINATOR_FUNCTION = /* glsl */ `
 		for ( int i = 0; i < 3; i ++ ) {
 			uint v = i == 0 ? h.faceIndices.x : i == 1 ? h.faceIndices.y : h.faceIndices.z;
 			vec3 corner = texelFetch1D( bvh.position, v ).xyz;
-			vec3 n = normalize( texelFetch1D( attributesArray, ATTR_NORMAL, v ).xyz );
+			// (Turned to the side the ray hit, like the path tracer's own normals: hair cards are seen from both sides.)
+			vec3 n = normalize( texelFetch1D( attributesArray, ATTR_NORMAL, v ).xyz ) * h.side;
 			q -= b[ i ] * min( 0.0, dot( p - corner, n ) ) * n;
 		}
 		return q;
 	}
 `
 
-/** Patch the path tracer's shader for the shadow terminator (see above). Throws if the library's code changed. */
+/** Patch the path tracer's shader: the shadow terminator (see above) and a finer ray restart. Throws if the library's code changed. */
 function patchTerminator(source: string): string {
 	const swap = (s: string, from: string, to: string) => {
 		if (!s.includes(from)) throw new Error(`pathTrace: can't find "${from.slice(0, 60)}"`)
 		return s.split(from).join(to)
 	}
 	let s = source
+	// How far a ray restarts past a surface it passes through (× the size of the coordinates). The
+	// library's 1e-4 is ~0.2 mm on a set: hair cards lying closer than that to the scalp let rays
+	// restart under the skin, inside the head, where they find no light (black flecks at hairlines).
+	s = swap(s, '#define RAY_OFFSET 1e-4', '#define RAY_OFFSET 1e-5')
 	// Light counts when it's above the smooth surface (not the flat triangle).
 	s = swap(s, 'dot( surf.faceNormal, lightRec.direction ) < 0.0', 'dot( surf.normal, lightRec.direction ) < 0.0')
 	s = swap(s, 'dot( surf.faceNormal, envDirection ) < 0.0', 'dot( surf.normal, envDirection ) < 0.0')
@@ -156,6 +162,9 @@ export class PathTrace {
     t.fadeDuration = 0
     t.multipleImportanceSampling = true // needed for spot, sun and point lights
     t.bounces = 6
+    // Rays pass through the see-through parts of hair cards, which stack up dozens deep at a hairline;
+    // each crossing counts, and a ray that runs out ends black. Plenty of crossings.
+    t.transmissiveBounces = 64
     t.filterGlossyFactor = 0.5 // fewer fireflies, at the cost of sharp caustics
     t.tiles.set(2, 2)
     const material = (t as unknown as { _pathTracer: { material: ShaderMaterial } })._pathTracer.material
@@ -245,6 +254,24 @@ export class PathTrace {
     this.environment?.dispose()
     this.environment = skyEnvironment(skyColor, groundColor)
 
+    // Cut-out cards (hair, eyebrows): their masks are fine strands made for blending. A hard cut-off
+    // at full sharpness drops most strands at the hairline and leaves dark fragments; partial
+    // coverage instead (each sample passes in proportion to the mask) gives soft, natural edges.
+    scene.traverseVisible((o) => {
+      const mesh = o as Object3D & { isMesh?: boolean; material?: Material | Material[] }
+      if (!mesh.isMesh || !mesh.material) return
+      for (const m of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) {
+        const std = m as Material & { alphaMap?: Texture | null }
+        if (!std.alphaMap || std.alphaTest <= 0) continue
+        const { alphaTest, transparent } = std
+        std.alphaTest = 0
+        std.transparent = true
+        restore.push(() => {
+          std.alphaTest = alphaTest
+          std.transparent = transparent
+        })
+      }
+    })
     for (const o of added) scene.add(o)
     for (const l of hidden) l.visible = false
     const environment = scene.environment
