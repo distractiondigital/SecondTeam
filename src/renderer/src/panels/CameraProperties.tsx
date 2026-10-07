@@ -20,7 +20,7 @@ import AiFold from './AiFold'
 import { FrameDescription, GenerateSection } from './GenerateSection'
 import EnvironmentSection from './EnvironmentSection'
 import NumberField from './NumberField'
-import { FocusPickButton, StopSelect, useFocusSummary } from './FocusControls'
+import { FocusPickButton, StopSelect, sharpLabel, useFocusSummary } from './FocusControls'
 import { rangeLabel } from '../../../shared/depthOfField'
 
 // Properties for a shot: its name, camera placement (pan/tilt/roll), lens, subject, the shot-size /
@@ -137,7 +137,7 @@ export default function CameraProperties({ node }: { node: CameraNode }) {
         </div>
         <p className="hint small lens-dof">
           {Number.isFinite(focus.focus)
-            ? `In focus ${rangeLabel(focus.range, (m) => formatLengthLabel(m, units))} · hyperfocal ${formatLengthLabel(focus.range.hyperfocal, units)}`
+            ? `${sharpLabel(focus, units).replace(/^sharp/, 'Sharp')} · hyperfocal ${formatLengthLabel(focus.range.hyperfocal, units)}`
             : `Focused at infinity · hyperfocal ${formatLengthLabel(focus.range.hyperfocal, units)}`}
         </p>
       </div>

@@ -7,13 +7,14 @@ import {
   Euler,
   FrontSide,
   MathUtils,
+  Object3D,
   Quaternion,
   Skeleton,
   SkinnedMesh,
   Vector3,
   type Texture
 } from 'three'
-import { fitProxy, partColor, partOf, proxySkin, visibleBody, wornIds, type BodyData, type FigureAppearance, type Hands, HAND_CURL, type HumanFit, figureSkin, type FigureColoring } from '../../../shared/humanBody'
+import { corneaPoints, fitProxy, partColor, partOf, proxySkin, visibleBody, wornIds, type BodyData, type FigureAppearance, type Hands, HAND_CURL, type HumanFit, figureSkin, type FigureColoring } from '../../../shared/humanBody'
 import { JOINTS, JOINT_NAMES, type JointName, type Pose } from '../../../shared/mannequin'
 import { SELECTION_COLOR } from './selection'
 import { loadEyeTexture, useBodyData, useProxies, type LoadedProxy } from './humanData'
@@ -232,6 +233,23 @@ function ProxyMesh({ body, fit, built, item, color, selected, map }: { body: Bod
     return m
   }, [body, fit, built, item])
   useEffect(() => () => mesh.geometry.dispose(), [mesh])
+  // The eyes: mark the front of each eyeball on the head bone, for auto focus (shotInfo.ts).
+  useEffect(() => {
+    if (item.data.info.kind !== 'eyes') return
+    const head = built.bones.get('head')
+    const rest = fit.rest.get('head')
+    const corneas = corneaPoints(mesh.geometry.getAttribute('position').array as Float32Array)
+    if (!head || !rest || !corneas) return
+    // The rig's bones have no rest rotation, so a point's offset from the head bone is plain.
+    const markers = corneas.map((c) => {
+      const m = new Object3D()
+      m.userData.focusEye = true
+      m.position.set(c[0] - rest.head[0], c[1] - rest.head[1], c[2] - rest.head[2])
+      head.add(m)
+      return m
+    })
+    return () => markers.forEach((m) => head.remove(m))
+  }, [item, mesh, built, fit])
   const masked = item.mask !== null
   return (
     <primitive object={mesh}>

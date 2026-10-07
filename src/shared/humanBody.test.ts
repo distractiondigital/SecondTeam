@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs'
 import { describe, expect, it } from 'vitest'
-import { AVERAGE_BODY, ageSlider, ageYears, boneRest, morph, parseBody, targetWeights, type BodyData, type BodyJson } from './humanBody'
+import { AVERAGE_BODY, ageSlider, corneaPoints, ageYears, boneRest, morph, parseBody, targetWeights, type BodyData, type BodyJson } from './humanBody'
 
 const json = JSON.parse(readFileSync('figures/body.json', 'utf-8')) as BodyJson
 const bin = readFileSync('figures/body.bin')
@@ -92,5 +92,19 @@ describe('human body data', () => {
     expect(y('thigh_l')).toBeGreaterThan(y('calf_l'))
     expect(y('calf_l')).toBeGreaterThan(y('foot_l'))
     expect(rest.get('upperarm_l')!.head[0]).toBeGreaterThan(0) // left is +X
+  })
+})
+
+describe('cornea points', () => {
+  it('finds the most forward point of each eye', () => {
+    // Two "eyeballs": a back and a front vertex on each side.
+    const positions = Float32Array.from([0.3, 1, 0, 0.3, 1, 0.12, -0.3, 1, 0.02, -0.3, 1.01, 0.11])
+    expect(corneaPoints(positions)).toEqual([
+      [expect.closeTo(0.3), 1, expect.closeTo(0.12)],
+      [expect.closeTo(-0.3), expect.closeTo(1.01), expect.closeTo(0.11)]
+    ])
+  })
+  it('needs both eyes', () => {
+    expect(corneaPoints(Float32Array.from([0.3, 1, 0.1]))).toBeNull()
   })
 })

@@ -64,7 +64,13 @@ function subjectPoint(scene: Scene, id: string, three: Object3D): SubjectPoint |
     const eyeR = three.getObjectByName(`${id}:kp:eyeR`)
     if (!eyeL || !eyeR) return null
     const point = eyeL.getWorldPosition(new Vector3()).add(eyeR.getWorldPosition(new Vector3())).multiplyScalar(0.5)
-    const eyes = [eyeL.getWorldPosition(new Vector3()), eyeR.getWorldPosition(new Vector3())]
+    // A human's real eyes (the front of each eyeball, marked by HumanView), else the posing
+    // skeleton's eye points (a plain mannequin).
+    const corneas: Vector3[] = []
+    object.traverse((o) => {
+      if (o.userData.focusEye) corneas.push(o.getWorldPosition(new Vector3()))
+    })
+    const eyes = corneas.length ? corneas : [eyeL.getWorldPosition(new Vector3()), eyeR.getWorldPosition(new Vector3())]
     return { id, name: node.name, point, size: node.height, eyeY: point.y, focusPoints: eyes }
   }
   const box = new Box3()
@@ -87,7 +93,7 @@ export function rendered(o: Object3D): boolean {
 /** Auto focus only trusts an eye inside this central part of the frame (each way). */
 const FOCUS_SAFE_AREA = 0.75
 /** An eye counts as hidden when something is this much closer than it along the line of sight (m). */
-const EYE_HIDDEN_MARGIN = 0.1
+const EYE_HIDDEN_MARGIN = 0.03
 
 /** The first surface a ray meets in what renders (no helpers, nothing hidden), or null. */
 function firstHit(three: Object3D, from: Vector3, direction: Vector3): number | null {

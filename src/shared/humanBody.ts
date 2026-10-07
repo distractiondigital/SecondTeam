@@ -397,6 +397,25 @@ export function parseProxy(info: ProxyInfo, bin: ArrayBuffer): ProxyData {
 }
 
 /** The item's vertices on this body (decimetres): weighted body points plus a size-scaled offset. */
+/**
+ * The front of each eyeball (where a focus puller focuses), from the fitted eyes proxy's
+ * positions: on each side of the face, the vertex furthest forward (the figure faces +z).
+ * Returns [left, right] (the figure's own left is +x), or null if a side is missing.
+ */
+export function corneaPoints(positions: Float32Array): [[number, number, number], [number, number, number]] | null {
+  let left = -1
+  let right = -1
+  for (let i = 0; i < positions.length / 3; i++) {
+    const x = positions[i * 3]
+    const z = positions[i * 3 + 2]
+    if (x > 0 && (left < 0 || z > positions[left * 3 + 2])) left = i
+    if (x < 0 && (right < 0 || z > positions[right * 3 + 2])) right = i
+  }
+  if (left < 0 || right < 0) return null
+  const at = (i: number): [number, number, number] => [positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]]
+  return [at(left), at(right)]
+}
+
 export function fitProxy(proxy: ProxyData, positions: Float32Array): Float32Array {
   const axisScale = (axis: 'x' | 'y' | 'z', k: number) => {
     const s = proxy.info.scales[axis]
