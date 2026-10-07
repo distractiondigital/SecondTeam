@@ -27,6 +27,11 @@ export function useFocusSummary(node: CameraNode): FocusSummary {
 
 /** "sharp 2.6–3.8 m". */
 export function sharpLabel(s: FocusSummary, units: Units): string {
+  const depth = s.range.far - s.range.near
+  // A razor-thin slice (close focus, long lens): say how thin, in millimetres or inches.
+  if (Number.isFinite(depth) && depth < 0.05) {
+    return units === 'ft' ? `sharp ±${(depth / 2 / 0.0254).toFixed(2)} in` : `sharp ±${Math.max(0.1, (depth / 2) * 1000).toFixed(1)} mm`
+  }
   return `sharp ${rangeLabel(s.range, (m) => formatLengthLabel(m, units))}`
 }
 

@@ -5,7 +5,7 @@ import { opticsFor } from '../../../shared/camera'
 import { shotFocus } from '../../../shared/depthOfField'
 import { activeScene, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
-import { ClayPost, type DofParams } from './clayPost'
+import { ClayPost, prepareOcclusion, type DofParams } from './clayPost'
 import { castFromFrontFaces, updateLightSizes } from './softShadows'
 import { isHelper, withHidden } from './renderShot'
 import { viewFit } from './viewFit'
@@ -59,15 +59,21 @@ function LivePost() {
       }
     }
 
+    // Ambient occlusion: the set is drawn with the occlusion worked out from the previous frame.
+    const ao = ui.shading === 'clay'
     castFromFrontFaces(scene)
     updateLightSizes(scene)
-    withHidden(scene, isHelper, () => {
-      gl.setRenderTarget(post.target)
-      gl.clear()
-      gl.render(scene, camera)
-    })
+    if (ao) prepareOcclusion(scene)
+    const draw = () =>
+      withHidden(scene, isHelper, () => {
+        gl.setRenderTarget(post.target)
+        gl.clear()
+        gl.render(scene, camera)
+      })
+    if (ao) post.withOcclusion(draw)
+    else draw()
     gl.setRenderTarget(null)
-    post.render(gl, camera, { dof, ao: ui.shading === 'clay' }, null)
+    post.render(gl, camera, { dof, ao }, null)
 
     // Helpers on top, against the set's depth. Nothing else draws again (no sky, no shadows).
     const background = scene.background

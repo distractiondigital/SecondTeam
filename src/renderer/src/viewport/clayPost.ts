@@ -10,19 +10,29 @@ import {
   PlaneGeometry,
   RedFormat,
   RGBAFormat,
+  RGFormat,
   Scene,
+  ShaderChunk,
   ShaderMaterial,
   UnsignedIntType,
   Vector2,
   WebGLRenderTarget,
+  type Material,
+  type MeshStandardMaterial,
+  type Object3D,
   type PerspectiveCamera,
+  type Texture,
   type WebGLRenderer
 } from 'three'
 
 // The Clay look's finishing passes, on a picture of the set rendered into `target` (colour + depth):
 //  - ambient occlusion: corners, creases and contact points darken where the sky and bounce light
 //    can't reach (Alchemy AO, McGuire et al. 2011, from the depth alone), at half resolution with
-//    an edge-aware blur;
+//    an edge-aware blur. It isn't multiplied over the finished picture (that would also darken the
+//    direct key light, smearing dark blotches round fingers and faces in close-ups): the materials
+//    themselves apply it to their sky and bounce light only (see "Occlusion in the materials"
+//    below), so the set is drawn with the occlusion of the previous frame live, or twice for a
+//    still;
 //  - depth of field (below), when a lens and focus are given;
 //  - output: tone mapping and colour space, and the scene's depth (so helpers drawn afterwards are
 //    still hidden behind the set).
@@ -33,7 +43,7 @@ import {
 //  1. tiles: the largest blur in each 16 × 16 pixel tile;
 //  2. spread: each tile takes the largest blur of the tiles around it that could reach it, so a
 //     blurred foreground knows to spill over its neighbours;
-//  3. gather (half resolution): each pixel averages samples spread evenly over the blur its area
+//  3. gather (full resolution): each pixel averages samples spread evenly over the blur its area
 //     needs (a disc, or an upright oval for anamorphic), turned by a per-pixel random angle so the
 //     pattern can't band. A sample counts if its own blur circle reaches this pixel, so blurred
 //     foregrounds spread over what's behind them while sharp things in front never get smeared by
@@ -222,7 +232,7 @@ const AO_SAMPLES = 16
 /** World-space reach of the occlusion (metres). */
 export const AO_RADIUS = 0.6
 /** How dark full occlusion gets. */
-const AO_STRENGTH = 1.3
+const AO_STRENGTH = 2.0
 
 const VIEW_POSITION = /* glsl */ `
   uniform vec2 tanHalf; // tan(half field of view): x across, y up
@@ -243,7 +253,7 @@ const AO = /* glsl */ `
   float noise(vec2 p) { return fract(52.9829189 * fract(dot(p, vec2(0.06711056, 0.00583715)))); }
   void main() {
     float depth = texture2D(tDepth, vUv).x;
-    if (depth >= 1.0) { gl_FragColor = vec4(1.0); return; } // sky
+    if (depth >= 1.0) { gl_FragColor = vec4(1.0, 1e4, 0.0, 1.0); return; } // sky
     vec3 P = viewPosition(vUv);
     // The surface's facing, from its neighbours (the flatter side, so edges stay clean).
     vec2 px = 2.0 / fullSize;
@@ -255,7 +265,7 @@ const AO = /* glsl */ `
     if (dot(N, -P) < 0.0) N = -N;
     // The reach in pixels at this distance.
     float reach = min(aoRadius / (-P.z * tanHalf.y) * 0.5 * fullSize.y, 0.2 * fullSize.y);
-    if (reach < 1.0) { gl_FragColor = vec4(1.0); return; }
+    if (reach < 1.0) { gl_FragColor = vec4(1.0, -P.z, 0.0, 1.0); return; }
     float spin = noise(gl_FragCoord.xy) * 6.2831853;
     float sum = 0.0;
     for (int i = 0; i < ${AO_SAMPLES}; i++) {
@@ -265,10 +275,12 @@ const AO = /* glsl */ `
       vec3 v = S - P;
       float vv = dot(v, v);
       float falloff = max(0.0, 1.0 - vv / (aoRadius * aoRadius));
-      sum += falloff * max(0.0, dot(v, N) - 0.002 * -P.z) / (vv + 0.001);
+      // How steeply the sample rises above the surface (bounded, so a very close occluder can't
+      // count for more than the sky it actually hides).
+      sum += falloff * max(0.0, dot(v, N) * inversesqrt(vv + 1e-8) - 0.1);
     }
-    float ao = max(0.0, 1.0 - ${AO_STRENGTH.toFixed(2)} * aoRadius * sum / ${AO_SAMPLES.toFixed(1)});
-    gl_FragColor = vec4(ao, 0.0, 0.0, 1.0);
+    float ao = max(0.0, 1.0 - ${AO_STRENGTH.toFixed(2)} * sum / ${AO_SAMPLES.toFixed(1)});
+    gl_FragColor = vec4(ao, -P.z, 0.0, 1.0);
   }
 `
 
@@ -279,7 +291,9 @@ const AO_BLUR = /* glsl */ `
   uniform vec2 direction; // one texel of the half-resolution AO, across or up
   varying vec2 vUv;
   void main() {
-    float z = linearDepth(texture2D(tDepth, vUv).x);
+    float depth = texture2D(tDepth, vUv).x;
+    if (depth >= 1.0) { gl_FragColor = vec4(1.0, 1e4, 0.0, 1.0); return; } // sky
+    float z = linearDepth(depth);
     float sum = 0.0;
     float total = 0.0;
     for (int i = -4; i <= 4; i++) {
@@ -288,19 +302,7 @@ const AO_BLUR = /* glsl */ `
       sum += texture2D(tAo, uv).r * w;
       total += w;
     }
-    gl_FragColor = vec4(sum / total, 0.0, 0.0, 1.0);
-  }
-`
-
-const AO_APPLY = /* glsl */ `
-  ${COC}
-  uniform sampler2D tColor;
-  uniform sampler2D tAo;
-  varying vec2 vUv;
-  void main() {
-    vec3 color = texture2D(tColor, vUv).rgb;
-    float depth = texture2D(tDepth, vUv).x;
-    gl_FragColor = vec4(depth >= 1.0 ? color : color * texture2D(tAo, vUv).r, 1.0);
+    gl_FragColor = vec4(sum / total, z, 0.0, 1.0); // occlusion, and the distance for upsampling
   }
 `
 
@@ -343,7 +345,7 @@ function material(fragmentShader: string, extra: Record<string, { value: unknown
   })
 }
 
-const halfTarget = (format: typeof RedFormat | typeof RGBAFormat) =>
+const halfTarget = (format: typeof RGFormat | typeof RGBAFormat) =>
   new WebGLRenderTarget(1, 1, { type: HalfFloatType, format, minFilter: LinearFilter, magFilter: LinearFilter, depthBuffer: false })
 
 const smallTarget = () =>
@@ -352,7 +354,7 @@ const smallTarget = () =>
 export interface ClayPostOptions {
   /** Depth of field for this lens and focus, or null for none. */
   dof: DofParams | null
-  /** Ambient occlusion. */
+  /** Work out this picture's ambient occlusion, for the next drawing of the set (`withOcclusion`). */
   ao: boolean
 }
 
@@ -362,12 +364,11 @@ export class ClayPost {
   private tiles = smallTarget()
   private spread = smallTarget()
   private half: WebGLRenderTarget
-  private aoA = halfTarget(RedFormat)
-  private aoB = halfTarget(RedFormat)
-  private occluded = halfTarget(RGBAFormat) // the full-resolution colour with AO applied
+  private aoA = halfTarget(RGFormat) // occlusion, distance
+  private aoB = halfTarget(RGFormat)
+  private aoValid = false // aoA holds the occlusion of the last picture at this size
   private aoMat = material(AO, { aoRadius: { value: AO_RADIUS } })
   private aoBlur = material(AO_BLUR, { tAo: { value: null }, direction: { value: new Vector2() } })
-  private aoApply = material(AO_APPLY, { tAo: { value: null } })
   private output = material(OUTPUT, {}, true)
   private tileMat = material(TILES, {})
   private spreadMat = material(SPREAD, { tTiles: { value: null }, tilePx: { value: TILE } })
@@ -404,10 +405,11 @@ export class ClayPost {
     }
     const hw = Math.max(1, Math.round(w / 2))
     const hh = Math.max(1, Math.round(h / 2))
-    resize(this.half, hw, hh)
+    // The depth-of-field gather runs at full resolution (half-resolution edges looked rough).
+    resize(this.half, w, h)
+    if (this.aoA.width !== hw || this.aoA.height !== hh) this.aoValid = false
     resize(this.aoA, hw, hh)
     resize(this.aoB, hw, hh)
-    resize(this.occluded, w, h)
     resize(this.tiles, Math.ceil(w / TILE), Math.ceil(h / TILE))
     resize(this.spread, Math.ceil(w / TILE), Math.ceil(h / TILE))
   }
@@ -418,17 +420,17 @@ export class ClayPost {
     gl.render(this.quadScene, this.quadCamera)
   }
 
-  /** Finish `target` into `output` (null = the screen). The camera is the one the set was rendered with. */
-  render(gl: WebGLRenderer, camera: PerspectiveCamera, options: ClayPostOptions, output: WebGLRenderTarget | null): void {
+  /** Finish `target` into `output` (null = the screen, 'none' = only work out the occlusion). The camera is the one the set was rendered with. */
+  render(gl: WebGLRenderer, camera: PerspectiveCamera, options: ClayPostOptions, output: WebGLRenderTarget | null | 'none'): void {
     const { width, height } = this.target
     const p = options.dof
     const maxRadius = Math.max(0.5, Math.min(height * MAX_RADIUS_FRACTION, MAX_SPREAD * TILE))
     const tanY = Math.tan((camera.fov * Math.PI) / 360) / camera.zoom
-    const all = [this.aoMat, this.aoBlur, this.aoApply, this.output, this.tileMat, this.spreadMat, this.gather, this.blend]
+    const all = [this.aoMat, this.aoBlur, this.output, this.tileMat, this.spreadMat, this.gather, this.blend]
     for (const m of all) {
       const u = m.uniforms
       u.tDepth.value = this.target.depthTexture
-      u.tColor.value = options.ao ? this.occluded.texture : this.target.texture
+      u.tColor.value = this.target.texture
       u.cameraNear.value = camera.near
       u.cameraFar.value = camera.far
       u.focal.value = p?.focalLength ?? 50
@@ -440,8 +442,6 @@ export class ClayPost {
       u.tileCount.value.set(this.tiles.width, this.tiles.height)
       u.tanHalf.value.set(tanY * camera.aspect, tanY)
     }
-    this.aoApply.uniforms.tColor.value = this.target.texture
-    this.aoApply.uniforms.tAo.value = this.aoA.texture
     this.spreadMat.uniforms.tTiles.value = this.tiles.texture
     this.gather.uniforms.tSpread.value = this.spread.texture
     this.gather.uniforms.squeeze.value = Math.max(1, p?.squeeze ?? 1)
@@ -461,9 +461,11 @@ export class ClayPost {
         blur.tAo.value = this.aoB.texture
         blur.direction.value.set(0, 1 / this.aoA.height)
         this.pass(gl, this.aoBlur, this.aoA)
-        this.pass(gl, this.aoApply, this.occluded)
+        this.aoValid = true
       }
-      if (p) {
+      if (output === 'none') {
+        // Only the occlusion was wanted.
+      } else if (p) {
         this.pass(gl, this.tileMat, this.tiles)
         this.pass(gl, this.spreadMat, this.spread)
         this.pass(gl, this.gather, this.half)
@@ -477,6 +479,27 @@ export class ClayPost {
     }
   }
 
+  /**
+   * Draw the set (inside `draw`) with the ambient occlusion of the last picture rendered at this
+   * size applied to the materials' sky and bounce light. Call prepareOcclusion(scene) first.
+   */
+  withOcclusion(draw: () => void): void {
+    if (!this.aoValid) {
+      draw()
+      return
+    }
+    SCREEN_AO.stAo.value = this.aoA.texture
+    SCREEN_AO.stAoSize.value.set(this.aoA.width, this.aoA.height)
+    SCREEN_AO.stViewSize.value.set(this.target.width, this.target.height)
+    SCREEN_AO.stAoOn.value = 1
+    try {
+      draw()
+    } finally {
+      SCREEN_AO.stAoOn.value = 0
+      SCREEN_AO.stAo.value = null
+    }
+  }
+
   dispose(): void {
     this.target.depthTexture?.dispose()
     this.target.dispose()
@@ -485,8 +508,110 @@ export class ClayPost {
     this.half.dispose()
     this.aoA.dispose()
     this.aoB.dispose()
-    this.occluded.dispose()
-    for (const m of [this.aoMat, this.aoBlur, this.aoApply, this.output, this.tileMat, this.spreadMat, this.gather, this.blend]) m.dispose()
+    for (const m of [this.aoMat, this.aoBlur, this.output, this.tileMat, this.spreadMat, this.gather, this.blend]) m.dispose()
     this.quad.geometry.dispose()
   }
+}
+
+// ---------- Occlusion in the materials ----------
+//
+// Ambient occlusion only blocks light arriving from all around (the sky fill and bounce). Standard
+// materials in the set get it through three's ambient-occlusion step (aomap_fragment), which
+// already scales just their indirect light: the half-resolution occlusion is read at the pixel,
+// upsampled using only neighbours at the same distance so it never bleeds across an edge (a finger
+// in front of a wall keeps its own value), and ignored where the last picture saw something else.
+
+const SCREEN_AO = {
+  stAo: { value: null as Texture | null },
+  stAoSize: { value: new Vector2(1, 1) },
+  stViewSize: { value: new Vector2(1, 1) },
+  stAoOn: { value: 0 }
+}
+
+const SCREEN_AO_PARS = /* glsl */ `
+#ifdef ST_AO
+uniform sampler2D stAo;   // occlusion, distance (half resolution)
+uniform vec2 stAoSize;    // its size in texels
+uniform vec2 stViewSize;  // the picture's size in pixels
+uniform float stAoOn;
+
+void stAoTap( vec2 texel, float weight, float z, inout float sum, inout float total ) {
+	vec2 s = texture2D( stAo, ( texel + 0.5 ) / stAoSize ).rg;
+	float w = weight * max( 0.0, 1.0 - abs( s.g - z ) / ( 0.03 * z + 0.002 ) );
+	sum += w * s.r;
+	total += w;
+}
+
+float stScreenOcclusion( float z ) {
+	vec2 p = gl_FragCoord.xy / stViewSize * stAoSize - 0.5;
+	vec2 b = floor( p );
+	vec2 f = p - b;
+	float sum = 0.0;
+	float total = 0.0;
+	stAoTap( b, ( 1.0 - f.x ) * ( 1.0 - f.y ), z, sum, total );
+	stAoTap( b + vec2( 1.0, 0.0 ), f.x * ( 1.0 - f.y ), z, sum, total );
+	stAoTap( b + vec2( 0.0, 1.0 ), ( 1.0 - f.x ) * f.y, z, sum, total );
+	stAoTap( b + vec2( 1.0, 1.0 ), f.x * f.y, z, sum, total );
+	if ( total < 1e-4 ) return 1.0;
+	return mix( 1.0, sum / total, smoothstep( 0.0, 0.25, total ) );
+}
+
+// Light bounces around inside a crease before it gets out, so pale surfaces never go fully dark
+// (multi-bounce fit, Jimenez et al., "Practical Real-Time Strategies for Accurate Indirect
+// Occlusion", 2016).
+vec3 stMultiBounce( float ao, vec3 albedo ) {
+	vec3 a = 2.0404 * albedo - 0.3324;
+	vec3 b = -4.7951 * albedo + 0.6417;
+	vec3 c = 2.7552 * albedo + 0.6903;
+	return max( vec3( ao ), ( ( ao * a + b ) * ao + c ) * ao );
+}
+#endif
+`
+
+const SCREEN_AO_APPLY = /* glsl */ `
+#ifdef ST_AO
+	if ( stAoOn > 0.5 ) {
+		float stOcclusion = stScreenOcclusion( - vViewPosition.z );
+		reflectedLight.indirectDiffuse *= stMultiBounce( stOcclusion, material.diffuseColor );
+		reflectedLight.indirectSpecular *= stOcclusion;
+	}
+#endif
+`
+
+/** Add the occlusion to three's ambient-occlusion shader step (once). */
+function patchChunks(): void {
+  if (ShaderChunk.aomap_pars_fragment.includes('stScreenOcclusion')) return
+  ShaderChunk.aomap_pars_fragment += SCREEN_AO_PARS
+  ShaderChunk.aomap_fragment += SCREEN_AO_APPLY
+}
+
+// One shared function, so materials that are otherwise alike still share one compiled program.
+function attachScreenAo(shader: { uniforms: Record<string, { value: unknown }> }): void {
+  Object.assign(shader.uniforms, SCREEN_AO)
+}
+
+const attached = new WeakSet<Material>()
+
+/**
+ * Before drawing the set with `withOcclusion`: let its standard materials take the screen-space
+ * occlusion. Viewport helpers are left alone. Cheap to call every frame.
+ */
+export function prepareOcclusion(scene: Object3D): void {
+  patchChunks()
+  const visit = (o: Object3D) => {
+    if (o.userData.helper) return
+    const mesh = o as { isMesh?: boolean; material?: Material | Material[] }
+    if (mesh.isMesh && mesh.material) {
+      for (const m of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) {
+        if (attached.has(m) || !(m as MeshStandardMaterial).isMeshStandardMaterial) continue
+        attached.add(m)
+        const standard = m as MeshStandardMaterial
+        standard.defines = { ...standard.defines, ST_AO: '' }
+        standard.onBeforeCompile = attachScreenAo
+        standard.needsUpdate = true
+      }
+    }
+    for (const c of o.children) visit(c)
+  }
+  visit(scene)
 }

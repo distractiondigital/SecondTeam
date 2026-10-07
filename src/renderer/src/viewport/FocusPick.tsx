@@ -42,7 +42,7 @@ export default function FocusPick() {
       if (!hit || !ui.lookThroughId) return
       // Distance along the lens axis (the focus plane is square to the lens).
       const depth = -hit.point.clone().applyMatrix4(camera.matrixWorldInverse).z
-      if (depth > 0) useDocument.getState().updateNode(ui.lookThroughId, { focusDistance: Math.max(0.1, Math.round(depth * 100) / 100) })
+      if (depth > 0) useDocument.getState().updateNode(ui.lookThroughId, { focusDistance: Math.max(0.1, Math.round(depth * 1000) / 1000) })
     }
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return

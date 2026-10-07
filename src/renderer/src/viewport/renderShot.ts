@@ -8,7 +8,7 @@ import {
 } from 'three'
 import { deliveryFrame, fieldOfView, opticsFor, type CameraKit } from '../../../shared/camera'
 import type { CameraNode } from '../../../shared/project'
-import { ClayPost } from './clayPost'
+import { ClayPost, prepareOcclusion } from './clayPost'
 import { castFromFrontFaces, updateLightSizes } from './softShadows'
 import { cameraPose } from './shotInfo'
 
@@ -129,16 +129,22 @@ export function renderShot(
   try {
     castFromFrontFaces(scene)
     updateLightSizes(scene)
-    withHidden(scene, isHelper, () => {
-      gl.setRenderTarget(post.target)
-      gl.clear()
-      gl.render(scene, camera)
-    })
+    prepareOcclusion(scene)
+    const draw = () =>
+      withHidden(scene, isHelper, () => {
+        gl.setRenderTarget(post.target)
+        gl.clear()
+        gl.render(scene, camera)
+      })
+    // Twice: once to work out the ambient occlusion, then for real with it.
+    draw()
+    post.render(gl, camera, { dof: null, ao: true }, 'none')
+    post.withOcclusion(draw)
     const dof =
       focus === undefined
         ? null
         : { focalLength: node.focalLength, stop: node.aperture, focus, squeeze: kit.squeeze, pxPerMm: h / deliveryFrame(optics).height }
-    post.render(gl, camera, { dof, ao: true }, output)
+    post.render(gl, camera, { dof, ao: false }, output)
     return targetToCanvas(gl, output, w, h)
   } finally {
     gl.setRenderTarget(previous)
