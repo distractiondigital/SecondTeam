@@ -1,6 +1,7 @@
 import { parseProject, ProjectFileError, serializeProject } from '../../../shared/project'
 import { hasUnsavedChanges, useDocument } from './documentStore'
 import { useUi } from './uiStore'
+import { loadRenders, persistRenders, resetRenders } from './renders'
 
 // New / Open / Save / Save As. The project's name is its folder name (Name.secondteam).
 
@@ -21,6 +22,8 @@ async function writeTo(folder: string): Promise<boolean> {
     return false
   }
   useDocument.getState().markSaved(project)
+  // Renders made before the first save, or kept from before a Save As, go into this folder.
+  void persistRenders(folder)
   return true
 }
 
@@ -47,6 +50,7 @@ async function confirmLeave(): Promise<boolean> {
 export async function newProject(): Promise<void> {
   if (!(await confirmLeave())) return
   useDocument.getState().newProject()
+  resetRenders()
   // The board goes back to choosing AI or Clay by itself for each project.
   useUi.getState().setBoardImage(null)
   useUi.getState().setProjectPath(null)
@@ -73,8 +77,10 @@ async function load(result: Awaited<ReturnType<Window['secondTeam']['openProject
   try {
     const project = parseProject(result.json)
     useDocument.getState().loadProject(project)
+    resetRenders()
     useUi.getState().setBoardImage(null)
     useUi.getState().setProjectPath(result.path)
+    void loadRenders(result.path)
     useUi.getState().select([])
     useUi.getState().requestFrame()
   } catch (err) {

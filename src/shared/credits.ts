@@ -63,6 +63,9 @@ export const CREDITS: CreditSection[] = [
       { name: 'React Three Fiber, Drei and three-stdlib', by: 'Poimandres', license: 'MIT', url: 'https://github.com/pmndrs' },
       { name: 'Zustand', by: 'Poimandres', license: 'MIT', url: 'https://github.com/pmndrs/zustand' },
       { name: 'Immer', by: 'Michel Weststrate', license: 'MIT', url: 'https://immerjs.github.io/immer' },
+      { name: 'three-gpu-pathtracer', by: 'Garrett Johnson', license: 'MIT', url: 'https://github.com/gkjohnson/three-gpu-pathtracer', note: 'The path-traced Render.' },
+      { name: 'three-mesh-bvh', by: 'Garrett Johnson', license: 'MIT', url: 'https://github.com/gkjohnson/three-mesh-bvh', note: 'Fast ray tests for the Render.' },
+      { name: 'glslSmartDeNoise', by: 'Michele Morrone', license: 'BSD-2-Clause', url: 'https://github.com/BrutPitt/glslSmartDeNoise', note: "The Render's denoise filter (part of three-gpu-pathtracer)." },
       { name: 'electron-updater', by: 'electron-builder contributors', license: 'MIT', url: 'https://www.electron.build/auto-update', note: 'Finds, downloads and installs app updates.' },
       { name: 'Lucide icons', by: 'Lucide contributors', license: 'ISC', url: 'https://lucide.dev' },
       { name: 'Vite, electron-vite, electron-builder, TypeScript, Vitest', license: 'MIT / Apache-2.0', url: 'https://vite.dev', note: 'Build tools; not shipped in the app.' }

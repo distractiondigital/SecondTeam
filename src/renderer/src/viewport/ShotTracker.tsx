@@ -1,35 +1,18 @@
 import { useEffect } from 'react'
 import { useThree } from '@react-three/fiber'
-import { activeScene, environmentFor, sceneForShot, sceneOfShot, useDocument } from '../state/documentStore'
+import { activeScene, sceneForShot, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import { renderShot } from './renderShot'
 import { computeShotInfo, type ShotInfo } from './shotInfo'
 import { shotScenes } from './ShotScenes'
 import { focusOf, renderBoardClay } from './boardClay'
+import { shotFingerprint } from './shotFingerprint'
+import { renderFor, useRenders } from '../state/renders'
 
 const INFO_DELAY = 80 // ms after a change, so the 3D scenes have caught up
 const THUMBNAIL_DELAY = 450 // ms of quiet before re-rendering every shot's thumbnail
 const LIVE_DELAY = 120 // ms: the shot being edited re-renders this soon after a change
 const THUMBNAIL_WIDTH = 192
-/** Fields that never change how a shot looks (left out of its fingerprint). */
-const NOT_VISUAL = new Set([
-  'name',
-  'description',
-  'notes',
-  'boardText',
-  'dialogue',
-  'circleTake',
-  'locked',
-  'propId',
-  'descriptions',
-  // A shot's own overrides are already applied to its nodes; the rest are readout/prompt settings.
-  'overrides',
-  'shotNumber',
-  'subjectId',
-  'sizeOverride',
-  'angleOverride',
-  'lightingOverride'
-])
 const BOARD_WIDTH = 640 // the storyboard's clay pictures
 
 // Keeps each shot's live readouts and shot-list thumbnail up to date. Each shot is measured
@@ -68,27 +51,8 @@ export default function ShotTracker() {
       useUi.getState().setShotInfo(info)
     }
 
-    /**
-     * What a shot's picture depends on: the set as that shot sees it (minus names, notes and
-     * descriptions), its sky, the floor, the camera body and cast colours. Same fingerprint, same
-     * picture: no need to render it again.
-     */
     const lastPrint = new Map<string, string>()
-    const fingerprint = (shotId: string): string => {
-      const state = useDocument.getState()
-      // Other shots' cameras never show in this one's picture.
-      const nodes = Object.values(sceneForShot(state, shotId)).filter((n) => n.type !== 'camera' || n.id === shotId)
-      return JSON.stringify(
-        {
-          nodes,
-          env: environmentFor(state, shotId),
-          floor: sceneOfShot(state, shotId).floor,
-          camera: state.project.camera,
-          cast: state.project.cast.map((c) => [c.id, c.color])
-        },
-        (key, value) => (NOT_VISUAL.has(key) ? undefined : value)
-      )
-    }
+    const fingerprint = shotFingerprint
 
     /** Re-render these shots' thumbnails (all = every shot); the rest keep their stills. */
     const updateThumbnails = (only: Set<string> | 'all') => {
@@ -108,9 +72,17 @@ export default function ShotTracker() {
           continue
         }
         // Nothing that shows has changed: keep the still.
-        const print = fingerprint(c.id)
+        const shotPrint = fingerprint(c.id)
+        // An up-to-date Render (path traced) is the thumbnail while it lasts.
+        const render = renderFor(c.id, shotPrint)
+        const print = render ? `${shotPrint}:${render.quality}` : shotPrint
         if (previous[c.id] && lastPrint.get(c.id) === print) {
           thumbnails[c.id] = previous[c.id]
+          continue
+        }
+        if (render) {
+          thumbnails[c.id] = render.url
+          lastPrint.set(c.id, print)
           continue
         }
         scene.updateMatrixWorld(true)
@@ -152,9 +124,17 @@ export default function ShotTracker() {
     const unsubscribeUi = useUi.subscribe((state, previous) => {
       if (state.view !== previous.view || state.boardImage !== previous.boardImage) schedule()
     })
+    // A Render finished (or was loaded): it becomes that shot's thumbnail.
+    const unsubscribeRenders = useRenders.subscribe((state, previous) => {
+      if (state.byShot !== previous.byShot) {
+        clearTimeout(thumbTimer)
+        thumbTimer = setTimeout(() => updateThumbnails('all'), 50)
+      }
+    })
     return () => {
       unsubscribe()
       unsubscribeUi()
+      unsubscribeRenders()
       clearTimeout(infoTimer)
       clearTimeout(thumbTimer)
       clearTimeout(liveTimer)

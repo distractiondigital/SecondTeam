@@ -5,6 +5,7 @@ import { registerBoardIpc } from './boardExport'
 import { registerFigureIpc } from './figureFiles'
 import { registerBackendIpc, stopBackend } from './backend/ipc'
 import { registerPassIpc } from './passFiles'
+import { registerRenderIpc } from './renderFiles'
 import { registerPoseLibraryIpc } from './poseLibrary'
 import { askToSave, registerProjectIpc } from './projectFiles'
 import { appDataFolder } from './settings'
@@ -115,6 +116,7 @@ app.whenReady().then(() => {
   registerProjectIpc(() => mainWindow)
   registerPoseLibraryIpc()
   registerPassIpc()
+  registerRenderIpc()
   registerAssetIpc(() => mainWindow)
   registerBoardIpc()
   registerFigureIpc()

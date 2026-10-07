@@ -22,6 +22,7 @@ Current version: **0.2.0 beta** (October 2026). The plan is in [SPEC.md](SPEC.md
 | 13 | Depth of field | ✅ Done | Optically accurate depth of field in every clay picture (sensor, lens, stop, focus), click to focus, focus readout and planes |
 | 14 | Clay lighting | ✅ Done | Lights with real sizes, soft shadows that harden at contact, ambient occlusion and ground bounce in every clay picture |
 | 15 | App updates | 🟡 Built, awaiting Spencer's test | Checks GitHub for a newer version on launch (can be turned off), downloads it in the background and installs on restart |
+| 16 | Path-traced Render | 🟡 Built, awaiting Spencer's test | Path-traced pictures with real bounce light, soft shadows and lens blur, in camera view, on the Board, in exports and as thumbnails |
 
 ## Since the milestones
 
@@ -39,6 +40,7 @@ Current version: **0.2.0 beta** (October 2026). The plan is in [SPEC.md](SPEC.md
 - Takes are stored in the project folder, so a project must be saved before generating.
 
 ## Ideas / later
+- **Render:** Atmosphere (fog) in the Render; lens character (blade count, anamorphic flares); a sharper sun shadow map for extreme close-ups in Clay; moving to the WebGPU path tracer when it matures.
 
 - **Figures:** a fresh look for the human figures, better shapes when sitting, smoother close-ups, more outerwear, an expression strength slider.
 - **AI:** AI on Mac (starting with ComfyUI's own Mac app), face-consistent cast references, a pose pass that skips hidden joints, passes for a whole scene at once.

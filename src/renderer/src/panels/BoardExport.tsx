@@ -9,6 +9,7 @@ import { projectDisplayName } from '../state/projectIO'
 import { useUi } from '../state/uiStore'
 import { renderBoardClay } from '../viewport/boardClay'
 import { getRenderer } from '../viewport/RendererHandle'
+import { exportRenders } from '../viewport/exportRenders'
 
 // Export the storyboard: a PDF (grid or rows, page size, title, footer) or a PNG sequence of the
 // circle takes in board order. Both go into the project's exports folder.
@@ -87,6 +88,8 @@ export default function BoardExport({ shots, onClose }: { shots: BoardShot[]; on
   const [busy, setBusy] = useState(false)
   const [result, setResult] = useState<{ path: string; kind: 'pdf' | 'pngs' } | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [progress, setProgress] = useState<string | null>(null)
+  const [cancel] = useState(() => ({ requested: false }))
   const set = (patch: Partial<Options>) => {
     const next = { ...opts, ...patch }
     if (patch.layout && !LAYOUT_COUNTS[patch.layout].includes(next.perPage)) next.perPage = LAYOUT_COUNTS[patch.layout][1]
@@ -132,7 +135,19 @@ export default function BoardExport({ shots, onClose }: { shots: BoardShot[]; on
       setError("The 3D view isn't ready; try again in a moment.")
       return
     }
-    s.clayImages = renderBoardClay(gl, CLAY_EXPORT_WIDTH, 'image/png')
+    if (s.source === 'render') {
+      // Each shot's Final Render at export size (made now if it isn't up to date; Cancel stops).
+      cancel.requested = false
+      const images = await exportRenders(gl, shots, CLAY_EXPORT_WIDTH, setProgress, () => cancel.requested)
+      setProgress(null)
+      if (!images) {
+        setBusy(false)
+        return
+      }
+      s.clayImages = images
+    } else {
+      s.clayImages = renderBoardClay(gl, CLAY_EXPORT_WIDTH, 'image/png')
+    }
     const r = kind === 'pdf' ? await window.secondTeam.exportBoardPdf(projectPath, s) : await window.secondTeam.exportBoardPngs(projectPath, s)
     setBusy(false)
     if ('error' in r) setError(r.error)
@@ -156,6 +171,9 @@ export default function BoardExport({ shots, onClose }: { shots: BoardShot[]; on
           </button>
           <button className={source === 'clay' ? 'active' : ''} onClick={() => setSource('clay')} title="Each shot's clay render">
             Clay
+          </button>
+          <button className={source === 'render' ? 'active' : ''} onClick={() => setSource('render')} title="Each shot's path-traced Render, at Final quality (shots without one are rendered first, about 20 s each)">
+            Render
           </button>
         </div>
 
@@ -209,11 +227,17 @@ export default function BoardExport({ shots, onClose }: { shots: BoardShot[]; on
           <button
             disabled={busy || !projectPath}
             onClick={() => void run('pngs')}
-            title={source === 'clay' ? 'Clay renders of every shot, numbered in board order' : 'Every shot in board order: its full-resolution circle take, or its clay render'}
+            title={source === 'clay' ? 'Clay renders of every shot, numbered in board order' : source === 'render' ? 'The Render of every shot, numbered in board order' : 'Every shot in board order: its full-resolution circle take, or its clay render'}
           >
             <Images size={14} /> Export PNGs
           </button>
         </div>
+        {progress && (
+          <div className="board-export-done">
+            <span>{progress}</span>
+            <button onClick={() => (cancel.requested = true)}>Cancel</button>
+          </div>
+        )}
         {!projectPath && <p className="hint small">Save the project first: exports go in its folder.</p>}
         {error && <p className="hint small take-error">{error}</p>}
         {result && projectPath && (

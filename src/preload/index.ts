@@ -17,6 +17,10 @@ const api: SecondTeamApi = {
     return () => ipcRenderer.removeListener('app:saveAndClose', listener)
   },
 
+  writeRender: (folder, sceneId, shotId, quality, png, meta) => ipcRenderer.invoke('renders:write', folder, sceneId, shotId, quality, png, meta),
+  listRenders: (folder) => ipcRenderer.invoke('renders:list', folder),
+  readRender: (folder, sceneId, shotId, quality) => ipcRenderer.invoke('renders:read', folder, sceneId, shotId, quality),
+
   getUpdateState: () => ipcRenderer.invoke('updates:get'),
   checkForUpdates: () => ipcRenderer.invoke('updates:check'),
   downloadUpdate: () => ipcRenderer.invoke('updates:download'),

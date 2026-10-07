@@ -8,7 +8,7 @@ import { paginate, type BoardLayout } from './board'
 
 export type PageSize = 'letter' | 'a4'
 /** What the frames show: each shot's circle take, or its clay render. */
-export type BoardSource = 'ai' | 'clay'
+export type BoardSource = 'ai' | 'clay' | 'render'
 
 export interface BoardPanelData {
   sceneId: string
@@ -31,7 +31,10 @@ export interface BoardExportSpec {
   title: string
   footer: string
   source: BoardSource
-  /** Clay renders (PNG data URLs) by shot id: every shot in Clay, and the fill-in for shots without a circle take in AI. */
+  /**
+   * Each shot's picture when it isn't an AI take (PNG data URLs by shot id): its clay picture (Clay, and
+   * the fill-in for shots without a circle take in AI), or its path-traced Render (Render).
+   */
   clayImages?: Record<string, string>
   /** Frame shape (width / height) for the image boxes. */
   ratio: number

@@ -149,7 +149,7 @@ Build **one milestone at a time**. Each ends with the app running and a short "h
 | 13 | **Depth of field** | Clay pictures (camera view, thumbnails, board, exports) have optically accurate depth of field from the sensor, focal length, stop and focus; focus follows the subject or is set by clicking; the HUD shows what's sharp. Added 2026-10-06. |
 | 14 | **Clay lighting** | Lights have a real size; Clay shadows soften with distance like real sources (sharp at contact), with ambient occlusion and ground bounce, in every clay picture. Added 2026-10-06. |
 | 15 | **App updates** | The installed app checks GitHub for a newer version on launch (can be turned off), shows what's new, downloads it in the background and installs it on "Restart and update" (Windows; the Mac gets a link). The only network use besides the AI engine download. Added 2026-10-06. |
-| 16 | **Path-traced Render** | A rendered picture with true bounce light and lens blur, on demand in camera view and for the board and exports (three-gpu-pathtracer). Planned. |
+| 16 | **Path-traced Render** | A path-traced picture (true bounce light, shadows from each light's real size, lens blur through the aperture): a Render switch in camera view (Draft / Final), Render pictures on the Board, in exports and as shot thumbnails, saved in the project. Added 2026-10-07. |
 
 ## 7. Known risks (think about these early)
 - **Reference bleed.** Masked IP-Adapters can leak one character's look onto another. Plan for per-reference weight and mask feathering controls.

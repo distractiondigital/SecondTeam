@@ -75,7 +75,7 @@ async function exportPdf(folder: string, spec: BoardExportSpec): Promise<Result>
     await win.loadFile(htmlFile)
     const pdf = await win.webContents.printToPDF({ printBackground: true, preferCSSPageSize: true })
     await mkdir(out, { recursive: true })
-    const label = `${exportStamp()} ${layoutLabel(spec.layout, spec.perPage)}${spec.source === 'clay' ? ' Clay' : ''}`
+    const label = `${exportStamp()} ${layoutLabel(spec.layout, spec.perPage)}${spec.source === 'clay' ? ' Clay' : spec.source === 'render' ? ' Render' : ''}`
     const name = freeName(label, (n) => existsSync(join(out, `${n}.pdf`)))
     const target = join(out, `${name}.pdf`)
     await writeFile(`${target}.tmp`, pdf)
@@ -89,7 +89,7 @@ async function exportPdf(folder: string, spec: BoardExportSpec): Promise<Result>
 
 async function exportPngs(folder: string, spec: BoardExportSpec): Promise<Result> {
   const out = exportsFolder(folder)
-  const dir = join(out, freeName(`${exportStamp()} ${spec.source === 'clay' ? 'Clay PNGs' : 'PNGs'}`, (n) => existsSync(join(out, n))))
+  const dir = join(out, freeName(`${exportStamp()} ${spec.source === 'clay' ? 'Clay PNGs' : spec.source === 'render' ? 'Render PNGs' : 'PNGs'}`, (n) => existsSync(join(out, n))))
   await mkdir(dir, { recursive: true })
   let n = 0
   // Every shot: its full-resolution circle take (AI), else its clay render.

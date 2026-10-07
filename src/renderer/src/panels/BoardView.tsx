@@ -7,6 +7,9 @@ import { useDocument } from '../state/documentStore'
 import { loadTakes, openTake, useGeneration } from '../state/generation'
 import { useUi } from '../state/uiStore'
 import BoardExport from './BoardExport'
+import { currentRender } from '../../../shared/renders'
+import { useRenders } from '../state/renders'
+import { shotFingerprint } from '../viewport/shotFingerprint'
 
 // The storyboard: every shot's circle take in the board's own order (across scenes), with a
 // description, dialogue and notes per panel. Drag panels to reorder (shots keep their names).
@@ -27,8 +30,8 @@ function Caption(props: { value: string; placeholder: string; className?: string
   )
 }
 
-/** AI or Clay as the board shows it now: picked, or automatic (Clay until the project has circle takes). */
-export function useBoardImage(): 'ai' | 'clay' {
+/** AI, Clay or Render as the board shows it now: picked, or automatic (Clay until the project has circle takes). */
+export function useBoardImage(): 'ai' | 'clay' | 'render' {
   const picked = useUi((s) => s.boardImage)
   const auto = useDocument((s) => defaultBoardImage(s.project))
   return picked ?? auto
@@ -44,8 +47,13 @@ function Panel({ b, onDragStart, onDrop, dropHere, aspect }: { b: BoardShot; onD
   const take = shot.circleTake ? takes?.find((t) => t.id === shot.circleTake) : undefined
   // In AI mode a shot without a circle take shows its clay render (marked as such).
   const mode = useBoardImage()
-  const showClay = mode === 'clay' || (takes !== undefined && !take)
+  const showClay = mode === 'clay' || mode === 'render' || (takes !== undefined && !take)
   const clay = useUi((s) => s.boardClay[shot.id])
+  // Render mode: the shot's up-to-date Render; until it's made, its clay picture.
+  useDocument((s) => s.project) // (re-check when the project changes)
+  // (Select the picture itself: a string, so the panel only updates when it changes.)
+  const render = useRenders((s) => (mode === 'render' ? (currentRender(s.byShot[shot.id], shotFingerprint(shot.id))?.url ?? null) : null))
+  const rendering = useRenders((s) => mode === 'render' && s.queue?.shotId === shot.id)
   const update = useDocument.getState().updatePanel
   const description = panelDescription(shot)
   const specs = [`${Math.round(shot.focalLength)}mm`, shot.sizeOverride ?? take?.shotSize, shot.angleOverride ?? take?.angle]
@@ -71,9 +79,14 @@ function Panel({ b, onDragStart, onDrop, dropHere, aspect }: { b: BoardShot; onD
       }}
     >
       <div className="board-image" style={{ aspectRatio: aspect }} onDoubleClick={goToShot} title="Double-click to go to this shot">
-        {showClay ? (
+        {render ? (
+          <img src={render} alt={shot.shotNumber} draggable={false} />
+        ) : showClay ? (
           clay ? (
-            <img src={clay} alt={shot.shotNumber} draggable={false} />
+            <>
+              <img src={clay} alt={shot.shotNumber} draggable={false} />
+              {mode === 'render' && <span className="board-pending">{rendering ? 'Rendering…' : 'Waiting to render'}</span>}
+            </>
           ) : (
             <div className="board-missing">Rendering…</div>
           )
@@ -121,6 +134,7 @@ export default function BoardView() {
   const [exporting, setExporting] = useState(false)
   const circled = shots.filter((b) => b.shot.circleTake).length
   const boardImage = useBoardImage()
+  const queue = useRenders((s) => s.queue)
   // Every frame on the board in the shots' own shape (the delivery frame), shown whole.
   const aspect = useDocument((s) => deliveryFrame(opticsFor(s.project.camera, 35)).ratio)
 
@@ -147,7 +161,11 @@ export default function BoardView() {
           <button className={boardImage === 'clay' ? 'active' : ''} onClick={() => useUi.getState().setBoardImage('clay')}>
             Clay
           </button>
+          <button className={boardImage === 'render' ? 'active' : ''} onClick={() => useUi.getState().setBoardImage('render')} title="Each shot's path-traced Render (made in the background)">
+            Render
+          </button>
         </div>
+        {boardImage === 'render' && queue && <span className="dim">Rendering {Math.min(queue.done + 1, queue.total)} of {queue.total}…</span>}
         <button className="generate-button small" onClick={() => setExporting(true)} disabled={!shots.length}>
           <FileDown size={14} /> Export…
         </button>

@@ -42,6 +42,9 @@ These aren't part of the app. The setup wizard downloads them on Windows from th
 | [Zustand](https://github.com/pmndrs/zustand) | Poimandres | MIT |
 | [Immer](https://immerjs.github.io/immer) | Michel Weststrate | MIT |
 | [electron-updater](https://www.electron.build/auto-update) (app updates) | electron-builder contributors | MIT |
+| [three-gpu-pathtracer](https://github.com/gkjohnson/three-gpu-pathtracer) (the path-traced Render) | Garrett Johnson | MIT |
+| [three-mesh-bvh](https://github.com/gkjohnson/three-mesh-bvh) (fast ray tests for the Render) | Garrett Johnson | MIT |
+| [glslSmartDeNoise](https://github.com/BrutPitt/glslSmartDeNoise) (the Render's denoise filter, in three-gpu-pathtracer) | Michele Morrone | BSD-2-Clause |
 | [Lucide](https://lucide.dev) icons | Lucide contributors | ISC |
 
 Build tools (not shipped in the app): Vite, electron-vite, electron-builder, TypeScript, Vitest (MIT / Apache-2.0).

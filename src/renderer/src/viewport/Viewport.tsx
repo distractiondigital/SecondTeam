@@ -17,6 +17,8 @@ import LookThrough from './LookThrough'
 import { installSoftShadows } from './softShadows'
 import LiveClayPost from './LiveClayPost'
 import PipRender from './PipRender'
+import LiveRender from './LiveRender'
+import RenderQueue from './RenderQueue'
 import FocusPick from './FocusPick'
 import SceneNodes, { hasLights } from './SceneNodes'
 import SelectionGizmo from './SelectionGizmo'
@@ -88,6 +90,8 @@ export default function Viewport() {
         <FrameController />
         <LookThrough />
         <LiveClayPost />
+        <LiveRender />
+        <RenderQueue />
         <FocusPick />
         <FreeFly />
         <ViewNav />

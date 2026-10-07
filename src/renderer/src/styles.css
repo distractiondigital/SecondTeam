@@ -92,7 +92,7 @@ input {
   background: none;
   border: 1px solid transparent;
   border-radius: 10px;
-  padding: 2px 8px;
+  padding: 1px 5px;
   font: inherit;
   cursor: pointer;
 }
@@ -2081,6 +2081,17 @@ input {
   display: block;
 }
 
+.board-pending {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  padding: 1px 7px;
+  border-radius: 9px;
+  background: rgba(20, 21, 24, 0.8);
+  color: var(--text-dim);
+  font-size: 11px;
+}
+
 .board-missing {
   height: 100%;
   display: flex;
@@ -3168,6 +3179,43 @@ input {
 .hud-stop {
   padding: 2px 4px;
   font-size: 12px;
+}
+
+/* Camera view: Render (path traced) controls, under the lens readout. */
+.hud-render {
+  top: 74px;
+  left: auto;
+  right: 10px;
+  justify-content: flex-end;
+  pointer-events: auto;
+}
+
+.hud-render-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  background: rgba(20, 21, 24, 0.85);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: #e4e5e8;
+  font: inherit;
+  cursor: pointer;
+}
+
+.hud-render-button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.hud-render-count {
+  min-width: 58px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-render-note {
+  color: #e0b05a;
 }
 
 .hud-lens .icon-button.active,

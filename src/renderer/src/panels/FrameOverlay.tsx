@@ -1,7 +1,8 @@
 import { useEffect, useState, type RefObject } from 'react'
-import { Aperture, X } from 'lucide-react'
+import { Aperture, Sparkles, X } from 'lucide-react'
 import { guideLabel, opticsFor, sensorLabel } from '../../../shared/camera'
-import { activeScene, useDocument } from '../state/documentStore'
+import { activeScene, environmentFor, useDocument } from '../state/documentStore'
+import { setLiveRender, setRenderQuality, useRenders } from '../state/renders'
 import { useUi } from '../state/uiStore'
 import { formatLengthLabel } from '../units'
 import { viewFit, type Rect } from '../viewport/viewFit'
@@ -27,6 +28,36 @@ function useSize(ref: RefObject<HTMLElement | null>) {
     return () => observer.disconnect()
   }, [ref])
   return size
+}
+
+/** Camera view: path-traced Render on/off, Draft or Final, and how far along it is. */
+function RenderHud({ node }: { node: CameraNode }) {
+  const live = useRenders((s) => s.live)
+  const quality = useRenders((s) => s.quality)
+  const samples = useRenders((s) => s.liveSamples)
+  const target = useRenders((s) => s.liveTarget)
+  const fog = useDocument((s) => (environmentFor(s, node.id).fog ?? 0) > 0)
+  return (
+    <div className="hud hud-render">
+      <button
+        className={`hud-render-button${live ? ' active' : ''}`}
+        title={live ? 'Rendering (path traced): click for Clay' : 'Render: path-traced light, shadows and lens blur (Clay while you move)'}
+        onClick={() => setLiveRender(!live)}
+      >
+        <Sparkles size={13} /> Render
+      </button>
+      {live && (
+        <>
+          <select className="hud-stop" value={quality} onChange={(e) => setRenderQuality(e.target.value === 'final' ? 'final' : 'draft')} title="Draft: quick, a little grain. Final: clean.">
+            <option value="draft">Draft</option>
+            <option value="final">Final</option>
+          </select>
+          <span className="hud-render-count">{target ? (samples >= target ? 'Done' : samples === 0 ? 'Starting…' : `${samples} / ${target}`) : ''}</span>
+          {fog && <span className="hud-render-note" title="The Render doesn't show Atmosphere yet">No atmosphere</span>}
+        </>
+      )}
+    </div>
+  )
 }
 
 /** Top right in camera view: the stop, where it's focused, what's sharp, click to focus, live blur on/off. */
@@ -118,6 +149,7 @@ export default function FrameOverlay({ container }: { container: RefObject<HTMLE
       </button>
 
       <LensHud node={node} />
+      <RenderHud node={node} />
 
       <div className="hud hud-bottom">
         {info && (

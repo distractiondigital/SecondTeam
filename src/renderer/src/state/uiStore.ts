@@ -16,7 +16,7 @@ export type LeftTab = 'outliner' | 'cast' | 'props'
 /** The set (3D workspace) or the storyboard. */
 export type MainView = 'set' | 'board'
 /** What the board's panels show: the circle take, or the shot's clay render. */
-export type BoardImage = 'ai' | 'clay'
+export type BoardImage = 'ai' | 'clay' | 'render'
 /** A cast member or prop shown in Properties. */
 export type EntityRef = { kind: 'cast' | 'prop'; id: string }
 

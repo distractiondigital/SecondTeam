@@ -213,7 +213,7 @@ const TONE_MAP = /* glsl */ `
 `
 
 /** The GLSL function (from three's tonemapping_pars_fragment) for each tone mapping. */
-const TONE_MAP_FUNCTIONS: Partial<Record<ToneMapping, string>> = {
+export const TONE_MAP_FUNCTIONS: Partial<Record<ToneMapping, string>> = {
   [LinearToneMapping]: 'LinearToneMapping',
   [ReinhardToneMapping]: 'ReinhardToneMapping',
   [CineonToneMapping]: 'CineonToneMapping',

@@ -2,6 +2,7 @@ import type { BoardExportSpec } from '../shared/boardHtml'
 import type { SetupInfo, SetupProgress, SystemCheck } from '../shared/setup'
 import type { BackendStatus, GenerationEvent, GenerationJob, InstalledModel, TakeInfo, TakeMeta } from '../shared/takes'
 import type { UpdateState } from '../shared/updates'
+import type { RenderMeta, RenderQuality } from '../shared/renders'
 
 // Shape of the bridge exposed to the UI as `window.secondTeam`.
 export interface SecondTeamApi {
@@ -14,6 +15,13 @@ export interface SecondTeamApi {
   closeNow: () => void
   /** Main asks the UI to save before closing. Returns an unsubscribe function. */
   onSaveAndClose: (callback: () => void) => () => void
+
+  /** Save a shot's Render (PNG data URL) in the project folder (main/renderFiles.ts). */
+  writeRender: (folder: string, sceneId: string, shotId: string, quality: RenderQuality, png: string, meta: RenderMeta) => Promise<{ ok: true } | { error: string }>
+  /** Every saved Render in the project (details only). */
+  listRenders: (folder: string) => Promise<{ sceneId: string; shotId: string; quality: RenderQuality; meta: RenderMeta }[]>
+  /** One saved Render's picture as a data URL, or null. */
+  readRender: (folder: string, sceneId: string, shotId: string, quality: RenderQuality) => Promise<string | null>
 
   /** App updates (main/updates.ts): the current state, and its changes. */
   getUpdateState: () => Promise<UpdateState>
