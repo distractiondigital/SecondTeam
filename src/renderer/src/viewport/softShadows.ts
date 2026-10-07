@@ -12,9 +12,26 @@ import { DoubleSide, FrontSide, ShaderChunk, ShaderLib, type Light, type Materia
 //   spot (perspective):  radius = −size / (2 · tan(half cone))                              (< 0)
 //   point (cube map):    radius = size in metres
 // Spot shadow cameras use SPOT_SHADOW_NEAR / SPOT_SHADOW_FAR so the shader can linearise depth.
+//
+// A wide filter on a surface tilted towards the light would catch the surface itself: samples on
+// the side nearer the light see it as closer than the point being shaded, and the random rotation
+// turns that into speckles. Two allowances, both from the surface's smooth normal (the triangle's
+// plane would show the facets on curved faces):
+//  - finding the blockers: each sample is compared with the surface's own depth there, the plane
+//    through the point square to its normal, mapped into the shadow map with the light's
+//    projection worked out at this pixel (stReceiverPlane, called per light in
+//    lights_fragment_begin), so a blocker right at a contact still counts;
+//  - filtering the edge: a margin from the tilt in every direction (stTilt), so curved skin and
+//    cloth never catch themselves.
 
 export const SPOT_SHADOW_NEAR = 0.05
 export const SPOT_SHADOW_FAR = 60
+/** The sun's shadow camera sits this far "behind" the node (LightView). */
+export const SUN_DISTANCE = 25
+/** Metres of set covered by the sun's shadows, each way. */
+export const SUN_SHADOW_HALF = 12
+export const SUN_NEAR = 1
+export const SUN_FAR = SUN_DISTANCE * 2.5
 
 const SEARCH = 32
 const FILTER = 128 // most samples, for the widest blurs (narrow ones use fewer)
@@ -24,14 +41,43 @@ const MAX_ANGLE = 0.25 // radians, for point lights
 const HELPERS = /* glsl */ `
 	#define ST_SPOT_NEAR ${SPOT_SHADOW_NEAR.toFixed(4)}
 	#define ST_SPOT_FAR ${SPOT_SHADOW_FAR.toFixed(4)}
+	// The sun's shadow map: depth units per unit of map width.
+	#define ST_SUN_SLOPE ${((2 * SUN_SHADOW_HALF) / (SUN_FAR - SUN_NEAR)).toFixed(6)}
 	float stNoise( vec2 p ) { return fract( 52.9829189 * fract( dot( p, vec2( 0.06711056, 0.00583715 ) ) ) ); }
 	vec2 stDisc( int i, int n, float phi ) {
 		float r = sqrt( ( float( i ) + 0.5 ) / float( n ) );
 		float t = float( i ) * 2.399963229728653 + phi;
 		return vec2( cos( t ), sin( t ) ) * r;
 	}
+	// How much deeper a surface tilted this far from the light gets, per unit of sideways distance.
+	float stTilt() {
+		float c = clamp( stCosL, 0.1, 1.0 );
+		return 2.5 * sqrt( 1.0 - c * c ) / c; // a margin for curved surfaces
+	}
+	// The surface's own depth at map offset o, relative to the point, less a margin for curvature.
+	#define ST_CURVE 0.8
+	float stSurface( vec2 o, float slope ) {
+		float most = length( o ) * slope;
+		if ( ! stPlaneOk ) return - most;
+		return clamp( dot( o, stPlane ), - most, most ) - ST_CURVE * most;
+	}
 	float stSpotLinear( float d ) {
 		return ST_SPOT_NEAR * ST_SPOT_FAR / ( ST_SPOT_FAR - d * ( ST_SPOT_FAR - ST_SPOT_NEAR ) );
+	}
+	// Is uv lit, blended between the four nearest texels: in a close-up a texel covers many pixels,
+	// and a plain yes/no per sample would show as dither and as steps the size of a texel.
+	float stLitBilinear( sampler2D map, vec2 uv, vec2 size, float ref, bool perspective ) {
+		vec2 t = uv * size - 0.5;
+		vec2 f = fract( t );
+		vec2 base = ( floor( t ) + 0.5 ) / size;
+		vec2 dx = vec2( 1.0 / size.x, 0.0 );
+		vec2 dy = vec2( 0.0, 1.0 / size.y );
+		vec4 d = vec4(
+			texture2D( map, base ).r, texture2D( map, base + dx ).r,
+			texture2D( map, base + dy ).r, texture2D( map, base + dx + dy ).r );
+		if ( perspective ) d = vec4( stSpotLinear( d.x ), stSpotLinear( d.y ), stSpotLinear( d.z ), stSpotLinear( d.w ) );
+		vec4 lit = step( vec4( ref ), d );
+		return mix( mix( lit.x, lit.y, f.x ), mix( lit.z, lit.w, f.x ), f.y );
 	}
 `
 
@@ -48,6 +94,9 @@ const GET_SHADOW = /* glsl */ `
 		float texel = 1.0 / shadowMapSize.x;
 		float phi = stNoise( gl_FragCoord.xy ) * PI2;
 		float receiver = perspective ? stSpotLinear( shadowCoord.z ) : shadowCoord.z;
+		// Most depth the surface can gain per unit of map distance at this tilt (a spot: in metres).
+		float tanHalf = k > 1e-6 ? stLampR / k : 0.0;
+		float slope = stTilt() * ( perspective ? 2.0 * receiver * tanHalf : ST_SUN_SLOPE );
 
 		// 1. Blockers: anything nearer the light within the widest penumbra this point could have.
 		// (spot: the penumbra of a blocker halfway to the light)
@@ -56,9 +105,11 @@ const GET_SHADOW = /* glsl */ `
 		float blockerSum = 0.0;
 		float blockers = 0.0;
 		for ( int i = 0; i < ${SEARCH}; i ++ ) {
-			float d = texture2D( shadowMap, shadowCoord.xy + stDisc( i, ${SEARCH}, phi ) * search ).r;
-			if ( d < shadowCoord.z ) {
-				blockerSum += perspective ? stSpotLinear( d ) : d;
+			vec2 o = stDisc( i, ${SEARCH}, phi ) * search;
+			float d = texture2D( shadowMap, shadowCoord.xy + o ).r;
+			float depth = perspective ? stSpotLinear( d ) : d;
+			if ( depth < receiver + stSurface( o, slope ) ) {
+				blockerSum += depth;
 				blockers += 1.0;
 			}
 		}
@@ -77,7 +128,8 @@ const GET_SHADOW = /* glsl */ `
 		float lit = 0.0;
 		for ( int i = 0; i < ${FILTER}; i ++ ) {
 			if ( i >= n ) break;
-			lit += step( shadowCoord.z, texture2D( shadowMap, shadowCoord.xy + stDisc( i, n, phi + 1.3 ) * radius ).r );
+			vec2 o = stDisc( i, n, phi + 1.3 ) * radius;
+			lit += stLitBilinear( shadowMap, shadowCoord.xy + o, shadowMapSize, receiver + stSurface( o, slope ), perspective );
 		}
 		return mix( 1.0, mix( lit / float( n ), 1.0, faint ), shadowIntensity );
 
@@ -102,6 +154,8 @@ const GET_POINT_SHADOW = /* glsl */ `
 		float phi = stNoise( gl_FragCoord.xy ) * PI2;
 		float halfSize = 0.5 * shadowRadius;
 		float minAngle = 2.5 / shadowMapSize.x;
+		float receiver = near * far / ( far - dp * ( far - near ) ); // linear, with the bias
+		float slope = stTilt() * viewSpaceZ; // metres deeper per radian sideways
 
 		// 1. Blockers.
 		float search = clamp( halfSize / viewSpaceZ, minAngle, ${MAX_ANGLE.toFixed(3)} );
@@ -110,8 +164,9 @@ const GET_POINT_SHADOW = /* glsl */ `
 		for ( int i = 0; i < ${SEARCH}; i ++ ) {
 			vec2 o = stDisc( i, ${SEARCH}, phi ) * search;
 			float d = textureCube( shadowMap, normalize( dir + t1 * o.x + t2 * o.y ) ).r;
-			if ( d < dp ) {
-				blockerSum += near * far / ( far - d * ( far - near ) );
+			float depth = near * far / ( far - d * ( far - near ) );
+			if ( depth < receiver - length( o ) * slope ) {
+				blockerSum += depth;
 				blockers += 1.0;
 			}
 		}
@@ -127,11 +182,51 @@ const GET_POINT_SHADOW = /* glsl */ `
 		for ( int i = 0; i < ${FILTER}; i ++ ) {
 			if ( i >= n ) break;
 			vec2 o = stDisc( i, n, phi + 1.3 ) * angle;
-			lit += step( dp, textureCube( shadowMap, normalize( dir + t1 * o.x + t2 * o.y ) ).r );
+			float d = textureCube( shadowMap, normalize( dir + t1 * o.x + t2 * o.y ) ).r;
+			lit += step( receiver - length( o ) * slope, near * far / ( far - d * ( far - near ) ) );
 		}
 		return mix( 1.0, mix( lit / float( n ), 1.0, faint ), shadowIntensity );
 
 	}
+`
+
+// Declared before every lit material's lights (lights_pars_begin); set per light in
+// lights_fragment_begin, read by the shadow filters.
+const RECEIVER_PLANE = /* glsl */ `
+float stCosL = 1.0; // the surface's (smooth) facing to the current light
+float stLampR = 0.0; // the current spot's radius (m)
+vec2 stPlane = vec2( 0.0 ); // the surface's depth change per unit of shadow-map distance
+bool stPlaneOk = false;
+#ifdef USE_SHADOWMAP
+// The light's projection at this pixel, from how the shadow coordinate and the position change
+// across the screen plus a step towards the light (which keeps the map position for a sun or a
+// spot), then the depth slope of the smooth surface's plane in the map. Depth is the map's own
+// for the sun, metres for a spot.
+void stReceiverPlane( vec4 coord, bool spot, vec3 P, vec3 L, vec3 N ) {
+	vec3 c = coord.xyz / coord.w;
+	vec3 A = dFdx( c );
+	vec3 B = dFdy( c );
+	vec3 a = dFdx( P );
+	vec3 b = dFdy( P );
+	float towardLight;
+	if ( spot ) {
+		float lin = ${SPOT_SHADOW_NEAR.toFixed(4)} * ${SPOT_SHADOW_FAR.toFixed(4)} / ( ${SPOT_SHADOW_FAR.toFixed(4)} - c.z * ( ${SPOT_SHADOW_FAR.toFixed(4)} - ${SPOT_SHADOW_NEAR.toFixed(4)} ) );
+		float dLin = lin * lin * ( ${SPOT_SHADOW_FAR.toFixed(4)} - ${SPOT_SHADOW_NEAR.toFixed(4)} ) / ( ${SPOT_SHADOW_NEAR.toFixed(4)} * ${SPOT_SHADOW_FAR.toFixed(4)} );
+		A.z *= dLin;
+		B.z *= dLin;
+		towardLight = - 1.0;
+	} else {
+		towardLight = - ${(1 / (SUN_FAR - SUN_NEAR)).toFixed(6)};
+	}
+	float det = A.x * B.y - A.y * B.x;
+	float cN = dot( L, N );
+	stPlaneOk = abs( det ) > 1e-4 * length( A.xy ) * length( B.xy ) && cN > 0.05;
+	if ( ! stPlaneOk ) return;
+	mat2 toScreen = inverse( mat2( A.xy, B.xy ) );
+	vec2 h = vec2( A.z, B.z ) - towardLight / cN * vec2( dot( a, N ), dot( b, N ) );
+	stPlane = transpose( toScreen ) * h;
+}
+#endif
 `
 
 /** Replace the body of the function that starts at `signature` (matching braces) in `source`. */
@@ -224,15 +319,20 @@ function installSoftLights(): void {
     return s.replace(marker, `${marker}\n\t\t${insert}`)
   }
   begin = after(begin, 'getPointLightInfo( pointLight, geometryPosition, directLight );', 'stSinSigma = stLampSin( stPointRadius[ i ], pointLight.position - geometryPosition );')
-  begin = after(begin, 'getSpotLightInfo( spotLight, geometryPosition, directLight );', 'stSinSigma = stLampSin( stSpotRadius[ i ], spotLight.position - geometryPosition );')
+  begin = after(begin, 'getSpotLightInfo( spotLight, geometryPosition, directLight );', 'stSinSigma = stLampSin( stSpotRadius[ i ], spotLight.position - geometryPosition ); stLampR = stSpotRadius[ i ];')
   begin = after(begin, 'getDirectionalLightInfo( directionalLight, directLight );', 'stSinSigma = stDirSin[ i ];')
   if (begin.includes('getSunLightInfo( sunLight, directLight );')) begin = after(begin, 'getSunLightInfo( sunLight, directLight );', 'stSinSigma = 0.0;')
   // Every "directLight.color *= ( … ) ? <shadow> : 1.0;" line: ease the shadow off on the horizon.
-  begin = begin.replace(
-    /directLight\.color \*= \( directLight\.visible && receiveShadow \) \? (.+) : 1\.0;/g,
-    'directLight.color *= ( directLight.visible && receiveShadow ) ? stShadowBlend( dot( geometryNormal, directLight.direction ), $1 ) : 1.0;'
-  )
+  begin = begin.replace(/directLight\.color \*= \( directLight\.visible && receiveShadow \) \? (.+) : 1\.0;/g, (_, shadow: string) => {
+    const coord = /(vDirectionalShadowCoord|vSpotLightCoord)\[ i \]/.exec(shadow)
+    const plane = coord
+      ? `stReceiverPlane( ${coord[0]}, ${coord[1] === 'vSpotLightCoord'}, geometryPosition, directLight.direction, geometryNormal );`
+      : 'stPlaneOk = false;'
+    return `stCosL = dot( geometryNormal, directLight.direction );\n\t\t${plane}\n\t\tdirectLight.color *= ( directLight.visible && receiveShadow ) ? stShadowBlend( stCosL, ${shadow} ) : 1.0;`
+  })
   ShaderChunk.lights_fragment_begin = begin
+  // The surface's facing to the current light and a spot's radius, for the shadow filter's tilt.
+  ShaderChunk.lights_pars_begin = RECEIVER_PLANE + ShaderChunk.lights_pars_begin
 
   let pars = ShaderChunk.lights_physical_pars_fragment
   const nl = 'float dotNL = saturate( dot( geometryNormal, directLight.direction ) );'

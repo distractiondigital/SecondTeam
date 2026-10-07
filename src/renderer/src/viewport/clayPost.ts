@@ -1,14 +1,20 @@
 import {
+  ACESFilmicToneMapping,
+  AgXToneMapping,
   AlwaysDepth,
+  CineonToneMapping,
   DepthTexture,
   FloatType,
   HalfFloatType,
   LinearFilter,
+  LinearToneMapping,
   Mesh,
   NearestFilter,
+  NeutralToneMapping,
   OrthographicCamera,
   PlaneGeometry,
   RedFormat,
+  ReinhardToneMapping,
   RGBAFormat,
   RGFormat,
   Scene,
@@ -22,6 +28,7 @@ import {
   type Object3D,
   type PerspectiveCamera,
   type Texture,
+  type ToneMapping,
   type WebGLRenderer
 } from 'three'
 
@@ -188,8 +195,36 @@ const GATHER = /* glsl */ `
   }
 `
 
+// The film curve (tone mapping). three.js applies the renderer's curve only when drawing to the
+// screen, so pictures rendered into an image (thumbnails, the Board, Clay exports) came out without
+// it: flatter, with lifted shadows. Offscreen, the finishing passes apply the same curve themselves.
+const TONE_MAP_PARS = /* glsl */ `
+  #ifndef TONE_MAPPING
+  #include <tonemapping_pars_fragment>
+  #endif
+  uniform bool toneMapOffscreen;
+`
+const TONE_MAP = /* glsl */ `
+    #ifdef TONE_MAPPING
+    gl_FragColor.rgb = toneMapping(gl_FragColor.rgb);
+    #else
+    if (toneMapOffscreen) gl_FragColor.rgb = ST_TONE_MAP(gl_FragColor.rgb);
+    #endif
+`
+
+/** The GLSL function (from three's tonemapping_pars_fragment) for each tone mapping. */
+const TONE_MAP_FUNCTIONS: Partial<Record<ToneMapping, string>> = {
+  [LinearToneMapping]: 'LinearToneMapping',
+  [ReinhardToneMapping]: 'ReinhardToneMapping',
+  [CineonToneMapping]: 'CineonToneMapping',
+  [ACESFilmicToneMapping]: 'ACESFilmicToneMapping',
+  [AgXToneMapping]: 'AgXToneMapping',
+  [NeutralToneMapping]: 'NeutralToneMapping'
+}
+
 const BLEND = /* glsl */ `
   ${COC}
+  ${TONE_MAP_PARS}
   uniform sampler2D tColor;
   uniform sampler2D tBlur;
   uniform vec2 halfSize;   // size of the half-resolution blur
@@ -221,7 +256,7 @@ const BLEND = /* glsl */ `
     float amount = smoothstep(0.5, 1.5, max(cocRadius(depth), blur.a));
     gl_FragColor = vec4(mix(texture2D(tColor, vUv).rgb, blur.rgb, amount), 1.0);
     gl_FragDepth = depth;
-    #include <tonemapping_fragment>
+    ${TONE_MAP}
     #include <colorspace_fragment>
   }
 `
@@ -308,13 +343,14 @@ const AO_BLUR = /* glsl */ `
 
 /** The finished picture with no depth of field: tone mapping, colour space, and the scene's depth. */
 const OUTPUT = /* glsl */ `
+  ${TONE_MAP_PARS}
   uniform sampler2D tColor;
   uniform sampler2D tDepth;
   varying vec2 vUv;
   void main() {
     gl_FragColor = vec4(texture2D(tColor, vUv).rgb, 1.0);
     gl_FragDepth = texture2D(tDepth, vUv).x;
-    #include <tonemapping_fragment>
+    ${TONE_MAP}
     #include <colorspace_fragment>
   }
 `
@@ -338,7 +374,8 @@ function material(fragmentShader: string, extra: Record<string, { value: unknown
   return new ShaderMaterial({
     vertexShader: VERTEX,
     fragmentShader,
-    uniforms: { ...COMMON_UNIFORMS(), ...extra },
+    uniforms: { ...COMMON_UNIFORMS(), toneMapOffscreen: { value: false }, ...extra },
+    defines: { ST_TONE_MAP: 'LinearToneMapping' },
     depthTest: output,
     depthWrite: output,
     toneMapped: output
@@ -446,6 +483,15 @@ export class ClayPost {
     this.gather.uniforms.tSpread.value = this.spread.texture
     this.gather.uniforms.squeeze.value = Math.max(1, p?.squeeze ?? 1)
     this.blend.uniforms.tBlur.value = this.half.texture
+    // Offscreen pictures get the renderer's film curve here (three only applies it on screen).
+    const curve = TONE_MAP_FUNCTIONS[gl.toneMapping] ?? null
+    for (const m of [this.output, this.blend]) {
+      m.uniforms.toneMapOffscreen.value = output !== null && output !== 'none' && curve !== null
+      if (curve && m.defines.ST_TONE_MAP !== curve) {
+        m.defines.ST_TONE_MAP = curve
+        m.needsUpdate = true
+      }
+    }
     this.blend.uniforms.halfSize.value.set(this.half.width, this.half.height)
 
     const previous = gl.getRenderTarget()

@@ -4,17 +4,13 @@ import type { ThreeEvent } from '@react-three/fiber'
 import { kelvinToRgb, threeIntensity } from '../../../shared/lighting'
 import type { LightNode } from '../../../shared/project'
 import { useUi } from '../state/uiStore'
-import { SPOT_SHADOW_FAR, SPOT_SHADOW_NEAR } from './softShadows'
+import { SPOT_SHADOW_FAR, SPOT_SHADOW_NEAR, SUN_DISTANCE, SUN_FAR, SUN_NEAR, SUN_SHADOW_HALF } from './softShadows'
 import { handleNodeClick, handleNodeDoubleClick, noRaycast, SELECTION_COLOR } from './selection'
 
 // A light in the set: the actual three.js light (only switched on in Clay shading) and a small
 // icon so you can see, pick and aim it (a helper: never in renders). Sun and spot shine down
 // the node's local -Z, so rotating the node aims them.
 
-const SUN_DISTANCE = 25 // the sun's shadow camera sits this far "behind" the node
-const SUN_SHADOW_HALF = 12 // metres of set covered by the sun's shadows, each way
-const SUN_NEAR = 1
-const SUN_FAR = SUN_DISTANCE * 2.5
 const HELPER = { helper: true }
 
 function lines(points: number[]): BufferGeometry {
