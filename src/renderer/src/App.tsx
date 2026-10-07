@@ -11,6 +11,8 @@ import { activeScene, useDocument } from './state/documentStore'
 import { connectGeneration } from './state/generation'
 import { connectSetup } from './state/setup'
 import EngineSettings from './panels/EngineSettings'
+import UpdatesPanel, { VersionBadge } from './panels/UpdatesPanel'
+import { connectUpdates } from './state/updates'
 import SetupWizard from './panels/SetupWizard'
 import { usePoseLibrary } from './state/poseLibrary'
 import { useStyleLibrary } from './state/styleLibrary'
@@ -57,20 +59,20 @@ function StatusBar() {
 }
 
 export default function App() {
-  const [version, setVersion] = useState('')
   const projectPath = useUi((s) => s.projectPath)
   const view = useUi((s) => s.view)
 
   useEffect(() => {
-    window.secondTeam.getVersion().then(setVersion)
     void usePoseLibrary.getState().load()
     void useStyleLibrary.getState().load()
     const disconnect = connectGeneration()
     const disconnectSetup = connectSetup()
+    const disconnectUpdates = connectUpdates()
     const unsync = syncWindowState()
     return () => {
       disconnect()
       disconnectSetup()
+      disconnectUpdates()
       unsync()
     }
   }, [])
@@ -90,7 +92,7 @@ export default function App() {
           </button>
         </div>
         <Toolbar boardOnly={view === 'board'} />
-        <span className="version">{version && `v${version}`}</span>
+        <VersionBadge />
       </header>
       {view === 'board' && <BoardView />}
       {/* The set stays mounted (hidden) under the board, so its 3D scene doesn't have to rebuild. */}
@@ -107,6 +109,7 @@ export default function App() {
       </div>
       <StatusBar />
       <EngineSettings />
+      <UpdatesPanel />
       <SetupWizard />
     </div>
   )

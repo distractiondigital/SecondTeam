@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import type { SetupInfo, SetupProgress } from '../shared/setup'
 import type { BackendStatus, GenerationEvent } from '../shared/takes'
+import type { UpdateState } from '../shared/updates'
 import type { SecondTeamApi } from './api'
 
 // The UI can only reach the Node side through the functions listed here.
@@ -14,6 +15,17 @@ const api: SecondTeamApi = {
     const listener = () => callback()
     ipcRenderer.on('app:saveAndClose', listener)
     return () => ipcRenderer.removeListener('app:saveAndClose', listener)
+  },
+
+  getUpdateState: () => ipcRenderer.invoke('updates:get'),
+  checkForUpdates: () => ipcRenderer.invoke('updates:check'),
+  downloadUpdate: () => ipcRenderer.invoke('updates:download'),
+  installUpdate: () => ipcRenderer.invoke('updates:install'),
+  setCheckForUpdates: (auto) => ipcRenderer.invoke('updates:setAuto', auto),
+  onUpdateState: (callback) => {
+    const listener = (_e: unknown, s: UpdateState) => callback(s)
+    ipcRenderer.on('updates:changed', listener)
+    return () => ipcRenderer.removeListener('updates:changed', listener)
   },
 
   saveProjectAs: (suggestedName) => ipcRenderer.invoke('project:saveAs', suggestedName),

@@ -1,4 +1,4 @@
-# Windows installer (npm run dist → release\Second Team Setup <version>.exe).
+# Windows installer (npm run dist → release\Second-Team-Setup-<version>.exe).
 # The renderer's libraries are bundled by electron-vite, so the app needs no node_modules at runtime.
 # The AI engine and models are NOT in the installer: the in-app setup wizard downloads them into
 # %LOCALAPPDATA%\SecondTeam\backend (or a folder the user picks), outside the install folder, so
@@ -14,6 +14,16 @@ files:
   - package.json
   - backend/**/*
   - figures/**/*
+# Updates (src/main/updates.ts): the installed app checks this project's GitHub releases. With this
+# set, `npm run dist` also writes latest.yml and the installer's .blockmap into release\; attach both
+# to each GitHub release next to the installer. Nothing is uploaded by the build itself.
+publish:
+  provider: github
+  owner: distractiondigital
+  repo: SecondTeam
+extraResources:
+  - from: build/update-config.yml
+    to: update-config.yml
 win:
   target: nsis
   icon: build/icon.png
@@ -25,7 +35,10 @@ nsis:
   createDesktopShortcut: true
   shortcutName: Second Team
   deleteAppDataOnUninstall: false
-  artifactName: ${productName} Setup ${version}.${ext}
+  # No spaces: GitHub would turn them into dots, and latest.yml (updates) names the file with dashes.
+  artifactName: Second-Team-Setup-${version}.${ext}
+  # Updates run the installer through elevate.exe (one admin prompt), and latest.yml says so.
+  packElevateHelper: true
 
 # Mac (npm run dist:mac, on a Mac; normally built by GitHub Actions: .github/workflows/mac.yml).
 # Apple Silicon only. Ad-hoc signed (identity '-'), not notarized: macOS asks to confirm the first

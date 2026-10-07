@@ -41,6 +41,7 @@ These aren't part of the app. The setup wizard downloads them on Windows from th
 | [React Three Fiber](https://github.com/pmndrs/react-three-fiber), [Drei](https://github.com/pmndrs/drei), [three-stdlib](https://github.com/pmndrs/three-stdlib) | Poimandres | MIT |
 | [Zustand](https://github.com/pmndrs/zustand) | Poimandres | MIT |
 | [Immer](https://immerjs.github.io/immer) | Michel Weststrate | MIT |
+| [electron-updater](https://www.electron.build/auto-update) (app updates) | electron-builder contributors | MIT |
 | [Lucide](https://lucide.dev) icons | Lucide contributors | ISC |
 
 Build tools (not shipped in the app): Vite, electron-vite, electron-builder, TypeScript, Vitest (MIT / Apache-2.0).

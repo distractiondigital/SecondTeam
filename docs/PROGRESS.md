@@ -21,6 +21,7 @@ Current version: **0.1.0 beta** (October 2026), the first public beta. The plan 
 | 12 | Mac version | 🟡 Built, awaiting the collaborator's test | Apple Silicon app (AI coming later on Mac); see [MAC.md](MAC.md) |
 | 13 | Depth of field | ✅ Done | Optically accurate depth of field in every clay picture (sensor, lens, stop, focus), click to focus, focus readout and planes |
 | 14 | Clay lighting | ✅ Done | Lights with real sizes, soft shadows that harden at contact, ambient occlusion and ground bounce in every clay picture |
+| 15 | App updates | 🟡 Built, awaiting Spencer's test | Checks GitHub for a newer version on launch (can be turned off), downloads it in the background and installs on restart |
 
 ## Since the milestones
 

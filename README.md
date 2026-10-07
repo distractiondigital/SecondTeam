@@ -34,7 +34,7 @@ Turn any shot into a finished-looking frame, in the style you choose: photoreal 
 - **Optional.** Skip the AI setup and everything else works without it. Every AI control folds away.
 - **Guided by your set, not guesswork.** Each frame follows your blocking's depth, your figures' poses and your camera's exact framing and lens. What you staged is what you get.
 - **Continuity.** Give cast members and props a description and reference photos, and they look the same from shot to shot. A project style and style references keep the whole board consistent.
-- **Entirely local.** The AI engine ([ComfyUI](https://github.com/Comfy-Org/ComfyUI)) is installed and run by the app on your own NVIDIA graphics card. Nothing is uploaded and nothing is generated in a datacenter: your projects, reference photos and frames stay on your computer. The only internet use is the one-time download of the engine and models, from pinned sources with verified checksums.
+- **Entirely local.** The AI engine ([ComfyUI](https://github.com/Comfy-Org/ComfyUI)) is installed and run by the app on your own NVIDIA graphics card. Nothing is uploaded and nothing is generated in a datacenter: your projects, reference photos and frames stay on your computer. The only internet use is the one-time download of the engine and models, from pinned sources with verified checksums, and a check for new versions of Second Team on GitHub (which can be turned off).
 - **Safe for paid work.** Every model it uses allows commercial use of its output, and each take records the model and licence it was made with.
 
 ## Download

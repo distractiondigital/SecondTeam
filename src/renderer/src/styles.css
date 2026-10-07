@@ -83,6 +83,75 @@ input {
   color: var(--text-dim);
 }
 
+.version-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 2px 8px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.version-button:hover {
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.version-button.has-update {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ---------- Updates panel ---------- */
+
+.updates-panel p {
+  margin: 0 0 8px;
+}
+
+.updates-current {
+  color: var(--text-dim);
+}
+
+.updates-message.error {
+  color: #e0805a;
+}
+
+.updates-bar {
+  height: 6px;
+  margin: 0 0 10px;
+  background: var(--bg);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.updates-bar > div {
+  height: 100%;
+  background: var(--accent);
+}
+
+.updates-notes {
+  max-height: 180px;
+  overflow: auto;
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  white-space: pre-wrap;
+  font-size: 12px;
+}
+
+.updates-actions {
+  display: flex;
+  gap: 8px;
+  margin: 4px 0 10px;
+}
+
 .toolbar {
   display: flex;
   align-items: center;
@@ -1343,6 +1412,22 @@ input {
   display: flex;
   gap: 4px;
   margin-right: auto;
+}
+
+/* The close (×) of the small dialogs (Export storyboard, AI, Updates). */
+.board-export-head .pass-close {
+  display: inline-flex;
+  padding: 2px;
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.board-export-head .pass-close:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .pass-header .pass-close {

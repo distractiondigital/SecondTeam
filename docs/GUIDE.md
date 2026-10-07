@@ -15,9 +15,10 @@ How to use every part of Second Team. For installing it, see the [README](../REA
 - [Render passes](#render-passes)
 - [Storyboard](#storyboard)
 - [Projects](#projects)
+- [Updates](#updates)
 
 ## Installing and AI engine setup (Windows)
-1. Run `Second Team Setup <version>.exe` (from the [Releases](https://github.com/distractiondigital/SecondTeam/releases) page). It isn't code-signed yet, so Windows shows **"Windows protected your PC"**: click **More info → Run anyway**. Windows asks for administrator permission once; it installs into `C:\Program Files\Second Team` (changeable) with Start-menu and desktop shortcuts. Each Windows user who opens it sets up their own engine and settings (in their own AppData), or points at an existing copy.
+1. Run `Second-Team-Setup-<version>.exe` (from the [Releases](https://github.com/distractiondigital/SecondTeam/releases) page). It isn't code-signed yet, so Windows shows **"Windows protected your PC"**: click **More info → Run anyway**. Windows asks for administrator permission once; it installs into `C:\Program Files\Second Team` (changeable) with Start-menu and desktop shortcuts. Each Windows user who opens it sets up their own engine and settings (in their own AppData), or points at an existing copy.
 2. On the first start, the **AI engine setup** opens:
    1. **This PC**: checks the graphics card (an NVIDIA card with driver 580 or newer; 8 GB+ video memory recommended) and that Windows can unpack the engine (Windows 11 can by itself; Windows 10 needs [7-Zip](https://www.7-zip.org)).
    2. **Location**: where the engine and models go, by default `%LOCALAPPDATA%\SecondTeam\backend`. **Change…** for another drive. Or **Use files I already have…** to point at an existing copy (e.g. this repo's `ComfyUI` folder): nothing is copied.
@@ -206,3 +207,11 @@ Turn the circle takes into a board you can send to a client or crew.
 A project is a folder called `Name.secondteam` containing `project.json` (the set, in plain readable JSON) and folders for reference images, renders and exports. To open one, choose that folder in the Open dialog. The project's name is the folder's name.
 
 When the app starts, a panel offers **New project**, **Open…** and your **recent projects** (newest first; a moved or deleted one says "Not found", and × takes it off the list). The **▾** next to Open in the toolbar lists them too. The list is kept in `%LOCALAPPDATA%\SecondTeam\recent.json`.
+
+## Updates
+- When Second Team starts, it asks GitHub whether there's a newer version (only the list of Second Team releases is fetched; nothing about you or your projects is sent). When there is, the version at the top right of the toolbar turns into an orange **Update** button.
+- Click it (or the version number any time) for the **Updates** panel: what's new in that version, then **Download**. It downloads in the background while you keep working, and the file is checked before it can be used.
+- **Restart and update**: Second Team closes (asking to save first), Windows asks to allow the installer, and the new version opens. Your projects, settings and the AI engine and models are kept.
+- **Check now** looks again. Untick **Check for updates when Second Team starts** to only check when you ask.
+- While you're on a beta (0.x) you get beta versions too.
+- On a Mac, **Download from GitHub** opens the release page: install the new version from there as usual.

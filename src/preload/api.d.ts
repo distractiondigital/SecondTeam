@@ -1,6 +1,7 @@
 import type { BoardExportSpec } from '../shared/boardHtml'
 import type { SetupInfo, SetupProgress, SystemCheck } from '../shared/setup'
 import type { BackendStatus, GenerationEvent, GenerationJob, InstalledModel, TakeInfo, TakeMeta } from '../shared/takes'
+import type { UpdateState } from '../shared/updates'
 
 // Shape of the bridge exposed to the UI as `window.secondTeam`.
 export interface SecondTeamApi {
@@ -13,6 +14,18 @@ export interface SecondTeamApi {
   closeNow: () => void
   /** Main asks the UI to save before closing. Returns an unsubscribe function. */
   onSaveAndClose: (callback: () => void) => () => void
+
+  /** App updates (main/updates.ts): the current state, and its changes. */
+  getUpdateState: () => Promise<UpdateState>
+  /** Look for a newer version now (shows any problem, unlike the quiet check on launch). */
+  checkForUpdates: () => Promise<void>
+  /** Download the newer version (Windows), or open its release page (Mac). */
+  downloadUpdate: () => Promise<void>
+  /** Close the window (asking about unsaved changes), install the downloaded version and reopen. */
+  installUpdate: () => Promise<void>
+  /** The "check when Second Team starts" setting. */
+  setCheckForUpdates: (auto: boolean) => Promise<void>
+  onUpdateState: (callback: (state: UpdateState) => void) => () => void
 
   /** Ask where to save. Creates Name.secondteam\ and returns its path, or null if cancelled. */
   saveProjectAs: (suggestedName: string) => Promise<{ path: string; name: string } | null>

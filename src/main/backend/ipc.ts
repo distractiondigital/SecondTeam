@@ -4,7 +4,7 @@ import { join } from 'path'
 import { chosenIds, hasCheckpoint, installItems, type Manifest } from '../../shared/backendManifest'
 import type { SetupInfo, SetupProgress, VerifyResult } from '../../shared/setup'
 import type { BackendStatus, GenerationEvent, GenerationJob } from '../../shared/takes'
-import { appDataFolder, cleanComfyUrl, defaultBackendDir, loadSettings, saveSettings, type AppSettings } from '../settings'
+import { appDataFolder, cleanComfyUrl, defaultBackendDir, loadSettings, updateSettings, type AppSettings } from '../settings'
 import { isMac } from '../platform'
 import { ComfyProcess } from './comfyProcess'
 import { ComfyBackend, type GenerationBackend } from './generation'
@@ -28,8 +28,7 @@ export function registerBackendIpc(getWindow: () => BrowserWindow | null): void 
   const defaultDir = defaultBackendDir(app.isPackaged, root)
   const backendDir = () => settings.backendDir ?? defaultDir
   const update = async (patch: Partial<AppSettings>) => {
-    settings = { ...settings, ...patch }
-    await saveSettings(settings)
+    settings = await updateSettings(patch)
   }
 
   comfy = new ComfyProcess(

@@ -11,14 +11,20 @@ describe('app settings', () => {
   })
 
   it('repairs a missing or damaged settings file', () => {
-    expect(parseSettings(null)).toEqual({ backendDir: null, externalComfyUrl: null, setupSkipped: false })
-    expect(parseSettings('{not json')).toEqual({ backendDir: null, externalComfyUrl: null, setupSkipped: false })
+    expect(parseSettings(null)).toEqual({ backendDir: null, externalComfyUrl: null, setupSkipped: false, checkForUpdates: true })
+    expect(parseSettings('{not json')).toEqual({ backendDir: null, externalComfyUrl: null, setupSkipped: false, checkForUpdates: true })
     expect(parseSettings('[1]').backendDir).toBeNull()
     expect(parseSettings(JSON.stringify({ backendDir: 'D:\\AI\\Second Team', setupSkipped: true }))).toEqual({
       backendDir: 'D:\\AI\\Second Team',
       externalComfyUrl: null,
-      setupSkipped: true
+      setupSkipped: true,
+      checkForUpdates: true
     })
+  })
+
+  it('checks for updates unless turned off', () => {
+    expect(parseSettings(JSON.stringify({ checkForUpdates: false })).checkForUpdates).toBe(false)
+    expect(parseSettings(JSON.stringify({ checkForUpdates: 'no' })).checkForUpdates).toBe(true)
   })
 
   it('only accepts a ComfyUI on this machine', () => {

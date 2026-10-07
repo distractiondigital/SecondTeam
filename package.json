@@ -13,7 +13,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "build": "npm run typecheck && electron-vite build",
-    "dist": "npm run build && electron-builder --win",
+    "dist": "npm run build && electron-builder --win --publish never",
     "dist:mac": "npm run build && electron-builder --mac --arm64 --publish never"
   },
   "devDependencies": {
@@ -26,6 +26,7 @@
     "@vitejs/plugin-react": "^5.2.0",
     "electron": "^44.5.0",
     "electron-builder": "^26.15.3",
+    "electron-updater": "^6.8.9",
     "electron-vite": "^5.0.0",
     "immer": "^11.1.18",
     "lucide-react": "^1.48.0",

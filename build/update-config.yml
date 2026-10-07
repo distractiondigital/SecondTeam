@@ -1,0 +1,8 @@
+# Where the installed app looks for updates (src/main/updates.ts points electron-updater here
+# instead of the app-update.yml electron-builder generates). Same GitHub releases; the only
+# difference is that downloads are kept in the app's own folder, %LOCALAPPDATA%\SecondTeam\updates,
+# instead of electron-updater's default %LOCALAPPDATA%\second-team-updater.
+provider: github
+owner: distractiondigital
+repo: SecondTeam
+updaterCacheDirName: SecondTeam/updates

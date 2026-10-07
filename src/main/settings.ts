@@ -7,14 +7,16 @@ import { safeRename } from './safeRename'
 //   backendDir        where the AI engine and models live (null = the default below)
 //   externalComfyUrl  use a ComfyUI that's already running instead (advanced; null = manage our own)
 //   setupSkipped      "Set up later" was chosen, so the wizard doesn't open by itself
+//   checkForUpdates   look for a newer Second Team on GitHub when the app starts (main/updates.ts)
 
 export interface AppSettings {
   backendDir: string | null
   externalComfyUrl: string | null
   setupSkipped: boolean
+  checkForUpdates: boolean
 }
 
-export const DEFAULT_SETTINGS: AppSettings = { backendDir: null, externalComfyUrl: null, setupSkipped: false }
+export const DEFAULT_SETTINGS: AppSettings = { backendDir: null, externalComfyUrl: null, setupSkipped: false, checkForUpdates: true }
 
 /**
  * Where the app keeps its own files (settings, libraries, logs, the AI engine by default):
@@ -60,7 +62,8 @@ export function parseSettings(text: string | null): AppSettings {
   return {
     backendDir: typeof raw.backendDir === 'string' && raw.backendDir.trim() ? raw.backendDir : null,
     externalComfyUrl: cleanComfyUrl(raw.externalComfyUrl),
-    setupSkipped: raw.setupSkipped === true
+    setupSkipped: raw.setupSkipped === true,
+    checkForUpdates: raw.checkForUpdates !== false
   }
 }
 
@@ -78,4 +81,14 @@ export async function saveSettings(settings: AppSettings): Promise<void> {
   mkdirSync(appDataFolder(), { recursive: true })
   writeFileSync(`${file()}.tmp`, JSON.stringify(settings, null, 2), 'utf-8')
   await safeRename(`${file()}.tmp`, file())
+}
+
+/**
+ * Change some settings, keeping whatever else is in the file (several parts of the app keep their
+ * own settings in it). Returns the settings as saved.
+ */
+export async function updateSettings(patch: Partial<AppSettings>): Promise<AppSettings> {
+  const next = { ...loadSettings(), ...patch }
+  await saveSettings(next)
+  return next
 }

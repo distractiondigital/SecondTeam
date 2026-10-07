@@ -9,6 +9,7 @@ import { registerPoseLibraryIpc } from './poseLibrary'
 import { askToSave, registerProjectIpc } from './projectFiles'
 import { appDataFolder } from './settings'
 import { isMac, onRealMac } from './platform'
+import { cancelUpdateInstall, installUpdateNow, registerUpdates, updateWaitingToInstall } from './updates'
 
 // Keep Electron's own cache and settings in the app's folder (Windows %LOCALAPPDATA%\SecondTeam,
 // not the default %APPDATA%; Mac ~/Library/Application Support/SecondTeam). Must run before ready.
@@ -58,6 +59,7 @@ function createWindow(): void {
     if (closeConfirmed || !hasUnsavedChanges || !mainWindow) return
     event.preventDefault()
     const choice = await askToSave(mainWindow, projectName)
+    if (choice === 'cancel') cancelUpdateInstall()
     if (choice === 'discard') {
       closeConfirmed = true
       mainWindow.close()
@@ -119,10 +121,13 @@ app.whenReady().then(() => {
   createWindow()
   // Start the AI engine (ComfyUI) in the background; the UI shows its status.
   registerBackendIpc(() => mainWindow)
+  registerUpdates(() => mainWindow)
 })
 
 app.on('window-all-closed', () => {
-  app.quit()
+  // "Restart and update" closes the window first (asking about unsaved changes), then installs.
+  if (updateWaitingToInstall()) installUpdateNow()
+  else app.quit()
 })
 
 // Never leave ComfyUI running after the app is gone.

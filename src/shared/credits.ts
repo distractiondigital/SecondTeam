@@ -63,6 +63,7 @@ export const CREDITS: CreditSection[] = [
       { name: 'React Three Fiber, Drei and three-stdlib', by: 'Poimandres', license: 'MIT', url: 'https://github.com/pmndrs' },
       { name: 'Zustand', by: 'Poimandres', license: 'MIT', url: 'https://github.com/pmndrs/zustand' },
       { name: 'Immer', by: 'Michel Weststrate', license: 'MIT', url: 'https://immerjs.github.io/immer' },
+      { name: 'electron-updater', by: 'electron-builder contributors', license: 'MIT', url: 'https://www.electron.build/auto-update', note: 'Finds, downloads and installs app updates.' },
       { name: 'Lucide icons', by: 'Lucide contributors', license: 'ISC', url: 'https://lucide.dev' },
       { name: 'Vite, electron-vite, electron-builder, TypeScript, Vitest', license: 'MIT / Apache-2.0', url: 'https://vite.dev', note: 'Build tools; not shipped in the app.' }
     ]
