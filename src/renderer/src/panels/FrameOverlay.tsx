@@ -6,7 +6,7 @@ import { useUi } from '../state/uiStore'
 import { formatLengthLabel } from '../units'
 import { viewFit, type Rect } from '../viewport/viewFit'
 import NumberField from './NumberField'
-import { FocusPickButton, sharpLabel, StopSelect, useFocusSummary } from './FocusControls'
+import { AutoFocusButton, FocusPickButton, sharpLabel, StopSelect, useFocusSummary } from './FocusControls'
 import type { CameraNode } from '../../../shared/project'
 import { ALT, CTRL } from '../platform'
 
@@ -43,6 +43,7 @@ function LensHud({ node }: { node: CameraNode }) {
       </span>
       <span>{sharpLabel(focus, units)}</span>
       <FocusPickButton node={node} />
+      <AutoFocusButton node={node} />
       <button
         className={`icon-button${live ? ' active' : ''}`}
         title={live ? 'Depth of field shown live (click to turn off here; pictures keep it)' : 'Show depth of field live'}

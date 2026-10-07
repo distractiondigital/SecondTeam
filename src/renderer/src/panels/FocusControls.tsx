@@ -1,4 +1,4 @@
-import { Crosshair } from 'lucide-react'
+import { Crosshair, ScanEye } from 'lucide-react'
 import { opticsFor } from '../../../shared/camera'
 import { focusRange, rangeLabel, shotFocus, STOPS, stopLabel, type FocusRange } from '../../../shared/depthOfField'
 import type { CameraNode } from '../../../shared/project'
@@ -69,6 +69,22 @@ export function FocusPickButton({ node, disabled, label }: { node: CameraNode; d
     >
       <Crosshair size={14} />
       {label && ' Pick'}
+    </button>
+  )
+}
+
+/** Auto focus (the subject's nearer eye, else the middle of the frame): lit while it's on, click to switch to it. */
+export function AutoFocusButton({ node }: { node: CameraNode }) {
+  const auto = node.focusDistance === null
+  return (
+    <button
+      className={`icon-button${auto ? ' active' : ''}`}
+      title={auto ? "Auto focus is on: the subject's nearer eye, or the middle of the frame" : "Auto focus: the subject's nearer eye, or the middle of the frame"}
+      onClick={() => {
+        if (!auto) useDocument.getState().updateNode(node.id, { focusDistance: null })
+      }}
+    >
+      <ScanEye size={14} />
     </button>
   )
 }
