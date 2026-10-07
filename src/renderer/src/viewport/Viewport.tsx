@@ -6,6 +6,7 @@ import EditingBanner from '../panels/EditingBanner'
 import { StartScreen } from '../panels/RecentProjects'
 import FrameOverlay from '../panels/FrameOverlay'
 import PassViewer from '../panels/PassViewer'
+import ShotPip from '../panels/ShotPip'
 import TakeViewer from '../panels/TakeViewer'
 import { activeScene, editedNodes, environmentFor, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
@@ -15,6 +16,7 @@ import JointGizmo from './JointGizmo'
 import LookThrough from './LookThrough'
 import { installSoftShadows } from './softShadows'
 import LiveClayPost from './LiveClayPost'
+import PipRender from './PipRender'
 import FocusPick from './FocusPick'
 import SceneNodes, { hasLights } from './SceneNodes'
 import SelectionGizmo from './SelectionGizmo'
@@ -50,6 +52,7 @@ export default function Viewport() {
   const sunLight = useDocument((s) => sunOnGround(editedNodes(s)))
   const env = useDocument((s) => environmentFor(s, s.activeShotId))
   const floor = useDocument((s) => activeScene(s).floor)
+  const pip = useUi((s) => s.pipElement !== null)
 
   return (
     <div className={`viewport-wrap${activeShotId ? ' in-shot' : ''}`} ref={container}>
@@ -90,15 +93,19 @@ export default function Viewport() {
         <ViewNav />
         <ShotTracker />
         <RendererHandle />
+        {pip && <PipRender />}
 
         {!lookingThrough && (
-          <GizmoHelper alignment="bottom-right" margin={[64, 64]}>
+          // In Clay the Clay post (LiveClayPost) has drawn the set already: at priority 2 the gizmo
+          // only draws itself on top (at 1 it would draw the whole set again first).
+          <GizmoHelper alignment="bottom-right" margin={[64, 64]} renderPriority={clay ? 2 : 1}>
             <GizmoViewport axisColors={['#e0555a', '#6fbf5a', '#4f8fe0']} labelColor="#1b1c1f" />
           </GizmoHelper>
         )}
       </Canvas>
       <FrameOverlay container={container} />
       <EditingBanner />
+      <ShotPip />
       <PassViewer />
       <TakeViewer />
       <StartScreen />

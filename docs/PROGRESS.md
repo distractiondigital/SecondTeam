@@ -26,7 +26,7 @@ Current version: **0.1.0 beta** (October 2026), the first public beta. The plan 
 
 - **Figures:** skin tone, natural colours with an optional Figure colours view, eye colours.
 - **Storyboard:** never an empty frame (shots without an AI take show their clay render).
-- **Cameras:** 48 camera bodies and recording formats from ARRI, RED, Sony, Canon, Blackmagic and Nikon, plus Super 16.
+- **Cameras:** 48 camera bodies and recording formats from ARRI, RED, Sony, Canon, Blackmagic and Nikon, plus Super 16; a live shot window in the corner of the viewport, with the camera steerable from inside it.
 - **Presentation:** start screen with version and credits; new README, [user guide](GUIDE.md) and [credits](../CREDITS.md).
 
 ## Known limitations

@@ -1152,6 +1152,72 @@ input {
   color: var(--text-dim);
 }
 
+/* ---------- Shot picture-in-picture (bottom left while editing a shot) ---------- */
+
+.shot-pip {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  width: clamp(260px, 30%, 520px);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  z-index: 2;
+  user-select: none;
+}
+
+.shot-pip-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px 2px 8px;
+  background: rgba(20, 21, 24, 0.92);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.shot-pip-bar strong {
+  color: var(--accent);
+}
+
+.shot-pip-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shot-pip-bar .icon-button {
+  padding: 2px;
+}
+
+/* Transparent: the picture is drawn into the 3D canvas underneath (PipRender). */
+.shot-pip-picture {
+  width: 100%;
+  cursor: crosshair;
+}
+
+.shot-pip-tab {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: rgba(35, 36, 40, 0.9);
+  border: 1px solid var(--accent);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  z-index: 2;
+}
+
 .viewport-note {
   position: absolute;
   bottom: 14px;

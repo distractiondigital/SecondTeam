@@ -25,6 +25,7 @@ export type NavMode = 'mouse' | 'trackpad'
 const NAV_MODE_KEY = 'secondteam.navMode'
 const FIGURE_COLORS_KEY = 'secondteam.figureColors'
 const DOF_PREVIEW_KEY = 'secondteam.dofPreview'
+const PIP_KEY = 'secondteam.shotPip'
 
 function loadNavMode(): NavMode {
   try {
@@ -123,12 +124,35 @@ interface UiState {
   /** Depth of field in the live camera view (pictures always have it). Remembered on this PC. */
   dofPreview: boolean
   setDofPreview: (on: boolean) => void
+  /** The shot picture-in-picture (bottom-left of the viewport while editing a shot) is open, not tucked away. */
+  pipOpen: boolean
+  setPipOpen: (open: boolean) => void
+  /** The picture-in-picture's picture area (takes the mouse for steering), while it shows. */
+  pipElement: HTMLElement | null
+  setPipElement: (element: HTMLElement | null) => void
   /** Click-to-focus: the next click in camera view sets the shot's focus distance. */
   focusPicking: boolean
   setFocusPicking: (on: boolean) => void
 }
 
 export const useUi = create<UiState>()((set) => ({
+  pipOpen: (() => {
+    try {
+      return localStorage.getItem(PIP_KEY) !== 'off'
+    } catch {
+      return true
+    }
+  })(),
+  setPipOpen: (pipOpen) => {
+    try {
+      localStorage.setItem(PIP_KEY, pipOpen ? 'on' : 'off')
+    } catch {
+      // Not remembered this time; still works.
+    }
+    set({ pipOpen })
+  },
+  pipElement: null,
+  setPipElement: (pipElement) => set({ pipElement }),
   dofPreview: (() => {
     try {
       return localStorage.getItem(DOF_PREVIEW_KEY) !== 'off'
