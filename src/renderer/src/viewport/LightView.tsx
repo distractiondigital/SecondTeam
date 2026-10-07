@@ -134,7 +134,9 @@ export default function LightView({ node, selected, clickable, lit, passive }: P
       {lit && node.kind === 'spot' && (
         <>
           <primitive object={target} position={[0, 0, -1]} />
+          {/* At the icon (three.js puts a new spot light 1 m up by default, which skewed its aim). */}
           <spotLight
+            position={[0, 0, 0]}
             target={target}
             color={color}
             intensity={intensity}
