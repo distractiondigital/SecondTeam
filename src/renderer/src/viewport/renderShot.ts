@@ -9,7 +9,7 @@ import {
 import { deliveryFrame, fieldOfView, opticsFor, type CameraKit } from '../../../shared/camera'
 import type { CameraNode } from '../../../shared/project'
 import { ClayPost } from './clayPost'
-import { castFromFrontFaces } from './softShadows'
+import { castFromFrontFaces, updateLightSizes } from './softShadows'
 import { cameraPose } from './shotInfo'
 
 // Render the set through a shot camera's delivery frame, without any helpers (gizmos,
@@ -128,6 +128,7 @@ export function renderShot(
   const previous = gl.getRenderTarget()
   try {
     castFromFrontFaces(scene)
+    updateLightSizes(scene)
     withHidden(scene, isHelper, () => {
       gl.setRenderTarget(post.target)
       gl.clear()

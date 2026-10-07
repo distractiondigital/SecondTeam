@@ -97,7 +97,10 @@ export default function LightView({ node, selected, clickable, lit, passive }: P
     onClick: clickable ? (e: ThreeEvent<MouseEvent>) => handleNodeClick(e, node.id) : undefined,
     onDoubleClick: clickable ? (e: ThreeEvent<MouseEvent>) => handleNodeDoubleClick(e, node.id) : undefined
   }
+  // For the soft-light shading (softShadows.ts): the sun's angular radius as a sine, a lamp's radius.
+  const source = { sourceSize: node.kind === 'sun' ? Math.sin(MathUtils.degToRad(node.size / 2)) : node.size / 2 }
   const shadow = {
+    userData: source,
     castShadow: node.shadows,
     // Shadows are cast by front faces (castFromFrontFaces); the receiver-plane bias in
     // softShadows.ts keeps flat surfaces clean, this small offset curved ones.

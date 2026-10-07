@@ -6,7 +6,7 @@ import { shotFocus } from '../../../shared/depthOfField'
 import { activeScene, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import { ClayPost, type DofParams } from './clayPost'
-import { castFromFrontFaces } from './softShadows'
+import { castFromFrontFaces, updateLightSizes } from './softShadows'
 import { isHelper, withHidden } from './renderShot'
 import { viewFit } from './viewFit'
 
@@ -60,6 +60,7 @@ function LivePost() {
     }
 
     castFromFrontFaces(scene)
+    updateLightSizes(scene)
     withHidden(scene, isHelper, () => {
       gl.setRenderTarget(post.target)
       gl.clear()

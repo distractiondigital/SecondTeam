@@ -1,4 +1,4 @@
-import { DoubleSide, FrontSide, ShaderChunk, type Material, type Mesh, type Object3D } from 'three'
+import { DoubleSide, FrontSide, ShaderChunk, ShaderLib, type Light, type Material, type Mesh, type Object3D } from 'three'
 
 // Soft shadows that behave like a real light of a given size: percentage-closer soft shadows
 // (PCSS; Fernando, NVIDIA 2005). For each point in shadow, first find how far away whatever casts
@@ -173,11 +173,136 @@ export function castFromFrontFaces(scene: Object3D): void {
   })
 }
 
+// ---------- Soft light from big sources (area lights) ----------
+//
+// A big source doesn't just soften shadows: light wraps further round a face, because past the
+// point where a small source would stop, part of a big one is still visible. Each light is treated
+// as a sphere (or the sun as a disc) of its real size, and a surface's lighting uses the exact
+// fraction of that source above its horizon (illuminance of a sphere or disc light, Lagarde & de
+// Rousiers, "Moving Frostbite to PBR", 2014), instead of the plain cosine. Highlights widen with
+// the source too (roughness + half its angular size, after Karis 2013). In the band where the
+// source sits on a surface's horizon, that formula already accounts for the surface hiding part of
+// the light, so the shadow map (which would darken the band as self-shadow) eases off there.
+
+const MAX_LIGHTS = 16 // per type
+
+/** Shared by every standard material: sine of the sun's angular radius, and lamps' radii (m). */
+const SIZE_UNIFORMS = {
+  stDirSin: { value: new Float32Array(MAX_LIGHTS) },
+  stPointRadius: { value: new Float32Array(MAX_LIGHTS) },
+  stSpotRadius: { value: new Float32Array(MAX_LIGHTS) }
+}
+
+const SOFT_LIGHT_PARS = /* glsl */ `
+uniform float stDirSin[ ${MAX_LIGHTS} ];
+uniform float stPointRadius[ ${MAX_LIGHTS} ];
+uniform float stSpotRadius[ ${MAX_LIGHTS} ];
+float stSinSigma = 0.0; // sine of the current light's angular radius, as seen from this point
+
+float stLampSin( float radius, vec3 toLight ) {
+	return clamp( radius / max( length( toLight ), 1e-3 ), 0.0, 0.999 );
+}
+
+// The cosine term for a sphere or disc source of angular radius asin( sinSigma ): equal to
+// cos( theta ) while the whole source is above the horizon, then falling smoothly to zero.
+float stSourceNL( float cosTheta, float sinSigma ) {
+	if ( isnan( cosTheta ) || isinf( cosTheta ) ) return 0.0; // degenerate normals (e.g. card edges)
+	cosTheta = clamp( cosTheta, -1.0, 1.0 );
+	if ( sinSigma < 1e-3 ) return saturate( cosTheta );
+	float sinSigmaSqr = sinSigma * sinSigma;
+	if ( cosTheta * cosTheta > sinSigmaSqr ) return saturate( cosTheta );
+	float sinTheta = sqrt( max( 1.0 - cosTheta * cosTheta, 1e-6 ) );
+	float x = sqrt( 1.0 / sinSigmaSqr - 1.0 );
+	float y = clamp( - x * ( cosTheta / sinTheta ), -1.0, 1.0 );
+	float sinThetaSqrtY = sinTheta * sqrt( 1.0 - y * y );
+	float illuminance = ( cosTheta * acos( y ) - x * sinThetaSqrtY ) * sinSigmaSqr + atan( sinThetaSqrtY / x );
+	float nl = illuminance / ( PI * sinSigmaSqr );
+	return ( isnan( nl ) || isinf( nl ) ) ? 0.0 : clamp( nl, 0.0, 1.0 );
+}
+
+// The shadow map's say, eased off where the source sits on the surface's horizon.
+float stShadowBlend( float cosTheta, float shadow ) {
+	if ( stSinSigma < 1e-3 || isnan( cosTheta ) ) return shadow;
+	return mix( 1.0, shadow, smoothstep( - stSinSigma, stSinSigma, cosTheta ) );
+}
+`
+
+/** Rewrite the light loops and the direct-light term. Part of installSoftShadows(). */
+function installSoftLights(): void {
+  let begin = ShaderChunk.lights_fragment_begin
+  const after = (s: string, marker: string, insert: string) => {
+    if (!s.includes(marker)) throw new Error(`softLights: can't find ${marker}`)
+    return s.replace(marker, `${marker}\n\t\t${insert}`)
+  }
+  begin = after(begin, 'getPointLightInfo( pointLight, geometryPosition, directLight );', 'stSinSigma = stLampSin( stPointRadius[ i ], pointLight.position - geometryPosition );')
+  begin = after(begin, 'getSpotLightInfo( spotLight, geometryPosition, directLight );', 'stSinSigma = stLampSin( stSpotRadius[ i ], spotLight.position - geometryPosition );')
+  begin = after(begin, 'getDirectionalLightInfo( directionalLight, directLight );', 'stSinSigma = stDirSin[ i ];')
+  if (begin.includes('getSunLightInfo( sunLight, directLight );')) begin = after(begin, 'getSunLightInfo( sunLight, directLight );', 'stSinSigma = 0.0;')
+  // Every "directLight.color *= ( … ) ? <shadow> : 1.0;" line: ease the shadow off on the horizon.
+  begin = begin.replace(
+    /directLight\.color \*= \( directLight\.visible && receiveShadow \) \? (.+) : 1\.0;/g,
+    'directLight.color *= ( directLight.visible && receiveShadow ) ? stShadowBlend( dot( geometryNormal, directLight.direction ), $1 ) : 1.0;'
+  )
+  ShaderChunk.lights_fragment_begin = begin
+
+  let pars = ShaderChunk.lights_physical_pars_fragment
+  const nl = 'float dotNL = saturate( dot( geometryNormal, directLight.direction ) );'
+  const at = pars.indexOf(nl, pars.indexOf('void RE_Direct_Physical('))
+  if (at < 0) throw new Error("softLights: can't find RE_Direct_Physical's cosine")
+  pars = pars.slice(0, at) + 'float dotNL = stSourceNL( dot( geometryNormal, directLight.direction ), stSinSigma );' + pars.slice(at + nl.length)
+  const spec = 'vec3 specularBRDF = BRDF_GGX( directLight.direction, geometryViewDir, geometryNormal, material );'
+  if (!pars.includes(spec)) throw new Error("softLights: can't find RE_Direct_Physical's highlight")
+  pars = pars.replace(
+    spec,
+    'PhysicalMaterial stWide = material;\n\tstWide.roughness = min( 1.0, material.roughness + 0.5 * stSinSigma );\n\tvec3 specularBRDF = BRDF_GGX( directLight.direction, geometryViewDir, geometryNormal, stWide );'
+  )
+  // Highlights only from the part of the source a surface faces (the wrap is for diffuse light; the
+  // highlight maths divides by the facing, which blows up on the far side of the terminator).
+  const highlight = 'reflectedLight.directSpecular += irradiance * specularBRDF * material.multiScatteringCompensation;'
+  if (!pars.includes(highlight)) throw new Error("softLights: can't find RE_Direct_Physical's highlight sum")
+  pars = pars.replace(
+    highlight,
+    'reflectedLight.directSpecular += saturate( dot( geometryNormal, directLight.direction ) ) * directLight.color * specularBRDF * material.multiScatteringCompensation;'
+  )
+  ShaderChunk.lights_physical_pars_fragment = SOFT_LIGHT_PARS + pars
+  for (const lib of [ShaderLib.standard, ShaderLib.physical]) Object.assign(lib.uniforms, SIZE_UNIFORMS)
+}
+
+const typeOrder = (l: Light) => ((l.castShadow ? 2 : 0) + ((l as { map?: unknown }).map ? 1 : 0))
+
+/**
+ * Before rendering a scene: put each light's size where the shader finds it, in the same order
+ * three.js numbers its lights (scene order, shadow-casting first). Lights carry their size in
+ * `userData.sourceSize` (LightView): sine of the angular radius for the sun, radius in metres for
+ * lamps.
+ */
+export function updateLightSizes(scene: Object3D): void {
+  const lights: Light[] = []
+  const visit = (o: Object3D) => {
+    if (!o.visible) return
+    if ((o as Light).isLight) lights.push(o as Light)
+    for (const c of o.children) visit(c)
+  }
+  visit(scene)
+  lights.sort((a, b) => typeOrder(b) - typeOrder(a))
+  const counts = { dir: 0, point: 0, spot: 0 }
+  SIZE_UNIFORMS.stDirSin.value.fill(0)
+  SIZE_UNIFORMS.stPointRadius.value.fill(0)
+  SIZE_UNIFORMS.stSpotRadius.value.fill(0)
+  for (const l of lights) {
+    const size = Number(l.userData.sourceSize) || 0
+    if ((l as { isDirectionalLight?: boolean }).isDirectionalLight && counts.dir < MAX_LIGHTS) SIZE_UNIFORMS.stDirSin.value[counts.dir++] = size
+    else if ((l as { isSpotLight?: boolean }).isSpotLight && counts.spot < MAX_LIGHTS) SIZE_UNIFORMS.stSpotRadius.value[counts.spot++] = size
+    else if ((l as { isPointLight?: boolean }).isPointLight && counts.point < MAX_LIGHTS) SIZE_UNIFORMS.stPointRadius.value[counts.point++] = size
+  }
+}
+
 let installed = false
 
 /** Swap three.js's basic shadow filtering for PCSS. Call once, before anything renders. */
 export function installSoftShadows(): void {
-  if (installed) return
+  // Once per page (a live reload of this file finds the chunks already changed).
+  if (installed || ShaderChunk.shadowmap_pars_fragment.includes('stDisc')) return
   installed = true
   let s = ShaderChunk.shadowmap_pars_fragment
   // The BASIC getShadow is the last one taking a plain sampler2D (VSM's comes first); the BASIC
@@ -187,4 +312,5 @@ export function installSoftShadows(): void {
   // Our helpers go just inside USE_SHADOWMAP.
   s = s.replace('#ifdef USE_SHADOWMAP', `#ifdef USE_SHADOWMAP\n${HELPERS}`)
   ShaderChunk.shadowmap_pars_fragment = s
+  installSoftLights()
 }
