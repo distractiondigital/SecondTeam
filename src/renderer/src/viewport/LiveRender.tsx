@@ -9,15 +9,23 @@ import { PathTrace } from './pathTrace'
 import { setFingerprint, shotFingerprint } from './shotFingerprint'
 import { shotScenes } from './ShotScenes'
 import { viewFit } from './viewFit'
+import { viewportBridge } from './viewportBridge'
 
 // Camera view with Render on: the shot path-traced into its delivery frame, refining from grainy
-// to clean. It draws over the Clay picture (LiveClayPost), and only once the shot has been still
-// for a moment: while the camera moves or the set is being edited you see Clay. Moving the camera
-// just starts the picture again; changing the set rebuilds the path tracer's copy of it first.
+// to clean. It draws over the Clay picture (LiveClayPost), and only once you've let go: while any
+// gesture is in progress (flying with the right mouse held, a scroll burst, rolling, dragging a
+// gizmo or a grab ball) it doesn't trace at all, so it never takes GPU time from a careful
+// adjustment or shows a moment-old frame; then the shot must be still for a moment. Moving the
+// camera just starts the picture again; changing the set rebuilds the path tracer's copy of it.
 // When the picture is finished it's kept as the shot's Render (state/renders.ts).
 
-/** How long things must be still before the Render shows (ms). */
-const SETTLE = 200
+/** How long things must be still after you let go before the Render starts (ms). */
+const SETTLE = 250
+
+/** Something is being moved by hand right now (the right mouse is held, a scroll burst, a drag…). */
+function handsOn(): boolean {
+  return useDocument.getState().gestureOwners.length > 0 || viewportBridge.flying || viewportBridge.gizmoBusy || viewportBridge.grabbing
+}
 
 export default function LiveRender() {
   const looking = useUi((s) => s.lookThroughId !== null)
@@ -76,6 +84,8 @@ function Tracing() {
     }
     if (shotPrint !== s.shotPrint) s.kept = false
     s.shotPrint = shotPrint
+    // Hands on: Clay only, and the wait starts again from when you let go.
+    if (handsOn()) s.changedAt = now
     if (now - s.changedAt < SETTLE) {
       if (s.shown !== 0) useRenders.setState({ liveSamples: 0, liveTarget: pt.target })
       s.shown = 0
