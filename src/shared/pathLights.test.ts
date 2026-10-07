@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { anamorphicRatio, filmGaugeFor, MIN_LAMP_RADIUS, pointAsSpots, skyRadianceScale, sunDisc } from './pathLights'
+import { anamorphicRatio, filmGaugeFor, MIN_LAMP_RADIUS, pointAsSpots, skyRadianceScale, spotDiscSetback, sunDisc } from './pathLights'
 
 describe('path tracer lights', () => {
   it('makes the sun a disc that looks as big and lights as much', () => {
@@ -40,5 +40,14 @@ describe('path tracer lights', () => {
     const gauge = filmGaugeFor(50, 27, 1.85)
     const filmHeight = gauge / 1.85
     expect((0.5 * filmHeight) / Math.tan((27 * Math.PI) / 360)).toBeCloseTo(50, 6)
+  })
+
+  it("pulls a spot back so the path tracer's disc sits at the light", () => {
+    // A 2 m source in a 67.5-degree cone: the cone is 1 m wide (radius) 1.5 m from its tip.
+    const half = (67.5 / 2) * (Math.PI / 180)
+    expect(spotDiscSetback(1, half)).toBeCloseTo(1 / Math.tan(half), 6)
+    expect(spotDiscSetback(1, half) * Math.tan(half)).toBeCloseTo(1, 6)
+    expect(spotDiscSetback(0, half)).toBe(0)
+    expect(Number.isFinite(spotDiscSetback(0.5, Math.PI / 2))).toBe(true)
   })
 })

@@ -24,6 +24,14 @@ export function sunDisc(sinRadius: number, irradiance: number, distance = SUN_DI
   return { radius: distance * tan, radiance: irradiance / (Math.PI * s * s) }
 }
 
+/**
+ * How far behind our spot the path tracer's spot must start so its glowing disc (radius `radius`)
+ * sits at our light: it places the disc where the cone is that wide, radius / tan(half cone) ahead.
+ */
+export function spotDiscSetback(radius: number, halfCone: number): number {
+  return radius / Math.max(Math.tan(Math.min(halfCone, Math.PI / 2 - 1e-3)), 1e-6)
+}
+
 /** Below this radius (m) a point light stays a plain point light. */
 export const MIN_LAMP_RADIUS = 0.005
 

@@ -22,7 +22,7 @@ import {
 import { FullScreenQuad } from 'three/examples/jsm/postprocessing/Pass.js'
 import { DenoiseMaterial, PhysicalCamera, ProceduralEquirectTexture, ShapedAreaLight, WebGLPathTracer } from 'three-gpu-pathtracer'
 import { fieldOfView, opticsFor, type CameraKit } from '../../../shared/camera'
-import { anamorphicRatio, filmGaugeFor, pointAsSpots, skyRadianceScale, SUN_DISC_DISTANCE, sunDisc } from '../../../shared/pathLights'
+import { anamorphicRatio, filmGaugeFor, pointAsSpots, skyRadianceScale, spotDiscSetback, SUN_DISC_DISTANCE, sunDisc } from '../../../shared/pathLights'
 import type { CameraNode } from '../../../shared/project'
 import { TONE_MAP_FUNCTIONS } from './clayPost'
 import { isHelper, targetToCanvas, withHidden } from './renderShot'
@@ -134,6 +134,12 @@ function skyEnvironment(sky: Color, ground: Color): ProceduralEquirectTexture {
   return texture
 }
 
+/** Shows in pictures: it and everything it sits in are visible. */
+function shows(o: Object3D): boolean {
+  for (let p: Object3D | null = o; p; p = p.parent) if (!p.visible) return false
+  return true
+}
+
 function inHelper(o: Object3D): boolean {
   for (let p: Object3D | null = o; p; p = p.parent) if (isHelper(p)) return true
   return false
@@ -226,10 +232,18 @@ export class PathTrace {
         added.push(disc)
         hidden.push(sun)
       } else if ((light as SpotLight).isSpotLight) {
-        const spot = light as SpotLight & { radius?: number }
-        const before = spot.radius
-        spot.radius = size
-        restore.push(() => (spot.radius = before))
+        // The path tracer puts a spot's glowing disc where its cone is that wide, radius / tan(half
+        // cone) in front of the light; ours is the source itself, at the light. So a stand-in whose
+        // cone starts that far behind ours, putting the disc exactly where our light is.
+        const spot = light as SpotLight
+        const at = new Vector3().setFromMatrixPosition(spot.matrixWorld)
+        const ahead = new Vector3().setFromMatrixPosition(spot.target.matrixWorld).sub(at).normalize()
+        const s = new SpotLight(spot.color, spot.intensity, spot.distance, spot.angle, spot.penumbra, spot.decay) as SpotLight & { radius?: number }
+        s.radius = size
+        s.position.copy(at).addScaledVector(ahead, -spotDiscSetback(size, spot.angle))
+        s.target.position.copy(at).add(ahead)
+        added.push(s, s.target)
+        hidden.push(spot)
       } else if ((light as PointLight).isPointLight) {
         const point = light as PointLight
         const halves = pointAsSpots(size)
@@ -271,6 +285,12 @@ export class PathTrace {
           std.transparent = transparent
         })
       }
+    })
+    // Lights that don't show (a hidden light, or one inside a hidden group) stay out: the path
+    // tracer only checks a light's own visibility, not its parents', so a hidden sun would still
+    // shine in the Render.
+    scene.traverse((o) => {
+      if ((o as Light).isLight && o.visible && !shows(o)) hidden.push(o as Light)
     })
     for (const o of added) scene.add(o)
     for (const l of hidden) l.visible = false
