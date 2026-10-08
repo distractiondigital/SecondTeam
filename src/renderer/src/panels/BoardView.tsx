@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import { FileDown, GripVertical, ImageOff } from 'lucide-react'
 import { boardShots, defaultBoardImage, moveOnBoard, panelDescription, sceneTag, type BoardShot } from '../../../shared/board'
 import { deliveryFrame, opticsFor } from '../../../shared/camera'
@@ -7,6 +7,7 @@ import { useDocument } from '../state/documentStore'
 import { loadTakes, openTake, useGeneration } from '../state/generation'
 import { useUi } from '../state/uiStore'
 import BoardExport from './BoardExport'
+import BoardLightbox from './BoardLightbox'
 import { currentRender } from '../../../shared/renders'
 import { useRenders } from '../state/renders'
 import { shotFingerprint } from '../viewport/shotFingerprint'
@@ -37,7 +38,10 @@ export function useBoardImage(): 'ai' | 'clay' | 'render' {
   return picked ?? auto
 }
 
-function Panel({ b, onDragStart, onDrop, dropHere, aspect }: { b: BoardShot; onDragStart: () => void; onDrop: () => void; dropHere: boolean; aspect: number }) {
+/** How long a click waits to see if it's a double-click (which goes to the shot instead). */
+const DOUBLE_CLICK_MS = 250
+
+function Panel({ b, onDragStart, onDrop, dropHere, aspect, onExpand }: { b: BoardShot; onDragStart: () => void; onDrop: () => void; dropHere: boolean; aspect: number; onExpand: () => void }) {
   const { scene, shot } = b
   const takes = useGeneration((s) => s.takes[shot.id])
   const projectPath = useUi((s) => s.projectPath)
@@ -60,7 +64,20 @@ function Panel({ b, onDragStart, onDrop, dropHere, aspect }: { b: BoardShot; onD
     .filter(Boolean)
     .join(' · ')
 
+  // Click: the picture big; double-click: go to the shot (so a click waits a moment first).
+  const pendingClick = useRef<number | null>(null)
+  useEffect(() => () => void (pendingClick.current !== null && clearTimeout(pendingClick.current)), [])
+  const onClick = (e: MouseEvent) => {
+    if (e.detail !== 1) return
+    pendingClick.current = window.setTimeout(() => {
+      pendingClick.current = null
+      onExpand()
+    }, DOUBLE_CLICK_MS)
+  }
+
   const goToShot = () => {
+    if (pendingClick.current !== null) clearTimeout(pendingClick.current)
+    pendingClick.current = null
     const ui = useUi.getState()
     useDocument.getState().setSceneId(scene.id)
     ui.setView('set')
@@ -78,7 +95,7 @@ function Panel({ b, onDragStart, onDrop, dropHere, aspect }: { b: BoardShot; onD
         onDrop()
       }}
     >
-      <div className="board-image" style={{ aspectRatio: aspect }} onDoubleClick={goToShot} title="Double-click to go to this shot">
+      <div className="board-image" style={{ aspectRatio: aspect }} onClick={onClick} onDoubleClick={goToShot} title="Click to see it bigger; double-click to go to this shot">
         {render ? (
           <img src={render} alt={shot.shotNumber} draggable={false} />
         ) : showClay ? (
@@ -132,6 +149,7 @@ export default function BoardView() {
   const [dragId, setDragId] = useState<string | null>(null)
   const [overId, setOverId] = useState<string | null>(null)
   const [exporting, setExporting] = useState(false)
+  const [expanded, setExpanded] = useState<string | null>(null)
   const circled = shots.filter((b) => b.shot.circleTake).length
   const boardImage = useBoardImage()
   const queue = useRenders((s) => s.queue)
@@ -180,7 +198,7 @@ export default function BoardView() {
               onDragEnter={() => dragId && setOverId(b.shot.id)}
               className={dragId === b.shot.id ? 'board-dragging' : undefined}
             >
-              <Panel b={b} onDragStart={() => setDragId(b.shot.id)} onDrop={() => drop(b.shot.id)} dropHere={overId === b.shot.id && dragId !== b.shot.id} aspect={aspect} />
+              <Panel b={b} onDragStart={() => setDragId(b.shot.id)} onDrop={() => drop(b.shot.id)} dropHere={overId === b.shot.id && dragId !== b.shot.id} aspect={aspect} onExpand={() => setExpanded(b.shot.id)} />
             </div>
           ))}
           <div
@@ -196,6 +214,7 @@ export default function BoardView() {
           </div>
         </div>
       )}
+      {expanded && <BoardLightbox shots={shots} shotId={expanded} onShow={setExpanded} onClose={() => setExpanded(null)} />}
       {exporting && <BoardExport shots={shots} onClose={() => setExporting(false)} />}
     </div>
   )

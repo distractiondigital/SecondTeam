@@ -197,6 +197,7 @@ Turn the circle takes into a board you can send to a client or crew.
 - Each panel has three boxes: **Description** (starts as the shot's Frame description; change it here and the AI prompt stays as it was), **Dialogue** (printed in quotes) and **Notes** (the shot's notes). They save when you click away; Ctrl+Z undoes them.
 - **AI | Clay** (top right of the board) switches every panel between its circle take and the shot's live clay render (the same lit view as the Shot list thumbnail, in each object's Material colour, from every scene). Export… starts on the same choice.
 - **Drag** a panel by its grip (⋮⋮) to reorder. The board has its own order across all scenes (intercut freely), and shot names never change. New shots join the end.
+- **Click** a panel's picture to see it big, over the board (the full take, a large Clay picture, or the Render); **←** / **→** step through the shots, **Esc** or a click outside closes it.
 - **Double-click** a panel's picture to jump to that shot in the Set view, with its circle take open.
 - **Export…**:
   - **Layout:** Grid 2 / 3 / 6 (landscape pages, captions under each frame) or Rows 2 / 3 / 4 (portrait pages, picture left, captions right). A small sketch of one page under the buttons shows how the chosen layout will look.

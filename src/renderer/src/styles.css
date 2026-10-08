@@ -3239,3 +3239,85 @@ input {
 .lens-dof {
   margin: 4px 0 0;
 }
+
+/* A board panel's picture, big (BoardLightbox). */
+.board-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 8px;
+}
+
+.board-lightbox-frame {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.board-lightbox-frame img {
+  max-width: 100%;
+  max-height: calc(100% - 64px);
+  min-height: 0;
+  object-fit: contain;
+  border-radius: 3px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+}
+
+.board-lightbox-frame figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px 10px;
+  max-width: 900px;
+  color: var(--text);
+  text-align: center;
+  pointer-events: auto;
+}
+
+.board-lightbox-text {
+  flex-basis: 100%;
+  color: var(--text-dim);
+}
+
+.board-lightbox-text.dialogue {
+  font-style: italic;
+}
+
+.board-lightbox-step {
+  flex: none;
+  background: none;
+  border: none;
+  color: var(--text);
+  opacity: 0.7;
+  cursor: pointer;
+  padding: 12px 4px;
+}
+
+.board-lightbox-step:hover:not(:disabled) {
+  opacity: 1;
+}
+
+.board-lightbox-step:disabled {
+  opacity: 0.15;
+  cursor: default;
+}
+
+.board-lightbox-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
