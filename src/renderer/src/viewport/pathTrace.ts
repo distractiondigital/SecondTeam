@@ -96,17 +96,44 @@ const TERMINATOR_FUNCTION = /* glsl */ `
 	}
 `
 
-/** Patch the path tracer's shader: the shadow terminator (see above) and a finer ray restart. Throws if the library's code changed. */
+// A ray continuing through a surface it doesn't stop at: from the hit point, a hair further along
+// itself (a few float steps at the size of the coordinates, enough not to find the same surface again).
+const PASS_THROUGH_FUNCTION = /* glsl */ `
+	vec3 stPassThrough( vec3 rayOrigin, vec3 rayDirection, float dist ) {
+		vec3 point = rayOrigin + rayDirection * dist;
+		vec3 absPoint = abs( point );
+		float maxPoint = max( absPoint.x, max( absPoint.y, absPoint.z ) );
+		return point + rayDirection * ( maxPoint + 1.0 ) * 1e-6;
+	}
+`
+
+/** Patch the path tracer's shader: the shadow terminator (see above) and finer ray restarts. Throws if the library's code changed. */
 function patchTerminator(source: string): string {
 	const swap = (s: string, from: string, to: string) => {
 		if (!s.includes(from)) throw new Error(`pathTrace: can't find "${from.slice(0, 60)}"`)
 		return s.split(from).join(to)
 	}
 	let s = source
-	// How far a ray restarts past a surface it passes through (× the size of the coordinates). The
-	// library's 1e-4 is ~0.2 mm on a set: hair cards lying closer than that to the scalp let rays
-	// restart under the skin, inside the head, where they find no light (black flecks at hairlines).
+	// How far rays start off a surface they bounce from (× the size of the coordinates): the
+	// library's 1e-4 is ~0.2 mm on a set, coarser than the gaps between a figure's layers.
 	s = swap(s, '#define RAY_OFFSET 1e-4', '#define RAY_OFFSET 1e-5')
+	// Rays passing through a see-through part of a surface (the clear parts of hair and eyebrow
+	// cards, anything not casting shadows) restart just past it along the ray, not pushed through
+	// along the surface's normal. Pushed along the normal, they landed under any skin closer than
+	// the push: hair cards lie against the scalp and dip into it, so rays restarted inside the head
+	// and found darkness (dark outlines and dots along the hairline). Along the ray they can only
+	// skip what lies within a few millionths of the card, whatever the hair's shape.
+	s = swap(s, 'vec3 stepRayOrigin(', `${PASS_THROUGH_FUNCTION}\n\tvec3 stepRayOrigin(`)
+	s = swap(
+		s,
+		'ray.origin = stepRayOrigin( ray.origin, ray.direction, - surfaceHit.faceNormal, surfaceHit.dist );',
+		'ray.origin = stPassThrough( ray.origin, ray.direction, surfaceHit.dist );'
+	)
+	s = swap(s, 'rayOrigin = stepRayOrigin( rayOrigin, rayDirection, - faceNormal, dist );', 'rayOrigin = stPassThrough( rayOrigin, rayDirection, dist );')
+	// The triangle test's small tolerance (so rays don't slip between neighbouring triangles) applies
+	// to the edges only, not to the distance: it also accepted surfaces up to 0.01 mm *behind* a
+	// ray's start, so a ray restarted just past a card found that same card again.
+	s = swap(s, 'uvt += vec4( TRI_INTERSECT_EPSILON );', 'uvt.xyw += vec3( TRI_INTERSECT_EPSILON );')
 	// Light counts when it's above the smooth surface (not the flat triangle).
 	s = swap(s, 'dot( surf.faceNormal, lightRec.direction ) < 0.0', 'dot( surf.normal, lightRec.direction ) < 0.0')
 	s = swap(s, 'dot( surf.faceNormal, envDirection ) < 0.0', 'dot( surf.normal, envDirection ) < 0.0')
