@@ -8,7 +8,7 @@ import { loadRenders, persistRenders, resetRenders } from './renders'
 const api = () => window.secondTeam
 
 export function projectDisplayName(projectPath: string | null): string {
-  if (!projectPath) return 'Untitled'
+  if (!projectPath) return useUi.getState().unsavedName
   const folder = projectPath.split(/[\\/]/).filter(Boolean).pop() ?? 'Untitled'
   return folder.replace(/\.secondteam$/i, '')
 }
@@ -60,6 +60,31 @@ export async function newProject(): Promise<void> {
 export async function openProject(): Promise<void> {
   if (!(await confirmLeave())) return
   await load(await api().openProject())
+}
+
+/** The demo scene that ships with the app, as a new unsaved project (Save asks where to keep it). */
+export async function openDemoProject(): Promise<void> {
+  if (!(await confirmLeave())) return
+  const result = await api().openDemoProject()
+  if ('error' in result) {
+    await api().showError(result.error)
+    return
+  }
+  try {
+    const project = parseProject(result.json)
+    useDocument.getState().loadProject(project)
+    resetRenders()
+    const ui = useUi.getState()
+    ui.setBoardImage(null)
+    ui.setProjectPath(null, project.name)
+    ui.select([])
+    ui.dismissStart()
+    // Shown lit: the golden-hour light is the point of it.
+    ui.setShading('clay')
+    ui.requestFrame()
+  } catch (err) {
+    await api().showError(err instanceof ProjectFileError ? err.message : `Couldn't open the demo scene: ${String(err)}`)
+  }
 }
 
 /** Open a project from the recent list (start screen, or Open ▾ in the toolbar). */

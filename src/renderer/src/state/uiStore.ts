@@ -62,6 +62,8 @@ interface UiState {
   units: Units
   /** Folder of the open project (…\Name.secondteam), or null if never saved. */
   projectPath: string | null
+  /** What to call the project until it's saved (the demo scene has a name; a new project is Untitled). */
+  unsavedName: string
   /** The start panel (new / open / recent) was closed for this session. */
   startDismissed: boolean
   /** Node whose name is being edited in the outliner. */
@@ -97,7 +99,7 @@ interface UiState {
   setSnapMode: (mode: SnapMode) => void
   cycleSnapMode: () => void
   setUnits: (units: Units) => void
-  setProjectPath: (path: string | null) => void
+  setProjectPath: (path: string | null, unsavedName?: string) => void
   dismissStart: () => void
   setRenamingId: (id: string | null) => void
   requestFrame: () => void
@@ -211,6 +213,7 @@ export const useUi = create<UiState>()((set) => ({
   snapMode: 'off',
   units: 'm',
   projectPath: null,
+  unsavedName: 'Untitled',
   startDismissed: false,
   renamingId: null,
   frameRequest: 0,
@@ -239,7 +242,7 @@ export const useUi = create<UiState>()((set) => ({
   cycleSnapMode: () =>
     set((s) => ({ snapMode: SNAP_MODES[(SNAP_MODES.indexOf(s.snapMode) + 1) % SNAP_MODES.length] })),
   setUnits: (units) => set({ units }),
-  setProjectPath: (projectPath) => set({ projectPath }),
+  setProjectPath: (projectPath, unsavedName = 'Untitled') => set({ projectPath, unsavedName }),
   dismissStart: () => set({ startDismissed: true }),
   setRenamingId: (renamingId) => set({ renamingId }),
   requestFrame: () => set((s) => ({ frameRequest: s.frameRequest + 1 })),

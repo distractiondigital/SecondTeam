@@ -1,0 +1,2277 @@
+{
+  "schemaVersion": 16,
+  "name": "Café Terrace",
+  "defaultAspect": "16:9",
+  "styleText": "",
+  "scenes": [
+    {
+      "id": "d9d83387-702c-4cae-91c0-02ab3266014b",
+      "number": 1,
+      "name": "EXT. CAFÉ TERRACE – GOLDEN HOUR",
+      "notes": "",
+      "floor": true,
+      "environment": {
+        "time": 18.6,
+        "ground": "#9c907f",
+        "fog": 0
+      },
+      "descriptions": {},
+      "nodes": {
+        "59f84ee3-e3e9-4de8-a0af-b3b27fa56597": {
+          "id": "59f84ee3-e3e9-4de8-a0af-b3b27fa56597",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Paving",
+          "parentId": null,
+          "position": [
+            0,
+            0,
+            0.3
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            11,
+            0.04,
+            7.5
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#b8aa95",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "9a2d8839-dd69-4b8f-9a89-8e26dbbe652d": {
+          "id": "9a2d8839-dd69-4b8f-9a89-8e26dbbe652d",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Kerb",
+          "parentId": null,
+          "position": [
+            0,
+            0,
+            4.1
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            11,
+            0.12,
+            0.25
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#8d867b",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "96911eb4-cc02-49c2-9b89-706d1c3eed94": {
+          "id": "96911eb4-cc02-49c2-9b89-706d1c3eed94",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Café front",
+          "parentId": "2c1aa9d7-b789-47a6-a1e0-b7a7236aaedf",
+          "position": [
+            -0.0857,
+            0,
+            -0.35
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            13,
+            6.5,
+            0.6
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#cdb89a",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "fec90f3a-741e-4677-bec5-77873d382140": {
+          "id": "fec90f3a-741e-4677-bec5-77873d382140",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Shop window",
+          "parentId": "2c1aa9d7-b789-47a6-a1e0-b7a7236aaedf",
+          "position": [
+            -0.6857,
+            0.35,
+            -0.03
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            4.6,
+            2.3,
+            0.05
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#2c3540",
+          "anchor": "bottom",
+          "material": "glossy",
+          "propId": null,
+          "description": ""
+        },
+        "055f4805-1428-403f-afd0-f1ed2b0e21ed": {
+          "id": "055f4805-1428-403f-afd0-f1ed2b0e21ed",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Door",
+          "parentId": "2c1aa9d7-b789-47a6-a1e0-b7a7236aaedf",
+          "position": [
+            2.5143,
+            0.04,
+            -0.03
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1.1,
+            2.3,
+            0.05
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#4a2f22",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "175ef255-18ab-4d15-92fc-2e822a9ca6ec": {
+          "id": "175ef255-18ab-4d15-92fc-2e822a9ca6ec",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Awning",
+          "parentId": "2c1aa9d7-b789-47a6-a1e0-b7a7236aaedf",
+          "position": [
+            0.3143,
+            2.75,
+            0.5
+          ],
+          "rotation": [
+            16,
+            0,
+            0
+          ],
+          "scale": [
+            6.2,
+            0.06,
+            1.3
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#8a2f28",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "33755385-6520-4064-9d83-7913c5a2bbbf": {
+          "id": "33755385-6520-4064-9d83-7913c5a2bbbf",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Window 1",
+          "parentId": "2c1aa9d7-b789-47a6-a1e0-b7a7236aaedf",
+          "position": [
+            -3.6857,
+            3.7,
+            -0.03
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1.1,
+            1.5,
+            0.05
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#3a4552",
+          "anchor": "bottom",
+          "material": "glossy",
+          "propId": null,
+          "description": ""
+        },
+        "8567e8e6-39aa-4f96-8e1b-7eac452eda5e": {
+          "id": "8567e8e6-39aa-4f96-8e1b-7eac452eda5e",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Window 2",
+          "parentId": "2c1aa9d7-b789-47a6-a1e0-b7a7236aaedf",
+          "position": [
+            -0.6857,
+            3.7,
+            -0.03
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1.1,
+            1.5,
+            0.05
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#3a4552",
+          "anchor": "bottom",
+          "material": "glossy",
+          "propId": null,
+          "description": ""
+        },
+        "fb2df9ad-2176-4853-9443-e8d2092bb7bd": {
+          "id": "fb2df9ad-2176-4853-9443-e8d2092bb7bd",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Window 3",
+          "parentId": "2c1aa9d7-b789-47a6-a1e0-b7a7236aaedf",
+          "position": [
+            2.3143,
+            3.7,
+            -0.03
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1.1,
+            1.5,
+            0.05
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#3a4552",
+          "anchor": "bottom",
+          "material": "glossy",
+          "propId": null,
+          "description": ""
+        },
+        "2c1aa9d7-b789-47a6-a1e0-b7a7236aaedf": {
+          "id": "2c1aa9d7-b789-47a6-a1e0-b7a7236aaedf",
+          "type": "group",
+          "name": "Café building",
+          "parentId": null,
+          "position": [
+            0.0857,
+            0,
+            -3.85
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "childIds": [
+            "96911eb4-cc02-49c2-9b89-706d1c3eed94",
+            "fec90f3a-741e-4677-bec5-77873d382140",
+            "055f4805-1428-403f-afd0-f1ed2b0e21ed",
+            "175ef255-18ab-4d15-92fc-2e822a9ca6ec",
+            "33755385-6520-4064-9d83-7913c5a2bbbf",
+            "8567e8e6-39aa-4f96-8e1b-7eac452eda5e",
+            "fb2df9ad-2176-4853-9443-e8d2092bb7bd"
+          ],
+          "propId": null,
+          "description": ""
+        },
+        "9e731456-fbd7-4818-b3df-2f579a704f06": {
+          "id": "9e731456-fbd7-4818-b3df-2f579a704f06",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Building right",
+          "parentId": null,
+          "position": [
+            8.6,
+            0,
+            -1.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            4.5,
+            9,
+            6
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#a39a8e",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "9c54d5ae-e897-4b07-b914-80b7e145c85d": {
+          "id": "9c54d5ae-e897-4b07-b914-80b7e145c85d",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Building left",
+          "parentId": null,
+          "position": [
+            -8.8,
+            0,
+            -2.5
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            4.5,
+            7.5,
+            5
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#b49c84",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "34ef4b2f-9200-41c2-b757-9ea37da2d85e": {
+          "id": "34ef4b2f-9200-41c2-b757-9ea37da2d85e",
+          "type": "primitive",
+          "primitive": "cylinder",
+          "name": "Table top",
+          "parentId": "f59596df-bfbf-4cf8-83e8-eaad792e5636",
+          "position": [
+            0,
+            0.68,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1.5,
+            0.03,
+            1.5
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#e6dfd2",
+          "anchor": "bottom",
+          "material": "glossy",
+          "propId": null,
+          "description": ""
+        },
+        "662c0d7a-9c3b-4292-931e-7e186e05d8b5": {
+          "id": "662c0d7a-9c3b-4292-931e-7e186e05d8b5",
+          "type": "primitive",
+          "primitive": "cylinder",
+          "name": "Table stem",
+          "parentId": "f59596df-bfbf-4cf8-83e8-eaad792e5636",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            0.12,
+            0.68,
+            0.12
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#2d2f31",
+          "anchor": "bottom",
+          "material": "metal",
+          "propId": null,
+          "description": ""
+        },
+        "a92907b5-5a1b-4b08-8d80-c73e7a4529d2": {
+          "id": "a92907b5-5a1b-4b08-8d80-c73e7a4529d2",
+          "type": "primitive",
+          "primitive": "cylinder",
+          "name": "Table base",
+          "parentId": "f59596df-bfbf-4cf8-83e8-eaad792e5636",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            0.03,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#2d2f31",
+          "anchor": "bottom",
+          "material": "metal",
+          "propId": null,
+          "description": ""
+        },
+        "f59596df-bfbf-4cf8-83e8-eaad792e5636": {
+          "id": "f59596df-bfbf-4cf8-83e8-eaad792e5636",
+          "type": "group",
+          "name": "Table",
+          "parentId": null,
+          "position": [
+            0,
+            0.04,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "childIds": [
+            "34ef4b2f-9200-41c2-b757-9ea37da2d85e",
+            "662c0d7a-9c3b-4292-931e-7e186e05d8b5",
+            "a92907b5-5a1b-4b08-8d80-c73e7a4529d2"
+          ],
+          "propId": null,
+          "description": ""
+        },
+        "3c482d59-842d-4d5d-af79-590f24337bb6": {
+          "id": "3c482d59-842d-4d5d-af79-590f24337bb6",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Chair L seat",
+          "parentId": "344a013b-6699-46d4-b2ed-b758d8d95260",
+          "position": [
+            0.07,
+            0.39,
+            0
+          ],
+          "rotation": [
+            0,
+            90,
+            0
+          ],
+          "scale": [
+            0.44,
+            0.04,
+            0.44
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#3d5a4c",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "99daf2bb-173a-4203-be16-c8c9677493f3": {
+          "id": "99daf2bb-173a-4203-be16-c8c9677493f3",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Chair L back",
+          "parentId": "344a013b-6699-46d4-b2ed-b758d8d95260",
+          "position": [
+            -0.14,
+            0.43,
+            0
+          ],
+          "rotation": [
+            0,
+            90,
+            0
+          ],
+          "scale": [
+            0.44,
+            0.42,
+            0.03
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#3d5a4c",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "8518b729-d937-4e7e-b426-e58f1e5027a2": {
+          "id": "8518b729-d937-4e7e-b426-e58f1e5027a2",
+          "type": "primitive",
+          "primitive": "cylinder",
+          "name": "Chair L leg",
+          "parentId": "344a013b-6699-46d4-b2ed-b758d8d95260",
+          "position": [
+            0.07,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            0.1,
+            0.39,
+            0.1
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#2d2f31",
+          "anchor": "bottom",
+          "material": "metal",
+          "propId": null,
+          "description": ""
+        },
+        "344a013b-6699-46d4-b2ed-b758d8d95260": {
+          "id": "344a013b-6699-46d4-b2ed-b758d8d95260",
+          "type": "group",
+          "name": "Chair L",
+          "parentId": null,
+          "position": [
+            -0.75,
+            0.04,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "childIds": [
+            "3c482d59-842d-4d5d-af79-590f24337bb6",
+            "99daf2bb-173a-4203-be16-c8c9677493f3",
+            "8518b729-d937-4e7e-b426-e58f1e5027a2"
+          ],
+          "propId": null,
+          "description": ""
+        },
+        "b3c4fb7a-5acd-4541-ad24-6db944c69a44": {
+          "id": "b3c4fb7a-5acd-4541-ad24-6db944c69a44",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Chair R seat",
+          "parentId": "d63718ed-6f09-4848-a4e8-c06c184cb250",
+          "position": [
+            -0.07,
+            0.39,
+            0
+          ],
+          "rotation": [
+            0,
+            -90,
+            0
+          ],
+          "scale": [
+            0.44,
+            0.04,
+            0.44
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#3d5a4c",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "8d4194b2-97b8-44dd-9aa9-abf08f25087e": {
+          "id": "8d4194b2-97b8-44dd-9aa9-abf08f25087e",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Chair R back",
+          "parentId": "d63718ed-6f09-4848-a4e8-c06c184cb250",
+          "position": [
+            0.14,
+            0.43,
+            0
+          ],
+          "rotation": [
+            0,
+            -90,
+            0
+          ],
+          "scale": [
+            0.44,
+            0.42,
+            0.03
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#3d5a4c",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "d535e28f-93e4-46b4-a6f7-1c733d1384e1": {
+          "id": "d535e28f-93e4-46b4-a6f7-1c733d1384e1",
+          "type": "primitive",
+          "primitive": "cylinder",
+          "name": "Chair R leg",
+          "parentId": "d63718ed-6f09-4848-a4e8-c06c184cb250",
+          "position": [
+            -0.07,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            0.1,
+            0.39,
+            0.1
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#2d2f31",
+          "anchor": "bottom",
+          "material": "metal",
+          "propId": null,
+          "description": ""
+        },
+        "d63718ed-6f09-4848-a4e8-c06c184cb250": {
+          "id": "d63718ed-6f09-4848-a4e8-c06c184cb250",
+          "type": "group",
+          "name": "Chair R",
+          "parentId": null,
+          "position": [
+            0.75,
+            0.04,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "childIds": [
+            "b3c4fb7a-5acd-4541-ad24-6db944c69a44",
+            "8d4194b2-97b8-44dd-9aa9-abf08f25087e",
+            "d535e28f-93e4-46b4-a6f7-1c733d1384e1"
+          ],
+          "propId": null,
+          "description": ""
+        },
+        "9301009c-2e4a-4673-a8b8-7e452dedeb34": {
+          "id": "9301009c-2e4a-4673-a8b8-7e452dedeb34",
+          "type": "primitive",
+          "primitive": "cylinder",
+          "name": "Cup L",
+          "parentId": null,
+          "position": [
+            -0.2,
+            0.75,
+            0.08
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            0.17,
+            0.09,
+            0.17
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#f4f1ea",
+          "anchor": "bottom",
+          "material": "glossy",
+          "propId": null,
+          "description": ""
+        },
+        "6e774efb-c689-4196-80a8-a3b14008288a": {
+          "id": "6e774efb-c689-4196-80a8-a3b14008288a",
+          "type": "primitive",
+          "primitive": "cylinder",
+          "name": "Cup R",
+          "parentId": null,
+          "position": [
+            0.22,
+            0.75,
+            -0.06
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            0.17,
+            0.09,
+            0.17
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#f4f1ea",
+          "anchor": "bottom",
+          "material": "glossy",
+          "propId": null,
+          "description": ""
+        },
+        "55d08de1-36f2-4606-bb1f-a99138d4baca": {
+          "id": "55d08de1-36f2-4606-bb1f-a99138d4baca",
+          "type": "primitive",
+          "primitive": "cylinder",
+          "name": "Bottle",
+          "parentId": null,
+          "position": [
+            0.02,
+            0.75,
+            -0.2
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            0.13,
+            0.28,
+            0.13
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#41604a",
+          "anchor": "bottom",
+          "material": "glass",
+          "propId": null,
+          "description": ""
+        },
+        "435c9bbf-14e3-4119-b7db-6d99ac43e8b0": {
+          "id": "435c9bbf-14e3-4119-b7db-6d99ac43e8b0",
+          "type": "primitive",
+          "primitive": "cylinder",
+          "name": "Parasol pole",
+          "parentId": "da63f833-9802-4ca1-b6cc-c91121105c5e",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            0.08,
+            2.3,
+            0.08
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#d9d2c4",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "a4b643f5-7c95-42c2-b519-149cc42643b6": {
+          "id": "a4b643f5-7c95-42c2-b519-149cc42643b6",
+          "type": "primitive",
+          "primitive": "cone",
+          "name": "Parasol canopy",
+          "parentId": "da63f833-9802-4ca1-b6cc-c91121105c5e",
+          "position": [
+            0,
+            2.01,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            2.7,
+            0.45,
+            2.7
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#ece3cf",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "da63f833-9802-4ca1-b6cc-c91121105c5e": {
+          "id": "da63f833-9802-4ca1-b6cc-c91121105c5e",
+          "type": "group",
+          "name": "Parasol",
+          "parentId": null,
+          "position": [
+            0,
+            0.04,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "childIds": [
+            "435c9bbf-14e3-4119-b7db-6d99ac43e8b0",
+            "a4b643f5-7c95-42c2-b519-149cc42643b6"
+          ],
+          "propId": null,
+          "description": ""
+        },
+        "96714f62-e3cb-41bc-bf27-5d005947d286": {
+          "id": "96714f62-e3cb-41bc-bf27-5d005947d286",
+          "type": "primitive",
+          "primitive": "cylinder",
+          "name": "Table 2 top",
+          "parentId": "05a9b24f-c606-4306-b223-cc4a7261ba08",
+          "position": [
+            0,
+            0.68,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1.5,
+            0.03,
+            1.5
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#e6dfd2",
+          "anchor": "bottom",
+          "material": "glossy",
+          "propId": null,
+          "description": ""
+        },
+        "db7ff440-99be-4f84-aa91-ae6d8e95aacd": {
+          "id": "db7ff440-99be-4f84-aa91-ae6d8e95aacd",
+          "type": "primitive",
+          "primitive": "cylinder",
+          "name": "Table 2 stem",
+          "parentId": "05a9b24f-c606-4306-b223-cc4a7261ba08",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            0.12,
+            0.68,
+            0.12
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#2d2f31",
+          "anchor": "bottom",
+          "material": "metal",
+          "propId": null,
+          "description": ""
+        },
+        "a98d3183-5c1c-48c1-9a90-581e4d6837aa": {
+          "id": "a98d3183-5c1c-48c1-9a90-581e4d6837aa",
+          "type": "primitive",
+          "primitive": "cylinder",
+          "name": "Table 2 base",
+          "parentId": "05a9b24f-c606-4306-b223-cc4a7261ba08",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            0.03,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#2d2f31",
+          "anchor": "bottom",
+          "material": "metal",
+          "propId": null,
+          "description": ""
+        },
+        "05a9b24f-c606-4306-b223-cc4a7261ba08": {
+          "id": "05a9b24f-c606-4306-b223-cc4a7261ba08",
+          "type": "group",
+          "name": "Table 2",
+          "parentId": null,
+          "position": [
+            2.6,
+            0.04,
+            -1.9
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "childIds": [
+            "96714f62-e3cb-41bc-bf27-5d005947d286",
+            "db7ff440-99be-4f84-aa91-ae6d8e95aacd",
+            "a98d3183-5c1c-48c1-9a90-581e4d6837aa"
+          ],
+          "propId": null,
+          "description": ""
+        },
+        "331484f0-43b4-4613-9941-3915fde2f8fd": {
+          "id": "331484f0-43b4-4613-9941-3915fde2f8fd",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Chair 2L seat",
+          "parentId": "a085e2a9-ee99-4137-a124-3b9548843a6a",
+          "position": [
+            0.07,
+            0.39,
+            0
+          ],
+          "rotation": [
+            0,
+            90,
+            0
+          ],
+          "scale": [
+            0.44,
+            0.04,
+            0.44
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#3d5a4c",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "f4cfbd73-5255-4c46-8999-5d8a2569e0c1": {
+          "id": "f4cfbd73-5255-4c46-8999-5d8a2569e0c1",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Chair 2L back",
+          "parentId": "a085e2a9-ee99-4137-a124-3b9548843a6a",
+          "position": [
+            -0.14,
+            0.43,
+            0
+          ],
+          "rotation": [
+            0,
+            90,
+            0
+          ],
+          "scale": [
+            0.44,
+            0.42,
+            0.03
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#3d5a4c",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "ebc9a77d-5b99-46df-bf59-9430b5c9443b": {
+          "id": "ebc9a77d-5b99-46df-bf59-9430b5c9443b",
+          "type": "primitive",
+          "primitive": "cylinder",
+          "name": "Chair 2L leg",
+          "parentId": "a085e2a9-ee99-4137-a124-3b9548843a6a",
+          "position": [
+            0.07,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            0.1,
+            0.39,
+            0.1
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#2d2f31",
+          "anchor": "bottom",
+          "material": "metal",
+          "propId": null,
+          "description": ""
+        },
+        "a085e2a9-ee99-4137-a124-3b9548843a6a": {
+          "id": "a085e2a9-ee99-4137-a124-3b9548843a6a",
+          "type": "group",
+          "name": "Chair 2L",
+          "parentId": null,
+          "position": [
+            1.85,
+            0.04,
+            -1.9
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "childIds": [
+            "331484f0-43b4-4613-9941-3915fde2f8fd",
+            "f4cfbd73-5255-4c46-8999-5d8a2569e0c1",
+            "ebc9a77d-5b99-46df-bf59-9430b5c9443b"
+          ],
+          "propId": null,
+          "description": ""
+        },
+        "a5739c14-0187-4df8-a600-a4d2576a5d9a": {
+          "id": "a5739c14-0187-4df8-a600-a4d2576a5d9a",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Chair 2R seat",
+          "parentId": "e1b0731d-419f-4bb6-9ec9-a45f58e49c16",
+          "position": [
+            -0.07,
+            0.39,
+            0
+          ],
+          "rotation": [
+            0,
+            -90,
+            0
+          ],
+          "scale": [
+            0.44,
+            0.04,
+            0.44
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#3d5a4c",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "8bc3eaa7-c2dd-46ab-889d-56df7672d663": {
+          "id": "8bc3eaa7-c2dd-46ab-889d-56df7672d663",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Chair 2R back",
+          "parentId": "e1b0731d-419f-4bb6-9ec9-a45f58e49c16",
+          "position": [
+            0.14,
+            0.43,
+            0
+          ],
+          "rotation": [
+            0,
+            -90,
+            0
+          ],
+          "scale": [
+            0.44,
+            0.42,
+            0.03
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#3d5a4c",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "9dc799f2-7f94-4c03-a00a-e84185f69a19": {
+          "id": "9dc799f2-7f94-4c03-a00a-e84185f69a19",
+          "type": "primitive",
+          "primitive": "cylinder",
+          "name": "Chair 2R leg",
+          "parentId": "e1b0731d-419f-4bb6-9ec9-a45f58e49c16",
+          "position": [
+            -0.07,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            0.1,
+            0.39,
+            0.1
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#2d2f31",
+          "anchor": "bottom",
+          "material": "metal",
+          "propId": null,
+          "description": ""
+        },
+        "e1b0731d-419f-4bb6-9ec9-a45f58e49c16": {
+          "id": "e1b0731d-419f-4bb6-9ec9-a45f58e49c16",
+          "type": "group",
+          "name": "Chair 2R",
+          "parentId": null,
+          "position": [
+            3.35,
+            0.04,
+            -1.9
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "childIds": [
+            "a5739c14-0187-4df8-a600-a4d2576a5d9a",
+            "8bc3eaa7-c2dd-46ab-889d-56df7672d663",
+            "9dc799f2-7f94-4c03-a00a-e84185f69a19"
+          ],
+          "propId": null,
+          "description": ""
+        },
+        "e6fa6ab4-32b1-4d78-88c9-2327e9cf16c1": {
+          "id": "e6fa6ab4-32b1-4d78-88c9-2327e9cf16c1",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Planter 1 box",
+          "parentId": "03ed2526-da48-46f8-abae-7f3ff579957e",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1.1,
+            0.5,
+            0.45
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#6b5a4a",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "619ede49-a618-40cf-9e29-9e76bd5158ea": {
+          "id": "619ede49-a618-40cf-9e29-9e76bd5158ea",
+          "type": "primitive",
+          "primitive": "sphere",
+          "name": "Planter 1 shrub",
+          "parentId": "03ed2526-da48-46f8-abae-7f3ff579957e",
+          "position": [
+            0,
+            0.36,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1.15,
+            0.8,
+            0.6
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#56704a",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "03ed2526-da48-46f8-abae-7f3ff579957e": {
+          "id": "03ed2526-da48-46f8-abae-7f3ff579957e",
+          "type": "group",
+          "name": "Planter 1",
+          "parentId": null,
+          "position": [
+            -4.2,
+            0.04,
+            -2.9
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "childIds": [
+            "e6fa6ab4-32b1-4d78-88c9-2327e9cf16c1",
+            "619ede49-a618-40cf-9e29-9e76bd5158ea"
+          ],
+          "propId": null,
+          "description": ""
+        },
+        "7d2c61e2-5b01-4431-8c9b-e690baac779f": {
+          "id": "7d2c61e2-5b01-4431-8c9b-e690baac779f",
+          "type": "primitive",
+          "primitive": "box",
+          "name": "Planter 2 box",
+          "parentId": "69842047-a967-41c4-ae9f-bf20e5d543fa",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1.1,
+            0.5,
+            0.45
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#6b5a4a",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "7ad9800d-ff92-4314-9702-2069dee5d5d8": {
+          "id": "7ad9800d-ff92-4314-9702-2069dee5d5d8",
+          "type": "primitive",
+          "primitive": "sphere",
+          "name": "Planter 2 shrub",
+          "parentId": "69842047-a967-41c4-ae9f-bf20e5d543fa",
+          "position": [
+            0,
+            0.36,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1.15,
+            0.8,
+            0.6
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#56704a",
+          "anchor": "bottom",
+          "material": "matte",
+          "propId": null,
+          "description": ""
+        },
+        "69842047-a967-41c4-ae9f-bf20e5d543fa": {
+          "id": "69842047-a967-41c4-ae9f-bf20e5d543fa",
+          "type": "group",
+          "name": "Planter 2",
+          "parentId": null,
+          "position": [
+            -2.8,
+            0.04,
+            -2.9
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "childIds": [
+            "7d2c61e2-5b01-4431-8c9b-e690baac779f",
+            "7ad9800d-ff92-4314-9702-2069dee5d5d8"
+          ],
+          "propId": null,
+          "description": ""
+        },
+        "63e7f9e0-6ec6-48e0-b530-d2c56db57659": {
+          "id": "63e7f9e0-6ec6-48e0-b530-d2c56db57659",
+          "type": "primitive",
+          "primitive": "cylinder",
+          "name": "Lamp post",
+          "parentId": "eafc95f0-d15b-413f-825c-1a971efd2695",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            0.22,
+            3.4,
+            0.22
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#26292c",
+          "anchor": "bottom",
+          "material": "metal",
+          "propId": null,
+          "description": ""
+        },
+        "aec4f81c-a00c-4ae9-9565-4a34c34a283d": {
+          "id": "aec4f81c-a00c-4ae9-9565-4a34c34a283d",
+          "type": "primitive",
+          "primitive": "sphere",
+          "name": "Lamp globe",
+          "parentId": "eafc95f0-d15b-413f-825c-1a971efd2695",
+          "position": [
+            0,
+            3.36,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            0.36,
+            0.36,
+            0.36
+          ],
+          "hidden": false,
+          "locked": false,
+          "color": "#ffd9a0",
+          "anchor": "bottom",
+          "material": "glowing",
+          "propId": null,
+          "description": ""
+        },
+        "eafc95f0-d15b-413f-825c-1a971efd2695": {
+          "id": "eafc95f0-d15b-413f-825c-1a971efd2695",
+          "type": "group",
+          "name": "Street lamp",
+          "parentId": null,
+          "position": [
+            3.6,
+            0.04,
+            2.4
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "childIds": [
+            "63e7f9e0-6ec6-48e0-b530-d2c56db57659",
+            "aec4f81c-a00c-4ae9-9565-4a34c34a283d"
+          ],
+          "propId": null,
+          "description": ""
+        },
+        "510ef234-c191-4b09-92f8-f33a29098e5c": {
+          "id": "510ef234-c191-4b09-92f8-f33a29098e5c",
+          "type": "light",
+          "kind": "sun",
+          "name": "Sun",
+          "parentId": null,
+          "position": [
+            -6,
+            4,
+            4
+          ],
+          "rotation": [
+            -16.8815,
+            -26.9668,
+            -7.8356
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "stops": 0.3,
+          "kelvin": 3400,
+          "size": 0.53,
+          "shadows": true,
+          "coneAngle": 40,
+          "falloff": 0.3
+        },
+        "c4b07816-550c-442c-bbdd-e9e0f3beb478": {
+          "id": "c4b07816-550c-442c-bbdd-e9e0f3beb478",
+          "type": "light",
+          "kind": "point",
+          "name": "Lamp",
+          "parentId": null,
+          "position": [
+            3.6,
+            3.55,
+            2.4
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "stops": -1.5,
+          "kelvin": 2700,
+          "size": 0.3,
+          "shadows": true,
+          "coneAngle": 40,
+          "falloff": 0.3
+        },
+        "b5406fcf-6cdc-43b7-a0c5-e8fd177091ca": {
+          "id": "b5406fcf-6cdc-43b7-a0c5-e8fd177091ca",
+          "type": "mannequin",
+          "name": "Theo",
+          "parentId": null,
+          "position": [
+            0.62,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            -90,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "height": 1.78,
+          "build": 0.5,
+          "style": "human",
+          "body": {
+            "gender": 1,
+            "age": 0.5,
+            "muscle": 0.5,
+            "weight": 0.5,
+            "breastSize": 0.5,
+            "breastFirmness": 0.5
+          },
+          "appearance": {
+            "hair": "hair-short02",
+            "eyebrows": "eyebrows-1",
+            "garments": {
+              "outfit": "outfit-male-casual-4",
+              "shoes": "shoes-1"
+            },
+            "colors": {
+              "outfit": "#2e4766"
+            },
+            "skinTone": 0.3,
+            "eyeColor": "brown"
+          },
+          "expression": "smile",
+          "hands": {
+            "left": "relaxed",
+            "right": "relaxed"
+          },
+          "plants": {},
+          "lookAt": null,
+          "color": "#c98f6f",
+          "castId": "6e1b5676-a1d4-4e07-9363-41774bcb66b0",
+          "description": "",
+          "limits": true,
+          "pose": {
+            "joints": {
+              "pelvis": [
+                0,
+                0,
+                0
+              ],
+              "spine": [
+                -5,
+                0,
+                0
+              ],
+              "chest": [
+                0,
+                0,
+                0
+              ],
+              "neck": [
+                0,
+                0,
+                0
+              ],
+              "head": [
+                0,
+                0,
+                0
+              ],
+              "shoulderL": [
+                -12,
+                0,
+                8
+              ],
+              "elbowL": [
+                -48,
+                0,
+                0
+              ],
+              "wristL": [
+                0,
+                0,
+                0
+              ],
+              "shoulderR": [
+                -12,
+                0,
+                -8
+              ],
+              "elbowR": [
+                -48,
+                0,
+                0
+              ],
+              "wristR": [
+                0,
+                0,
+                0
+              ],
+              "hipL": [
+                -90,
+                0,
+                4
+              ],
+              "kneeL": [
+                90,
+                0,
+                0
+              ],
+              "ankleL": [
+                0,
+                0,
+                0
+              ],
+              "hipR": [
+                -90,
+                0,
+                -4
+              ],
+              "kneeR": [
+                90,
+                0,
+                0
+              ],
+              "ankleR": [
+                0,
+                0,
+                0
+              ]
+            },
+            "pelvisOffset": [
+              0,
+              -0.24225,
+              0
+            ]
+          }
+        },
+        "e95095fe-f681-4601-8e8f-c7cd96cc1e0d": {
+          "id": "e95095fe-f681-4601-8e8f-c7cd96cc1e0d",
+          "type": "mannequin",
+          "name": "Mara",
+          "parentId": null,
+          "position": [
+            -0.62,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            90,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "height": 1.65,
+          "build": 0.5,
+          "style": "human",
+          "body": {
+            "gender": 0,
+            "age": 0.5,
+            "muscle": 0.5,
+            "weight": 0.5,
+            "breastSize": 0.5,
+            "breastFirmness": 0.5
+          },
+          "appearance": {
+            "hair": "hair-ponytail01",
+            "eyebrows": "eyebrows-1",
+            "garments": {
+              "outfit": "outfit-female-casual-2",
+              "shoes": "shoes-2"
+            },
+            "colors": {
+              "outfit": "#d9c7a4"
+            },
+            "skinTone": 0.3,
+            "eyeColor": "brown"
+          },
+          "expression": "smile",
+          "hands": {
+            "left": "relaxed",
+            "right": "relaxed"
+          },
+          "plants": {},
+          "lookAt": null,
+          "color": "#6f9ac9",
+          "castId": "fc6d06d3-4d80-4064-9b8a-97c3f933a308",
+          "description": "",
+          "limits": true,
+          "pose": {
+            "joints": {
+              "pelvis": [
+                0,
+                0,
+                0
+              ],
+              "spine": [
+                -5,
+                0,
+                0
+              ],
+              "chest": [
+                0,
+                0,
+                0
+              ],
+              "neck": [
+                0,
+                0,
+                0
+              ],
+              "head": [
+                0,
+                0,
+                0
+              ],
+              "shoulderL": [
+                -12,
+                0,
+                8
+              ],
+              "elbowL": [
+                -48,
+                0,
+                0
+              ],
+              "wristL": [
+                0,
+                0,
+                0
+              ],
+              "shoulderR": [
+                -12,
+                0,
+                -8
+              ],
+              "elbowR": [
+                -48,
+                0,
+                0
+              ],
+              "wristR": [
+                0,
+                0,
+                0
+              ],
+              "hipL": [
+                -90,
+                0,
+                4
+              ],
+              "kneeL": [
+                90,
+                0,
+                0
+              ],
+              "ankleL": [
+                0,
+                0,
+                0
+              ],
+              "hipR": [
+                -90,
+                0,
+                -4
+              ],
+              "kneeR": [
+                90,
+                0,
+                0
+              ],
+              "ankleR": [
+                0,
+                0,
+                0
+              ]
+            },
+            "pelvisOffset": [
+              0,
+              -0.23970000000000005,
+              0
+            ]
+          }
+        },
+        "466f6081-74e4-4215-b8ee-8a0e74c47f37": {
+          "id": "466f6081-74e4-4215-b8ee-8a0e74c47f37",
+          "type": "mannequin",
+          "name": "Waiter",
+          "parentId": null,
+          "position": [
+            1.55,
+            0,
+            -0.95
+          ],
+          "rotation": [
+            0,
+            -58,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "height": 1.78,
+          "build": 0.5,
+          "style": "human",
+          "body": {
+            "gender": 1,
+            "age": 0.5,
+            "muscle": 0.5,
+            "weight": 0.5,
+            "breastSize": 0.5,
+            "breastFirmness": 0.5
+          },
+          "appearance": {
+            "hair": "hair-short03",
+            "eyebrows": "eyebrows-1",
+            "garments": {
+              "outfit": "outfit-work",
+              "shoes": "shoes-1"
+            },
+            "colors": {
+              "outfit": "#e8e4dc"
+            },
+            "skinTone": 0.3,
+            "eyeColor": "brown"
+          },
+          "expression": "neutral",
+          "hands": {
+            "left": "relaxed",
+            "right": "relaxed"
+          },
+          "plants": {},
+          "lookAt": null,
+          "color": "#8fbf6f",
+          "castId": null,
+          "description": "a waiter in a white apron",
+          "limits": true,
+          "pose": {
+            "joints": {
+              "pelvis": [
+                0,
+                0,
+                0
+              ],
+              "spine": [
+                0,
+                0,
+                0
+              ],
+              "chest": [
+                0,
+                0,
+                0
+              ],
+              "neck": [
+                0,
+                0,
+                0
+              ],
+              "head": [
+                0,
+                0,
+                0
+              ],
+              "shoulderL": [
+                0,
+                0,
+                6
+              ],
+              "elbowL": [
+                -8,
+                0,
+                0
+              ],
+              "wristL": [
+                0,
+                0,
+                0
+              ],
+              "shoulderR": [
+                0,
+                0,
+                -6
+              ],
+              "elbowR": [
+                -8,
+                0,
+                0
+              ],
+              "wristR": [
+                0,
+                0,
+                0
+              ],
+              "hipL": [
+                0,
+                0,
+                0
+              ],
+              "kneeL": [
+                0,
+                0,
+                0
+              ],
+              "ankleL": [
+                0,
+                0,
+                0
+              ],
+              "hipR": [
+                0,
+                0,
+                0
+              ],
+              "kneeR": [
+                0,
+                0,
+                0
+              ],
+              "ankleR": [
+                0,
+                0,
+                0
+              ]
+            },
+            "pelvisOffset": [
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "9997d883-dab1-407e-889a-381e5168048a": {
+          "id": "9997d883-dab1-407e-889a-381e5168048a",
+          "type": "camera",
+          "name": "Shot 1A",
+          "parentId": null,
+          "position": [
+            3.9,
+            1.55,
+            4.6
+          ],
+          "rotation": [
+            -7.125,
+            38.8767,
+            4.486
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "shotNumber": "1A",
+          "focalLength": 32,
+          "focusDistance": null,
+          "aperture": 4,
+          "subjectId": null,
+          "sizeOverride": null,
+          "angleOverride": null,
+          "lightingOverride": null,
+          "description": "Theo and Mara at a café table as the sun goes down",
+          "notes": "",
+          "circleTake": null,
+          "boardText": null,
+          "dialogue": "",
+          "environment": null,
+          "overrides": {},
+          "descriptions": {}
+        },
+        "074b8ea7-faad-4ca2-9083-16ec6f433881": {
+          "id": "074b8ea7-faad-4ca2-9083-16ec6f433881",
+          "type": "camera",
+          "name": "Shot 1B",
+          "parentId": null,
+          "position": [
+            1.35,
+            1.22,
+            0.42
+          ],
+          "rotation": [
+            -12.8043,
+            77.0992,
+            12.4913
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "shotNumber": "1B",
+          "focalLength": 50,
+          "focusDistance": null,
+          "aperture": 2,
+          "subjectId": null,
+          "sizeOverride": null,
+          "angleOverride": null,
+          "lightingOverride": null,
+          "description": "Over Theo’s shoulder: Mara listens",
+          "notes": "",
+          "circleTake": null,
+          "boardText": null,
+          "dialogue": "THEO: You came back.",
+          "environment": null,
+          "overrides": {},
+          "descriptions": {}
+        },
+        "1531a770-44b5-4662-838f-0ff41d92e56f": {
+          "id": "1531a770-44b5-4662-838f-0ff41d92e56f",
+          "type": "camera",
+          "name": "Shot 1C",
+          "parentId": null,
+          "position": [
+            -0.95,
+            1.18,
+            0.5
+          ],
+          "rotation": [
+            -2.2906,
+            -72.3216,
+            -2.1825
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "shotNumber": "1C",
+          "focalLength": 85,
+          "focusDistance": null,
+          "aperture": 2,
+          "subjectId": null,
+          "sizeOverride": null,
+          "angleOverride": null,
+          "lightingOverride": null,
+          "description": "Close on Theo",
+          "notes": "",
+          "circleTake": null,
+          "boardText": null,
+          "dialogue": "MARA: I never really left.",
+          "environment": null,
+          "overrides": {},
+          "descriptions": {}
+        }
+      },
+      "rootIds": [
+        "59f84ee3-e3e9-4de8-a0af-b3b27fa56597",
+        "9a2d8839-dd69-4b8f-9a89-8e26dbbe652d",
+        "2c1aa9d7-b789-47a6-a1e0-b7a7236aaedf",
+        "9e731456-fbd7-4818-b3df-2f579a704f06",
+        "9c54d5ae-e897-4b07-b914-80b7e145c85d",
+        "f59596df-bfbf-4cf8-83e8-eaad792e5636",
+        "344a013b-6699-46d4-b2ed-b758d8d95260",
+        "d63718ed-6f09-4848-a4e8-c06c184cb250",
+        "9301009c-2e4a-4673-a8b8-7e452dedeb34",
+        "6e774efb-c689-4196-80a8-a3b14008288a",
+        "55d08de1-36f2-4606-bb1f-a99138d4baca",
+        "da63f833-9802-4ca1-b6cc-c91121105c5e",
+        "05a9b24f-c606-4306-b223-cc4a7261ba08",
+        "a085e2a9-ee99-4137-a124-3b9548843a6a",
+        "e1b0731d-419f-4bb6-9ec9-a45f58e49c16",
+        "03ed2526-da48-46f8-abae-7f3ff579957e",
+        "69842047-a967-41c4-ae9f-bf20e5d543fa",
+        "eafc95f0-d15b-413f-825c-1a971efd2695",
+        "510ef234-c191-4b09-92f8-f33a29098e5c",
+        "c4b07816-550c-442c-bbdd-e9e0f3beb478",
+        "b5406fcf-6cdc-43b7-a0c5-e8fd177091ca",
+        "e95095fe-f681-4601-8e8f-c7cd96cc1e0d",
+        "466f6081-74e4-4215-b8ee-8a0e74c47f37",
+        "9997d883-dab1-407e-889a-381e5168048a",
+        "074b8ea7-faad-4ca2-9083-16ec6f433881",
+        "1531a770-44b5-4662-838f-0ff41d92e56f"
+      ]
+    }
+  ],
+  "camera": {
+    "sensor": {
+      "preset": "ff",
+      "width": 36,
+      "height": 24
+    },
+    "squeeze": 1,
+    "guides": [],
+    "delivery": "sensor",
+    "thirds": false
+  },
+  "cast": [
+    {
+      "id": "6e1b5676-a1d4-4e07-9363-41774bcb66b0",
+      "name": "Theo",
+      "description": "man in his 30s, short dark hair, navy shirt",
+      "images": [],
+      "strength": 0.8,
+      "color": "#c98f6f",
+      "look": {
+        "style": "human",
+        "height": 1.78,
+        "body": {
+          "gender": 1,
+          "age": 0.5,
+          "muscle": 0.5,
+          "weight": 0.5,
+          "breastSize": 0.5,
+          "breastFirmness": 0.5
+        },
+        "appearance": {
+          "hair": "hair-short02",
+          "eyebrows": "eyebrows-1",
+          "garments": {
+            "outfit": "outfit-male-casual-4",
+            "shoes": "shoes-1"
+          },
+          "colors": {
+            "outfit": "#2e4766"
+          },
+          "skinTone": 0.3,
+          "eyeColor": "brown"
+        }
+      }
+    },
+    {
+      "id": "fc6d06d3-4d80-4064-9b8a-97c3f933a308",
+      "name": "Mara",
+      "description": "woman in her late 20s, dark hair in a ponytail, linen shirt",
+      "images": [],
+      "strength": 0.8,
+      "color": "#6f9ac9",
+      "look": {
+        "style": "human",
+        "height": 1.65,
+        "body": {
+          "gender": 0,
+          "age": 0.5,
+          "muscle": 0.5,
+          "weight": 0.5,
+          "breastSize": 0.5,
+          "breastFirmness": 0.5
+        },
+        "appearance": {
+          "hair": "hair-ponytail01",
+          "eyebrows": "eyebrows-1",
+          "garments": {
+            "outfit": "outfit-female-casual-2",
+            "shoes": "shoes-2"
+          },
+          "colors": {
+            "outfit": "#d9c7a4"
+          },
+          "skinTone": 0.3,
+          "eyeColor": "brown"
+        }
+      }
+    }
+  ],
+  "props": [],
+  "styleImages": [],
+  "board": {
+    "order": []
+  },
+  "poses": [],
+  "generation": {
+    "checkpoint": null,
+    "negative": "blurry, lowres, jpeg artifacts, deformed, disfigured, bad anatomy, extra limbs, extra fingers, text, watermark, signature, frame, border",
+    "steps": 30,
+    "cfg": 5,
+    "strictness": 0.5,
+    "strength": 0.6,
+    "start": 0,
+    "end": 0.65,
+    "poseStrength": 0.7,
+    "poseEnd": 0.8,
+    "styleStrength": 0.35,
+    "feather": 16,
+    "referenceEnd": 0.8,
+    "takes": 2,
+    "seed": 1,
+    "seedLocked": false
+  }
+}

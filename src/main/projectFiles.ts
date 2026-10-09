@@ -11,6 +11,7 @@ import { describeRecent, isRecent, loadRecent, saveRecent, withoutRecent, withRe
 
 const PROJECT_EXT = '.secondteam'
 const PROJECT_FILE = 'project.json'
+const DEMO_FILE = 'cafe-terrace.json'
 const SUBFOLDERS = ['assets/cast', 'assets/props', 'assets/style', 'scenes', 'exports']
 
 const approvedFolders = new Set<string>()
@@ -118,6 +119,15 @@ export function registerProjectIpc(getWindow: () => BrowserWindow | null): void 
   ipcMain.handle('project:openRecent', async (_e, folder: string): Promise<OpenResult> => {
     if (typeof folder !== 'string' || !isRecent(loadRecent(), folder)) return { error: 'That project is no longer in the recent list.' }
     return readProjectFolder(resolve(folder))
+  })
+  // The demo scene that ships with the app (demo/ in the app folder, read-only): it opens as a new,
+  // unsaved project, so the shipped copy is never changed.
+  ipcMain.handle('project:demo', async (): Promise<{ json: string } | { error: string }> => {
+    try {
+      return { json: await readFile(join(app.getAppPath(), 'demo', DEMO_FILE), 'utf-8') }
+    } catch (err) {
+      return { error: `Couldn't open the demo scene: ${(err as Error).message}` }
+    }
   })
   ipcMain.handle('project:forgetRecent', async (_e, folder: string): Promise<void> => {
     if (typeof folder === 'string') await saveRecent(withoutRecent(loadRecent(), folder))

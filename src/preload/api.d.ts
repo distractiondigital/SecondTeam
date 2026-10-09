@@ -47,6 +47,8 @@ export interface SecondTeamApi {
   openRecentProject: (folder: string) => Promise<{ path: string; json: string } | { error: string } | null>
   /** Take a project off the recent list (the folder itself is left alone). */
   forgetRecentProject: (folder: string) => Promise<void>
+  /** The demo scene that ships with the app (opened as a new, unsaved project). */
+  openDemoProject: () => Promise<{ json: string } | { error: string }>
 
   /** The app-wide pose library (poses.json in %LOCALAPPDATA%\SecondTeam), or null if none yet. */
   loadPoseLibrary: () => Promise<string | null>

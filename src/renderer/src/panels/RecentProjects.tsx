@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowLeft, ChevronDown, FilePlus, FolderOpen, X } from 'lucide-react'
+import { ArrowLeft, ChevronDown, Clapperboard, FilePlus, FolderOpen, X } from 'lucide-react'
 import logo from '../../../../build/icon.png'
 import { ABOUT, COPYRIGHT, CREDITS } from '../../../shared/credits'
 import { useDocument } from '../state/documentStore'
-import { newProject, openProject, openRecentProject } from '../state/projectIO'
+import { newProject, openDemoProject, openProject, openRecentProject } from '../state/projectIO'
 import { useUi } from '../state/uiStore'
 
 // Recent projects: the start panel shown over the empty viewport when the app opens, and the
@@ -112,6 +112,9 @@ export function StartScreen() {
             <button className="generate-button" onClick={() => void openProject()}>
               <FolderOpen size={15} /> Open…
             </button>
+            <button className="generate-button" onClick={() => void openDemoProject()} title="A ready-made scene to explore: a café terrace at golden hour, with figures, lights and three shots">
+              <Clapperboard size={15} /> Demo scene
+            </button>
           </div>
           <h3>Recent projects</h3>
           <RecentList
@@ -183,6 +186,16 @@ export function RecentMenu() {
               reload()
             }}
           />
+          <button
+            className="start-link recent-demo"
+            onClick={() => {
+              setOpen(false)
+              void openDemoProject()
+            }}
+            title="A ready-made scene to explore (opens as a new, unsaved project)"
+          >
+            <Clapperboard size={13} /> Open the demo scene
+          </button>
         </div>
       )}
     </div>

@@ -60,6 +60,7 @@ function StatusBar() {
 
 export default function App() {
   const projectPath = useUi((s) => s.projectPath)
+  const unsavedName = useUi((s) => s.unsavedName)
   const view = useUi((s) => s.view)
 
   useEffect(() => {
@@ -82,7 +83,7 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <span className="app-name">Second Team</span>
-        <span className="project-name">{projectDisplayName(projectPath)}</span>
+        <span className="project-name">{projectPath ? projectDisplayName(projectPath) : unsavedName}</span>
         <div className="segmented view-switch" title="The 3D set, or the storyboard">
           <button className={view === 'set' ? 'active' : ''} onClick={() => useUi.getState().setView('set')}>
             Set
