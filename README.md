@@ -32,6 +32,10 @@ When you want more than clay, Second Team can bring your boards to life with AI 
 - **Render:** a path-traced picture of any shot, with real bounce light, soft shadows sized by each light and lens blur traced through the aperture. Draft or Final quality, saved with the project.
 - **Storyboard:** every shot in the board order you choose, with descriptions, dialogue and notes, shown as its lit clay picture, its Render or its chosen AI frame. Export to PDF (grid or rows, Letter or A4) or numbered PNGs.
 
+<p align="center">
+  <img src="docs/images/screenshot-board.png" alt="The storyboard showing each shot's path-traced Render, with the Export storyboard dialog open">
+</p>
+
 ## AI frames: bring your boards to life
 
 Turn any shot into a finished-looking frame, in the style you choose: photoreal film still, pencil sketch, painted concept art.
