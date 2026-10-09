@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type DragEvent, type MouseEvent } from 'react'
+import { createContext, memo, useContext, useMemo, useState, type DragEvent, type MouseEvent } from 'react'
 import { ChevronDown, Clapperboard, ChevronRight, Eye, EyeOff, Folder, Lock, LockOpen, PersonStanding } from 'lucide-react'
 import { activeScene, editedNodes, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
@@ -83,7 +83,7 @@ function RenameInput({ id, name }: { id: string; name: string }) {
   )
 }
 
-function OutlinerRow({ id, depth, inHidden }: { id: string; depth: number; inHidden: boolean }) {
+const OutlinerRow = memo(function OutlinerRow({ id, depth, inHidden }: { id: string; depth: number; inHidden: boolean }) {
   const node = useDocument((s) => editedNodes(s)[id])
   const changedInShot = useDocument((s) => {
     const shot = s.activeShotId ? activeScene(s).nodes[s.activeShotId] : undefined
@@ -214,16 +214,20 @@ function OutlinerRow({ id, depth, inHidden }: { id: string; depth: number; inHid
         ))}
     </>
   )
-}
+})
 
 export default function Outliner() {
   // Cameras belong to their shots (see the Shot list), so they aren't listed here.
-  const rootIds = useDocument((s) => activeScene(s).rootIds)
-  const nodes = useDocument((s) => activeScene(s).nodes)
-  const setIds = rootIds.filter((id) => nodes[id]?.type !== 'camera')
+  // (A string, so posing or moving things doesn't re-list the whole Outliner: only adding, removing
+  // or reordering at the top level does.)
+  const setIdsKey = useDocument((s) => {
+    const scene = activeScene(s)
+    return scene.rootIds.filter((id) => scene.nodes[id]?.type !== 'camera').join('|')
+  })
+  const setIds = useMemo(() => (setIdsKey ? setIdsKey.split('|') : []), [setIdsKey])
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const [drop, setDrop] = useState<DropTarget | null>(null)
-  const shared: OutlinerShared = {
+  const shared = useMemo<OutlinerShared>(() => ({
     collapsed,
     toggleCollapsed: (id) =>
       setCollapsed((c) => {
@@ -243,7 +247,7 @@ export default function Outliner() {
       }
       return scene.rootIds.flatMap(walk)
     }
-  }
+  }), [collapsed, drop])
   const endDrop = drop !== null && drop.id === null
   return (
     <aside className="panel outliner">
