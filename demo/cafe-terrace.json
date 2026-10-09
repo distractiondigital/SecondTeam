@@ -2029,14 +2029,14 @@
           "name": "Shot 1A",
           "parentId": null,
           "position": [
-            3.9,
-            1.55,
-            4.6
+            4.9432,
+            1.337,
+            6.0881
           ],
           "rotation": [
-            -7.125,
-            38.8767,
-            4.486
+            -2.9217,
+            34.0194,
+            1.6355
           ],
           "scale": [
             1,
@@ -2046,9 +2046,9 @@
           "hidden": false,
           "locked": false,
           "shotNumber": "1A",
-          "focalLength": 32,
+          "focalLength": 50,
           "focusDistance": null,
-          "aperture": 4,
+          "aperture": 2.2,
           "subjectId": null,
           "sizeOverride": null,
           "angleOverride": null,
@@ -2068,14 +2068,14 @@
           "name": "Shot 1B",
           "parentId": null,
           "position": [
-            1.35,
-            1.22,
-            0.42
+            1.547,
+            1.1853,
+            0.4693
           ],
           "rotation": [
-            -12.8043,
-            77.0992,
-            12.4913
+            -9.3266,
+            72.9977,
+            8.9254
           ],
           "scale": [
             1,
@@ -2085,7 +2085,7 @@
           "hidden": false,
           "locked": false,
           "shotNumber": "1B",
-          "focalLength": 50,
+          "focalLength": 75,
           "focusDistance": null,
           "aperture": 2,
           "subjectId": null,
@@ -2098,7 +2098,33 @@
           "boardText": null,
           "dialogue": "THEO: You came back.",
           "environment": null,
-          "overrides": {},
+          "overrides": {
+            "c0f8fd5a-eb75-4877-baa0-60fe9c906f08": {
+              "position": [
+                -3.3142,
+                2.6964,
+                -1.7406
+              ],
+              "rotation": [
+                -120.8078,
+                -40.3556,
+                -132.6417
+              ]
+            },
+            "510ef234-c191-4b09-92f8-f33a29098e5c": {
+              "position": [
+                -3.5018,
+                4,
+                5.8625
+              ],
+              "rotation": [
+                -27.757,
+                -14.9534,
+                -7.7334
+              ],
+              "size": 10.78
+            }
+          },
           "descriptions": {}
         },
         "1531a770-44b5-4662-838f-0ff41d92e56f": {
@@ -2107,14 +2133,14 @@
           "name": "Shot 1C",
           "parentId": null,
           "position": [
-            -0.95,
-            1.18,
-            0.5
+            -1.6995,
+            0.9641,
+            0.6685
           ],
           "rotation": [
-            -2.2906,
-            -72.3216,
-            -2.1825
+            10.4956,
+            -68.2845,
+            9.7656
           ],
           "scale": [
             1,
@@ -2124,8 +2150,8 @@
           "hidden": false,
           "locked": false,
           "shotNumber": "1C",
-          "focalLength": 85,
-          "focusDistance": null,
+          "focalLength": 75,
+          "focusDistance": 2.322,
           "aperture": 2,
           "subjectId": null,
           "sizeOverride": null,
@@ -2137,7 +2163,277 @@
           "boardText": null,
           "dialogue": "MARA: I never really left.",
           "environment": null,
-          "overrides": {},
+          "overrides": {
+            "510ef234-c191-4b09-92f8-f33a29098e5c": {
+              "rotation": [
+                -20.9916,
+                -18.6708,
+                -7.0027
+              ]
+            }
+          },
+          "descriptions": {}
+        },
+        "c0f8fd5a-eb75-4877-baa0-60fe9c906f08": {
+          "id": "c0f8fd5a-eb75-4877-baa0-60fe9c906f08",
+          "type": "light",
+          "kind": "spot",
+          "name": "Spot 1",
+          "parentId": null,
+          "position": [
+            2.3847,
+            2.6886,
+            -1.7406
+          ],
+          "rotation": [
+            -117.9619,
+            36.3175,
+            131.8707
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "stops": 0.9,
+          "kelvin": 1800,
+          "size": 0.6,
+          "shadows": true,
+          "coneAngle": 40,
+          "falloff": 0.3
+        },
+        "a19981f7-77f0-4766-bc97-e88bb8999b67": {
+          "id": "a19981f7-77f0-4766-bc97-e88bb8999b67",
+          "type": "camera",
+          "name": "Shot 1D",
+          "parentId": null,
+          "position": [
+            -0.0327,
+            0.8278,
+            2.2244
+          ],
+          "rotation": [
+            0.3387,
+            -0.9861,
+            0.0059
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "hidden": false,
+          "locked": false,
+          "shotNumber": "1D",
+          "focalLength": 100,
+          "focusDistance": 1.854,
+          "aperture": 2.2,
+          "subjectId": null,
+          "sizeOverride": null,
+          "angleOverride": null,
+          "lightingOverride": null,
+          "description": "Theo and Mara at a café table as the sun goes down",
+          "notes": "",
+          "circleTake": null,
+          "boardText": "Theo and Mara hold hands",
+          "dialogue": "",
+          "environment": null,
+          "overrides": {
+            "b5406fcf-6cdc-43b7-a0c5-e8fd177091ca": {
+              "pose": {
+                "joints": {
+                  "pelvis": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "spine": [
+                    15.3142,
+                    0,
+                    0
+                  ],
+                  "chest": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "neck": [
+                    21.4263,
+                    0,
+                    0
+                  ],
+                  "head": [
+                    -5.9136,
+                    0,
+                    0
+                  ],
+                  "shoulderL": [
+                    -46.6074,
+                    -18.3252,
+                    26.0747
+                  ],
+                  "elbowL": [
+                    -58.4857,
+                    0,
+                    0
+                  ],
+                  "wristL": [
+                    10.2222,
+                    0,
+                    24.3139
+                  ],
+                  "shoulderR": [
+                    -12,
+                    0,
+                    -8
+                  ],
+                  "elbowR": [
+                    -48,
+                    0,
+                    0
+                  ],
+                  "wristR": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "hipL": [
+                    -90,
+                    0,
+                    4
+                  ],
+                  "kneeL": [
+                    90,
+                    0,
+                    0
+                  ],
+                  "ankleL": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "hipR": [
+                    -90,
+                    0,
+                    -4
+                  ],
+                  "kneeR": [
+                    90,
+                    0,
+                    0
+                  ],
+                  "ankleR": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                "pelvisOffset": [
+                  0,
+                  -0.24225,
+                  0
+                ]
+              }
+            },
+            "e95095fe-f681-4601-8e8f-c7cd96cc1e0d": {
+              "pose": {
+                "joints": {
+                  "pelvis": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "spine": [
+                    6.9366,
+                    0,
+                    0
+                  ],
+                  "chest": [
+                    15.8696,
+                    0,
+                    0
+                  ],
+                  "neck": [
+                    -4.139,
+                    0,
+                    0
+                  ],
+                  "head": [
+                    -13.5801,
+                    0,
+                    0
+                  ],
+                  "shoulderL": [
+                    -12,
+                    0,
+                    8
+                  ],
+                  "elbowL": [
+                    -48,
+                    0,
+                    0
+                  ],
+                  "wristL": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "shoulderR": [
+                    -33.2392,
+                    43.8338,
+                    -65.0682
+                  ],
+                  "elbowR": [
+                    -47.4038,
+                    -35.9394,
+                    0
+                  ],
+                  "wristR": [
+                    0,
+                    0,
+                    -25
+                  ],
+                  "hipL": [
+                    -90,
+                    0,
+                    4
+                  ],
+                  "kneeL": [
+                    90,
+                    0,
+                    0
+                  ],
+                  "ankleL": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "hipR": [
+                    -90,
+                    0,
+                    -4
+                  ],
+                  "kneeR": [
+                    90,
+                    0,
+                    0
+                  ],
+                  "ankleR": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                "pelvisOffset": [
+                  0,
+                  -0.23970000000000005,
+                  0
+                ]
+              }
+            }
+          },
           "descriptions": {}
         }
       },
@@ -2167,7 +2463,9 @@
         "466f6081-74e4-4215-b8ee-8a0e74c47f37",
         "9997d883-dab1-407e-889a-381e5168048a",
         "074b8ea7-faad-4ca2-9083-16ec6f433881",
-        "1531a770-44b5-4662-838f-0ff41d92e56f"
+        "1531a770-44b5-4662-838f-0ff41d92e56f",
+        "c0f8fd5a-eb75-4877-baa0-60fe9c906f08",
+        "a19981f7-77f0-4766-bc97-e88bb8999b67"
       ]
     }
   ],
@@ -2178,8 +2476,10 @@
       "height": 24
     },
     "squeeze": 1,
-    "guides": [],
-    "delivery": "sensor",
+    "guides": [
+      "2:1"
+    ],
+    "delivery": "2:1",
     "thirds": false
   },
   "cast": [

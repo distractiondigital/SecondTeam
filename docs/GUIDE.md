@@ -211,7 +211,7 @@ A project is a folder called `Name.secondteam` containing `project.json` (the se
 
 When the app starts, a panel offers **New project**, **Open…** and your **recent projects** (newest first; a moved or deleted one says "Not found", and × takes it off the list). The **▾** next to Open in the toolbar lists them too. The list is kept in `%LOCALAPPDATA%\SecondTeam\recent.json`.
 
-**Demo scene** (on the start panel, and at the bottom of the **▾** menu) opens a ready-made scene to play with: a café terrace at golden hour with three figures, a sun and a street lamp, and three shots (wide, over the shoulder, close-up). It opens as a new, unsaved project, so you can change anything; **Save** asks where to keep your copy, and the demo itself always opens fresh.
+**Demo scene** (on the start panel, and at the bottom of the **▾** menu) opens a ready-made scene to play with: a café terrace at golden hour with three figures, a sun and a street lamp, and four shots (wide, over the shoulder, close-up, and a close insert of their hands). It opens as a new, unsaved project, so you can change anything; **Save** asks where to keep your copy, and the demo itself always opens fresh.
 
 ## Updates
 - When Second Team starts, it asks GitHub whether there's a newer version (only the list of Second Team releases is fetched; nothing about you or your projects is sent). When there is, the version at the top right of the toolbar turns into an orange **Update** button.

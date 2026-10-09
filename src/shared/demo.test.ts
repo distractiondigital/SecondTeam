@@ -11,6 +11,6 @@ describe('demo scene', () => {
     const nodes = Object.values(project.scenes[0].nodes)
     expect(nodes.filter((n) => n.type === 'mannequin')).toHaveLength(3)
     expect(nodes.filter((n) => n.type === 'light').length).toBeGreaterThan(0)
-    expect(nodes.filter((n) => n.type === 'camera').map((n) => (n.type === 'camera' ? n.shotNumber : ''))).toEqual(['1A', '1B', '1C'])
+    expect(nodes.filter((n) => n.type === 'camera').map((n) => (n.type === 'camera' ? n.shotNumber : ''))).toEqual(['1A', '1B', '1C', '1D'])
   })
 })
