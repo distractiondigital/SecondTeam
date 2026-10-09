@@ -58,13 +58,13 @@ input {
 
 /* Keep the toolbar on one line: drop group labels, then Add labels, as the window narrows.
    Every button keeps its tooltip. */
-@media (max-width: 1800px) {
+@media (max-width: 2160px) {
   .tool-group-label {
     display: none;
   }
 }
 
-@media (max-width: 1800px) {
+@media (max-width: 1880px) {
   .tool-group.add .tool-button span {
     display: none;
   }
