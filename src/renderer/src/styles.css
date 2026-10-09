@@ -3326,3 +3326,42 @@ input {
 .recent-demo {
   margin-top: 8px;
 }
+
+/* Lights ▸ Practical menu (PracticalMenu). */
+.practical-popover {
+  position: fixed;
+  width: 200px;
+  padding: 8px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  z-index: 50;
+}
+
+.practical-popover h3 {
+  margin: 2px 4px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.practical-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 8px;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.practical-item:hover {
+  background: var(--hover, rgba(255, 255, 255, 0.06));
+}

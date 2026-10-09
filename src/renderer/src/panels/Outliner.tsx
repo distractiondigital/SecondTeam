@@ -3,7 +3,8 @@ import { ChevronDown, Clapperboard, ChevronRight, Eye, EyeOff, Folder, Lock, Loc
 import { activeScene, editedNodes, useDocument } from '../state/documentStore'
 import { useUi } from '../state/uiStore'
 import ScenePicker from './ScenePicker'
-import { LIGHT_ICONS } from './lightIcons'
+import { LIGHT_ICONS, practicalIcon } from './lightIcons'
+import type { PracticalKind } from '../../../shared/practicals'
 import { kelvinToRgb, type LightKind } from '../../../shared/lighting'
 import { addKey } from '../platform'
 
@@ -57,6 +58,13 @@ function dropPlace(target: DropTarget): { parentId: string | null; beforeId: str
   const siblings = parent?.type === 'group' ? parent.childIds : scene.rootIds
   const beforeId = target.zone === 'before' ? target.id : (siblings[siblings.indexOf(target.id) + 1] ?? null)
   return { parentId: node.parentId, beforeId }
+}
+
+function PracticalRowIcon({ kind, height, kelvin, on }: { kind: PracticalKind; height: number; kelvin: number; on: boolean }) {
+  const Icon = practicalIcon(kind, height)
+  const [r, g, b] = kelvinToRgb(kelvin)
+  const color = on ? `rgb(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)})` : 'var(--text-dim)'
+  return <Icon size={14} className="row-icon" style={{ color }} />
 }
 
 function RenameInput({ id, name }: { id: string; name: string }) {
@@ -183,6 +191,8 @@ const OutlinerRow = memo(function OutlinerRow({ id, depth, inHidden }: { id: str
           <Folder size={14} className="row-icon" />
         ) : node.type === 'light' ? (
           <LightIcon kind={node.kind} kelvin={node.kelvin} />
+        ) : node.type === 'practical' ? (
+          <PracticalRowIcon kind={node.kind} height={node.height} kelvin={node.kelvin} on={node.on} />
         ) : node.type === 'mannequin' ? (
           <PersonStanding size={14} className="row-icon" style={{ color: node.color }} />
         ) : (

@@ -41,7 +41,7 @@ function useLinks(kind: 'cast' | 'prop', id: string): { sceneId: string; sceneNa
       scenes.flatMap((scene) =>
         Object.values(scene.nodes)
           .filter((n) =>
-            kind === 'cast' ? n.type === 'mannequin' && n.castId === id : (n.type === 'primitive' || n.type === 'group') && n.propId === id
+            kind === 'cast' ? n.type === 'mannequin' && n.castId === id : (n.type === 'primitive' || n.type === 'group' || n.type === 'practical') && n.propId === id
           )
           .map((node) => ({ sceneId: scene.id, sceneName: sceneLabel(scene), node }))
       ),
@@ -293,11 +293,11 @@ export function LinkSection({ node }: { node: SceneNode }) {
   const isFigure = node.type === 'mannequin'
   const kind = isFigure ? 'cast' : 'prop'
   const entries = useDocument((s) => (isFigure ? s.project.cast : s.project.props))
-  const linkedId = node.type === 'mannequin' ? node.castId : node.type === 'primitive' || node.type === 'group' ? node.propId : null
+  const linkedId = node.type === 'mannequin' ? node.castId : node.type === 'primitive' || node.type === 'group' || node.type === 'practical' ? node.propId : null
   const description = 'description' in node ? node.description : ''
   const [desc, setDesc] = useState(description)
   useEffect(() => setDesc(description), [description, node.id])
-  if (node.type !== 'mannequin' && node.type !== 'primitive' && node.type !== 'group') return null
+  if (node.type !== 'mannequin' && node.type !== 'primitive' && node.type !== 'group' && node.type !== 'practical') return null
   const doc = useDocument.getState()
   const link = (id: string | null) => doc.updateNode(node.id, isFigure ? { castId: id } : { propId: id })
 

@@ -28,6 +28,7 @@ import { DEFAULT_GENERATION, repairGeneration, type GenerationSettings } from '.
 import { DEFAULT_ENVIRONMENT, repairEnvironment, type Environment } from './environment'
 import { sanitizeAppearance, sanitizeBody, sanitizeExpression, sanitizeHands, type BodySliders, type FigureAppearance, type Hands } from './humanBody'
 import { sanitizeLookAt, sanitizePlants, type LookAt, type Plants } from './posing'
+import { cleanPractical, PRACTICAL_KINDS, type PracticalKind, type PracticalSettings } from './practicals'
 
 // v1: M1 (primitives, groups). v2: M2 adds mannequins. v3: M3 adds cameras.
 // v4: per-shot changes (camera.overrides). v5: numbered scenes, shots 1A/1B…, one camera kit per project.
@@ -40,7 +41,8 @@ import { sanitizeLookAt, sanitizePlants, type LookAt, type Plants } from './posi
 // v14: materials on objects; per-scene / per-shot cast and prop descriptions.
 // v15: each shot's lens stop (depth of field); older shots get T2.8.
 // v16: lights have a real size (metres, or degrees for the sun) instead of 0-1 softness.
-export const SCHEMA_VERSION = 16
+// v17: practicals (lamps, bulbs, flashlights, fairy lights); the Diffusion material and its density.
+export const SCHEMA_VERSION = 17
 
 export type Vec3 = [number, number, number]
 
@@ -70,7 +72,7 @@ interface NodeBase {
 }
 
 /** What an object's surface is like (with its colour): how it looks in Clay and a word for the AI. */
-export const MATERIALS = ['matte', 'glossy', 'metal', 'glass', 'glowing'] as const
+export const MATERIALS = ['matte', 'glossy', 'metal', 'glass', 'glowing', 'diffusion'] as const
 export type MaterialKind = (typeof MATERIALS)[number]
 
 export interface PrimitiveNode extends NodeBase {
@@ -80,6 +82,8 @@ export interface PrimitiveNode extends NodeBase {
   color: string
   /** Material kind: how the surface looks in Clay; non-matte ones go into a described object's prompt. */
   material: MaterialKind
+  /** Diffusion material: how much of the light passing through it is held back, 0 (none) to 1 (all). */
+  density: number
   /** Origin point along the height. Planes are always 'center'. */
   anchor: Anchor
   /** Link to a Prop entry (Milestone 7). */
@@ -186,7 +190,16 @@ export interface LightNode extends NodeBase {
   falloff: number
 }
 
-export type SceneNode = PrimitiveNode | GroupNode | MannequinNode | CameraNode | LightNode
+/** A light that lives in the set (lamp, bare bulb, flashlight, fairy lights): see shared/practicals.ts. */
+export interface PracticalNode extends NodeBase, PracticalSettings {
+  type: 'practical'
+  /** Link to a Prop entry (the lamp the AI should draw). */
+  propId: string | null
+  /** Optional description for prompts when it isn't linked to a prop. */
+  description: string
+}
+
+export type SceneNode = PrimitiveNode | GroupNode | MannequinNode | CameraNode | LightNode | PracticalNode
 
 export interface Scene {
   id: string
@@ -438,6 +451,8 @@ function checkNode(node: unknown, id: string, scene: Scene): void {
     if (typeof (n as Partial<CameraNode>).focalLength !== 'number') bad('lens')
   } else if (n!.type === 'light') {
     if (!LIGHT_KINDS.includes((n as Partial<LightNode>).kind as LightKind)) bad('light type')
+  } else if (n!.type === 'practical') {
+    if (!PRACTICAL_KINDS.includes((n as Partial<PracticalNode>).kind as PracticalKind)) bad('practical type')
   } else if (n!.type === 'mannequin') {
     const pose = n!.pose as Partial<Pose> | undefined
     if (!pose || typeof pose !== 'object' || typeof pose.joints !== 'object' || pose.joints === null) bad('pose')
@@ -448,6 +463,11 @@ function checkNode(node: unknown, id: string, scene: Scene): void {
 }
 
 const MAX_DESCRIPTION = 2000
+
+/** A Diffusion object's density (0–1; half by default). */
+export function clampDensity(v: unknown): number {
+  return typeof v === 'number' && Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 0.5
+}
 
 /** Per-scene / per-shot cast and prop texts from a file: strings only, kept to a sensible length. */
 export function cleanDescriptions(raw: unknown): Record<string, string> {
@@ -502,8 +522,15 @@ function repairNode(node: SceneNode, scene: Scene): void {
     if (node.primitive === 'plane') node.anchor = 'center'
     else if (!ANCHORS.includes(node.anchor)) node.anchor = 'bottom'
   }
-  if (node.type === 'primitive') node.material = MATERIALS.includes(node.material) ? node.material : 'matte'
-  if (node.type === 'group' || node.type === 'primitive') {
+  if (node.type === 'primitive') {
+    node.material = MATERIALS.includes(node.material) ? node.material : 'matte'
+    node.density = clampDensity(node.density)
+  }
+  if (node.type === 'practical') {
+    node.scale = [1, 1, 1]
+    Object.assign(node, cleanPractical(node))
+  }
+  if (node.type === 'group' || node.type === 'primitive' || node.type === 'practical') {
     node.propId = typeof node.propId === 'string' ? node.propId : null
     node.description = typeof node.description === 'string' ? node.description : ''
   }

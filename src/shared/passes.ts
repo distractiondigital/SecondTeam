@@ -326,8 +326,8 @@ export function isShown(id: string, nodes: Record<string, SceneNode>): boolean {
 export function entityKey(id: string, nodes: Record<string, SceneNode>): string | null {
   for (let n: SceneNode | undefined = nodes[id]; n; n = n.parentId ? nodes[n.parentId] : undefined) {
     if (n.type === 'mannequin' && n.castId) return `cast:${n.castId}`
-    if ((n.type === 'primitive' || n.type === 'group') && n.propId) return `prop:${n.propId}`
-    if ((n.type === 'primitive' || n.type === 'group' || n.type === 'mannequin') && n.description.trim()) return `node:${n.id}`
+    if ((n.type === 'primitive' || n.type === 'group' || n.type === 'practical') && n.propId) return `prop:${n.propId}`
+    if ((n.type === 'primitive' || n.type === 'group' || n.type === 'mannequin' || n.type === 'practical') && n.description.trim()) return `node:${n.id}`
   }
   // A figure that isn't a cast member is still its own region (an extra), so it's shaped by its
   // pose and prompt rather than the mannequin in the depth pass.
@@ -350,7 +350,7 @@ export function idLegend(
   const walk = (id: string) => {
     const n = nodes[id]
     if (!n) return
-    if ((n.type === 'primitive' || n.type === 'mannequin') && isShown(id, nodes)) {
+    if ((n.type === 'primitive' || n.type === 'mannequin' || n.type === 'practical') && isShown(id, nodes)) {
       const key = entityKey(id, nodes)
       if (key) members.set(key, [...(members.get(key) ?? []), id])
     }

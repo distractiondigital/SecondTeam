@@ -23,6 +23,7 @@ Current version: **0.3.0 beta** (October 2026). The plan is in [SPEC.md](SPEC.md
 | 14 | Clay lighting | ✅ Done | Lights with real sizes, soft shadows that harden at contact, ambient occlusion and ground bounce in every clay picture |
 | 15 | App updates | 🟡 Built, awaiting Spencer's test | Checks GitHub for a newer version on launch (can be turned off), downloads it in the background and installs on restart |
 | 16 | Path-traced Render | 🟡 Built, awaiting Spencer's test | Path-traced pictures with real bounce light, soft shadows and lens blur, in camera view, on the Board, in exports and as thumbnails |
+| 17 | Practicals & diffusion | 🟡 Built, awaiting Spencer's test | Lamps, bare bulbs, flashlights and fairy lights that light the set, and a Diffusion material for curtains and frosted glass, matching in Clay and the Render |
 
 ## Since the milestones
 
@@ -45,7 +46,7 @@ Current version: **0.3.0 beta** (October 2026). The plan is in [SPEC.md](SPEC.md
 - **Figures:** a fresh look for the human figures, better shapes when sitting, smoother close-ups, more outerwear, an expression strength slider.
 - **AI:** AI on Mac (starting with ComfyUI's own Mac app), face-consistent cast references, a pose pass that skips hidden joints, passes for a whole scene at once.
 - **Lenses:** anamorphic lens character (horizontal streak flares, edge falloff and distortion).
-- **Lighting:** light colours (gels), practical lamps, soft boxes, flags and bounce.
+- **Lighting:** diffusion frames (a light shining through diffusion becomes a big soft source, e.g. sun through a curtained window), light colours (gels), soft boxes, flags and bounce; more practicals (candles, screens).
 - **Shots:** a shoot order separate from shot names, custom shot names, other cameras shown in the camera view.
 - **Figures and sets:** more pose presets (running, kneeling, leaning, crouching); new objects placed so they don't overlap.
 - **Distribution:** code signing for Windows, Apple notarization, automatic updates.

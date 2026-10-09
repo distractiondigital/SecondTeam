@@ -1,3 +1,4 @@
+import type { PracticalKind } from '../../../shared/practicals'
 import { compareShotNumbers } from '../../../shared/camera'
 import type { LightKind } from '../../../shared/lighting'
 import { sceneLabel, type CameraNode, type PrimitiveType } from '../../../shared/project'
@@ -26,6 +27,13 @@ export function addPrimitive(type: PrimitiveType): void {
 export function addLight(kind: LightKind): void {
   const [x, y, z] = viewportBridge.getDropPoint()
   const id = doc().addLight(kind, [x, z], y)
+  ui().select([id])
+}
+
+/** A practical (lamp, bulb, flashlight, fairy lights) where you're looking. */
+export function addPractical(kind: PracticalKind, preset?: 'table' | 'floor'): void {
+  const [x, y, z] = viewportBridge.getDropPoint()
+  const id = doc().addPractical(kind, preset, [x, z], y)
   ui().select([id])
 }
 

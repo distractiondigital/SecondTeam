@@ -20,6 +20,8 @@ import {
   type GroupNode,
   type LightNode,
   type MannequinNode,
+  type PracticalNode,
+  clampDensity,
   type PrimitiveNode,
   type PrimitiveType,
   type Project,
@@ -71,6 +73,7 @@ import {
   type LightKind
 } from '../../../shared/lighting'
 import { clampTime, DEFAULT_ENVIRONMENT, type Environment } from '../../../shared/environment'
+import { cleanPractical, practicalDefaults, practicalLift, PRACTICAL_LABELS, type PracticalKind, type PracticalSettings } from '../../../shared/practicals'
 import { DEFAULT_STOP } from '../../../shared/depthOfField'
 import {
   AVERAGE_BODY,
@@ -114,8 +117,13 @@ export type NodePatch = Partial<
     Pick<PrimitiveNode, 'material'> &
     Pick<PrimitiveNode, 'propId'> &
     Pick<CameraNode, CameraField> &
-    Pick<LightNode, LightField>
+    Pick<LightNode, LightField> &
+    Pick<PracticalNode, PracticalField>
 >
+
+/** A practical's own settings (height, size, stops… are shared names with figures and lights). */
+export type PracticalField = 'on' | 'shape' | 'density' | 'length' | 'sag' | 'count'
+const PRACTICAL_SETTINGS = new Set(['on', 'stops', 'kelvin', 'color', 'shadows', 'height', 'size', 'shape', 'density', 'coneAngle', 'length', 'sag', 'count'])
 
 const CAMERA_FIELDS: CameraField[] = [
   'shotNumber',
@@ -135,8 +143,8 @@ const CAMERA_FIELDS: CameraField[] = [
 
 /** Which node types each patch field applies to (fields not listed apply to every node). */
 const FIELD_TYPES: Partial<Record<keyof NodePatch, SceneNode['type'][]>> = {
-  color: ['primitive', 'mannequin'],
-  height: ['mannequin'],
+  color: ['primitive', 'mannequin', 'practical'],
+  height: ['mannequin', 'practical'],
   build: ['mannequin'],
   limits: ['mannequin'],
   castId: ['mannequin'],
@@ -148,12 +156,18 @@ const FIELD_TYPES: Partial<Record<keyof NodePatch, SceneNode['type'][]>> = {
   plants: ['mannequin'],
   material: ['primitive'],
   lookAt: ['mannequin'],
-  propId: ['primitive', 'group'],
+  propId: ['primitive', 'group', 'practical'],
+  density: ['primitive', 'practical'],
+  on: ['practical'],
+  shape: ['practical'],
+  length: ['practical'],
+  sag: ['practical'],
+  count: ['practical'],
   scale: ['primitive', 'group'], // a figure's size comes from its height; cameras don't scale
   ...Object.fromEntries(CAMERA_FIELDS.map((f) => [f, ['camera']])),
-  ...Object.fromEntries(LIGHT_FIELDS.map((f) => [f, ['light']])),
+  ...Object.fromEntries(LIGHT_FIELDS.map((f) => [f, f === 'falloff' ? ['light'] : ['light', 'practical']])),
   // Shots describe their frame; figures, objects and groups describe themselves for regional prompts.
-  description: ['camera', 'primitive', 'group', 'mannequin']
+  description: ['camera', 'primitive', 'group', 'mannequin', 'practical']
 }
 
 /** Where a new camera comes from: the current view, plus optional settings to copy. */
@@ -165,6 +179,9 @@ export interface CameraSpawn {
 }
 
 function normalizeField(key: keyof NodePatch, value: unknown, node: SceneNode): unknown {
+  // A practical keeps each of its settings in its kind's range.
+  if (node.type === 'practical' && PRACTICAL_SETTINGS.has(key)) return cleanPractical({ ...node, [key]: value } as PracticalSettings)[key as keyof PracticalSettings]
+  if (key === 'density') return clampDensity(value)
   if (key === 'scale') return clampScale(value as Vec3)
   if (key === 'height') return clampHeight(value as number)
   if (key === 'build') return clampBuild(value as number)
@@ -259,6 +276,8 @@ interface DocumentState {
   addMannequin: (groundPoint?: [number, number], base?: number) => string
   /** Add a light 2.5 m above where it goes (see shared/placement.ts); sun and spot start aimed down and forward. */
   addLight: (kind: LightKind, groundPoint?: [number, number], base?: number) => string
+  /** Add a practical standing on (lamps) or hanging above (the rest) the spot at `base` height. */
+  addPractical: (kind: PracticalKind, preset?: 'table' | 'floor', groundPoint?: [number, number], base?: number) => string
   /** Set one joint's rotation (degrees); clamped to realistic limits if the figure has them on. */
   setJointRotation: (id: string, joint: JointName, rotation: Vec3) => void
   /** Pelvis shift from standing, as a fraction of the figure's height. */
@@ -405,6 +424,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
           color: DEFAULT_PRIMITIVE_COLOR,
           anchor: defaultAnchor(primitive),
           material: 'matte',
+          density: 0.5,
           propId: null,
           description: ''
         }
@@ -602,7 +622,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
         project.props = project.props.filter((p) => p.id !== id)
         for (const s of project.scenes) {
           for (const n of Object.values(s.nodes)) {
-            if ((n.type === 'primitive' || n.type === 'group') && n.propId === id) n.propId = null
+            if ((n.type === 'primitive' || n.type === 'group' || n.type === 'practical') && n.propId === id) n.propId = null
           }
         }
       })
@@ -759,6 +779,32 @@ export const useDocument = create<DocumentState>()((set, get) => {
           shadows: kind !== 'ambient',
           coneAngle: 40,
           falloff: 0.3
+        }
+        scene.nodes[id] = node
+        scene.rootIds.push(id)
+      })
+      return id
+    },
+
+    addPractical: (kind, preset, groundPoint = [0, 0], base = 0) => {
+      const id = newId()
+      change((scene) => {
+        const label = kind === 'lamp' ? (preset === 'floor' ? 'Floor lamp' : 'Table lamp') : PRACTICAL_LABELS[kind]
+        const node: PracticalNode = {
+          id,
+          type: 'practical',
+          kind,
+          ...practicalDefaults(kind, preset),
+          name: nextName(scene, label),
+          parentId: null,
+          position: [round(groundPoint[0]), round(base + practicalLift(kind)), round(groundPoint[1])],
+          // A flashlight starts aimed a little down (it shines down its -Z, like a spot).
+          rotation: kind === 'flashlight' ? rotationFromPanTiltRoll(0, -15, 0) : [0, 0, 0],
+          scale: [1, 1, 1],
+          hidden: false,
+          locked: false,
+          propId: null,
+          description: ''
         }
         scene.nodes[id] = node
         scene.rootIds.push(id)

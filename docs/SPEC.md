@@ -89,6 +89,8 @@ exports/
 ### 5.4 Lights
 - Directional, point, and spot lights with a simple clay-shaded viewport preview.
 - The key light direction is converted into a prompt phrase (e.g. "hard key light from camera left, backlit").
+- **Practicals** (M17): lights that live in the set, each one object with settings: table and floor lamps (hard pools above and below the shade, a soft glow through it), bare bulbs, flashlights and fairy lights. Built from ordinary sized lights and glowing parts, so Clay and the Render agree. An "on" practical in frame is named in the lighting phrase.
+- **Diffusion material** (M17): curtains, frosted glass, diffusion frames. Light passing through is dimmed by its density and tinted by its colour, and the far side glows. (Diffusion frames that turn a light into a big soft source come later.)
 
 ### 5.5 Render passes (from the active camera, at the output resolution)
 - **Depth**: normalized, near = white, far = black (ControlNet convention)
@@ -150,6 +152,7 @@ Build **one milestone at a time**. Each ends with the app running and a short "h
 | 14 | **Clay lighting** | Lights have a real size; Clay shadows soften with distance like real sources (sharp at contact), with ambient occlusion and ground bounce, in every clay picture. Added 2026-10-06. |
 | 15 | **App updates** | The installed app checks GitHub for a newer version on launch (can be turned off), shows what's new, downloads it in the background and installs it on "Restart and update" (Windows; the Mac gets a link). The only network use besides the AI engine download. Added 2026-10-06. |
 | 16 | **Path-traced Render** | A path-traced picture (true bounce light, shadows from each light's real size, lens blur through the aperture): a Render switch in camera view (Draft / Final), Render pictures on the Board, in exports and as shot thumbnails, saved in the project. Added 2026-10-07. |
+| 17 | **Practicals & diffusion** | Lamps, bare bulbs, flashlights and fairy lights as practicals in the set (one object each, with settings; their light follows their shape), and a Diffusion material (light through it dimmed and tinted, glowing from behind), matching in Clay and the Render. Added 2026-10-09. |
 
 ## 7. Known risks (think about these early)
 - **Reference bleed.** Masked IP-Adapters can leak one character's look onto another. Plan for per-reference weight and mask feathering controls.

@@ -2,6 +2,7 @@ import { MATERIALS, type Anchor, type MaterialKind, type SceneNode, type Vec3 } 
 import { sanitizeAppearance, sanitizeBody, sanitizeExpression, sanitizeHands, type BodySliders, type FigureAppearance, type Hands } from './humanBody'
 import { sanitizePose, type Pose } from './mannequin'
 import { sanitizeLookAt, sanitizePlants, type LookAt, type Plants } from './posing'
+import { SHADE_SHAPES, type ShadeShape } from './practicals'
 
 // Master scene + per-shot changes.
 //
@@ -32,7 +33,13 @@ export const OVERRIDABLE_FIELDS = [
   'size',
   'shadows',
   'coneAngle',
-  'falloff'
+  'falloff',
+  'density',
+  'on',
+  'shape',
+  'length',
+  'sag',
+  'count'
 ] as const
 export type OverridableField = (typeof OVERRIDABLE_FIELDS)[number]
 
@@ -60,6 +67,12 @@ export interface NodeOverride {
   shadows?: boolean
   coneAngle?: number
   falloff?: number
+  density?: number
+  on?: boolean
+  shape?: ShadeShape
+  length?: number
+  sag?: number
+  count?: number
 }
 
 export type ShotOverrides = Record<string, NodeOverride>
@@ -68,13 +81,15 @@ export type ShotOverrides = Record<string, NodeOverride>
 export function overridableFor(node: SceneNode): OverridableField[] {
   switch (node.type) {
     case 'primitive':
-      return ['position', 'rotation', 'scale', 'anchor', 'hidden', 'color', 'material']
+      return ['position', 'rotation', 'scale', 'anchor', 'hidden', 'color', 'material', 'density']
     case 'group':
       return ['position', 'rotation', 'scale', 'hidden']
     case 'mannequin':
       return ['position', 'rotation', 'hidden', 'color', 'pose', 'height', 'build', 'limits', 'body', 'appearance', 'expression', 'hands', 'plants', 'lookAt']
     case 'light':
       return ['position', 'rotation', 'hidden', 'stops', 'kelvin', 'size', 'shadows', 'coneAngle', 'falloff']
+    case 'practical':
+      return ['position', 'rotation', 'hidden', 'on', 'stops', 'kelvin', 'color', 'shadows', 'height', 'size', 'shape', 'density', 'coneAngle', 'length', 'sag', 'count']
     case 'camera':
       return []
   }
@@ -135,8 +150,8 @@ export function overriddenFields(overrides: ShotOverrides | undefined, id: strin
   return o ? (OVERRIDABLE_FIELDS.filter((f) => o[f] !== undefined) as OverridableField[]) : []
 }
 
-type NumberField = 'height' | 'build' | 'stops' | 'kelvin' | 'size' | 'coneAngle' | 'falloff'
-const NUMBER_FIELDS: string[] = ['height', 'build', 'stops', 'kelvin', 'size', 'coneAngle', 'falloff']
+type NumberField = 'height' | 'build' | 'stops' | 'kelvin' | 'size' | 'coneAngle' | 'falloff' | 'density' | 'length' | 'sag' | 'count'
+const NUMBER_FIELDS: string[] = ['height', 'build', 'stops', 'kelvin', 'size', 'coneAngle', 'falloff', 'density', 'length', 'sag', 'count']
 
 const isVec3 = (v: unknown): v is Vec3 =>
   Array.isArray(v) && v.length === 3 && v.every((n) => typeof n === 'number' && Number.isFinite(n))
@@ -154,7 +169,8 @@ export function sanitizeOverrides(raw: unknown, nodes: Record<string, SceneNode>
       const x = v[f]
       if (x === undefined) continue
       if ((f === 'position' || f === 'rotation' || f === 'scale') && isVec3(x)) o[f] = x
-      else if ((f === 'hidden' || f === 'limits' || f === 'shadows') && typeof x === 'boolean') o[f] = x
+      else if ((f === 'hidden' || f === 'limits' || f === 'shadows' || f === 'on') && typeof x === 'boolean') o[f] = x
+      else if (f === 'shape' && SHADE_SHAPES.includes(x as ShadeShape)) o.shape = x as ShadeShape
       else if (f === 'color' && typeof x === 'string') o.color = x
       else if (f === 'material' && MATERIALS.includes(x as MaterialKind)) o.material = x as MaterialKind
       else if (f === 'anchor' && (x === 'bottom' || x === 'center' || x === 'top')) o.anchor = x

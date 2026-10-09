@@ -3,6 +3,7 @@ import { cameraAngle, fieldOfView, opticsFor, shotSize, type CameraKit, type Sho
 import type { CameraNode, Scene, Vec3 } from '../../../shared/project'
 import { DEFAULT_ENVIRONMENT, fogPhrase, timePhrase } from '../../../shared/environment'
 import { describeLighting, type LightSample } from '../../../shared/lighting'
+import { practicalRig, practicalWords } from '../../../shared/practicals'
 
 // Live readouts for a shot camera, measured from the rendered 3D scene (so posed and grouped
 // figures are exact): camera height, tilt, roll, distance to the subject, and the shot-size /
@@ -196,6 +197,34 @@ export function computeShotInfo(scene: Scene, camera: CameraNode, kit: CameraKit
       falloff: n.falloff
     })
   }
+  // Practicals' lights count like any light; one switched on in frame is named ("practical table lamp").
+  const practicals: string[] = []
+  for (const n of Object.values(scene.nodes)) {
+    if (n.type !== 'practical' || n.hidden || !n.on) continue
+    const o = three.getObjectByName(n.id)
+    if (!o) continue
+    o.updateWorldMatrix(true, false)
+    const q = new Quaternion()
+    o.matrixWorld.decompose(new Vector3(), q, new Vector3())
+    for (const l of practicalRig(n).lights) {
+      samples.push({
+        id: n.id,
+        kind: l.kind,
+        position: new Vector3(...l.position).applyMatrix4(o.matrixWorld).toArray() as Vec3,
+        direction: new Vector3(...l.direction).applyQuaternion(q).toArray() as Vec3,
+        stops: n.stops + Math.log2(Math.max(l.share, 1e-6)),
+        kelvin: n.kelvin,
+        size: l.size,
+        coneAngle: l.coneAngle,
+        falloff: l.falloff
+      })
+    }
+    const at = new Vector3().setFromMatrixPosition(o.matrixWorld).applyMatrix4(toCamera)
+    const depth = -at.z
+    const inFrame = depth > 0.05 && Math.abs(at.x) <= depth * tanH && Math.abs(at.y) <= depth * tanV
+    const words = practicalWords(n)
+    if (inFrame && !practicals.includes(words)) practicals.push(words)
+  }
   const fromLights = describeLighting(samples, measureAt.toArray() as Vec3, {
     forward: forward.toArray() as Vec3,
     right: right.toArray() as Vec3
@@ -203,7 +232,7 @@ export function computeShotInfo(scene: Scene, camera: CameraNode, kit: CameraKit
   // The time of day comes first ("At sunset, warm golden-hour light, soft key light from…").
   const env = camera.environment ?? scene.environment ?? DEFAULT_ENVIRONMENT
   const time = timePhrase(env.time)
-  const lighting = [time.charAt(0).toUpperCase() + time.slice(1), fogPhrase(env.fog ?? 0), fromLights.charAt(0).toLowerCase() + fromLights.slice(1)]
+  const lighting = [time.charAt(0).toUpperCase() + time.slice(1), fogPhrase(env.fog ?? 0), fromLights.charAt(0).toLowerCase() + fromLights.slice(1), practicals.join(', ')]
     .filter(Boolean)
     .join(', ')
 

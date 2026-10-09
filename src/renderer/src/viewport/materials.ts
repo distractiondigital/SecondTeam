@@ -22,10 +22,22 @@ export const MATERIAL_LOOKS: Record<MaterialKind, MaterialLook> = {
   glossy: { roughness: 0.25, metalness: 0, opacity: 1, glow: 0, castShadow: true, reflect: 0.5 },
   metal: { roughness: 0.3, metalness: 1, opacity: 1, glow: 0, castShadow: true, reflect: 1 },
   glass: { roughness: 0.05, metalness: 0, opacity: 0.35, glow: 0, castShadow: false, reflect: 0.8 },
-  glowing: { roughness: 0.6, metalness: 0, opacity: 1, glow: 1, castShadow: false, reflect: 0 }
+  glowing: { roughness: 0.6, metalness: 0, opacity: 1, glow: 1, castShadow: false, reflect: 0 },
+  // Curtains, frosted glass, diffusion: light gets through, dimmed by its density (a partial shadow,
+  // see diffusionShadow in SceneNodes) and glowing on the far side (softShadows.ts ST_TRANSLUCENT).
+  diffusion: { roughness: 0.95, metalness: 0, opacity: 1, glow: 0, castShadow: true, reflect: 0 }
 }
 
-export const MATERIAL_LABELS: Record<MaterialKind, string> = { matte: 'Matte', glossy: 'Glossy', metal: 'Metal', glass: 'Glass', glowing: 'Glow' }
+export const MATERIAL_LABELS: Record<MaterialKind, string> = { matte: 'Matte', glossy: 'Glossy', metal: 'Metal', glass: 'Glass', glowing: 'Glow', diffusion: 'Diffusion' }
+
+/** Diffusion densities to start from (how much light is held back). */
+export const DENSITY_PRESETS = [
+  { label: 'Sheer curtain', density: 0.15 },
+  { label: '¼ grid', density: 0.3 },
+  { label: '½ grid', density: 0.5 },
+  { label: 'Full grid', density: 0.7 },
+  { label: 'Heavy', density: 0.85 }
+]
 
 const studios = new WeakMap<WebGLRenderer, Texture>()
 

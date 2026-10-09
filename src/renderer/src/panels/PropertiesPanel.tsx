@@ -1,5 +1,5 @@
 import { MATERIALS, MIN_SCALE, type Anchor, type SceneNode, type Vec3 } from '../../../shared/project'
-import { MATERIAL_LABELS } from '../viewport/materials'
+import { DENSITY_PRESETS, MATERIAL_LABELS } from '../viewport/materials'
 import { PRIMITIVES, supportsAnchor } from '../../../shared/primitives'
 import { deleteSelected, groupSelected, ungroupSelected } from '../state/actions'
 import { activeScene, editedNodes, useDocument } from '../state/documentStore'
@@ -8,7 +8,8 @@ import CameraProperties from './CameraProperties'
 import { EntityProperties, LinkSection } from './CastProps'
 import LightProperties from './LightProperties'
 import OverrideBar from './OverrideBar'
-import { FigureSection, JointProperties } from './FigureProperties'
+import { FigureSection, GestureSlider, JointProperties } from './FigureProperties'
+import PracticalProperties from './PracticalProperties'
 import NumberField, { type NumberKind } from './NumberField'
 
 const AXES = ['X', 'Y', 'Z'] as const
@@ -174,6 +175,25 @@ function NodeProperties({ node }: { node: SceneNode }) {
               ))}
             </div>
           )}
+          {node.type === 'primitive' && node.material === 'diffusion' && (
+            <>
+              <div className="prop-title prop-title-spaced" title="How much of the light passing through it is held back; the rest gets through and shows on the far side">
+                Density · {Math.round(node.density * 100)}%
+              </div>
+              <div className="slider-row">
+                <span className="slider-end">Sheer</span>
+                <GestureSlider value={node.density} min={0} max={1} step={0.01} disabled={disabled} onChange={(density) => update(node.id, { density })} />
+                <span className="slider-end">Heavy</span>
+              </div>
+              <div className="kelvin-presets">
+                {DENSITY_PRESETS.map((p) => (
+                  <button key={p.label} className={Math.abs(node.density - p.density) < 0.005 ? 'active' : ''} disabled={disabled} onClick={() => update(node.id, { density: p.density })}>
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       )}
 
@@ -233,6 +253,18 @@ export default function PropertiesPanel() {
         <div className="panel-body">
           <OverrideBar id={single.id} />
           <LightProperties node={single} />
+        </div>
+      </aside>
+    )
+  }
+
+  if (single?.type === 'practical') {
+    return (
+      <aside className="panel properties">
+        <div className="panel-header">Practical</div>
+        <div className="panel-body">
+          <OverrideBar id={single.id} />
+          <PracticalProperties node={single} />
         </div>
       </aside>
     )

@@ -2,9 +2,11 @@ import {
   BoxGeometry,
   Color,
   DataTexture,
+  DoubleSide,
   EquirectangularReflectionMapping,
   HemisphereLight,
   Mesh,
+  MeshPhysicalMaterial,
   MeshStandardMaterial,
   Scene,
   HalfFloatType,
@@ -81,7 +83,19 @@ const VERTEX = /* glsl */ `
 // in jagged patches. Fixed as in "Hacking the shadow terminator" (Hanika, 2021): light counts by the
 // smooth normal, and shadow rays start from where the smooth surface would be (the hit point pushed
 // out of each corner's tangent plane, blended by position on the triangle).
+/** The most any one bounced-light sample may add (see stCapBounce). */
+const BOUNCE_CAP = '10.0'
+
 const TERMINATOR_FUNCTION = /* glsl */ `
+	// Bounced light, capped: with small bright lights close by (a lamp over a table), a few rare
+	// bounce paths carry huge values and show as sparkles that take thousands of samples to settle.
+	// Any one bounce sample is held to ${BOUNCE_CAP} (about 4× a white surface under a standard key), as
+	// renderers' "clamp indirect" does. Light straight from the lights to what the camera sees is untouched.
+	vec3 stCapBounce( vec3 c, bool direct ) {
+		float m = max( c.r, max( c.g, c.b ) );
+		return direct || m <= ${BOUNCE_CAP} ? c : c * ( ${BOUNCE_CAP} / m );
+	}
+
 	vec3 stSmoothPoint( SurfaceHit h, vec3 p ) {
 		vec3 b = h.barycoord;
 		vec3 q = p;
@@ -106,6 +120,15 @@ const PASS_THROUGH_FUNCTION = /* glsl */ `
 		return point + rayDirection * ( maxPoint + 1.0 ) * 1e-6;
 	}
 `
+
+/**
+ * Marks a practical's glowing parts for the shader (see patchTerminator): carried in a material
+ * setting none of ours use (the top of an iridescence thickness range), set only while the path
+ * tracer reads the scene.
+ */
+const GLOW_ONLY = -7
+/** Marks a Diffusion object's stand-in material the same way. */
+const DIFFUSION = -8
 
 /** Patch the path tracer's shader: the shadow terminator (see above) and finer ray restarts. Throws if the library's code changed. */
 function patchTerminator(source: string): string {
@@ -134,6 +157,28 @@ function patchTerminator(source: string): string {
 	// to the edges only, not to the distance: it also accepted surfaces up to 0.01 mm *behind* a
 	// ray's start, so a ray restarted just past a card found that same card again.
 	s = swap(s, 'uvt += vec4( TRI_INTERSECT_EPSILON );', 'uvt.xyw += vec3( TRI_INTERSECT_EPSILON );')
+	// A practical's glowing parts (a lamp shade, a bulb, a lens: GLOW_ONLY below) are seen, but don't
+	// light the set themselves: the practical's own lights already carry that light, so it would
+	// count twice. Their emission only counts for rays from the camera.
+	s = swap(
+		s,
+		'gl_FragColor.rgb += ( surf.emission * state.throughputColor );',
+		`if ( material.iridescenceThicknessMaximum != ${GLOW_ONLY.toFixed(1)} || state.firstRay ) gl_FragColor.rgb += ( surf.emission * state.throughputColor );`
+	)
+	// …and light bouncing around the set passes through them: they stand for the practical, whose
+	// lights already give its light. (Otherwise the inside of a shade, a few centimetres from the
+	// bulb, is so bright that every stray bounce landing there becomes a sparkle.)
+	s = swap(
+		s,
+		"// if we've determined that this is a shadow ray and we've hit an item with no shadow casting",
+		`if ( material.iridescenceThicknessMaximum == ${GLOW_ONLY.toFixed(1)} && ! state.firstRay ) {
+							i -= sign( state.transmissiveTraversals );
+							state.transmissiveTraversals -= sign( state.transmissiveTraversals );
+							ray.origin = stPassThrough( ray.origin, ray.direction, surfaceHit.dist );
+							continue;
+						}
+						// if we've determined that this is a shadow ray and we've hit an item with no shadow casting`
+	)
 	// Light counts when it's above the smooth surface (not the flat triangle).
 	s = swap(s, 'dot( surf.faceNormal, lightRec.direction ) < 0.0', 'dot( surf.normal, lightRec.direction ) < 0.0')
 	s = swap(s, 'dot( surf.faceNormal, envDirection ) < 0.0', 'dot( surf.normal, envDirection ) < 0.0')
@@ -149,8 +194,33 @@ function patchTerminator(source: string): string {
 							vec3 smoothPoint = stSmoothPoint( surfaceHit, ray.origin + ray.direction * surfaceHit.dist );
 							shadowOrigin = stepRayOrigin( smoothPoint, ray.direction, surf.faceNormal, 0.0 );
 						}
-						gl_FragColor.rgb += directLightContribution( - ray.direction, surf, state, shadowOrigin );`
+						gl_FragColor.rgb += stCapBounce( directLightContribution( - ray.direction, surf, state, shadowOrigin ), state.firstRay );`
 	)
+	// A Diffusion sheet (DIFFUSION below) also shows the light that reaches its back: direct light
+	// from behind it, through it, the share it lets through, as if its back were a matte surface (like
+	// Clay's glow from behind). The path tracer on its own only finds that light by rare random rays.
+	s = swap(
+		s,
+		'gl_FragColor.rgb += stCapBounce( directLightContribution( - ray.direction, surf, state, shadowOrigin ), state.firstRay );',
+		`gl_FragColor.rgb += stCapBounce( directLightContribution( - ray.direction, surf, state, shadowOrigin ), state.firstRay );
+						if ( material.iridescenceThicknessMaximum == ${DIFFUSION.toFixed(1)} && ! surf.volumeParticle ) {
+							SurfaceRecord stBack = surf;
+							stBack.normal = - surf.normal;
+							stBack.faceNormal = - surf.faceNormal;
+							stBack.clearcoatNormal = - surf.clearcoatNormal;
+							stBack.normalBasis = getBasisFromNormal( stBack.normal );
+							stBack.normalInvBasis = inverse( stBack.normalBasis );
+							stBack.clearcoatBasis = getBasisFromNormal( stBack.clearcoatNormal );
+							stBack.clearcoatInvBasis = inverse( stBack.clearcoatBasis );
+							stBack.color = surf.color * surf.transmission;
+							stBack.transmission = 0.0;
+							stBack.metalness = 0.0;
+							vec3 stBackOrigin = stPassThrough( ray.origin, ray.direction, surfaceHit.dist );
+							gl_FragColor.rgb += stCapBounce( directLightContribution( reflect( - ray.direction, surf.normal ), stBack, state, stBackOrigin ), state.firstRay );
+						}`
+	)
+	// Bounced light hitting a light (bounces only: the camera never gets here).
+	s = swap(s, 'gl_FragColor.rgb += lightRec.emission * state.throughputColor * misWeight;', 'gl_FragColor.rgb += stCapBounce( lightRec.emission * state.throughputColor * misWeight, false );')
 	return s
 }
 
@@ -302,6 +372,41 @@ export class PathTrace {
     this.environment?.dispose()
     this.environment = skyEnvironment(skyColor, groundColor)
 
+    // Practicals' glowing parts: seen, not lighting (GLOW_ONLY). Diffusion objects: light passes
+    // through them, dimmed by their density and tinted (a rough, thin see-through stand-in material,
+    // like Clay's partial shadow and glow from behind).
+    scene.traverseVisible((o) => {
+      const mesh = o as Mesh
+      if (!mesh.isMesh || Array.isArray(mesh.material)) return
+      const m = mesh.material as Material & { iridescenceThicknessRange?: [number, number]; color?: Color }
+      if (m.userData?.glowOnly) {
+        // Also see-through to light: a shade or bulb never blocks its own lights inside it.
+        // And it shows only its glow: lit by its own light from a few centimetres inside it, its surface
+        // would take thousands of samples to settle (Clay's matching look is its glow too).
+        const g = m as typeof m & { castShadow?: boolean }
+        const before = m.iridescenceThicknessRange
+        const color = m.color?.clone()
+        m.iridescenceThicknessRange = [100, GLOW_ONLY]
+        g.castShadow = false
+        m.color?.setRGB(0, 0, 0)
+        restore.push(() => {
+          if (before) m.iridescenceThicknessRange = before
+          else delete m.iridescenceThicknessRange
+          delete g.castShadow
+          if (color) m.color?.copy(color)
+        })
+      }
+      if (typeof mesh.userData.diffusion === 'number') {
+        // (A thin sheet (thickness 0), rough, with glass's bend: light through it scatters every way, like fabric.)
+        const stand = new MeshPhysicalMaterial({ color: m.color ?? new Color(1, 1, 1), roughness: 1, metalness: 0, transmission: 1 - mesh.userData.diffusion, ior: 1.5, thickness: 0, side: DoubleSide })
+        stand.iridescenceThicknessRange = [100, DIFFUSION]
+        mesh.material = stand
+        restore.push(() => {
+          mesh.material = m
+          stand.dispose()
+        })
+      }
+    })
     // Cut-out cards (hair, eyebrows): their masks are fine strands made for blending. A hard cut-off
     // at full sharpness drops most strands at the hairline and leaves dark fragments; partial
     // coverage instead (each sample passes in proportion to the mask) gives soft, natural edges.

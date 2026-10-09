@@ -604,6 +604,70 @@ describe('lights', () => {
   })
 })
 
+describe('practicals and diffusion', () => {
+  const practical = (id: string, shotId: string | null = null) => {
+    const n = sceneForShot(doc(), shotId)[id]
+    if (n.type !== 'practical') throw new Error('not a practical')
+    return n
+  }
+
+  it('adds lamps on the surface and the rest hanging above it, with their kind’s settings', () => {
+    const lamp = doc().addPractical('lamp', 'floor', [1, 2], 0.75)
+    expect(practical(lamp).name).toBe('Floor lamp 1')
+    expect(practical(lamp).position).toEqual([1, 0.75, 2])
+    expect(practical(lamp).height).toBe(1.6)
+    const bulb = doc().addPractical('bulb', undefined, [0, 0], 0)
+    expect(practical(bulb).position[1]).toBe(2.3)
+    expect(practical(bulb).on).toBe(true)
+  })
+
+  it('keeps settings in their kind’s range, as one undo step each', () => {
+    const lamp = doc().addPractical('lamp', 'table')
+    doc().updateNode(lamp, { size: 9, density: -1, stops: 20, count: 1000 })
+    expect(practical(lamp).size).toBe(1.2)
+    expect(practical(lamp).density).toBe(0)
+    expect(practical(lamp).stops).toBe(6)
+    doc().undo()
+    expect(practical(lamp).size).toBe(0.35)
+  })
+
+  it('can be switched off in one shot only', () => {
+    const lamp = doc().addPractical('lamp', 'table')
+    const shot = doc().addCamera({ position: [0, 1.6, 4], rotation: [0, 0, 0] })
+    doc().setActiveShot(shot)
+    doc().updateNode(lamp, { on: false, kelvin: 2000 })
+    expect(practical(lamp, shot).on).toBe(false)
+    expect(practical(lamp, shot).kelvin).toBe(2000)
+    expect(practical(lamp).on).toBe(true)
+  })
+
+  it('saves and loads practicals, with their per-shot changes', () => {
+    const fairy = doc().addPractical('fairy')
+    doc().updateNode(fairy, { length: 5, sag: 0.4, count: 50 })
+    const shot = doc().addCamera({ position: [0, 1.6, 4], rotation: [0, 0, 0] })
+    doc().setActiveShot(shot)
+    doc().updateNode(fairy, { on: false })
+    const loaded = parseProject(serializeProject(doc().project))
+    expect(loaded).toEqual(doc().project)
+    expect(loaded.schemaVersion).toBe(SCHEMA_VERSION)
+  })
+
+  it('gives objects a diffusion density (half by default, older files too)', () => {
+    const scrim = doc().addPrimitive('plane')
+    const fresh = scene().nodes[scrim]
+    expect(fresh.type === 'primitive' && fresh.density).toBe(0.5)
+    doc().updateNode(scrim, { material: 'diffusion', density: 2 })
+    const n = scene().nodes[scrim]
+    expect(n.type === 'primitive' && n.material).toBe('diffusion')
+    expect(n.type === 'primitive' && n.density).toBe(1)
+    const raw = JSON.parse(serializeProject(doc().project))
+    raw.schemaVersion = 16
+    delete raw.scenes[0].nodes[scrim].density
+    const old = parseProject(JSON.stringify(raw)).scenes[0].nodes[scrim]
+    expect(old.type === 'primitive' && old.density).toBe(0.5)
+  })
+})
+
 describe('generation settings', () => {
   it('keeps settings in range as one undo step each, and saves them', () => {
     doc().updateGeneration({ takes: 20, steps: 0 })

@@ -1,4 +1,4 @@
-import { DoubleSide, FrontSide, ShaderChunk, ShaderLib, type Light, type Material, type Mesh, type Object3D } from 'three'
+import { DoubleSide, FrontSide, MeshDepthMaterial, MeshDistanceMaterial, ShaderChunk, ShaderLib, type Light, type Material, type Mesh, type Object3D } from 'three'
 
 // Soft shadows that behave like a real light of a given size: percentage-closer soft shadows
 // (PCSS; Fernando, NVIDIA 2005). For each point in shadow, first find how far away whatever casts
@@ -278,6 +278,9 @@ const SIZE_UNIFORMS = {
 }
 
 const SOFT_LIGHT_PARS = /* glsl */ `
+#ifdef ST_TRANSLUCENT
+uniform float stTransmission; // a Diffusion material: how much of the light reaching its back gets through
+#endif
 uniform float stDirSin[ ${MAX_LIGHTS} ];
 uniform float stPointRadius[ ${MAX_LIGHTS} ];
 uniform float stSpotRadius[ ${MAX_LIGHTS} ];
@@ -355,9 +358,73 @@ function installSoftLights(): void {
     highlight,
     'reflectedLight.directSpecular += saturate( dot( geometryNormal, directLight.direction ) ) * directLight.color * specularBRDF * material.multiScatteringCompensation;'
   )
+  // A Diffusion material (curtains, frosted glass) reflects only the share of light it holds back,
+  // and glows on the side away from a light with the share that gets through (translucentMaterial
+  // below; the Render does the same, pathTrace.ts DIFFUSION).
+  const diffuse = 'reflectedLight.directDiffuse += irradiance * BRDF_Lambert( material.diffuseContribution ) * ( 1.0 - F );'
+  if (!pars.includes(diffuse)) throw new Error("softLights: can't find RE_Direct_Physical's diffuse sum")
+  pars = pars.replace(
+    diffuse,
+    `#ifdef ST_TRANSLUCENT
+	reflectedLight.directDiffuse += irradiance * BRDF_Lambert( material.diffuseContribution ) * ( 1.0 - F ) * ( 1.0 - stTransmission );
+	#else
+	${diffuse}
+	#endif
+	#ifdef ST_TRANSLUCENT
+	reflectedLight.directDiffuse += saturate( - dot( geometryNormal, directLight.direction ) ) * directLight.color * stTransmission * BRDF_Lambert( material.diffuseContribution );
+	#endif`
+  )
   ShaderChunk.lights_physical_pars_fragment = SOFT_LIGHT_PARS + pars
   for (const lib of [ShaderLib.standard, ShaderLib.physical]) Object.assign(lib.uniforms, SIZE_UNIFORMS)
 }
+
+/**
+ * Make a standard material a Diffusion one: light reaching its back shows through on the front,
+ * `transmission` (0–1) of it. The value is a uniform, so changing it doesn't rebuild the shader.
+ */
+export function translucentMaterial(material: Material, transmission: { value: number }): void {
+  const m = material as Material & { defines?: Record<string, string> }
+  m.defines = { ...(m.defines ?? {}), ST_TRANSLUCENT: '' }
+  const before = m.onBeforeCompile
+  m.onBeforeCompile = (shader, renderer) => {
+    before?.call(m, shader, renderer)
+    shader.uniforms.stTransmission = transmission
+  }
+  m.needsUpdate = true
+}
+
+/**
+ * A Diffusion object's shadow: it holds back `density` of the light passing through. Shadow maps
+ * can only block or not, so the caster is drawn with holes in that proportion, in a regular 4×4
+ * pattern aligned to the shadow map's own pixels (an ordered dither): even the narrowest shadow
+ * blur covers a few of them and averages them into an even partial shadow (random holes showed as
+ * grain under a small source like the sun). Two materials: for suns and spots (depth) and for
+ * point lights (distance).
+ */
+export function partialShadowMaterials(density: { value: number }): { depth: MeshDepthMaterial; distance: MeshDistanceMaterial } {
+  const dither = (shader: { uniforms: Record<string, { value: unknown }>; fragmentShader: string }) => {
+    shader.uniforms.stDensity = density
+    shader.fragmentShader = shader.fragmentShader.replace('void main() {', `${DITHER}
+void main() {
+	if ( stBayer4( gl_FragCoord.xy ) >= stDensity ) discard;`)
+  }
+  const depth = new MeshDepthMaterial()
+  depth.onBeforeCompile = dither
+  const distance = new MeshDistanceMaterial()
+  distance.onBeforeCompile = dither
+  return { depth, distance }
+}
+
+const DITHER = /* glsl */ `
+uniform float stDensity;
+// The 4×4 Bayer threshold (0 … 15/16, plus half a step) of this pixel.
+float stBayer4( vec2 p ) {
+	ivec2 q = ivec2( mod( floor( p ), 4.0 ) );
+	int i = q.x + q.y * 4;
+	int b[ 16 ] = int[ 16 ]( 0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5 );
+	return ( float( b[ i ] ) + 0.5 ) / 16.0;
+}
+`
 
 const typeOrder = (l: Light) => ((l.castShadow ? 2 : 0) + ((l as { map?: unknown }).map ? 1 : 0))
 

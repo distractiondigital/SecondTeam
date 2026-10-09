@@ -191,7 +191,7 @@ function round(v: number): number {
   return Math.round(v * 100) / 100
 }
 
-const MATERIAL_WORDS: Record<MaterialKind, string> = { matte: '', glossy: 'glossy', metal: 'metal', glass: 'glass', glowing: 'glowing' }
+const MATERIAL_WORDS: Record<MaterialKind, string> = { matte: '', glossy: 'glossy', metal: 'metal', glass: 'glass', glowing: 'glowing', diffusion: 'translucent' }
 
 /**
  * The material words for a described object or group (as the shot sees it): its own material, or

@@ -653,7 +653,12 @@ export function prepareOcclusion(scene: Object3D): void {
         attached.add(m)
         const standard = m as MeshStandardMaterial
         standard.defines = { ...standard.defines, ST_AO: '' }
-        standard.onBeforeCompile = attachScreenAo
+        // (Added to any hook it already has: a Diffusion material's, softShadows.ts translucentMaterial.)
+        const before = standard.onBeforeCompile
+        standard.onBeforeCompile = (shader, renderer) => {
+          before.call(standard, shader, renderer)
+          attachScreenAo(shader)
+        }
         standard.needsUpdate = true
       }
     }

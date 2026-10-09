@@ -53,6 +53,32 @@ function circle(radius: number, axis: 'x' | 'y' | 'z'): BufferGeometry {
   return lines(pts)
 }
 
+/**
+ * A light's soft-shadow settings (softShadows.ts): its source size for the area-light shading, and
+ * the shadow's blur from that size. Shared with practicals (PracticalView), so they match exactly.
+ * `size`: degrees for the sun, else the source's diameter (m).
+ */
+export function lightShadowProps(kind: 'sun' | 'spot' | 'point', size: number, coneAngle: number, castShadow: boolean) {
+  const halfCone = MathUtils.degToRad(coneAngle / 2)
+  const shadowRadius =
+    kind === 'sun'
+      ? ((SUN_FAR - SUN_NEAR) * Math.tan(MathUtils.degToRad(size))) / (2 * SUN_SHADOW_HALF)
+      : kind === 'spot'
+        ? -size / (2 * Math.tan(Math.min(halfCone, MathUtils.degToRad(80))))
+        : size
+  return {
+    // For the soft-light shading: the sun's angular radius as a sine, a lamp's radius.
+    userData: { sourceSize: kind === 'sun' ? Math.sin(MathUtils.degToRad(size / 2)) : size / 2 },
+    castShadow,
+    // Shadows are cast by front faces (castFromFrontFaces), so a lit surface is its own caster: a
+    // small offset along its (smooth) normal keeps it from shadowing itself, without opening gaps
+    // where objects meet the floor.
+    'shadow-bias': kind === 'sun' ? -0.00008 : -0.00015,
+    'shadow-normalBias': kind === 'sun' ? 0.015 : 0.01,
+    'shadow-radius': shadowRadius
+  }
+}
+
 const SUN_ARROW = lines([0, 0, 0, 0, 0, -0.7, 0, 0, -0.7, 0.06, 0, -0.58, 0, 0, -0.7, -0.06, 0, -0.58])
 
 interface Props {
@@ -72,14 +98,6 @@ export default function LightView({ node, selected, clickable, lit, passive }: P
   const color = useMemo(() => new Color(...kelvinToRgb(node.kelvin)), [node.kelvin])
   const iconColor = selected ? SELECTION_COLOR : '#' + color.getHexString()
   const intensity = threeIntensity(node.kind, node.stops)
-  // Soft shadows from the light's real size (softShadows.ts reads it from shadow.radius).
-  const halfCone = MathUtils.degToRad(node.coneAngle / 2)
-  const shadowRadius =
-    node.kind === 'sun'
-      ? ((SUN_FAR - SUN_NEAR) * Math.tan(MathUtils.degToRad(node.size))) / (2 * SUN_SHADOW_HALF)
-      : node.kind === 'spot'
-        ? -node.size / (2 * Math.tan(Math.min(halfCone, MathUtils.degToRad(80))))
-        : node.size
   const cone = useMemo(() => coneOutline(node.coneAngle, 0.8), [node.coneAngle])
   // The source's real size, shown while selected: a disc for a spot, a sphere outline for a bulb.
   const sizeOutline = useMemo(() => {
@@ -93,18 +111,8 @@ export default function LightView({ node, selected, clickable, lit, passive }: P
     onClick: clickable ? (e: ThreeEvent<MouseEvent>) => handleNodeClick(e, node.id) : undefined,
     onDoubleClick: clickable ? (e: ThreeEvent<MouseEvent>) => handleNodeDoubleClick(e, node.id) : undefined
   }
-  // For the soft-light shading (softShadows.ts): the sun's angular radius as a sine, a lamp's radius.
-  const source = { sourceSize: node.kind === 'sun' ? Math.sin(MathUtils.degToRad(node.size / 2)) : node.size / 2 }
-  const shadow = {
-    userData: source,
-    castShadow: node.shadows,
-    // Shadows are cast by front faces (castFromFrontFaces), so a lit surface is its own caster: a
-    // small offset along its (smooth) normal keeps it from shadowing itself, without opening gaps
-    // where objects meet the floor.
-    'shadow-bias': node.kind === 'sun' ? -0.00008 : -0.00015,
-    'shadow-normalBias': node.kind === 'sun' ? 0.015 : 0.01,
-    'shadow-radius': shadowRadius
-  }
+  // Soft shadows from the light's real size (softShadows.ts reads it from shadow.radius).
+  const shadow = lightShadowProps(node.kind === 'ambient' ? 'point' : node.kind, node.size, node.coneAngle, node.shadows)
 
   return (
     <>

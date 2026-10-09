@@ -31,6 +31,7 @@ import { LIGHT_ICONS } from './lightIcons'
 import { useDocument } from '../state/documentStore'
 import { newProject, openProject, saveProject, saveProjectAs } from '../state/projectIO'
 import { RecentMenu } from './RecentProjects'
+import PracticalMenu from './PracticalMenu'
 import { useUi, type GizmoMode, type SnapMode } from '../state/uiStore'
 import type { Units } from '../units'
 import { CTRL } from '../platform'
@@ -159,6 +160,7 @@ export default function Toolbar({ boardOnly = false }: { boardOnly?: boolean }) 
                 showLabel={false}
               />
             ))}
+            <PracticalMenu />
           </Group>
 
           <Group label="View">
