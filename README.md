@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/screenshot.png" alt="Second Team: a café terrace set at golden hour, with three shots in the shot list and the 85mm close-up in the shot window">
+  <img src="docs/images/screenshot.png" alt="Second Team: a café terrace set with four shots in the shot list, the camera bodies placed in the set, a 75mm close-up in the shot window and the camera's lens, focus and lighting in Properties">
 </p>
 
 ---
