@@ -1,6 +1,6 @@
 # Second Team: progress
 
-Current version: **0.2.0 beta** (October 2026). The plan is in [SPEC.md](SPEC.md).
+Current version: **0.3.0 beta** (October 2026). The plan is in [SPEC.md](SPEC.md).
 
 ## Milestones
 
