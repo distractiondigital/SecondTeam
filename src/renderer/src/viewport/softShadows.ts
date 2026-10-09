@@ -316,7 +316,9 @@ function installSoftLights(): void {
   let begin = ShaderChunk.lights_fragment_begin
   const after = (s: string, marker: string, insert: string) => {
     if (!s.includes(marker)) throw new Error(`softLights: can't find ${marker}`)
-    return s.replace(marker, `${marker}\n\t\t${insert}`)
+    // (Only in standard/physical materials, where the soft-light code lives: three's own helper
+    // scenes, e.g. the RoomEnvironment studio made for shiny materials, use Lambert with lights.)
+    return s.replace(marker, `${marker}\n#ifdef STANDARD\n\t\t${insert}\n#endif`)
   }
   begin = after(begin, 'getPointLightInfo( pointLight, geometryPosition, directLight );', 'stSinSigma = stLampSin( stPointRadius[ i ], pointLight.position - geometryPosition );')
   begin = after(begin, 'getSpotLightInfo( spotLight, geometryPosition, directLight );', 'stSinSigma = stLampSin( stSpotRadius[ i ], spotLight.position - geometryPosition ); stLampR = stSpotRadius[ i ];')
@@ -328,7 +330,7 @@ function installSoftLights(): void {
     const plane = coord
       ? `stReceiverPlane( ${coord[0]}, ${coord[1] === 'vSpotLightCoord'}, geometryPosition, directLight.direction, geometryNormal );`
       : 'stPlaneOk = false;'
-    return `stCosL = dot( geometryNormal, directLight.direction );\n\t\t${plane}\n\t\tdirectLight.color *= ( directLight.visible && receiveShadow ) ? stShadowBlend( stCosL, ${shadow} ) : 1.0;`
+    return `stCosL = dot( geometryNormal, directLight.direction );\n\t\t${plane}\n#ifdef STANDARD\n\t\tdirectLight.color *= ( directLight.visible && receiveShadow ) ? stShadowBlend( stCosL, ${shadow} ) : 1.0;\n#else\n\t\tdirectLight.color *= ( directLight.visible && receiveShadow ) ? ${shadow} : 1.0;\n#endif`
   })
   ShaderChunk.lights_fragment_begin = begin
   // The surface's facing to the current light and a spot's radius, for the shadow filter's tilt.
