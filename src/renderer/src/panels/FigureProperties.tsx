@@ -585,6 +585,9 @@ export function JointProperties({ node, joint }: { node: MannequinNode; joint: J
   const rotation = node.pose.joints[joint]
   const limit = node.limits ? jointLimit(joint) : null
   const height = proportions(node.height, node.build).height
+  // Worked out by a planted hand/foot: its own numbers would have no effect.
+  const driven = drivenJoints(node.plants, false).has(joint)
+  const plantedEnd = driven && Boolean(node.plants[joint as keyof typeof node.plants])
 
   return (
     <>
@@ -593,40 +596,44 @@ export function JointProperties({ node, joint }: { node: MannequinNode; joint: J
           <ArrowLeft size={14} /> {node.name}
         </button>
         <div className="joint-name">{JOINTS[joint].label}</div>
-        {drivenJoints(node.plants, false).has(joint) && (
-          <p className="hint small">Part of a planted limb: drag the hand or foot (W), or Release it in the figure's properties.</p>
+        {plantedEnd ? (
+          <p className="hint small">Planted: turn it with the rings (E), drag it to another spot (W), or Release it in the figure's properties.</p>
+        ) : (
+          driven && <p className="hint small">Part of a planted limb: drag the hand or foot (W), or Release it in the figure's properties.</p>
         )}
         {node.lookAt && (joint === 'head' || joint === 'neck') && (
           <p className="hint small">Following Look at: turn Look at off in the figure's properties to pose it by hand.</p>
         )}
       </div>
 
-      <div className="prop-section">
-        <div className="prop-title" title="X bends forward/back, Y twists, Z swings to the side">
-          Rotation
+      {!driven && (
+        <div className="prop-section">
+          <div className="prop-title" title="X bends forward/back, Y twists, Z swings to the side">
+            Rotation
+          </div>
+          <div className="vec3-row">
+            {rotation.map((v, i) => (
+              <NumberField
+                key={i}
+                label={['X', 'Y', 'Z'][i]}
+                value={v}
+                kind="angle"
+                disabled={disabled}
+                onCommit={(value) => {
+                  const next = [...rotation] as Vec3
+                  next[i] = value
+                  doc.setJointRotation(node.id, joint, next)
+                }}
+              />
+            ))}
+          </div>
+          {limit && (
+            <p className="hint small">
+              Range: X {limit.x[0]}…{limit.x[1]}°, Y {limit.y[0]}…{limit.y[1]}°, Z {limit.z[0]}…{limit.z[1]}°
+            </p>
+          )}
         </div>
-        <div className="vec3-row">
-          {rotation.map((v, i) => (
-            <NumberField
-              key={i}
-              label={['X', 'Y', 'Z'][i]}
-              value={v}
-              kind="angle"
-              disabled={disabled}
-              onCommit={(value) => {
-                const next = [...rotation] as Vec3
-                next[i] = value
-                doc.setJointRotation(node.id, joint, next)
-              }}
-            />
-          ))}
-        </div>
-        {limit && (
-          <p className="hint small">
-            Range: X {limit.x[0]}…{limit.x[1]}°, Y {limit.y[0]}…{limit.y[1]}°, Z {limit.z[0]}…{limit.z[1]}°
-          </p>
-        )}
-      </div>
+      )}
 
       {joint === 'pelvis' && (
         <div className="prop-section">
