@@ -9,6 +9,10 @@
   <sub>Windows · Mac (Apple Silicon) · by Distraction Digital</sub>
 </p>
 
+<p align="center">
+  <img src="docs/images/screenshot.png" alt="Second Team: a café terrace set at golden hour, with three shots in the shot list and the 85mm close-up in the shot window">
+</p>
+
 ---
 
 Second Team is a desktop previsualisation app for filmmakers. You greybox a set, pose people in it, light it, and place cameras with real sensors and focal lengths. Every shot is framed exactly as your camera package would see it, and the whole sequence becomes a storyboard you can hand to a client or crew in one click.
@@ -22,10 +26,11 @@ When you want more than clay, Second Team can bring your boards to life with AI 
   - Pose them joint by joint, or by dragging hands, feet and hips.
   - Plant hands and feet on surfaces, and aim heads with Look at.
   - Use pose presets and a pose library.
-- **Cameras:** 45+ real camera bodies and recording formats (ARRI, RED, Sony, Canon, Blackmagic, Nikon, plus Super 16, Super 35 and Full Frame), anamorphic squeeze, focal length, stop and focus, frame guides, and the delivery frame. Clay pictures have optically accurate depth of field, with click-to-focus. A camera HUD shows height, tilt, distance, shot size and angle.
+- **Cameras:** 45+ real camera bodies and recording formats (ARRI, RED, Sony, Canon, Blackmagic, Nikon, plus Super 16, Super 35 and Full Frame), anamorphic squeeze, focal length, stop and focus, frame guides, and the delivery frame. Pictures have simulated lens blur (depth of field), with auto focus on the eyes and click-to-focus. A camera HUD shows height, tilt, distance, shot size and angle.
 - **Scenes and shots:** each scene has its own set, and each shot can cheat anything (placement, pose, lighting) without touching the others. Shots are slated automatically (1A, 1B, 1C…).
 - **Lighting:** sun, point, spot and ambient lights with intensity in stops, colour temperature and real source sizes. Clay shading previews the light with soft shadows that harden at contact, ambient occlusion and bounce light from the ground; time of day and atmosphere set the sky.
-- **Storyboard:** every shot in the board order you choose, with descriptions, dialogue and notes, shown as its lit clay render (or its chosen AI frame). Export to PDF (grid or rows, Letter or A4) or numbered PNGs.
+- **Render:** a path-traced picture of any shot, with real bounce light, soft shadows sized by each light and lens blur traced through the aperture. Draft or Final quality, saved with the project.
+- **Storyboard:** every shot in the board order you choose, with descriptions, dialogue and notes, shown as its lit clay picture, its Render or its chosen AI frame. Export to PDF (grid or rows, Letter or A4) or numbered PNGs.
 
 ## AI frames: bring your boards to life
 
@@ -43,7 +48,7 @@ Installers are on the [Releases](https://github.com/distractiondigital/SecondTea
 
 | | Installer | Notes |
 |---|---|---|
-| **Windows 10/11** | `Second.Team.Setup.<version>.exe` | Not code-signed yet: on "Windows protected your PC", click **More info → Run anyway**. |
+| **Windows 10/11** | `Second-Team-Setup-<version>.exe` | Not code-signed yet: on "Windows protected your PC", click **More info → Run anyway**. |
 | **Mac (Apple Silicon)** | `Second.Team.<version>.Apple.Silicon.dmg` | Not notarized yet: the first time, **System Settings → Privacy & Security → Open Anyway**. See [docs/MAC.md](docs/MAC.md). |
 
 **System requirements for AI frames:** Windows with an NVIDIA graphics card (driver 580 or newer; 8 GB+ video memory recommended) and about 20 GB of disk space. The first start offers to download the AI engine and models; you can skip it, and everything else works without them. AI on Mac is coming soon.
