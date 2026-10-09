@@ -39,6 +39,7 @@ How to use every part of Second Team. For installing it, see the [README](../REA
 - **Left-drag:** box select: everything whose middle is inside the rectangle. **Shift**-drag adds, **Ctrl**-drag removes.
 - Clicking an object inside a group selects the whole group. **Double-click** selects just that object.
 - **Several things selected:** the gizmo sits under their middle and **moves (W) or rotates (E)** them all together, in one undo step (group them to scale them).
+- **Adding things** (shapes, figures, lights from the toolbar): they appear where the middle of the view looks. On a floor or a table top they sit right there; aimed at a wall or the side of something, they go 2 m back towards you, on the floor (never behind the camera); aimed at the sky, 5 m ahead. Lights go 2.5 m above that spot.
 - **Outliner:** **Ctrl+click** adds or removes one, **Shift+click** selects a range. **Drag** rows to reorder them, onto the middle of a group to put them inside, or below the list to take them out. Nothing moves in the set (in any shot) when it changes group. Dragging a selected row moves the whole selection.
 
 The grid is in real-world units. In metres: faint lines every 1 m, stronger every 10 m. In feet: every 1 ft and 10 ft.

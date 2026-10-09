@@ -203,7 +203,8 @@ interface DocumentState {
   /** Record which project state is now on disk (defaults to the current one). */
   markSaved: (saved?: Project) => void
 
-  addPrimitive: (primitive: PrimitiveType, groundPoint?: [number, number]) => string
+  /** `base`: the height of the surface it stands on (m). */
+  addPrimitive: (primitive: PrimitiveType, groundPoint?: [number, number], base?: number) => string
   updateNode: (id: string, patch: NodePatch) => void
   updateNodes: (ids: string[], patch: NodePatch) => void
   /** Move a primitive's origin to its bottom, middle or top without moving the object. */
@@ -255,9 +256,9 @@ interface DocumentState {
   /** Put the scene's shots in this order; they're renamed to match (1A, 1B, 1C…). */
   reorderShots: (cameraIds: string[]) => void
 
-  addMannequin: (groundPoint?: [number, number]) => string
-  /** Add a light at the view centre, 2.5 m up; sun and spot start aimed down and forward. */
-  addLight: (kind: LightKind, groundPoint?: [number, number]) => string
+  addMannequin: (groundPoint?: [number, number], base?: number) => string
+  /** Add a light 2.5 m above where it goes (see shared/placement.ts); sun and spot start aimed down and forward. */
+  addLight: (kind: LightKind, groundPoint?: [number, number], base?: number) => string
   /** Set one joint's rotation (degrees); clamped to realistic limits if the figure has them on. */
   setJointRotation: (id: string, joint: JointName, rotation: Vec3) => void
   /** Pelvis shift from standing, as a fraction of the figure's height. */
@@ -386,7 +387,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
     loadProject: (project) => set(initialState(project, project)),
     markSaved: (saved) => set({ savedProject: saved ?? get().project }),
 
-    addPrimitive: (primitive, groundPoint = [0, 0]) => {
+    addPrimitive: (primitive, groundPoint = [0, 0], base = 0) => {
       const id = newId()
       change((scene) => {
         const label = PRIMITIVES[primitive].label
@@ -396,7 +397,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
           primitive,
           name: nextName(scene, label),
           parentId: null,
-          position: [round(groundPoint[0]), 0, round(groundPoint[1])],
+          position: [round(groundPoint[0]), round(base), round(groundPoint[1])],
           rotation: [0, 0, 0],
           scale: [1, 1, 1],
           hidden: false,
@@ -736,7 +737,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
       })
     },
 
-    addLight: (kind, groundPoint = [0, 0]) => {
+    addLight: (kind, groundPoint = [0, 0], base = 0) => {
       const id = newId()
       change((scene) => {
         const aimed = kind === 'sun' || kind === 'spot'
@@ -746,7 +747,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
           kind,
           name: nextName(scene, LIGHT_LABELS[kind]),
           parentId: null,
-          position: [round(groundPoint[0]), kind === 'ambient' ? 3 : 2.5, round(groundPoint[1])],
+          position: [round(groundPoint[0]), round(base + (kind === 'ambient' ? 3 : 2.5)), round(groundPoint[1])],
           // Aimed down and forward: pan 30°, tilt down 45° (sun) or 60° (spot).
           rotation: aimed ? rotationFromPanTiltRoll(30, kind === 'sun' ? -45 : -60, 0) : [0, 0, 0],
           scale: [1, 1, 1],
@@ -765,7 +766,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
       return id
     },
 
-    addMannequin: (groundPoint = [0, 0]) => {
+    addMannequin: (groundPoint = [0, 0], base = 0) => {
       const id = newId()
       change((scene) => {
         const figureCount = Object.values(scene.nodes).filter((n) => n.type === 'mannequin').length
@@ -777,7 +778,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
           type: 'mannequin',
           name: nextName(scene, 'Figure'),
           parentId: null,
-          position: [round(groundPoint[0]), 0, round(groundPoint[1])],
+          position: [round(groundPoint[0]), round(base), round(groundPoint[1])],
           rotation: [0, 0, 0],
           scale: [1, 1, 1],
           hidden: false,

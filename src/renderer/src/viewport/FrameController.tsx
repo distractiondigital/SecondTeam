@@ -1,8 +1,10 @@
 import { useEffect } from 'react'
-import { Box3, Euler, MathUtils, Mesh, PerspectiveCamera, Sphere, Vector3 } from 'three'
+import { Box3, Euler, MathUtils, Mesh, PerspectiveCamera, Raycaster, Sphere, Vector2, Vector3 } from 'three'
 import type { Vec3 } from '../../../shared/project'
 import { useThree } from '@react-three/fiber'
-import { activeScene, useDocument } from '../state/documentStore'
+import { activeScene, editedNodes, useDocument } from '../state/documentStore'
+import { dropPoint, type DropHit } from '../../../shared/placement'
+import { setSurfaces } from './surfaces'
 import { useUi } from '../state/uiStore'
 import { viewportBridge } from './viewportBridge'
 
@@ -14,7 +16,7 @@ interface OrbitLike {
   update: () => void
 }
 
-// Handles "frame selected" (F) and tells the toolbar where the view is centred.
+// Handles "frame selected" (F) and tells the toolbar where new things go (in front of the view).
 export default function FrameController() {
   const camera = useThree((s) => s.camera) as PerspectiveCamera
   const controls = useThree((s) => s.controls) as unknown as OrbitLike | null
@@ -22,9 +24,19 @@ export default function FrameController() {
   const frameRequest = useUi((s) => s.frameRequest)
 
   useEffect(() => {
-    viewportBridge.getGroundPoint = () => {
-      const t = controls?.target
-      return t ? [t.x, t.z] : [0, 0]
+    viewportBridge.getDropPoint = () => {
+      // What the middle of the view looks at (shared/placement.ts decides from there).
+      const ray = new Raycaster()
+      ray.setFromCamera(new Vector2(0, 0), camera)
+      const surfaces = setSurfaces(threeScene, editedNodes(useDocument.getState()))
+      const first = ray.intersectObjects(surfaces, false)[0]
+      let hit: DropHit | null = null
+      if (first) {
+        const normal = first.face ? first.face.normal.clone().transformDirection(first.object.matrixWorld) : new Vector3(0, 1, 0)
+        if (normal.dot(ray.ray.direction) > 0) normal.negate()
+        hit = { point: first.point.toArray() as Vec3, distance: first.distance, normal: normal.toArray() as Vec3 }
+      }
+      return dropPoint(ray.ray.origin.toArray() as Vec3, ray.ray.direction.toArray() as Vec3, hit)
     }
     viewportBridge.getViewPose = () => {
       const e = new Euler().setFromQuaternion(camera.quaternion, 'XYZ')
@@ -33,7 +45,7 @@ export default function FrameController() {
         rotation: [e.x, e.y, e.z].map((r) => MathUtils.radToDeg(r)) as Vec3
       }
     }
-  }, [controls, camera])
+  }, [controls, camera, threeScene])
 
   useEffect(() => {
     if (frameRequest === 0 || !controls) return

@@ -2,8 +2,8 @@
 // The viewport fills these in when it mounts.
 
 export const viewportBridge = {
-  /** The point on the floor the view is orbiting around, as [x, z] in metres. */
-  getGroundPoint: (): [number, number] => [0, 0],
+  /** Where something added from the toolbar goes, [x, y, z] in metres (shared/placement.ts). */
+  getDropPoint: (): [number, number, number] => [0, 0, 0],
   /** Where the viewport camera is and how it's turned (XYZ Euler degrees); new shot cameras start here. */
   getViewPose: (): { position: [number, number, number]; rotation: [number, number, number] } => ({
     position: [0, 1.6, 5],

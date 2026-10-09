@@ -18,17 +18,20 @@ export function liveSelection(): string[] {
 }
 
 export function addPrimitive(type: PrimitiveType): void {
-  const id = doc().addPrimitive(type, viewportBridge.getGroundPoint())
+  const [x, y, z] = viewportBridge.getDropPoint()
+  const id = doc().addPrimitive(type, [x, z], y)
   ui().select([id])
 }
 
 export function addLight(kind: LightKind): void {
-  const id = doc().addLight(kind, viewportBridge.getGroundPoint())
+  const [x, y, z] = viewportBridge.getDropPoint()
+  const id = doc().addLight(kind, [x, z], y)
   ui().select([id])
 }
 
 export function addMannequin(): void {
-  const id = doc().addMannequin(viewportBridge.getGroundPoint())
+  const [x, y, z] = viewportBridge.getDropPoint()
+  const id = doc().addMannequin([x, z], y)
   ui().select([id])
 }
 
