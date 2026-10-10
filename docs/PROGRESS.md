@@ -23,8 +23,8 @@ Current version: **0.3.0 beta** (October 2026). The plan is in [SPEC.md](SPEC.md
 | 14 | Clay lighting | ✅ Done | Lights with real sizes, soft shadows that harden at contact, ambient occlusion and ground bounce in every clay picture |
 | 15 | App updates | 🟡 Built, awaiting Spencer's test | Checks GitHub for a newer version on launch (can be turned off), downloads it in the background and installs on restart |
 | 16 | Path-traced Render | 🟡 Built, awaiting Spencer's test | Path-traced pictures with real bounce light, soft shadows and lens blur, in camera view, on the Board, in exports and as thumbnails |
-| 17 | Practicals & diffusion | 🟡 Built, awaiting Spencer's test | Lamps, bare bulbs, flashlights and fairy lights that light the set, and a Diffusion material for curtains and frosted glass, matching in Clay and the Render |
-| 18 | Animatic (phase 1) | 🟡 Built, awaiting Spencer's test | A timeline under the board: shots cut together with their own lengths at the project's frame rate, and a player that runs through it in real time with dialogue captions |
+| 17 | Practicals & diffusion | ✅ Done | Lamps, bare bulbs, flashlights and fairy lights that light the set, and a Diffusion material for curtains and frosted glass, matching in Clay and the Render |
+| 18 | Animatic (phase 1) | ✅ Done | A timeline under the board: shots cut together with their own lengths at the project's frame rate, and a player that runs through it in real time with dialogue captions |
 
 ## Since the milestones
 
@@ -32,6 +32,7 @@ Current version: **0.3.0 beta** (October 2026). The plan is in [SPEC.md](SPEC.md
 - **Storyboard:** never an empty frame (shots without an AI take show their clay render).
 - **Cameras:** 48 camera bodies and recording formats from ARRI, RED, Sony, Canon, Blackmagic and Nikon, plus Super 16; a live shot window in the corner of the viewport, with the camera steerable from inside it.
 - **Presentation:** start screen with version and credits; new README, [user guide](GUIDE.md) and [credits](../CREDITS.md).
+- **Getting started:** a demo scene (a café terrace with four shots) from the start screen; new objects appear where you're looking.
 
 ## Known limitations
 
