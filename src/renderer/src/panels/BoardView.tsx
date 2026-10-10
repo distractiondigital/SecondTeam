@@ -1,16 +1,18 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import { FileDown, GripVertical, ImageOff } from 'lucide-react'
-import { boardShots, defaultBoardImage, moveOnBoard, panelDescription, sceneTag, type BoardShot } from '../../../shared/board'
+import { boardShots, moveOnBoard, panelDescription, sceneTag, type BoardShot } from '../../../shared/board'
 import { deliveryFrame, opticsFor } from '../../../shared/camera'
 import { activateShot } from '../state/actions'
 import { useDocument } from '../state/documentStore'
-import { loadTakes, openTake, useGeneration } from '../state/generation'
+import { openTake } from '../state/generation'
 import { useUi } from '../state/uiStore'
 import BoardExport from './BoardExport'
 import BoardLightbox from './BoardLightbox'
-import { currentRender } from '../../../shared/renders'
 import { useRenders } from '../state/renders'
-import { shotFingerprint } from '../viewport/shotFingerprint'
+import { useBoardImage, useBoardPicture } from './boardPictures'
+import AnimaticPlayer from './AnimaticPlayer'
+import AnimaticTimeline, { SHOT_DRAG_TYPE } from './AnimaticTimeline'
+import { useAnimatic } from '../state/animaticUi'
 
 // The storyboard: every shot's circle take in the board's own order (across scenes), with a
 // description, dialogue and notes per panel. Drag panels to reorder (shots keep their names).
@@ -31,33 +33,13 @@ function Caption(props: { value: string; placeholder: string; className?: string
   )
 }
 
-/** AI, Clay or Render as the board shows it now: picked, or automatic (Clay until the project has circle takes). */
-export function useBoardImage(): 'ai' | 'clay' | 'render' {
-  const picked = useUi((s) => s.boardImage)
-  const auto = useDocument((s) => defaultBoardImage(s.project))
-  return picked ?? auto
-}
-
 /** How long a click waits to see if it's a double-click (which goes to the shot instead). */
 const DOUBLE_CLICK_MS = 250
 
 function Panel({ b, onDragStart, onDrop, dropHere, aspect, onExpand }: { b: BoardShot; onDragStart: () => void; onDrop: () => void; dropHere: boolean; aspect: number; onExpand: () => void }) {
   const { scene, shot } = b
-  const takes = useGeneration((s) => s.takes[shot.id])
-  const projectPath = useUi((s) => s.projectPath)
-  useEffect(() => {
-    if (projectPath && takes === undefined) void loadTakes(shot.id, scene.id)
-  }, [projectPath, takes, shot.id, scene.id])
-  const take = shot.circleTake ? takes?.find((t) => t.id === shot.circleTake) : undefined
-  // In AI mode a shot without a circle take shows its clay render (marked as such).
-  const mode = useBoardImage()
-  const showClay = mode === 'clay' || mode === 'render' || (takes !== undefined && !take)
-  const clay = useUi((s) => s.boardClay[shot.id])
-  // Render mode: the shot's up-to-date Render; until it's made, its clay picture.
-  useDocument((s) => s.project) // (re-check when the project changes)
-  // (Select the picture itself: a string, so the panel only updates when it changes.)
-  const render = useRenders((s) => (mode === 'render' ? (currentRender(s.byShot[shot.id], shotFingerprint(shot.id))?.url ?? null) : null))
-  const rendering = useRenders((s) => mode === 'render' && s.queue?.shotId === shot.id)
+  const pic = useBoardPicture(b)
+  const take = pic.take
   const update = useDocument.getState().updatePanel
   const description = panelDescription(shot)
   const specs = [`${Math.round(shot.focalLength)}mm`, shot.sizeOverride ?? take?.shotSize, shot.angleOverride ?? take?.angle]
@@ -96,23 +78,15 @@ function Panel({ b, onDragStart, onDrop, dropHere, aspect, onExpand }: { b: Boar
       }}
     >
       <div className="board-image" style={{ aspectRatio: aspect }} onClick={onClick} onDoubleClick={goToShot} title="Click to see it bigger; double-click to go to this shot">
-        {render ? (
-          <img src={render} alt={shot.shotNumber} draggable={false} />
-        ) : showClay ? (
-          clay ? (
-            <>
-              <img src={clay} alt={shot.shotNumber} draggable={false} />
-              {mode === 'render' && <span className="board-pending">{rendering ? 'Rendering…' : 'Waiting to render'}</span>}
-            </>
-          ) : (
-            <div className="board-missing">Rendering…</div>
-          )
-        ) : take ? (
-          <img src={take.thumbnail} alt={shot.shotNumber} draggable={false} />
+        {pic.src ? (
+          <>
+            <img src={pic.src} alt={shot.shotNumber} draggable={false} />
+            {pic.pending && <span className="board-pending">{pic.pending}</span>}
+          </>
         ) : (
           <div className="board-missing">
-            <ImageOff size={20} />
-            {shot.circleTake && takes === undefined ? 'Loading…' : 'No circle take yet'}
+            {pic.kind === 'ai' && <ImageOff size={20} />}
+            {pic.missing}
           </div>
         )}
       </div>
@@ -121,10 +95,12 @@ function Panel({ b, onDragStart, onDrop, dropHere, aspect, onExpand }: { b: Boar
           className="board-grip"
           draggable
           onDragStart={(e) => {
-            e.dataTransfer.effectAllowed = 'move'
+            // Move on the board; copy onto the animatic's timeline.
+            e.dataTransfer.effectAllowed = 'copyMove'
+            e.dataTransfer.setData(SHOT_DRAG_TYPE, shot.id)
             onDragStart()
           }}
-          title="Drag to reorder"
+          title="Drag to reorder, or onto the animatic below to add it there"
         >
           <GripVertical size={14} />
         </span>
@@ -153,6 +129,7 @@ export default function BoardView() {
   const circled = shots.filter((b) => b.shot.circleTake).length
   const boardImage = useBoardImage()
   const queue = useRenders((s) => s.queue)
+  const playerOpen = useAnimatic((s) => s.playerOpen)
   // Every frame on the board in the shots' own shape (the delivery frame), shown whole.
   const aspect = useDocument((s) => deliveryFrame(opticsFor(s.project.camera, 35)).ratio)
 
@@ -214,6 +191,8 @@ export default function BoardView() {
           </div>
         </div>
       )}
+      <AnimaticTimeline shots={shots} />
+      {playerOpen && <AnimaticPlayer shots={shots} />}
       {expanded && <BoardLightbox shots={shots} shotId={expanded} onShow={setExpanded} onClose={() => setExpanded(null)} />}
       {exporting && <BoardExport shots={shots} onClose={() => setExporting(false)} />}
     </div>

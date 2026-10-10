@@ -878,6 +878,67 @@ describe('storyboard', () => {
   })
 })
 
+describe('animatic', () => {
+  const frames = () => doc().project.animatic.clips.map((c) => c.frames)
+  const shotsOf = () => doc().project.animatic.clips.map((c) => c.shotId)
+
+  it('adds, moves, times and removes clips with undo, and saves them', () => {
+    const a = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
+    const b = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
+    const [ca, cb] = doc().addAnimaticClips([a, b])
+    expect(frames()).toEqual([72, 72])
+    const [again] = doc().addAnimaticClips([a], 1)
+    expect(shotsOf()).toEqual([a, a, b])
+    doc().moveAnimaticClip(cb, ca)
+    expect(shotsOf()).toEqual([b, a, a])
+    doc().setClipFrames(again, 108)
+    doc().removeAnimaticClip(ca)
+    expect(doc().project.animatic.clips.map((c) => c.id)).toEqual([cb, again])
+    const loaded = parseProject(serializeProject(doc().project))
+    expect(loaded.animatic).toEqual(doc().project.animatic)
+    doc().undo()
+    expect(doc().project.animatic.clips.map((c) => c.id)).toEqual([cb, ca, again])
+    doc().undo()
+    expect(frames()).toEqual([72, 72, 72])
+  })
+
+  it('records a whole length drag as one step', () => {
+    const a = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
+    const [c] = doc().addAnimaticClips([a])
+    doc().beginGesture()
+    for (let f = 73; f < 100; f++) doc().setClipFrames(c, f)
+    doc().endGesture()
+    expect(frames()).toEqual([99])
+    doc().undo()
+    expect(frames()).toEqual([72])
+  })
+
+  it('keeps seconds when the frame rate changes', () => {
+    const a = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
+    doc().addAnimaticClips([a])
+    doc().setAnimaticFps(25)
+    expect(doc().project.animatic.fps).toBe(25)
+    expect(frames()).toEqual([75])
+  })
+
+  it("drops a deleted shot's clips (and brings them back on undo)", () => {
+    const a = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
+    const b = doc().addCamera({ position: [0, 1, 3], rotation: [0, 0, 0] })
+    doc().addAnimaticClips([a, b, a])
+    doc().deleteNodes([a])
+    expect(shotsOf()).toEqual([b])
+    doc().undo()
+    expect(shotsOf()).toEqual([a, b, a])
+  })
+
+  it('loads older projects with an empty animatic at 24 fps', () => {
+    const raw = JSON.parse(serializeProject(doc().project))
+    raw.schemaVersion = 17
+    delete raw.animatic
+    expect(parseProject(JSON.stringify(raw)).animatic).toEqual({ fps: 24, clips: [] })
+  })
+})
+
 describe('older project files', () => {
   it('turns v4 per-camera settings into the project camera and renames numbered shots', () => {
     const raw = {

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { produce, type Draft } from 'immer'
 import { Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import { changeFps, clampFrames, cleanFps, DEFAULT_CLIP_SECONDS, framesFor, insertClips, moveClip, type AnimaticClip } from '../../../shared/animatic'
 import { sanitizeLookAt, sanitizePlants, type Plants } from '../../../shared/posing'
 import { localMatrix, parentWorldMatrix, placementFromMatrix, placementUnder, worldMatrix as worldMatrixOf } from '../../../shared/transforms'
 import {
@@ -255,6 +256,15 @@ interface DocumentState {
   setBoardOrder: (order: string[]) => void
   /** A storyboard panel's captions, for a shot in any scene. */
   updatePanel: (sceneId: string, shotId: string, patch: { boardText?: string | null; dialogue?: string; notes?: string }) => void
+  /** The animatic's frame rate; every clip keeps its length in seconds. */
+  setAnimaticFps: (fps: number) => void
+  /** Put shots on the animatic (default length) before clip index `at` (default: the end); returns the new clip ids. */
+  addAnimaticClips: (shotIds: string[], at?: number) => string[]
+  /** Move a clip before another (null = to the end). */
+  moveAnimaticClip: (id: string, beforeId: string | null) => void
+  /** A clip's length in frames. */
+  setClipFrames: (id: string, frames: number) => void
+  removeAnimaticClip: (id: string) => void
 
   /** Switch to another scene (back to its own set, not a shot). */
   setSceneId: (sceneId: string) => void
@@ -332,6 +342,16 @@ function initialState(project: Project, saved: Project | null) {
   }
 }
 
+/** Drop animatic clips whose shot was deleted (only touches the draft when there are some). */
+function pruneAnimatic(project: Draft<Project>): void {
+  const clips = project.animatic.clips
+  if (!clips.length) return
+  const shots = new Set<string>()
+  for (const sc of project.scenes) for (const n of Object.values(sc.nodes)) if (n.type === 'camera') shots.add(n.id)
+  if (clips.every((c) => shots.has(c.shotId))) return
+  project.animatic.clips = clips.filter((c) => shots.has(c.shotId))
+}
+
 export const useDocument = create<DocumentState>()((set, get) => {
   /** Apply a change to the active scene and record it for undo. */
   function change(recipe: (scene: Draft<Scene>, project: Draft<Project>) => void): void {
@@ -339,6 +359,7 @@ export const useDocument = create<DocumentState>()((set, get) => {
     const next = produce(project, (draft) => {
       const scene = draft.scenes.find((s) => s.id === sceneId)
       if (scene) recipe(scene, draft)
+      pruneAnimatic(draft)
     })
     if (next === project) return
     if (gestureStart) {
@@ -647,6 +668,53 @@ export const useDocument = create<DocumentState>()((set, get) => {
         if (patch.boardText !== undefined) shot.boardText = patch.boardText
         if (patch.dialogue !== undefined) shot.dialogue = patch.dialogue
         if (patch.notes !== undefined) shot.notes = patch.notes
+      })
+    },
+
+    setAnimaticFps: (fps) => {
+      const { animatic } = get().project
+      const to = cleanFps(fps)
+      if (to === animatic.fps) return
+      change((_scene, project) => {
+        project.animatic.clips = changeFps(animatic.clips, animatic.fps, to)
+        project.animatic.fps = to
+      })
+    },
+
+    addAnimaticClips: (shotIds, at) => {
+      const { fps, clips } = get().project.animatic
+      const added: AnimaticClip[] = shotIds.map((shotId) => ({ id: newId(), shotId, frames: framesFor(DEFAULT_CLIP_SECONDS, fps) }))
+      if (!added.length) return []
+      change((_scene, project) => {
+        project.animatic.clips = insertClips(clips, added, at ?? clips.length)
+      })
+      return added.map((c) => c.id)
+    },
+
+    moveAnimaticClip: (id, beforeId) => {
+      const { clips } = get().project.animatic
+      const next = moveClip(clips, id, beforeId)
+      if (next === clips || next.every((c, i) => c === clips[i])) return
+      change((_scene, project) => {
+        project.animatic.clips = next
+      })
+    },
+
+    setClipFrames: (id, frames) => {
+      const { fps, clips } = get().project.animatic
+      const clip = clips.find((c) => c.id === id)
+      const next = clampFrames(frames, fps)
+      if (!clip || clip.frames === next) return
+      change((_scene, project) => {
+        const c = project.animatic.clips.find((x) => x.id === id)
+        if (c) c.frames = next
+      })
+    },
+
+    removeAnimaticClip: (id) => {
+      if (!get().project.animatic.clips.some((c) => c.id === id)) return
+      change((_scene, project) => {
+        project.animatic.clips = project.animatic.clips.filter((c) => c.id !== id)
       })
     },
 

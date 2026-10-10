@@ -2031,6 +2031,7 @@ input {
 }
 
 .board-empty {
+  flex: 1;
   padding: 24px;
 }
 
@@ -3364,4 +3365,326 @@ input {
 
 .practical-item:hover {
   background: var(--hover, rgba(255, 255, 255, 0.06));
+}
+
+/* ---------- Animatic (M18): timeline under the board, and the player ---------- */
+
+.animatic {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+}
+
+.animatic-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 14px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.animatic:not(.closed) .animatic-bar {
+  border-bottom: 1px solid var(--border);
+}
+
+.animatic-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 4px;
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.animatic-tc {
+  font-variant-numeric: tabular-nums;
+}
+
+.animatic-fps select {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 4px;
+}
+
+.animatic-length {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.animatic-length input {
+  width: 52px;
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 4px;
+  text-align: right;
+}
+
+.animatic-missing {
+  color: var(--text-dim);
+}
+
+.animatic-spacer {
+  flex: 1;
+}
+
+.animatic-strip {
+  height: 118px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  user-select: none;
+}
+
+.animatic-strip.dropping {
+  background: var(--accent-soft);
+}
+
+.animatic-content {
+  position: relative;
+  height: 100%;
+  padding: 0 8px;
+}
+
+.animatic-ruler {
+  position: relative;
+  height: 20px;
+  margin: 0 -8px;
+  border-bottom: 1px solid var(--border);
+  cursor: ew-resize;
+}
+
+.animatic-tick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin-left: 8px;
+  padding: 3px 0 0 4px;
+  border-left: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.animatic-track {
+  display: flex;
+  height: calc(100% - 20px);
+  padding: 8px 0;
+}
+
+.animatic-empty {
+  align-self: center;
+  color: var(--text-dim);
+  padding-left: 6px;
+}
+
+.animatic-clip {
+  position: relative;
+  flex: none;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  cursor: grab;
+}
+
+.animatic-clip + .animatic-clip {
+  border-left-color: #000;
+}
+
+.animatic-clip.selected {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.animatic-clip.dragging {
+  opacity: 0.4;
+}
+
+.animatic-clip img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.animatic-clip-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 2px 9px 2px 5px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+  font-size: 11px;
+  pointer-events: none;
+}
+
+.animatic-clip-remove {
+  position: absolute;
+  top: 3px;
+  right: 9px;
+  display: inline-flex;
+  padding: 1px;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  border-radius: 3px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.animatic-trim {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 7px;
+  cursor: ew-resize;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.animatic-trim:hover,
+.animatic-clip.selected .animatic-trim {
+  background: var(--accent);
+}
+
+.animatic-insert,
+.animatic-playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin-left: 8px;
+  pointer-events: none;
+}
+
+.animatic-insert {
+  width: 3px;
+  margin-left: 7px;
+  background: var(--accent);
+}
+
+.animatic-playhead {
+  width: 1px;
+  background: #fff;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.6);
+}
+
+.animatic-playhead::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -5px;
+  border: 5px solid transparent;
+  border-top: 7px solid #fff;
+}
+
+.animatic-player {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px 24px 16px;
+  background: rgba(0, 0, 0, 0.92);
+}
+
+.animatic-screen {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.animatic-screen img {
+  position: absolute;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+}
+
+.animatic-preparing {
+  color: var(--text-dim);
+}
+
+.animatic-subtitle {
+  position: absolute;
+  bottom: 6%;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 70%;
+  padding: 4px 12px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 3px;
+  color: #fff;
+  font-size: 20px;
+  text-align: center;
+  white-space: pre-wrap;
+}
+
+.animatic-controls {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(1100px, 100%);
+}
+
+.animatic-controls button {
+  display: inline-flex;
+  padding: 4px;
+  background: none;
+  border: none;
+  border-radius: 3px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.animatic-controls button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.animatic-controls button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.animatic-controls .animatic-cc {
+  opacity: 0.5;
+}
+
+.animatic-controls .animatic-cc.active {
+  opacity: 1;
+  color: var(--accent);
+}
+
+.animatic-scrub {
+  flex: 1;
+  min-width: 80px;
+  accent-color: var(--accent);
+}
+
+.animatic-now {
+  min-width: 120px;
+  white-space: nowrap;
 }

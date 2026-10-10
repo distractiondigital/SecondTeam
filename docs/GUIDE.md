@@ -14,6 +14,7 @@ How to use every part of Second Team. For installing it, see the [README](../REA
 - [AI frames (Generate)](#ai-frames-generate)
 - [Render passes](#render-passes)
 - [Storyboard](#storyboard)
+- [Animatic](#animatic)
 - [Projects](#projects)
 - [Updates](#updates)
 
@@ -208,6 +209,16 @@ Turn the circle takes into a board you can send to a client or crew.
   - Very long captions are trimmed with "…" in the PDF so they never run into the next panel.
 
 - **Render** pictures: the board's **AI | Clay | Render** switch. In Render, shots without an up-to-date Render are rendered one after another in the background (Draft), and **Export… → Render** uses each shot's Final Render (shots without one are rendered first, with a Cancel button).
+## Animatic
+Cut the shots together and watch them play in time. The animatic sits under the board (the **Animatic** strip at the bottom of the Board view; its arrow tucks it away).
+
+- **Fill from Board** puts every shot on the timeline in board order, 3 seconds each. Or drag a board panel by its grip (⋮⋮) down onto the timeline to put that shot exactly where you drop it. The animatic is its own edit: its order is separate from the board's, and a shot can be left out or used more than once. When some shots aren't in it, the strip says so, with **Add** to put them at the end.
+- **Drag a clip** to move it. **Drag a clip's right edge** to change its length; lengths are whole frames. Or click a clip and type its **Length** in seconds at the top. **Delete** (or the clip's ×) takes it out; the shot stays on the board. Ctrl+Z undoes any of it.
+- **Frame rate:** 23.976, 24, 25 or 30 fps, per project. Changing it keeps every clip's length in seconds. Times show as timecode (hours:minutes:seconds:frames).
+- **Playhead:** click or drag on the ruler. **←** / **→** jump to the previous / next cut.
+- **Play** (or **Space**) opens the player over the board: each shot as large as the window allows, in the board's **AI | Clay | Render** choice, held for its length in real time from the playhead. Its pictures are prepared first (a moment for Clay), so the cuts land on time. The dialogue shows as captions (the **CC** button turns them off). **Space** plays / pauses, **←** / **→** jump a shot, **Home** goes to the start, **Esc** closes.
+- The animatic is saved in the project. Exporting it as a video comes later.
+
 ## Projects
 A project is a folder called `Name.secondteam` containing `project.json` (the set, in plain readable JSON) and folders for reference images, renders and exports. To open one, choose that folder in the Open dialog. The project's name is the folder's name.
 

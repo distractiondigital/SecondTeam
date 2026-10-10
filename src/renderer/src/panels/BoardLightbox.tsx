@@ -1,61 +1,21 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { panelDescription, sceneTag, type BoardShot } from '../../../shared/board'
-import { currentRender } from '../../../shared/renders'
-import { useDocument } from '../state/documentStore'
-import { useGeneration } from '../state/generation'
-import { useRenders } from '../state/renders'
-import { useUi } from '../state/uiStore'
-import { focusOf } from '../viewport/boardClay'
-import { getRenderer } from '../viewport/RendererHandle'
-import { renderShot } from '../viewport/renderShot'
-import { shotFingerprint } from '../viewport/shotFingerprint'
-import { shotScenes } from '../viewport/ShotScenes'
-import { useBoardImage } from './BoardView'
+import { useBoardPicture, useSharpPicture } from './boardPictures'
 
 // A board panel's picture, big: over the board, as large as the window allows. The panel's small
 // picture shows at once, then a sharp one replaces it (the take's full image, a large Clay picture,
 // or the Render as saved). ← / → step through the board, Esc or a click outside closes.
 
-/** Width of the Clay picture made for the big view (px). */
-const CLAY_WIDTH = 1920
-
 export default function BoardLightbox({ shots, shotId, onShow, onClose }: { shots: BoardShot[]; shotId: string; onShow: (id: string) => void; onClose: () => void }) {
   const index = shots.findIndex((b) => b.shot.id === shotId)
   const b = shots[index]
-  const mode = useBoardImage()
-  const takes = useGeneration((s) => (b ? s.takes[b.shot.id] : undefined))
-  const take = b?.shot.circleTake ? takes?.find((t) => t.id === b.shot.circleTake) : undefined
-  const clay = useUi((s) => (b ? s.boardClay[b.shot.id] : undefined))
-  useDocument((s) => s.project) // (re-check the Render when the project changes)
-  const render = useRenders((s) => (b && mode === 'render' ? (currentRender(s.byShot[b.shot.id], shotFingerprint(b.shot.id))?.url ?? null) : null))
-  const projectPath = useUi((s) => s.projectPath)
-  const kind = render ? 'render' : mode === 'ai' && take ? 'ai' : 'clay'
-  const [sharp, setSharp] = useState<{ key: string; src: string } | null>(null)
-  const key = `${shotId}:${kind}:${take?.id ?? ''}`
+  return b ? <Lightbox b={b} index={index} shots={shots} onShow={onShow} onClose={onClose} /> : null
+}
 
-  // The sharp picture.
-  useEffect(() => {
-    if (!b || kind === 'render') return
-    let live = true
-    if (kind === 'ai' && take && projectPath) {
-      void window.secondTeam.readTake(projectPath, b.scene.id, b.shot.id, take.id).then((r) => {
-        if (live && !('error' in r)) setSharp({ key, src: r.image })
-      })
-    } else if (kind === 'clay') {
-      const gl = getRenderer()
-      const scene = shotScenes.get(b.shot.id)
-      if (gl && scene) {
-        scene.updateMatrixWorld(true)
-        const canvas = renderShot(gl, scene, b.shot, useDocument.getState().project.camera, CLAY_WIDTH, focusOf(b.shot, scene))
-        if (canvas) setSharp({ key, src: canvas.toDataURL('image/jpeg', 0.92) })
-      }
-    }
-    return () => {
-      live = false
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, projectPath])
+function Lightbox({ b, index, shots, onShow, onClose }: { b: BoardShot; index: number; shots: BoardShot[]; onShow: (id: string) => void; onClose: () => void }) {
+  const pic = useBoardPicture(b)
+  const src = useSharpPicture(b, pic)
 
   // Keys: step and close.
   useEffect(() => {
@@ -71,9 +31,6 @@ export default function BoardLightbox({ shots, shotId, onShow, onClose }: { shot
     return () => window.removeEventListener('keydown', onKey, true)
   }, [index, shots, onShow, onClose])
 
-  if (!b) return null
-  const small = render ?? (kind === 'ai' ? take?.thumbnail : clay) ?? null
-  const src = render ?? (sharp?.key === key ? sharp.src : small)
   const description = panelDescription(b.shot)
 
   return (

@@ -118,6 +118,7 @@ exports/
 - A board view with the circle takes of all shots, in shot order and drag-reorderable.
 - Each panel: image, shot number, lens/size/angle, and editable description and dialogue/action notes.
 - Export: PDF (2, 3, or 6 panels per page, landscape) and a PNG sequence.
+- **Animatic** (M18, phase 1): a timeline under the board with the shots cut together, each held for its own length in whole frames (23.976 / 24 / 25 / 30 fps per project, timecode), its own order apart from the board (shots can be left out or repeated), and a player that runs through it in real time with the dialogue as captions. Phase 2: moving shots rendered to short 720p WebM clips. Phase 3: a simple temp soundtrack (music and sound effects).
 - Reference: the user already has a Python script at `Claude/research/AI-Storyboarding/scripts/build_board.py` in his Obsidian vault that makes printable boards from frames + a shots CSV. Its layout can inform the PDF design, but reimplement it in-app; don't call Python for this.
 
 ### 5.8 Plug-and-play backend (managed ComfyUI)
@@ -153,6 +154,7 @@ Build **one milestone at a time**. Each ends with the app running and a short "h
 | 15 | **App updates** | The installed app checks GitHub for a newer version on launch (can be turned off), shows what's new, downloads it in the background and installs it on "Restart and update" (Windows; the Mac gets a link). The only network use besides the AI engine download. Added 2026-10-06. |
 | 16 | **Path-traced Render** | A path-traced picture (true bounce light, shadows from each light's real size, lens blur through the aperture): a Render switch in camera view (Draft / Final), Render pictures on the Board, in exports and as shot thumbnails, saved in the project. Added 2026-10-07. |
 | 17 | **Practicals & diffusion** | Lamps, bare bulbs, flashlights and fairy lights as practicals in the set (one object each, with settings; their light follows their shape), and a Diffusion material (light through it dimmed and tinted, glowing from behind), matching in Clay and the Render. Added 2026-10-09. |
+| 18 | **Animatic (phase 1)** | A timeline under the board: shots cut together with their own lengths (frames at the project's frame rate, timecode), reordered, repeated or left out independently of the board, and played in real time in a player with dialogue captions. Phases 2 (moving shots as short WebM clips) and 3 (temp soundtrack) follow. Added 2026-10-09. |
 
 ## 7. Known risks (think about these early)
 - **Reference bleed.** Masked IP-Adapters can leak one character's look onto another. Plan for per-reference weight and mask feathering controls.

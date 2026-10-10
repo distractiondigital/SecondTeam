@@ -1,5 +1,6 @@
 import { parseProject, ProjectFileError, serializeProject } from '../../../shared/project'
 import { hasUnsavedChanges, useDocument } from './documentStore'
+import { useAnimatic } from './animaticUi'
 import { useUi } from './uiStore'
 import { loadRenders, persistRenders, resetRenders } from './renders'
 
@@ -53,6 +54,7 @@ export async function newProject(): Promise<void> {
   resetRenders()
   // The board goes back to choosing AI or Clay by itself for each project.
   useUi.getState().setBoardImage(null)
+  useAnimatic.getState().reset()
   useUi.getState().setProjectPath(null)
   useUi.getState().select([])
 }
@@ -76,6 +78,7 @@ export async function openDemoProject(): Promise<void> {
     resetRenders()
     const ui = useUi.getState()
     ui.setBoardImage(null)
+    useAnimatic.getState().reset()
     ui.setProjectPath(null, project.name)
     ui.select([])
     ui.dismissStart()
@@ -104,6 +107,7 @@ async function load(result: Awaited<ReturnType<Window['secondTeam']['openProject
     useDocument.getState().loadProject(project)
     resetRenders()
     useUi.getState().setBoardImage(null)
+    useAnimatic.getState().reset()
     useUi.getState().setProjectPath(result.path)
     void loadRenders(result.path)
     useUi.getState().select([])

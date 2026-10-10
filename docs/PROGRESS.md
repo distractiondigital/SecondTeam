@@ -24,6 +24,7 @@ Current version: **0.3.0 beta** (October 2026). The plan is in [SPEC.md](SPEC.md
 | 15 | App updates | 🟡 Built, awaiting Spencer's test | Checks GitHub for a newer version on launch (can be turned off), downloads it in the background and installs on restart |
 | 16 | Path-traced Render | 🟡 Built, awaiting Spencer's test | Path-traced pictures with real bounce light, soft shadows and lens blur, in camera view, on the Board, in exports and as thumbnails |
 | 17 | Practicals & diffusion | 🟡 Built, awaiting Spencer's test | Lamps, bare bulbs, flashlights and fairy lights that light the set, and a Diffusion material for curtains and frosted glass, matching in Clay and the Render |
+| 18 | Animatic (phase 1) | 🟡 Built, awaiting Spencer's test | A timeline under the board: shots cut together with their own lengths at the project's frame rate, and a player that runs through it in real time with dialogue captions |
 
 ## Since the milestones
 

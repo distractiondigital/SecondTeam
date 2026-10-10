@@ -28,6 +28,7 @@ import { DEFAULT_GENERATION, repairGeneration, type GenerationSettings } from '.
 import { DEFAULT_ENVIRONMENT, repairEnvironment, type Environment } from './environment'
 import { sanitizeAppearance, sanitizeBody, sanitizeExpression, sanitizeHands, type BodySliders, type FigureAppearance, type Hands } from './humanBody'
 import { sanitizeLookAt, sanitizePlants, type LookAt, type Plants } from './posing'
+import { emptyAnimatic, sanitizeAnimatic, type Animatic } from './animatic'
 import { cleanPractical, PRACTICAL_KINDS, type PracticalKind, type PracticalSettings } from './practicals'
 
 // v1: M1 (primitives, groups). v2: M2 adds mannequins. v3: M3 adds cameras.
@@ -42,7 +43,8 @@ import { cleanPractical, PRACTICAL_KINDS, type PracticalKind, type PracticalSett
 // v15: each shot's lens stop (depth of field); older shots get T2.8.
 // v16: lights have a real size (metres, or degrees for the sun) instead of 0-1 softness.
 // v17: practicals (lamps, bulbs, flashlights, fairy lights); the Diffusion material and its density.
-export const SCHEMA_VERSION = 17
+// v18: the animatic (frame rate + clips, its own order of shots).
+export const SCHEMA_VERSION = 18
 
 export type Vec3 = [number, number, number]
 
@@ -234,6 +236,8 @@ export interface Project {
   styleImages: string[]
   /** The storyboard: its own order of shots across the whole project (camera ids). */
   board: { order: string[] }
+  /** The animatic: shots on a timeline, each held for its own length (its own edit, apart from the board). */
+  animatic: Animatic
   /** Poses saved into this project (the app-wide library is stored separately). */
   poses: SavedPose[]
   /** AI generation settings (model, strictness, takes, seed…). */
@@ -294,6 +298,10 @@ export function isSafeFileName(name: unknown): name is string {
   return typeof name === 'string' && /^[\w][\w .()-]{0,120}\.(png|jpe?g)$/i.test(name) && !name.includes('..')
 }
 
+function shotIdsOf(scenes: Scene[]): Set<string> {
+  return new Set(scenes.flatMap((sc) => Object.values(sc.nodes).flatMap((n) => (n.type === 'camera' ? [n.id] : []))))
+}
+
 function sanitizeOrder(raw: unknown): string[] {
   return Array.isArray(raw) ? [...new Set(raw.filter((id): id is string => typeof id === 'string' && id.length > 0))] : []
 }
@@ -351,6 +359,7 @@ export function createEmptyProject(name = 'Untitled'): Project {
     props: [],
     styleImages: [],
     board: { order: [] },
+    animatic: emptyAnimatic(),
     poses: [],
     generation: structuredClone(DEFAULT_GENERATION)
   }
@@ -611,6 +620,7 @@ export function parseProject(json: string): Project {
     props: sanitizeEntries(p.props, false) as Prop[],
     styleImages: sanitizeImages(p.styleImages),
     board: { order: sanitizeOrder((p as Loose).board?.order) },
+    animatic: sanitizeAnimatic((p as Loose).animatic, shotIdsOf(p.scenes)),
     poses: sanitizeSavedPoses(p.poses),
     generation: repairGeneration(p.generation)
   }
